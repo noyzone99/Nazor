@@ -55,12 +55,15 @@ Run `dotnet new nazor-app --help` to see the available options.
 | `--ApplicationId` | `org.example.myapp` | Sets the stable [application identity](03-Projects-and-Builds.md#application-identity). Use your own reverse-DNS identifier for distribution. |
 | `--Theme` | `basic` | Accepts `basic`, `fluent`, or `nazorleaf`. Fluent and NazorLeaf add their NuGet package at the SDK's version and register the theme's fonts in `Program.cs`. |
 | `--IncludeSamplePages` | `false` | Adds a navigation view and Home, Counter, and Tasks pages. |
+| `--IncludeDevTools` | `false` | Configures the bundled inspector for Debug builds on Windows x64 and Linux x64. Release builds keep DevTools disabled by default. |
 
 ```powershell
 dotnet new nazor-app -n HelloNazorSamples --Theme fluent --IncludeSamplePages
 ```
 
 Home opens at `/`. Counter demonstrates local component state and re-renders when you press **Increment**. Tasks demonstrates data binding and a scoped service. Check a task, navigate away, and return to see that the window keeps its progress. The Counter starts over when you return to its route. [Project structure](03-Projects-and-Builds.md#suggested-structure) · [Navigation and state](12-Navigation.md#history-and-state)
+
+To inspect a new app, add `--IncludeDevTools` or select **Include Nazor DevTools** in Visual Studio. Run the app in Debug and press **F12** in its window to open the inspector. The inspector requires the .NET 10 runtime. [DevTools setup](../DevTools.md#start-and-connect)
 
 ## Write your first component
 

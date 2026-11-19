@@ -47,6 +47,12 @@
       "datatype": "bool",
       "defaultValue": "false",
       "description": "Include Home, Counter, and Tasks pages with navigation inside the main window."
+    },
+    "IncludeDevTools": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "false",
+      "description": "Enable the Nazor DevTools inspector in Debug builds."
     }
   },
   "sources": [

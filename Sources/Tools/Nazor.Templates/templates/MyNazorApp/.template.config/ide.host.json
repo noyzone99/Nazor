@@ -5,6 +5,7 @@
   "symbolInfo": [
     { "id": "ApplicationId", "name": { "text": "Application ID" }, "isVisible": true },
     { "id": "Theme", "name": { "text": "Theme" }, "isVisible": true },
-    { "id": "IncludeSamplePages", "name": { "text": "Include sample pages" }, "isVisible": true }
+    { "id": "IncludeSamplePages", "name": { "text": "Include sample pages" }, "isVisible": true },
+    { "id": "IncludeDevTools", "name": { "text": "Include Nazor DevTools" }, "isVisible": true }
   ]
 }

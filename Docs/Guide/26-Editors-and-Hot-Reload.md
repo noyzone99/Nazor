@@ -20,7 +20,7 @@ Visual Studio shows a window icon for Nazor C# projects, a four-leaf document fo
 
 Visual Studio's Add New Item chooser and Quick Add provide **Nazor Component** and **Nazor Style Sheet** templates. Use `.nazor` for components, `.nss` for standalone stylesheets, and `.nazor.nss` for component sidecars. A standalone stylesheet is not automatically assigned to the application; a sidecar requires an existing component owner.
 
-The full VSIX also makes **Nazor application** available in **Create a new project**. It bundles the same template as `dotnet new nazor-app`, with framework, theme, application ID and sample-page options. [Create a project in Visual Studio](02-Getting-Started.md#create-a-project-in-visual-studio)
+The full VSIX also makes **Nazor application** available in **Create a new project**. It bundles the same template as `dotnet new nazor-app`, with framework, theme, application ID, sample pages, and DevTools options. [Create a project in Visual Studio](02-Getting-Started.md#create-a-project-in-visual-studio)
 
 Inline C# analysis honors the project's warning/error policy and effective `.editorconfig` settings for the equivalent `.nazor.cs` file, including nested configurations. Diagnostic descriptions retain Roslyn messages, help links and unnecessary-code metadata for clients that support fading. Configuration is projected in memory; no C# sidecar is created.
 

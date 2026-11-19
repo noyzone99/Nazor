@@ -4,6 +4,9 @@
     <OutputType>WinExe</OutputType>
     <RootNamespace>MyNazorApp</RootNamespace>
     <NazorApplicationId>org.example.nazorapp</NazorApplicationId>
+    <!--#if (IncludeDevTools) -->
+    <NazorEnableDevTools Condition="'$(Configuration)' == 'Debug'">true</NazorEnableDevTools>
+    <!--#endif -->
   </PropertyGroup>
   <!--#if (Theme == "fluent") -->
   <ItemGroup>

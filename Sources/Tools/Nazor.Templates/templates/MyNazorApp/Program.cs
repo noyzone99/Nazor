@@ -22,6 +22,14 @@ builder.Fonts.AddNazorLeafFonts();
 
 builder.Application.UseMainWindow<App>();
 
+#if (IncludeDevTools)
+//-:cnd:noEmit
+#if NAZOR_DEVTOOLS
+builder.UseDevTools();
+#endif
+//+:cnd:noEmit
+
+#endif
 using var app = builder.Build();
 #if (Theme == "fluent")
 app.Appearance.Theme = Nazor.Themes.Fluent.Themes.Fluent;

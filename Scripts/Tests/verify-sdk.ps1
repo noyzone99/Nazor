@@ -93,9 +93,21 @@ Assert (-not (Test-Path "$app/app.manifest") -and -not (Select-String -Path "$ap
 Assert (Select-String -Path "$app/HelloNazor.csproj" -Pattern '<NazorApplicationId>org.example.myapp</NazorApplicationId>' -Quiet) 'the template declares a valid application ID'
 Assert ((Test-Path "$app/_Imports.nazor") -and (Test-Path "$app/Services/Greeter.cs") -and -not (Test-Path "$app/Pages")) 'the default template creates the single-window app with shared imports and a service folder'
 Assert (-not (Select-Xml -LiteralPath "$app/HelloNazor.csproj" -XPath '//PackageReference')) 'the Basic theme uses the built-in styles'
+Assert (-not (Select-Xml -LiteralPath "$app/HelloNazor.csproj" -XPath '//NazorEnableDevTools') -and
+    -not (Select-String -LiteralPath "$app/Program.cs" -Pattern 'UseDevTools' -Quiet)) 'the default template omits DevTools setup'
 $customIdApp = Join-Path $Workspace 'CustomIdentity'
 Invoke-Dotnet @('new', 'nazor-app', '-n', 'CustomIdentity', '-o', $customIdApp, '--ApplicationId', 'org.example.customidentity', '--debug:custom-hive', $hive) | Out-Null
 Assert (Select-String -Path "$customIdApp/CustomIdentity.csproj" -Pattern '<NazorApplicationId>org.example.customidentity</NazorApplicationId>' -Quiet) 'the template accepts an explicit application ID without changing the project name'
+
+$inspectableApp = Join-Path $Workspace 'InspectableApp'
+Invoke-Dotnet @('new', 'nazor-app', '-n', 'InspectableApp', '-o', $inspectableApp, '--IncludeDevTools', '--debug:custom-hive', $hive) | Out-Null
+Assert ((Get-Content -LiteralPath "$inspectableApp/Program.cs" -Raw) -match '#if NAZOR_DEVTOOLS\s+builder\.UseDevTools\(\);\s+#endif') 'the opted-in template attaches DevTools behind the SDK compilation symbol'
+$debugOutput = Join-Path $Workspace 'inspectable-debug'
+Invoke-Dotnet @('build', "$inspectableApp/InspectableApp.csproj", '-c', 'Debug', '-o', $debugOutput, '-warnaserror') | Out-Null
+Assert ((Test-Path "$debugOutput/Nazor.DevTools.Agent.dll") -and (Test-Path "$debugOutput/Nazor.DevTools/Nazor.DevTools.dll")) 'the opted-in template includes the Agent and inspector in Debug'
+$releaseOutput = Join-Path $Workspace 'inspectable-release'
+Invoke-Dotnet @('publish', "$inspectableApp/InspectableApp.csproj", '-c', 'Release', '-o', $releaseOutput, '-warnaserror') | Out-Null
+Assert (-not (Get-ChildItem -LiteralPath $releaseOutput -Recurse -Filter 'Nazor.DevTools*')) 'the opted-in template publishes Release without DevTools'
 
 $themePackages = @{ basic = ''; fluent = "Nazor.Themes.Fluent/$version"; nazorleaf = "Nazor.Themes.NazorLeaf/$version" }
 foreach ($theme in 'basic', 'fluent', 'nazorleaf') {

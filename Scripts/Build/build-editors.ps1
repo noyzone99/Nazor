@@ -103,6 +103,7 @@ else {
             Assert ($hostOptions.symbolInfo.id -notcontains 'Framework') 'Visual Studio uses its own framework selector'
             $visible = @($hostOptions.symbolInfo | Where-Object isVisible | ForEach-Object id)
             Assert ($visible -contains 'Theme' -and $visible -contains 'ApplicationId' -and $visible -contains 'IncludeSamplePages') 'Visual Studio exposes the template theme, identity and sample-page options'
+            Assert ($visible -contains 'IncludeDevTools' -and $template.symbols.IncludeDevTools.defaultValue -ceq 'false') 'Visual Studio exposes the opt-in DevTools option'
             Assert ($hostOptions.icon -eq 'icon.png' -and $projectTemplates.GetEntry("$templateRoot/.template.config/icon.png")) 'the project template includes its Nazor icon'
             Assert ($null -ne $projectTemplates.GetEntry("$templateRoot/SamplePages/Pages/CounterPage.nazor")) 'the bundled template includes the optional routed pages'
         }
