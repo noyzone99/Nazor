@@ -12,8 +12,9 @@
 
   <!-- Fonts and the grain texture are copied next to the application, under Themes/NazorLeaf, where NazorLeafTheme finds them. -->
   <ItemGroup>
-    <None Remove="Fonts/**;Assets/**" />
-    <None Include="Fonts/*.ttf;Fonts/*.otf;Fonts/*.txt;Assets/*.png" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" Link="Themes/NazorLeaf/%(Filename)%(Extension)" Pack="true" PackagePath="contentFiles/any/any/Themes/NazorLeaf/" PackageCopyToOutput="true" />
+    <None Remove="Fonts/**;Assets/**;buildTransitive/Nazor.Themes.NazorLeaf.targets" />
+    <None Include="Fonts/*.ttf;Fonts/*.otf;Fonts/*.txt;Assets/*.png" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" Link="Themes/NazorLeaf/%(Filename)%(Extension)" Pack="true" PackagePath="assets/" />
+    <None Include="buildTransitive/Nazor.Themes.NazorLeaf.targets" Pack="true" PackagePath="buildTransitive/" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Update="Resources\Strings.it.resx">

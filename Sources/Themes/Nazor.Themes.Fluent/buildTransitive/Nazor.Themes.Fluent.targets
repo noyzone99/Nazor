@@ -1,0 +1,9 @@
+<Project>
+  <Target Name="NazorCollectFluentAssets" BeforeTargets="AssignTargetPaths" Condition="'$(DesignTimeBuild)' != 'true'">
+    <ItemGroup>
+      <_NazorFluentAsset Include="$(MSBuildThisFileDirectory)../assets/*" />
+      <None Include="@(_NazorFluentAsset)" TargetPath="Themes/Fluent/%(_NazorFluentAsset.Filename)%(_NazorFluentAsset.Extension)"
+            CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" Visible="false" />
+    </ItemGroup>
+  </Target>
+</Project>

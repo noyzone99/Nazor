@@ -18,8 +18,10 @@ $settings = if ($Theme -eq 'Fluent') {
     @{ '__REGISTER__' = 'AddNazorLeafFonts'; '__PRIMARY__' = 'LeafSymbol.Plus'; '__SECONDARY__' = 'LeafSymbol.Leaf'; '__THIRD__' = 'LeafSymbol.Search'; '__FAMILY__' = 'NazorLeaf Icons'; '__PREFIX__' = 'NazorLeaf Icons'; '__GLYPH__' = 'E01F' }
 }
 $settings['__THEME__'] = $Theme
-$fontRoot = Join-Path $repositoryRoot "Sources/Themes/Nazor.Themes.$Theme/Fonts"
-$settings['__ASSETS__'] = ((Get-ChildItem -LiteralPath $fontRoot -File | Sort-Object Name | ForEach-Object { '"' + $_.Name + '"' }) -join ', ')
+$themeRoot = Join-Path $repositoryRoot "Sources/Themes/Nazor.Themes.$Theme"
+$themeAssets = @(Get-ChildItem -LiteralPath "$themeRoot/Fonts" -File | Sort-Object Name)
+if ($Theme -eq 'NazorLeaf') { $themeAssets += Get-Item -LiteralPath "$themeRoot/Assets/grain.png" }
+$settings['__ASSETS__'] = (($themeAssets | ForEach-Object { '"' + $_.Name + '"' }) -join ', ')
 
 function Expand-Source([string]$Source) {
     foreach ($entry in $settings.GetEnumerator()) { $Source = $Source.Replace($entry.Key, $entry.Value) }
@@ -104,22 +106,27 @@ if (commands.Length != 5 || commands.SelectMany(command => command.Layout.Shaped
     throw new InvalidOperationException("Packaged symbols must shape with their private font.");
 foreach (var file in new[] { __ASSETS__ })
     if (!File.Exists(Path.Combine(AppContext.BaseDirectory, "Themes", "__THEME__", file)))
-        throw new InvalidOperationException("Missing theme font asset: " + file);
+        throw new InvalidOperationException("Missing theme asset: " + file);
 Console.WriteLine("Packaged __THEME__ symbols shaped without system fonts.");
 '@ | ForEach-Object { Expand-Source $_ } | Set-Content -LiteralPath "$consumer/Program.cs"
     Invoke-Dotnet @('build', $consumer, '-c', 'Release', '-m:1', '-nodeReuse:false', '-p:UseSharedCompilation=false') "$consumer/build.log"
+    Invoke-Dotnet @('msbuild', "$consumer/FontConsumer.csproj", '-getItem:None,Content', '-p:DesignTimeBuild=true') "$consumer/project-items.json"
+    $projectItems = (Get-Content -LiteralPath "$consumer/project-items.json" -Raw | ConvertFrom-Json).Items
+    if ((@($projectItems.None) + @($projectItems.Content)) | Where-Object { $_.FullPath -like "*nazor.themes.$Theme*" }) {
+        throw "Packaged $Theme assets appear as design-time project items."
+    }
     Invoke-Dotnet @("$consumer/bin/Release/$framework/FontConsumer.dll") "$consumer/run.log"
     $published = Join-Path $consumer 'published'
     Invoke-Dotnet @('publish', $consumer, '-c', 'Release', '--no-restore', '--self-contained', 'false', '-o', $published, '-m:1', '-nodeReuse:false', '-p:UseSharedCompilation=false') "$consumer/publish.log"
     Invoke-Dotnet @("$published/FontConsumer.dll") "$consumer/published-run.log"
-    foreach ($file in Get-ChildItem -LiteralPath $fontRoot -File) {
+    foreach ($file in $themeAssets) {
         $expected = (Get-FileHash -LiteralPath $file.FullName).Hash
         foreach ($directory in @("$consumer/bin/Release/$framework", $published)) {
             if ((Get-FileHash -LiteralPath "$directory/Themes/$Theme/$($file.Name)").Hash -ne $expected) {
-                throw "Font asset differs from source: $directory/Themes/$Theme/$($file.Name)"
+                throw "Theme asset differs from source: $directory/Themes/$Theme/$($file.Name)"
             }
         }
     }
-    Write-Output "$Theme ${framework}: packaged markup, private-font shaping and build/publish asset hashes verified."
+    Write-Output "$Theme ${framework}: project items, private-font shaping and build/publish asset hashes verified."
 }
 Write-Output "Font symbol package consumers: $consumerRoot"

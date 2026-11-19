@@ -1,0 +1,9 @@
+<Project>
+  <Target Name="NazorCollectNazorLeafAssets" BeforeTargets="AssignTargetPaths" Condition="'$(DesignTimeBuild)' != 'true'">
+    <ItemGroup>
+      <_NazorLeafAsset Include="$(MSBuildThisFileDirectory)../assets/*" />
+      <None Include="@(_NazorLeafAsset)" TargetPath="Themes/NazorLeaf/%(_NazorLeafAsset.Filename)%(_NazorLeafAsset.Extension)"
+            CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" Visible="false" />
+    </ItemGroup>
+  </Target>
+</Project>
