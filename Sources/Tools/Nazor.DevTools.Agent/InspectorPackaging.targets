@@ -18,6 +18,10 @@
       <_NazorInspectorPayload Include="$(NazorInspectorBundleRoot)win-x64/**/*"
                              Exclude="$(NazorInspectorBundleRoot)**/*.pdb;$(NazorInspectorBundleRoot)**/*.xml;@(_NazorMicrosoftWindowingFile->'$(NazorInspectorBundleRoot)win-x64/%(Filename)%(Extension)')" PayloadRid="win-x64" />
       <_NazorInspectorPayload Include="$(NazorInspectorBundleRoot)linux-x64/**/*" Exclude="$(NazorInspectorBundleRoot)**/*.pdb;$(NazorInspectorBundleRoot)**/*.xml" PayloadRid="linux-x64" />
+      <_NazorInspectorPayload Include="$(NazorInspectorBundleRoot)win-x64/Nazor.*.pdb" PayloadRid="win-x64"
+                              Condition="'$(IncludeSymbols)' == 'true' and '$(SymbolPackageFormat)' == 'snupkg'" />
+      <_NazorInspectorPayload Include="$(NazorInspectorBundleRoot)linux-x64/Nazor.*.pdb" PayloadRid="linux-x64"
+                              Condition="'$(IncludeSymbols)' == 'true' and '$(SymbolPackageFormat)' == 'snupkg'" />
       <TfmSpecificPackageFile Include="@(_NazorInspectorPayload)" PackagePath="tools/%(PayloadRid)/%(RecursiveDir)%(Filename)%(Extension)" />
     </ItemGroup>
     <Error Condition="!Exists('$(NazorInspectorBundleRoot)win-x64/Nazor.DevTools.bundle.json') or !Exists('$(NazorInspectorBundleRoot)linux-x64/Nazor.DevTools.bundle.json')"

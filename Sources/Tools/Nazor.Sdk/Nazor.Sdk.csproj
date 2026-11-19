@@ -32,6 +32,8 @@
     <ItemGroup>
       <_NazorTool Include="$(NazorCompilerOutput)**/*" Exclude="$(NazorCompilerOutput)**/*.pdb;$(NazorCompilerOutput)**/*.xml;$(NazorCompilerOutput)Nazor.Compiler.exe" />
       <TfmSpecificPackageFile Include="@(_NazorTool)" PackagePath="tools/net10.0/" />
+      <TfmSpecificPackageFile Include="$(NazorCompilerOutput)Nazor.*.pdb" PackagePath="tools/net10.0/"
+                              Condition="'$(IncludeSymbols)' == 'true' and '$(SymbolPackageFormat)' == 'snupkg'" />
       <TfmSpecificPackageFile Include="$(_NazorVersionProps)" PackagePath="Sdk/" />
     </ItemGroup>
     <Error Condition="'@(_NazorTool)' == ''" Text="The Nazor compiler output was not found in $(NazorCompilerOutput)." />
