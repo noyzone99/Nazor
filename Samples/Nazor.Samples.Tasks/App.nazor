@@ -27,12 +27,12 @@
 </Container>
 
 @code {
-    protected override void OnInitialized()
-    {
-        Window.Title = "Nazor — Tasks";
-        Window.Width = 1080;
-        Window.Height = 760;
-    }
+	protected override void OnInitialized()
+	{
+		Window.Title = "Nazor — Tasks";
+		Window.Width = 1080;
+		Window.Height = 760;
+	}
 
 	// An enum prevents impossible combinations of independent "show view" flags.
 	private enum Screen { Tasks, Scrollbars, About }
