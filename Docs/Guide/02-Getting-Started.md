@@ -39,9 +39,26 @@ dotnet run --project HelloNazor
 
 The template contains a startup program, root component and its C# code-behind, configuration, development launch profile, and stylesheet. The SDK supplies the default Windows DPI manifest. The project uses `Nazor.Sdk/0.1.0-alpha` and targets `net10.0`. The SDK adds global C# usings, runtime packages, and `Nazor.Hosting.Desktop`. It also generates a bootstrap that registers the desktop host. `Program.cs` selects `App` as the main window and configures its appearance before `app.Run()`. The host selects the native backend at runtime. This quickstart uses Windows. [Projects and builds](03-Projects-and-Builds.md) · [Application hosting](04-Application-Hosting-and-Services.md) · [Wayland](33-Linux-Wayland.md) · [X11](35-Linux-X11.md) · [DRM/KMS](34-Linux-DRM.md)
 
+## Template options
+
+Run `dotnet new nazor-app --help` to see the available options.
+
+| Option | Default | Effect |
+| --- | --- | --- |
+| `--framework`, `-f` | `net10.0` (LTS) | Sets the application target. Choose `net8.0`, `net9.0`, `net10.0`, or `net11.0`. See the [Visual Studio 2022 setup](03-Projects-and-Builds.md#visual-studio-2022-and-net-8). |
+| `--ApplicationId` | `org.example.myapp` | Sets the stable [application identity](03-Projects-and-Builds.md#application-identity). Use your own reverse-DNS identifier for distribution. |
+| `--Theme` | `basic` | Accepts `basic`, `fluent`, or `nazorleaf`. Fluent and NazorLeaf add their NuGet package at the SDK's version and register the theme's fonts in `Program.cs`. |
+| `--IncludeSamplePages` | `false` | Adds a navigation view and Home, Counter, and Tasks pages. |
+
+```powershell
+dotnet new nazor-app -n HelloNazorSamples --Theme fluent --IncludeSamplePages
+```
+
+Home opens at `/`. Counter demonstrates local component state and re-renders when you press **Increment**. Tasks demonstrates data binding and a scoped service. Check a task, navigate away, and return to see that the window keeps its progress. The Counter starts over when you return to its route. [Project structure](03-Projects-and-Builds.md#suggested-structure) · [Navigation and state](12-Navigation.md#history-and-state)
+
 ## Write your first component
 
-Replace `HelloNazor/App.nazor` with the following markup. The example uses the state and click handler in the template's `HelloNazor/App.nazor.cs` code-behind.
+Start with the default `HelloNazor` project. Replace `HelloNazor/App.nazor` with the following markup. The example uses the state and click handler in the template's `HelloNazor/App.nazor.cs` code-behind.
 
 ```razor
 @window

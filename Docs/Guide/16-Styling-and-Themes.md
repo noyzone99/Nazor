@@ -69,6 +69,8 @@ Custom properties inherit through these boundaries. Expose a token or a `Class` 
 
 Basic is the SDK's built-in theme. It is selected when `app.Appearance.Theme` is null and through `Nazor.Themes.Themes.Default`. Its NSS rules provide system colors, borders, dimensions, and focus cues. None is an empty stylesheet for applications that supply their own control styles.
 
+For a new project, the [template's `--Theme` option](02-Getting-Started.md#template-options) selects Basic, Fluent, or NazorLeaf and generates the matching startup and package references.
+
 ```csharp
 app.Appearance.Theme = Nazor.Themes.Themes.None;
 app.Appearance.StyleSheet = MyApp.StyleSheets.Theme;

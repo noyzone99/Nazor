@@ -2,6 +2,16 @@
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <OutputType>WinExe</OutputType>
+    <RootNamespace>MyNazorApp</RootNamespace>
     <NazorApplicationId>org.example.nazorapp</NazorApplicationId>
   </PropertyGroup>
+  <!--#if (Theme == "fluent") -->
+  <ItemGroup>
+    <PackageReference Include="Nazor.Themes.Fluent" Version="NAZOR_SDK_VERSION" />
+  </ItemGroup>
+  <!--#elseif (Theme == "nazorleaf") -->
+  <ItemGroup>
+    <PackageReference Include="Nazor.Themes.NazorLeaf" Version="NAZOR_SDK_VERSION" />
+  </ItemGroup>
+  <!--#endif -->
 </Project>

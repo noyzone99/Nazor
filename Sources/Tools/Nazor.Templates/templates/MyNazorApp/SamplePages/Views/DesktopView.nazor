@@ -1,0 +1,14 @@
+@inject NavigationManager Navigation
+
+<Container Class="shell">
+    <Container Class="navigation" AccessibleName="Main navigation">
+        <Button OnClick="@(() => Navigation.NavigateTo("/"))">Home</Button>
+        <Button OnClick="@(() => Navigation.NavigateTo("/counter"))">Counter</Button>
+        <Button OnClick="@(() => Navigation.NavigateTo("/tasks"))">Tasks</Button>
+    </Container>
+    <Container Class="content">
+        <Frame>
+            <NotFound><TextBlock>Page not found.</TextBlock></NotFound>
+        </Frame>
+    </Container>
+</Container>

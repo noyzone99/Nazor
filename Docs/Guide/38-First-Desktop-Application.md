@@ -4,7 +4,7 @@ Build a small project workspace from the Nazor template. You will create a reusa
 
 ## 1. Start with the template
 
-Follow [Getting started](02-Getting-Started.md#create-an-application) through the first template run. Use the project name `HelloNazor` and stop before replacing its markup. Run the build and publish commands from the parent directory of `HelloNazor`. Close the app before rebuilding.
+Follow [Getting started](02-Getting-Started.md#create-an-application) through the first template run. Use the project name `HelloNazor`, leave `IncludeSamplePages` at its default `false`, and stop before replacing the markup. Run the build and publish commands from the parent directory of `HelloNazor`. Close the app before rebuilding.
 
 **Check.** The template opens a window. Typing in the text field changes its greeting, and clicking the button updates the count.
 

@@ -61,7 +61,7 @@ function Invoke-Checked([string]$Command, [string[]]$Arguments, [string]$Log) {
 Push-Location $Workspace
 try {
     Invoke-Checked dotnet @('new', 'install', "$feed/Nazor.Templates.$version.nupkg", '--debug:custom-hive', "$Workspace/.templates") 'template-install.log' | Out-Null
-    Invoke-Checked dotnet @('new', 'nazor-app', '-n', $applicationName, '-o', $applicationName, '--Framework', $Framework, '--debug:custom-hive', "$Workspace/.templates") 'template-create.log' | Out-Null
+    Invoke-Checked dotnet @('new', 'nazor-app', '-n', $applicationName, '-o', $applicationName, '-f', $Framework, '--debug:custom-hive', "$Workspace/.templates") 'template-create.log' | Out-Null
     Invoke-Checked dotnet @('new', 'sln', '-n', $applicationName) 'solution-create.log' | Out-Null
     Invoke-Checked dotnet @('sln', "$applicationName.sln", 'add', "$applicationName/$applicationName.csproj") 'solution-add.log' | Out-Null
     $project = Join-Path $Workspace "$applicationName/$applicationName.csproj"

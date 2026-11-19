@@ -1,0 +1,13 @@
+@window
+@using MyNazorApp.Views
+
+<DesktopView />
+
+@code {
+    protected override void OnInitialized()
+    {
+        Window.Title = "MyNazorApp";
+        Window.Width = 800;
+        Window.Height = 520;
+    }
+}

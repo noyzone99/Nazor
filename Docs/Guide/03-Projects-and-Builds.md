@@ -64,12 +64,12 @@ The bundled Roslyn/Razor services support C# 15 while running on .NET 10. Compon
 Runtime packages and the optional Fluent theme contain `net8.0`, `net9.0` and `net10.0` assemblies. Create a .NET 8 application with:
 
 ```powershell
-dotnet new nazor-app -n HelloNazor8 --Framework net8.0
+dotnet new nazor-app -n HelloNazor8 --framework net8.0
 ```
 
-Use `--Framework net9.0` for a .NET 9 application with the same VS2022 setup. The packaged compiler, language server and DevTools still use .NET 10 LTS. Contributors can verify that variant with `verify-net8.ps1 -Framework net9.0 -Workspace <fresh-path>`.
+Use `--framework net9.0` for a .NET 9 application with the same VS2022 setup. The packaged compiler, language server and DevTools still use .NET 10 LTS. Contributors can verify that variant with `verify-net8.ps1 -Framework net9.0 -Workspace <fresh-path>`.
 
-Use Visual Studio 2022 17.14 with the .NET 9 SDK, the application's .NET 8 or .NET 9 runtime, and the .NET/ASP.NET Core 10 runtimes for the compiler and language server. Build tools run separately on .NET 10 LTS; deployment needs only the application's runtime. Keep the default `net10.0` template for Visual Studio 2026.
+Use Visual Studio 2022 17.14 with the .NET 9 SDK, the application's .NET 8 or .NET 9 runtime, and the .NET/ASP.NET Core 10 runtimes for the compiler and language server. Build tools run separately on .NET 10 LTS. Deployment needs only the application's runtime. The default `net10.0` template targets .NET 10 LTS and works with the .NET CLI. Targeting it inside Visual Studio is supported starting with Visual Studio 2026. [Microsoft SDK and Visual Studio support matrix](https://learn.microsoft.com/en-us/dotnet/core/porting/versioning-sdk-msbuild-vs#sdk-and-visual-studio-support-matrix)
 
 Select an SDK compatible with VS2022 by placing this `global.json` beside your application's solution:
 
@@ -187,12 +187,16 @@ HelloNazor/
   _Imports.nazor
   App.nazor
   App.nazor.nss
+  Views/
+    DesktopView.nazor
+    DesktopView.nazor.nss
+  Pages/
+    HomePage.nazor
+    TasksPage.nazor
   Components/
     TaskCard.nazor
     TaskCard.nazor.cs
     TaskCard.nazor.nss
-  Views/
-    TasksView.nazor
   Models/
     TaskItem.cs
   Services/
@@ -206,7 +210,18 @@ HelloNazor/
     Family-Regular.ttf
 ```
 
-These folders are conventions rather than mandatory layers. Introduce a folder when it groups a real responsibility. For a small application, a root component and one stylesheet can be enough.
+Keep `Program.cs`, the main `App.nazor` window and its sidecars, the shared `_Imports.nazor`, and project-wide configuration in the project root. Let `Program.cs` register services and launch the app. Let `App.nazor` configure the native window and compose its content.
+
+| Folder | Responsibility |
+| --- | --- |
+| `Views/` | Screen and shell composition. A view can host navigation and a `Frame`. It can also compose local content directly without a route. |
+| `Pages/` | Routed components with an `@page` directive, displayed by a `Frame`. |
+| `Components/` | Reusable UI such as task cards and page headings. Accept data through parameters and report user actions through callbacks. |
+| `Models/` | Data types used by the application or services. Keep them independent of component and window APIs. |
+| `Services/` | Shared state and application operations. Register a scoped service in `Program.cs` when data should survive page navigation within one window. |
+| `Styles/`, `Assets/`, `Fonts/` | Shared NSS, images, and fonts as the project grows. Keep scoped styles beside the component they belong to. |
+
+Create folders as their responsibilities appear. Keep page-specific transient state in the page and put shared imports in the closest `_Imports.nazor` that covers the components using them. The [sample pages option](02-Getting-Started.md#template-options) follows this structure and demonstrates local and window-scoped state.
 
 ## Source conventions
 
@@ -266,10 +281,10 @@ Implementation: [Sdk.props](../../Sources/Tools/Nazor.Sdk/Sdk/Sdk.props), [Sdk.t
 
 ## .NET 11 applications
 
-Use the .NET 11 SDK and select `net11.0` explicitly; the template and SDK default remain .NET 10:
+.NET 11 is a Standard Term Support (STS) release. Install the .NET 11 SDK and select `net11.0` explicitly. The template and SDK default to .NET 10 LTS. [Microsoft .NET release tracks](https://learn.microsoft.com/dotnet/core/releases-and-support#release-tracks)
 
 ```powershell
-dotnet new nazor-app -n HelloNazor11 --Framework net11.0
+dotnet new nazor-app -n HelloNazor11 --framework net11.0
 dotnet build HelloNazor11
 dotnet publish HelloNazor11 -c Release -r win-x64 --self-contained false
 ```

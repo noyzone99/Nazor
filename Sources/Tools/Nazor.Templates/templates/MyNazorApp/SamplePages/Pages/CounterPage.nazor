@@ -1,0 +1,15 @@
+@page "/counter"
+@using MyNazorApp.Components
+
+<PageIntro Title="Counter" Description="Click the button to update the count. This state belongs to the page." />
+<InlineMessage Class="count" Severity="Severity.Info">Current count: @count</InlineMessage>
+<Button OnClick="Increment">Increment</Button>
+
+@code {
+    private int count;
+    private void Increment() => count++;
+}
+
+@style {
+    .count { margin-bottom: 12px; }
+}

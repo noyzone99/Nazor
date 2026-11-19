@@ -1,0 +1,5 @@
+@page "/"
+@using MyNazorApp.Components
+
+<PageIntro Title="Welcome to MyNazorApp"
+           Description="Try Counter for reactive UI and Tasks for state shared across pages." />

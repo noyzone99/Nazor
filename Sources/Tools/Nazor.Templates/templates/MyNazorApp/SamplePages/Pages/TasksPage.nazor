@@ -1,0 +1,25 @@
+@page "/tasks"
+@using MyNazorApp.Components
+@inject SampleTaskStore Tasks
+
+<PageIntro Title="Tasks" Description="Check off a task and switch pages. The window keeps your progress." />
+<Container Class="tasks">
+    @foreach (var item in Tasks.Items)
+    {
+        <CheckBox @key="item" @bind-IsChecked="item.IsCompleted">@item.Title</CheckBox>
+    }
+    <InlineMessage Severity="Severity.Info">@CompletedCount of @Tasks.Items.Count completed</InlineMessage>
+</Container>
+
+@code {
+    private int CompletedCount => Tasks.Items.Count(item => item.IsCompleted);
+}
+
+@style {
+    .tasks {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+}

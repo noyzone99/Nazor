@@ -111,6 +111,8 @@ Use `GoBack()` and `GoForward()` for history. Alt+Left/Right, platform Back/Forw
 
 Each navigation creates a page instance. Returning to a previous location does not restore that page's old local fields. Store persistent editing/session data in a scoped service and identify records through route parameters or explicitly passed parameters. Query-string values are not automatically bound to page parameters.
 
+The [sample pages template](02-Getting-Started.md#template-options) puts its navigation shell in `Views/` and the routed components in `Pages/`. The Counter stores its value locally, and Tasks keeps its checked items in a window-scoped service.
+
 ## Page transitions
 
 `Frame.Transition` requests `Entrance` motion by default. Import `Nazor.Controls.Primitives` to select `None`, `Slide`, `DrillIn` or `DrillOut`. The active theme owns appearance and timing. Back navigation reverses the direction, and swaps drill-in/drill-out. Basic supplies immediate replacement; Fluent supplies page motion. The first page is shown immediately.

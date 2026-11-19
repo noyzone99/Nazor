@@ -1,4 +1,4 @@
-namespace MyNazorApp;
+namespace MyNazorApp.Services;
 
 public sealed class Greeter(ILogger<Greeter> logger)
 {

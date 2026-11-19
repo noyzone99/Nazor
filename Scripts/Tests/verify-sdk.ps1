@@ -91,9 +91,29 @@ Assert (Select-String -Path "$app/HelloNazor.csproj" -Pattern "Nazor.Sdk/$versio
 Assert (Select-String -Path "$app/HelloNazor.csproj" -Pattern '<TargetFramework>net10.0</TargetFramework>' -Quiet) 'the template uses the neutral desktop framework'
 Assert (-not (Test-Path "$app/app.manifest") -and -not (Select-String -Path "$app/HelloNazor.csproj" -Pattern 'ApplicationManifest' -Quiet)) 'the template relies on the SDK manifest without a local copy or project property'
 Assert (Select-String -Path "$app/HelloNazor.csproj" -Pattern '<NazorApplicationId>org.example.myapp</NazorApplicationId>' -Quiet) 'the template declares a valid application ID'
+Assert ((Test-Path "$app/_Imports.nazor") -and (Test-Path "$app/Services/Greeter.cs") -and -not (Test-Path "$app/Pages")) 'the default template creates the single-window app with shared imports and a service folder'
+Assert (-not (Select-Xml -LiteralPath "$app/HelloNazor.csproj" -XPath '//PackageReference')) 'the Basic theme uses the built-in styles'
 $customIdApp = Join-Path $Workspace 'CustomIdentity'
 Invoke-Dotnet @('new', 'nazor-app', '-n', 'CustomIdentity', '-o', $customIdApp, '--ApplicationId', 'org.example.customidentity', '--debug:custom-hive', $hive) | Out-Null
 Assert (Select-String -Path "$customIdApp/CustomIdentity.csproj" -Pattern '<NazorApplicationId>org.example.customidentity</NazorApplicationId>' -Quiet) 'the template accepts an explicit application ID without changing the project name'
+
+$themePackages = @{ basic = ''; fluent = "Nazor.Themes.Fluent/$version"; nazorleaf = "Nazor.Themes.NazorLeaf/$version" }
+foreach ($theme in 'basic', 'fluent', 'nazorleaf') {
+    $sampleName = "Sample-$theme"
+    $sampleApp = Join-Path $Workspace $sampleName
+    $sampleProject = "$sampleApp/$sampleName.csproj"
+    Invoke-Dotnet @('new', 'nazor-app', '-n', $sampleName, '-o', $sampleApp, '--Theme', $theme,
+        '--IncludeSamplePages', '--debug:custom-hive', $hive) | Out-Null
+    $references = Select-Xml -LiteralPath $sampleProject -XPath '//PackageReference' |
+        ForEach-Object { "$($_.Node.Include)/$($_.Node.Version)" }
+    Assert (($references -join ',') -ceq $themePackages[$theme]) "the $theme template references only the selected theme package"
+    foreach ($file in 'App.nazor', '_Imports.nazor', 'Views/DesktopView.nazor', 'Pages/HomePage.nazor', 'Pages/CounterPage.nazor',
+        'Pages/TasksPage.nazor', 'Components/PageIntro.nazor', 'Models/SampleTask.cs', 'Services/SampleTaskStore.cs') {
+        Assert (Test-Path -LiteralPath "$sampleApp/$file") "the $theme sample includes $file"
+    }
+    Assert (-not (Test-Path "$sampleApp/SamplePages") -and -not (Test-Path "$sampleApp/App.nazor.cs")) 'the sample layout replaces the single-window example'
+    Invoke-Dotnet @('build', $sampleProject, '-c', 'Release', '-warnaserror') | Out-Null
+}
 
 @'
 namespace HelloNazor;
@@ -457,7 +477,7 @@ Step '.NET 11 template consumer'
 $net11 = Join-Path $Workspace 'HelloNazor11'
 New-Item -ItemType Directory -Force $net11 | Out-Null
 '{ "sdk": { "version": "11.0.100", "rollForward": "latestPatch", "allowPrerelease": false } }' | Set-Content "$net11/global.json"
-Invoke-Dotnet @('new', 'nazor-app', '-n', 'HelloNazor11', '-o', $net11, '--Framework', 'net11.0', '--debug:custom-hive', $hive) | Out-Null
+Invoke-Dotnet @('new', 'nazor-app', '-n', 'HelloNazor11', '-o', $net11, '--framework', 'net11.0', '--debug:custom-hive', $hive) | Out-Null
 Assert (Select-String -Path "$net11/HelloNazor11.csproj" -Pattern '<TargetFramework>net11.0</TargetFramework>' -Quiet) 'the template accepts .NET 11'
 Push-Location $net11
 try {

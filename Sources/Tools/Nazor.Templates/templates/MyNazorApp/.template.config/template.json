@@ -4,8 +4,9 @@
   "classifications": [ "Desktop", "Windows", "Nazor" ],
   "identity": "Nazor.App.CSharp",
   "name": "Nazor application",
-  "description": "A Windows application written with Nazor components (.nazor), code-behind and NSS styles.",
+  "description": "A desktop application written with Nazor components (.nazor), code-behind and NSS styles.",
   "shortName": "nazor-app",
+  "defaultName": "NazorApp1",
   "sourceName": "MyNazorApp",
   "preferNameDirectory": true,
   "symbols": {
@@ -20,16 +21,46 @@
       "type": "parameter",
       "datatype": "choice",
       "defaultValue": "net10.0",
-      "description": "Target framework. Use net8.0 for Visual Studio 2022.",
+      "displayName": "Framework",
+      "description": "The target framework for the project.",
       "replaces": "net10.0",
       "choices": [
-        { "choice": "net8.0", "description": ".NET 8" },
-        { "choice": "net9.0", "description": ".NET 9" },
-        { "choice": "net10.0", "description": ".NET 10" },
-        { "choice": "net11.0", "description": ".NET 11 (requires the .NET 11 SDK)" }
+        { "choice": "net8.0", "description": "Target net8.0", "displayName": ".NET 8.0" },
+        { "choice": "net9.0", "description": "Target net9.0", "displayName": ".NET 9.0" },
+        { "choice": "net10.0", "description": "Target net10.0", "displayName": ".NET 10.0" },
+        { "choice": "net11.0", "description": "Target net11.0", "displayName": ".NET 11.0" }
       ]
+    },
+    "Theme": {
+      "type": "parameter",
+      "datatype": "choice",
+      "defaultValue": "basic",
+      "description": "Control theme. Optional themes add their matching Nazor package and register its fonts.",
+      "choices": [
+        { "choice": "basic", "displayName": "Basic", "description": "The built-in Nazor theme." },
+        { "choice": "fluent", "displayName": "Fluent", "description": "The optional WinUI-inspired theme." },
+        { "choice": "nazorleaf", "displayName": "NazorLeaf", "description": "The optional NazorLeaf theme." }
+      ]
+    },
+    "IncludeSamplePages": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "false",
+      "description": "Include Home, Counter, and Tasks pages with navigation inside the main window."
     }
   },
+  "sources": [
+    {
+      "modifiers": [
+        { "condition": "true", "exclude": [ "SamplePages/**" ] },
+        { "condition": "IncludeSamplePages", "exclude": [ "App.nazor", "App.nazor.cs", "Services/Greeter.cs" ] }
+      ]
+    },
+    { "condition": "IncludeSamplePages", "source": "./SamplePages" }
+  ],
+  "primaryOutputs": [
+    { "path": "MyNazorApp.csproj" }
+  ],
   "tags": {
     "language": "C#",
     "type": "project"
