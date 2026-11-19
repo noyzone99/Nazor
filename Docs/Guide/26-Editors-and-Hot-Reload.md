@@ -26,11 +26,11 @@ Inline C# analysis honors the project's warning/error policy and effective `.edi
 
 ## Install editor support
 
-Use the editor artifacts for the same Nazor release as your project's SDK. The extension descriptions identify the `0.1.0-alpha` release, and both manifests use the numeric version `0.1.0` required by the editor distribution formats. Uninstall a higher-numbered development build or an older copy with the same version before installing a rebuilt extension. Install the .NET/ASP.NET Core 10 runtimes for the bundled compiler and language server. The source-build steps below produce the editor artifacts locally.
+Use the extension for the same Nazor release as your project's SDK. The extension descriptions identify the `0.1.0-alpha` release, and both manifests use the numeric version `0.1.0`. Install the .NET and ASP.NET Core 10 runtimes for the bundled compiler and language server.
 
 | Editor | Installation |
 | --- | --- |
-| Visual Studio | Close Visual Studio, open `Nazor.VisualStudio.vsix`, and complete the VSIX installer for the intended instances. |
+| Visual Studio | Install **Nazor for Visual Studio** from **Extensions > Manage Extensions** or download the VSIX from the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=Noyzone99.nazorvisualstudio). Restart Visual Studio to complete installation. |
 | Visual Studio, syntax highlighting only | Copy the `Nazor` folder from the syntax-only distribution to `%USERPROFILE%/.vs/Extensions/Nazor`. |
 | Visual Studio Code | Read `version` from the supplied `nazor/package.json`. Copy the complete `nazor` folder to `%USERPROFILE%/.vscode/extensions/nazor.nazor-<version>` on Windows or `~/.vscode/extensions/nazor.nazor-<version>` on Linux. Restart VS Code. |
 
@@ -38,7 +38,7 @@ Build the application after changing package references so the server sees evalu
 
 ### Build editor artifacts from source
 
-Contributors can run the following command from the repository root with PowerShell 7 and the pinned SDK. The outputs are `artifacts/editors/visualstudio/Nazor.VisualStudio.vsix`, `artifacts/editors/visualstudio-folder/Nazor`, and `artifacts/editors/vscode/nazor`. [Build prerequisites and options](../../Scripts/README.md#build-and-packaging)
+Contributors can run the following command from the repository root with PowerShell 7 and the pinned SDK. The outputs are `artifacts/editors/visualstudio/Nazor.VisualStudio.vsix`, `artifacts/editors/visualstudio-folder/Nazor`, and `artifacts/editors/vscode/nazor`. Uninstall a higher-numbered development build or an older copy with the same version before installing a rebuilt extension. [Build prerequisites and options](../../Scripts/README.md#build-and-packaging)
 
 ```powershell
 pwsh -NoProfile -File ./Scripts/Build/build-editors.ps1

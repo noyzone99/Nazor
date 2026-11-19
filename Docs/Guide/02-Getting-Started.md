@@ -1,39 +1,23 @@
 # 2. Getting started
 
-To try the preview immediately, build and run an existing sample from the checkout. The app template and SDK are available through a local package feed built from the same source while the NuGet.org release is being prepared. [Build and run the Gallery](../../README.md#build-and-run-from-source)
+Create a desktop app with the `0.1.0-alpha` template from NuGet.org or the template included with **Nazor for Visual Studio**. You can also run the Gallery from the source checkout. [NuGet packages](../../README.md#nuget-packages) · [Build and run the Gallery](../../README.md#build-and-run-from-source)
 
 ## Prerequisites
 
 For this quickstart, use Windows 10 or 11 x64 and the .NET 10 SDK. It supplies the .NET/ASP.NET Core 10 runtimes used by the Razor/NSS compiler, language server and DevTools, and the runtime for the default application target. Applications can target .NET 8 or later; install the matching SDK and runtime for a newer application target such as .NET 11. On Linux, install the native prerequisites for [Wayland](33-Linux-Wayland.md#runtime-dependencies) or [X11](35-Linux-X11.md#system-dependencies-and-behavior). The commands below use PowerShell syntax.
 
-Building Nazor itself requires .NET SDK `10.0.404`, pinned in [global.json](../../global.json), plus SDK `11.0.100` as the fixed source of Roslyn/Razor language-service assemblies. The build and standalone tools remain on .NET 10 LTS; packaged tools include these assemblies. For a packaged .NET 8 app in Visual Studio 2022 17.14, follow the [separate SDK and runtime requirements](03-Projects-and-Builds.md#visual-studio-2022-and-net-8).
+For a packaged .NET 8 app in Visual Studio 2022 17.14, follow the [separate SDK and runtime requirements](03-Projects-and-Builds.md#visual-studio-2022-and-net-8).
 
-## Prepare the package source
+## Create a project in Visual Studio
 
-Use a folder containing the complete Nazor `0.1.0-alpha` package set and assign its absolute path to `$feed`. To generate the local feed from this checkout, use PowerShell 7, the pinned SDKs, and Docker Buildx with x64 and ARM64 support. Build the [Linux native library matrix](33-Linux-Wayland.md#build-from-source) and pack the framework from the repository root.
-
-```powershell
-pwsh -NoProfile -File Scripts/Build/build-native-matrix.ps1
-pwsh -NoProfile -File Scripts/Packaging/pack.ps1
-$feed = (Resolve-Path artifacts/packages).Path
-```
-
-The feed includes the SDK, templates, runtime, optional DevTools packages and both optional themes. Keep NuGet.org enabled for third-party dependencies.
-
-### Create a project in Visual Studio
-
-Install the [Visual Studio VSIX](26-Editors-and-Hot-Reload.md#install-editor-support), then choose **Create a new project** and search for **Nazor application**. Visual Studio suggests `NazorApp1` as the first project name. Choose a location and customize the name as needed. On the additional information page, select the framework and theme, enter the application ID, and choose whether to include the sample pages. The VSIX supplies the same project template as the CLI, with framework choices subject to the installed Visual Studio and .NET SDK versions.
-
-Before creating the project, make the Nazor feed available to Visual Studio for the SDK, runtime, and any theme package. For a local preview, add the package folder under **Tools > Options > NuGet Package Manager > Package Sources**, or put a `nuget.config` in the parent directory of the new solution. [Template defaults and options](#template-options)
+Install **Nazor for Visual Studio**, then choose **Create a new project** and search for **Nazor application**. Visual Studio suggests `NazorApp1` as the first project name. On the additional information page, select the framework and theme, enter the application ID, and use the checkboxes for sample pages and Nazor DevTools. The extension includes the template and Visual Studio restores the SDK, runtime, and any optional packages from NuGet.org. Keep that package source enabled. The framework choices depend on the installed Visual Studio and .NET SDK versions. [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=Noyzone99.nazorvisualstudio) · [Editor setup](26-Editors-and-Hot-Reload.md#install-editor-support) · [Template defaults and options](#template-options)
 
 ## Create an application
 
-In an empty directory outside the Nazor checkout, register the local package feed and install its prerelease template. Keep `nuget.config` next to the new project directory so the project inherits it. Set `$feed` to the absolute package directory again if you switched terminals.
+In an empty directory outside the Nazor checkout, install the `0.1.0-alpha` template with NuGet.org enabled. [Nazor.Templates on NuGet](https://www.nuget.org/packages/Nazor.Templates/0.1.0-alpha)
 
 ```powershell
-dotnet new nugetconfig
-dotnet nuget add source "$feed" --name Nazor --configfile ./nuget.config
-dotnet new install "$feed/Nazor.Templates.0.1.0-alpha.nupkg"
+dotnet new install Nazor.Templates@0.1.0-alpha
 ```
 
 Create and run the application.
@@ -111,6 +95,26 @@ Follow the [first application tutorial](38-First-Desktop-Application.md) to reus
 Install [editor support](26-Editors-and-Hot-Reload.md) for completion, source navigation, diagnostics, and formatting. Use Debug builds for [hot reload](26-Editors-and-Hot-Reload.md#terminal-hot-reload). Learn the [SDK's file conventions](03-Projects-and-Builds.md) before extracting components or creating a library.
 
 Keep the SDK, runtime packages and optional themes on the same version. If installation or restore fails, see [package installation and restore](30-Troubleshooting.md#package-installation-and-restore).
+
+## Build a local package feed
+
+To test changes to Nazor itself, use PowerShell 7, the .NET SDK pinned in `global.json`, SDK `11.0.100` for the bundled language services, and Docker Buildx with x64 and ARM64 support. Run these commands from the checkout root. [Pinned SDK](../../global.json) · [Native build prerequisites](33-Linux-Wayland.md#build-from-source) · [Packaging options](../../Scripts/README.md#build-and-packaging)
+
+```powershell
+pwsh -NoProfile -File Scripts/Build/build-native-matrix.ps1
+pwsh -NoProfile -File Scripts/Packaging/pack.ps1
+$feed = (Resolve-Path artifacts/packages).Path
+```
+
+From the directory that will contain your test project, add the local feed and install the template from its package file. Keep NuGet.org available for third-party dependencies. Use a separate NuGet cache when testing a local package with the same version as a published package.
+
+```powershell
+dotnet new nugetconfig
+dotnet nuget add source "$feed" --name NazorLocal --configfile ./nuget.config
+dotnet new install "$feed/Nazor.Templates.0.1.0-alpha.nupkg"
+```
+
+If both feeds offer the same Nazor version, map `Nazor.*` to the local feed in the test project's `nuget.config`. [NuGet package source mapping](https://learn.microsoft.com/en-us/nuget/consume-packages/package-source-mapping)
 
 ## Explore the samples
 

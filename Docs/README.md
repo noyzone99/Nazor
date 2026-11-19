@@ -6,6 +6,8 @@ Nazor is a .NET UI framework that compiles Razor components and NSS styles into 
 
 The guide covers Nazor `0.1.0-alpha`, a public pre-alpha preview. Expect breaking changes between releases. Windows x64 is the primary verification baseline. See the [support guide](Guide/32-Support-and-Limitations.md) for Linux backends, architecture, libc and hardware coverage.
 
+[Getting started](Guide/02-Getting-Started.md) · [NuGet packages](../README.md#nuget-packages) · [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=Noyzone99.nazorvisualstudio)
+
 | Documentation | Purpose |
 | --- | --- |
 | [Developer guide](Guide/README.md) | A complete learning path: goals, setup, components, styling, controls, integration, testing, and deployment |
