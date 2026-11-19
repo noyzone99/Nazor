@@ -1,0 +1,13 @@
+Nazor for Visual Studio 0.1.0-alpha
+
+This early preview targets Visual Studio 2022 and 2026 on x64.
+
+- Create a Nazor desktop app with a framework, theme, application ID, and optional sample pages and DevTools.
+- Add Nazor components and NSS stylesheets from Add New Item or Quick Add.
+- Edit .nazor and .nss files with completion, diagnostics, formatting, navigation, and Hot Reload. The bundled language server runs on .NET 10 LTS and includes C# 15 language services for .nazor files.
+- Inspect development builds with the optional Nazor DevTools.
+
+The framework and its tools are free and open source under the MIT license. Visual Studio restores the Nazor SDK and runtime packages from NuGet.org.
+
+https://www.nuget.org/packages/Nazor.Sdk/0.1.0-alpha
+https://github.com/noyzone99/Nazor

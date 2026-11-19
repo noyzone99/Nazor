@@ -89,6 +89,10 @@ else {
         Assert ($pkgdef -match 'ShellFileAssociations\\\.nazor\][\r\n]+"DefaultIconMoniker"="df813fe5-43b7-40ab-9ba5-4ac6892fdbb6:2"' -and
             $pkgdef -match 'ShellFileAssociations\\\.nss\][\r\n]+"DefaultIconMoniker"="df813fe5-43b7-40ab-9ba5-4ac6892fdbb6:3"') 'component and stylesheet file associations use the packaged Nazor monikers'
         $manifest = [IO.StreamReader]::new($zip.GetEntry('extension.vsixmanifest').Open()).ReadToEnd()
+        $metadata = ([xml]$manifest).PackageManifest.Metadata
+        Assert ($metadata.Description.InnerText.Contains($version) -and
+            [Uri]::IsWellFormedUriString($metadata.MoreInfo, [UriKind]::Absolute) -and
+            $entries -contains $metadata.ReleaseNotes -and $entries -contains $metadata.PreviewImage) 'the VSIX advertises the current release and includes its preview image and release notes'
         Assert ($manifest -match 'Microsoft\.VisualStudio\.ItemTemplate') 'the VSIX registers the Nazor component item template'
         Assert ($manifest -match 'Type="Microsoft\.VisualStudio\.VsPackage"[^>]*Path="Nazor\.pkgdef"' -and
             $pkgdef -match '\\TemplateEngine\\Templates\\Nazor\.Templates\][\r\n]+"InstalledPath"="\$PackageFolder\$\\ProjectTemplates"') 'the VSIX registers the bundled .NET project template'

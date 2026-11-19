@@ -83,6 +83,9 @@
       <Link>nazor.png</Link>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
+    <Content Include="ReleaseNotes.txt">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
     <Content Include="..\..\..\LICENSE">
       <Link>LICENSE.txt</Link>
       <TargetPath>LICENSE.txt</TargetPath>
