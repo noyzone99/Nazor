@@ -1,8 +1,6 @@
-# Nazor
+<h1><img src="Docs/Assets/nazor-banner.png" width="100%" alt="Nazor. Write Razor. Think Blazor. Ship native."></h1>
 
-<img src="Docs/Assets/nazor.svg" alt="Nazor four-leaf logo" width="88" height="88">
-
-**Build native .NET desktop apps with Razor syntax, CSS-inspired styles, and customizable windows and controls.**
+**Nazor stands for Native-Bl/Razor.** Build cross-platform .NET desktop apps with Razor syntax and a Blazor-inspired component model. Nazor opens native windows, aligns layouts to physical pixels, and draws its own controls without a WebView or a wrapper around another UI framework.
 
 Nazor will always be free to use and open source. That commitment covers the framework, its tools, and everything I release from this repository.
 
