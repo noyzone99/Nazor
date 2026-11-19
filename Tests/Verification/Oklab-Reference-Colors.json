@@ -1,0 +1,568 @@
+{
+  "schemaVersion": 1,
+  "sourceHtmlHash": "3c638b8b7b7c8d43c232397fba9191e03ac3a4f89eeafa432ae1c09cebf2ecf1",
+  "offlineCopyHash": "899f3125b99c64ee44961b05c6ee481670e65d5b61b17372c776a977b3697d14",
+  "fontHashes": {
+    "Sources/Themes/Nazor.Themes.NazorLeaf/Fonts/Geist.ttf": "73894e0448cae90a92b6c2f8732b7bb9acb7b94c418bff559dad4a18e1de9659",
+    "Sources/Themes/Nazor.Themes.NazorLeaf/Fonts/BricolageGrotesque.ttf": "413e7357809ddd12fd80a96a8a396de0e401638d4acd3cb3e37532f0472ac682",
+    "Sources/Themes/Nazor.Themes.NazorLeaf/Fonts/GeistMono.ttf": "d00e590b8eb3a59acc329b2d044fd143ae935090b7da33199ebee27cc7de8196"
+  },
+  "browser": {
+    "protocolVersion": "1.3",
+    "product": "Chrome/157.0.8103.51",
+    "revision": "@653674df293788cf4932c40d914e9e15b41a2d31",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+    "jsVersion": "15.7.112.23"
+  },
+  "browserBinaryHash": "5b835c10836045119334d9524e62437110e00e1bd20612c9072a0ae155f94a17",
+  "probeHash": "e453845c9eb7f6f5301a552eb75d4d19c5e18f25d774589fdce3502332472372",
+  "sourceRevision": "39bf0496ef3347a326123c835e64ddf9d45305f0",
+  "host": {
+    "platform": "win32",
+    "release": "10.0.26300",
+    "arch": "x64"
+  },
+  "policy": "Actual fresh-profile offline Chrome 157 computed colors and sRGB Canvas8 readback. Opaque palette and nested literal colors are byte-exact regression targets. Translucent raw RGB retains browser unpremultiplication evidence; alpha is independently checked. This is not native raster parity.",
+  "literals": [
+    {
+      "specified": "color-mix(in oklab, red, blue)",
+      "computed": "oklab(0.539974 0.0962086 -0.0928316)",
+      "rgba": [140, 83, 162, 255]
+    },
+    {
+      "specified": "color-mix(in oklab, white, black)",
+      "computed": "oklab(0.499997 0.0000227839 0.0000100434)",
+      "rgba": [99, 99, 99, 255]
+    },
+    {
+      "specified": "color-mix(in oklab, red 25%, blue)",
+      "computed": "oklab(0.495977 0.0318731 -0.202177)",
+      "rgba": [81, 71, 210, 255]
+    },
+    {
+      "specified": "color-mix(in oklab, red, blue 75%)",
+      "computed": "oklab(0.495977 0.0318731 -0.202177)",
+      "rgba": [81, 71, 210, 255]
+    },
+    {
+      "specified": "color-mix(in oklab, red 30%, blue 30%)",
+      "computed": "oklab(0.539974 0.0962086 -0.0928316 / 0.6)",
+      "rgba": [140, 83, 162, 153]
+    },
+    {
+      "specified": "color-mix(in oklab, red 60%, blue 60%)",
+      "computed": "oklab(0.539974 0.0962086 -0.0928316)",
+      "rgba": [140, 83, 162, 255]
+    },
+    {
+      "specified": "color-mix(in oklab, red, white)",
+      "computed": "oklab(0.81398 0.112463 0.0629398)",
+      "rgba": [255, 161, 145, 255]
+    },
+    {
+      "specified": "color-mix(in oklab, blue, yellow)",
+      "computed": "oklab(0.709982 -0.0518911 -0.0564726)",
+      "rgba": [108, 171, 199, 255]
+    },
+    {
+      "specified": "color-mix(in oklab, #005fb8 90%, #fff)",
+      "computed": "oklab(0.542305 -0.038136 -0.138459)",
+      "rgba": [42, 112, 192, 255]
+    },
+    {
+      "specified": "color-mix(in oklab, #f009 25%, #0f03 75%)",
+      "computed": "oklab(0.7472 -0.00448012 0.152681 / 0.3)",
+      "rgba": [205, 169, 0, 77]
+    },
+    {
+      "specified": "color-mix(in oklab, #123456 0%, #abcdef)",
+      "computed": "oklab(0.83497 -0.0219596 -0.0559695)",
+      "rgba": [171, 205, 239, 255]
+    },
+    {
+      "specified": "color-mix(in oklab, transparent, #f00)",
+      "computed": "oklab(0.627966 0.22488 0.125859 / 0.5)",
+      "rgba": [253, 0, 0, 128]
+    },
+    {
+      "specified": "color-mix(in oklab, transparent, transparent)",
+      "computed": "oklab(0 0 0 / 0)",
+      "rgba": [0, 0, 0, 0]
+    },
+    {
+      "specified": "color-mix(in oklab, color-mix(in oklab, white, black), black)",
+      "computed": "oklab(0.249998 0.0000113919 0.00000502169)",
+      "rgba": [34, 34, 34, 255]
+    },
+    {
+      "specified": "color-mix(in oklab, color-mix(in oklab, red, white), blue)",
+      "computed": "oklab(0.632981 0.0400001 -0.124291)",
+      "rgba": [135, 124, 212, 255]
+    },
+    {
+      "specified": "color-mix(in oklab, color-mix(in oklab, white 5%, black 5%) 96%, transparent 4%)",
+      "computed": "oklab(0.499997 0.0000227839 0.0000100434 / 0.096)",
+      "rgba": [106, 106, 106, 24]
+    }
+  ],
+  "palettes": [
+    {
+      "scheme": "light",
+      "seed": "blue",
+      "variables": {
+        "primary": "#0B57D0",
+        "n-tray": "#E4E7EC",
+        "n-pane": "#FFFFFF",
+        "n-s1": "#F5F6F8",
+        "n-s2": "#EDEFF2",
+        "n-s3": "#DFE2E8",
+        "tint": "9%",
+        "mixh": "7%",
+        "mixp": "12%"
+      },
+      "surfaces": {
+        "tray": {
+          "specified": "var(--tray)",
+          "computed": "oklab(0.888204 -0.00398586 -0.0243964)",
+          "rgba": [209, 219, 235, 255]
+        },
+        "pane": {
+          "specified": "var(--pane)",
+          "computed": "oklab(0.992417 -0.000442774 -0.0029274)",
+          "rgba": [251, 253, 255, 255]
+        },
+        "s1": {
+          "specified": "var(--s1)",
+          "computed": "oklab(0.953819 -0.00151984 -0.0105827)",
+          "rgba": [236, 240, 247, 255]
+        },
+        "s2": {
+          "specified": "var(--s2)",
+          "computed": "oklab(0.924056 -0.00277795 -0.0159711)",
+          "rgba": [224, 230, 241, 255]
+        },
+        "s3": {
+          "specified": "var(--s3)",
+          "computed": "oklab(0.874655 -0.00365014 -0.0256057)",
+          "rgba": [205, 214, 231, 255]
+        },
+        "hover": {
+          "specified": "var(--hover)",
+          "computed": "oklab(0.494865 -0.0325106 -0.196479 / 0.07)",
+          "rgba": [14, 85, 213, 18]
+        },
+        "press": {
+          "specified": "var(--press)",
+          "computed": "oklab(0.494866 -0.0325106 -0.196479 / 0.12)",
+          "rgba": [8, 82, 206, 31]
+        },
+        "pop": {
+          "specified": "var(--pop)",
+          "computed": "oklab(0.992417 -0.000442774 -0.0029274 / 0.84)",
+          "rgba": [251, 253, 255, 214]
+        }
+      }
+    },
+    {
+      "scheme": "light",
+      "seed": "green",
+      "variables": {
+        "primary": "#146C2E",
+        "n-tray": "#E4E7EC",
+        "n-pane": "#FFFFFF",
+        "n-s1": "#F5F6F8",
+        "n-s2": "#EDEFF2",
+        "n-s3": "#DFE2E8",
+        "tint": "9%",
+        "mixh": "7%",
+        "mixp": "12%"
+      },
+      "surfaces": {
+        "tray": {
+          "specified": "var(--tray)",
+          "computed": "oklab(0.885696 -0.0105924 -0.000800929)",
+          "rgba": [210, 220, 218, 255]
+        },
+        "pane": {
+          "specified": "var(--pane)",
+          "computed": "oklab(0.991999 -0.00154387 0.00100518)",
+          "rgba": [252, 253, 252, 255]
+        },
+        "s1": {
+          "specified": "var(--s1)",
+          "computed": "oklab(0.952705 -0.00445609 -0.0000958511)",
+          "rgba": [236, 240, 239, 255]
+        },
+        "s2": {
+          "specified": "var(--s2)",
+          "computed": "oklab(0.922384 -0.00718232 -0.000240759)",
+          "rgba": [224, 231, 230, 255]
+        },
+        "s3": {
+          "specified": "var(--s3)",
+          "computed": "oklab(0.872148 -0.0102567 -0.00201022)",
+          "rgba": [206, 215, 214, 255]
+        },
+        "hover": {
+          "specified": "var(--hover)",
+          "computed": "oklab(0.467005 -0.105917 0.0656932 / 0.07)",
+          "rgba": [14, 113, 43, 18]
+        },
+        "press": {
+          "specified": "var(--press)",
+          "computed": "oklab(0.467005 -0.105917 0.0656932 / 0.12)",
+          "rgba": [16, 107, 49, 31]
+        },
+        "pop": {
+          "specified": "var(--pop)",
+          "computed": "oklab(0.991999 -0.00154387 0.00100518 / 0.84)",
+          "rgba": [251, 253, 251, 214]
+        }
+      }
+    },
+    {
+      "scheme": "light",
+      "seed": "red",
+      "variables": {
+        "primary": "#C5221F",
+        "n-tray": "#E4E7EC",
+        "n-pane": "#FFFFFF",
+        "n-s1": "#F5F6F8",
+        "n-s2": "#EDEFF2",
+        "n-s3": "#DFE2E8",
+        "tint": "9%",
+        "mixh": "7%",
+        "mixp": "12%"
+      },
+      "surfaces": {
+        "tray": {
+          "specified": "var(--tray)",
+          "computed": "oklab(0.891528 0.0146585 0.00161126)",
+          "rgba": [229, 215, 218, 255]
+        },
+        "pane": {
+          "specified": "var(--pane)",
+          "computed": "oklab(0.992971 0.00266461 0.00140721)",
+          "rgba": [255, 252, 252, 255]
+        },
+        "s1": {
+          "specified": "var(--s1)",
+          "computed": "oklab(0.955297 0.00676654 0.000976233)",
+          "rgba": [245, 238, 239, 255]
+        },
+        "s2": {
+          "specified": "var(--s2)",
+          "computed": "oklab(0.926272 0.00965161 0.00136737)",
+          "rgba": [237, 228, 229, 255]
+        },
+        "s3": {
+          "specified": "var(--s3)",
+          "computed": "oklab(0.877979 0.0149942 0.000401972)",
+          "rgba": [224, 211, 214, 255]
+        },
+        "hover": {
+          "specified": "var(--hover)",
+          "computed": "oklab(0.531802 0.174649 0.0924953 / 0.07)",
+          "rgba": [198, 28, 28, 18]
+        },
+        "press": {
+          "specified": "var(--press)",
+          "computed": "oklab(0.531802 0.174649 0.0924953 / 0.12)",
+          "rgba": [197, 33, 33, 31]
+        },
+        "pop": {
+          "specified": "var(--pop)",
+          "computed": "oklab(0.992971 0.00266461 0.00140721 / 0.84)",
+          "rgba": [255, 253, 251, 214]
+        }
+      }
+    },
+    {
+      "scheme": "light",
+      "seed": "yellow",
+      "variables": {
+        "primary": "#F9AB00",
+        "n-tray": "#E4E7EC",
+        "n-pane": "#FFFFFF",
+        "n-s1": "#F5F6F8",
+        "n-s2": "#EDEFF2",
+        "n-s3": "#DFE2E8",
+        "tint": "9%",
+        "mixh": "7%",
+        "mixp": "12%"
+      },
+      "surfaces": {
+        "tray": {
+          "specified": "var(--tray)",
+          "computed": "oklab(0.915351 0.0025901 0.00789777)",
+          "rgba": [231, 226, 221, 255]
+        },
+        "pane": {
+          "specified": "var(--pane)",
+          "computed": "oklab(0.996942 0.000653218 0.00245496)",
+          "rgba": [255, 254, 252, 255]
+        },
+        "s1": {
+          "specified": "var(--s1)",
+          "computed": "oklab(0.965885 0.00140281 0.00377024)",
+          "rgba": [245, 243, 241, 255]
+        },
+        "s2": {
+          "specified": "var(--s2)",
+          "computed": "oklab(0.942154 0.00160602 0.00555837)",
+          "rgba": [238, 235, 232, 255]
+        },
+        "s3": {
+          "specified": "var(--s3)",
+          "computed": "oklab(0.901802 0.00292582 0.00668848)",
+          "rgba": [226, 222, 218, 255]
+        },
+        "hover": {
+          "specified": "var(--hover)",
+          "computed": "oklab(0.796502 0.0405556 0.162345 / 0.07)",
+          "rgba": [241, 170, 0, 18]
+        },
+        "press": {
+          "specified": "var(--press)",
+          "computed": "oklab(0.796502 0.0405556 0.162345 / 0.12)",
+          "rgba": [247, 173, 0, 31]
+        },
+        "pop": {
+          "specified": "var(--pop)",
+          "computed": "oklab(0.996942 0.000653218 0.00245496 / 0.84)",
+          "rgba": [255, 254, 253, 214]
+        }
+      }
+    },
+    {
+      "scheme": "dark",
+      "seed": "blue",
+      "variables": {
+        "primary": "#A8C7FA",
+        "n-tray": "#0D0E11",
+        "n-pane": "#17181C",
+        "n-s1": "#1C1D22",
+        "n-s2": "#23252B",
+        "n-s3": "#2E3138",
+        "tint": "12%",
+        "mixh": "10%",
+        "mixp": "16%"
+      },
+      "surfaces": {
+        "tray": {
+          "specified": "var(--tray)",
+          "computed": "oklab(0.243303 -0.00150605 -0.0151407)",
+          "rgba": [28, 32, 39, 255]
+        },
+        "pane": {
+          "specified": "var(--pane)",
+          "computed": "oklab(0.218927 0.000432823 -0.00905659)",
+          "rgba": [25, 26, 31, 255]
+        },
+        "s1": {
+          "specified": "var(--s1)",
+          "computed": "oklab(0.255559 0.000552145 -0.0124025)",
+          "rgba": [33, 35, 41, 255]
+        },
+        "s2": {
+          "specified": "var(--s2)",
+          "computed": "oklab(0.298534 -0.000614406 -0.0155607)",
+          "rgba": [42, 45, 54, 255]
+        },
+        "s3": {
+          "specified": "var(--s3)",
+          "computed": "oklab(0.359092 -0.00179945 -0.0190604)",
+          "rgba": [56, 61, 71, 255]
+        },
+        "hover": {
+          "specified": "var(--hover)",
+          "computed": "oklab(0.824821 -0.0134358 -0.0784938 / 0.1)",
+          "rgba": [167, 196, 245, 26]
+        },
+        "press": {
+          "specified": "var(--press)",
+          "computed": "oklab(0.824821 -0.0134358 -0.0784938 / 0.16)",
+          "rgba": [168, 199, 249, 41]
+        },
+        "pop": {
+          "specified": "var(--pop)",
+          "computed": "oklab(0.218927 0.000432823 -0.00905659 / 0.84)",
+          "rgba": [25, 26, 31, 214]
+        }
+      }
+    },
+    {
+      "scheme": "dark",
+      "seed": "green",
+      "variables": {
+        "primary": "#6DD58C",
+        "n-tray": "#0D0E11",
+        "n-pane": "#17181C",
+        "n-s1": "#1C1D22",
+        "n-s2": "#23252B",
+        "n-s3": "#2E3138",
+        "tint": "12%",
+        "mixh": "10%",
+        "mixp": "16%"
+      },
+      "surfaces": {
+        "tray": {
+          "specified": "var(--tray)",
+          "computed": "oklab(0.239348 -0.0149513 0.00242658)",
+          "rgba": [24, 34, 30, 255]
+        },
+        "pane": {
+          "specified": "var(--pane)",
+          "computed": "oklab(0.218432 -0.00124782 -0.00686068)",
+          "rgba": [24, 26, 30, 255]
+        },
+        "s1": {
+          "specified": "var(--s1)",
+          "computed": "oklab(0.25424 -0.00392961 -0.00654672)",
+          "rgba": [31, 35, 38, 255]
+        },
+        "s2": {
+          "specified": "var(--s2)",
+          "computed": "oklab(0.296556 -0.00733703 -0.00677703)",
+          "rgba": [40, 46, 49, 255]
+        },
+        "s3": {
+          "specified": "var(--s3)",
+          "computed": "oklab(0.356126 -0.0118834 -0.00588491)",
+          "rgba": [52, 62, 64, 255]
+        },
+        "hover": {
+          "specified": "var(--hover)",
+          "computed": "oklab(0.79186 -0.12548 0.0679002 / 0.1)",
+          "rgba": [108, 206, 137, 26]
+        },
+        "press": {
+          "specified": "var(--press)",
+          "computed": "oklab(0.79186 -0.12548 0.0679002 / 0.16)",
+          "rgba": [106, 211, 137, 41]
+        },
+        "pop": {
+          "specified": "var(--pop)",
+          "computed": "oklab(0.218432 -0.00124782 -0.00686068 / 0.84)",
+          "rgba": [24, 26, 30, 214]
+        }
+      }
+    },
+    {
+      "scheme": "dark",
+      "seed": "red",
+      "variables": {
+        "primary": "#FFB4AB",
+        "n-tray": "#0D0E11",
+        "n-pane": "#17181C",
+        "n-s1": "#1C1D22",
+        "n-s2": "#23252B",
+        "n-s3": "#2E3138",
+        "tint": "12%",
+        "mixh": "10%",
+        "mixp": "16%"
+      },
+      "surfaces": {
+        "tray": {
+          "specified": "var(--tray)",
+          "computed": "oklab(0.244921 0.00965611 -0.000906467)",
+          "rgba": [36, 31, 33, 255]
+        },
+        "pane": {
+          "specified": "var(--pane)",
+          "computed": "oklab(0.219129 0.00182809 -0.00727731)",
+          "rgba": [26, 26, 30, 255]
+        },
+        "s1": {
+          "specified": "var(--s1)",
+          "computed": "oklab(0.256098 0.00427287 -0.00765774)",
+          "rgba": [36, 34, 39, 255]
+        },
+        "s2": {
+          "specified": "var(--s2)",
+          "computed": "oklab(0.299343 0.00496667 -0.00844355)",
+          "rgba": [46, 45, 50, 255]
+        },
+        "s3": {
+          "specified": "var(--s3)",
+          "computed": "oklab(0.360306 0.00657216 -0.0083847)",
+          "rgba": [63, 60, 66, 255]
+        },
+        "hover": {
+          "specified": "var(--hover)",
+          "computed": "oklab(0.838303 0.0795822 0.0401248 / 0.1)",
+          "rgba": [245, 177, 167, 26]
+        },
+        "press": {
+          "specified": "var(--press)",
+          "computed": "oklab(0.838303 0.0795822 0.0401248 / 0.16)",
+          "rgba": [255, 180, 168, 41]
+        },
+        "pop": {
+          "specified": "var(--pop)",
+          "computed": "oklab(0.219129 0.00182809 -0.00727731 / 0.84)",
+          "rgba": [26, 26, 30, 214]
+        }
+      }
+    },
+    {
+      "scheme": "dark",
+      "seed": "yellow",
+      "variables": {
+        "primary": "#FDD663",
+        "n-tray": "#0D0E11",
+        "n-pane": "#17181C",
+        "n-s1": "#1C1D22",
+        "n-s2": "#23252B",
+        "n-s3": "#2E3138",
+        "tint": "12%",
+        "mixh": "10%",
+        "mixp": "16%"
+      },
+      "surfaces": {
+        "tray": {
+          "specified": "var(--tray)",
+          "computed": "oklab(0.250862 -0.0000519019 0.0110057)",
+          "rgba": [36, 34, 28, 255]
+        },
+        "pane": {
+          "specified": "var(--pane)",
+          "computed": "oklab(0.219872 0.000614592 -0.00578829)",
+          "rgba": [26, 26, 29, 255]
+        },
+        "s1": {
+          "specified": "var(--s1)",
+          "computed": "oklab(0.258078 0.00103686 -0.00368703)",
+          "rgba": [35, 35, 37, 255]
+        },
+        "s2": {
+          "specified": "var(--s2)",
+          "computed": "oklab(0.302313 0.000112668 -0.00248748)",
+          "rgba": [46, 46, 48, 255]
+        },
+        "s3": {
+          "specified": "var(--s3)",
+          "computed": "oklab(0.364761 -0.000708841 0.0005494)",
+          "rgba": [62, 62, 62, 255]
+        },
+        "hover": {
+          "specified": "var(--hover)",
+          "computed": "oklab(0.88781 -0.00131792 0.139393 / 0.1)",
+          "rgba": [245, 206, 98, 26]
+        },
+        "press": {
+          "specified": "var(--press)",
+          "computed": "oklab(0.88781 -0.00131792 0.139393 / 0.16)",
+          "rgba": [249, 211, 100, 41]
+        },
+        "pop": {
+          "specified": "var(--pop)",
+          "computed": "oklab(0.219872 0.000614592 -0.00578829 / 0.84)",
+          "rgba": [26, 26, 30, 214]
+        }
+      }
+    }
+  ],
+  "fontStatus": "loaded",
+  "canvasColorSpace": "srgb"
+}

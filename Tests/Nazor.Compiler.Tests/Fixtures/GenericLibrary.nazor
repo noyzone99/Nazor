@@ -1,0 +1,5 @@
+@using Nazor.Sample.Components
+
+<GenericCard Item="name" Context="item"><ItemTemplate><TextBlock>@item</TextBlock></ItemTemplate></GenericCard>
+
+@code { private readonly string name = "library"; }

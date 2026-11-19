@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup>
+    <NazorDefaultApplicationIcon Condition="'$(NazorDefaultApplicationIcon)' == ''">$(MSBuildThisFileDirectory)Assets/nazor.ico</NazorDefaultApplicationIcon>
+    <ApplicationIcon Condition="'$(ApplicationIcon)' == '' and '$(Win32Resource)' == '' and '$(NazorUseDefaultApplicationIcon)' != 'false' and ('$(OutputType)' == 'Exe' or '$(OutputType)' == 'WinExe')">$(NazorDefaultApplicationIcon)</ApplicationIcon>
+  </PropertyGroup>
+</Project>

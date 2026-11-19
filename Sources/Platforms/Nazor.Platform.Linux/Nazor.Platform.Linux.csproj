@@ -1,0 +1,53 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <IsAotCompatible>true</IsAotCompatible>
+    <NazorRuntimeIdentifier Condition="'$(NazorRuntimeIdentifier)' == ''">$(RuntimeIdentifier)</NazorRuntimeIdentifier>
+    <_NazorNativeLibrariesToBuild Condition="'$(_NazorNativeLibrariesToBuild)' == ''">$(NazorLinuxNativeLibraries)</_NazorNativeLibrariesToBuild>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Description>Nazor native Wayland/X11 desktop and DRM/KMS single-view backends for Linux, without GTK or Qt.</Description>
+    <NazorNativeRid Condition="'$(NazorNativeRid)' == '' and $([MSBuild]::IsOSPlatform('Linux'))">$(NETCoreSdkPortableRuntimeIdentifier)</NazorNativeRid>
+    <NazorNativeRid Condition="'$(NazorNativeRid)' == ''">linux-x64</NazorNativeRid>
+    <NazorNativeDirectory>$(MSBuildThisFileDirectory)../../../artifacts/native/$(NazorNativeRid)</NazorNativeDirectory>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Nazor.Platform/Nazor.Platform.csproj" GlobalPropertiesToRemove="NazorRuntimeIdentifier;_NazorNativeLibrariesToBuild" />
+    <Compile Include="../../Shared/WindowFrameShadow.cs" Link="WindowFrameShadow.cs" />
+    <EmbeddedResource Include="../../../Docs/Assets/nazor-app.png" LogicalName="Nazor.Platform.Linux.ApplicationIcon.png" />
+    <PackageReference Include="SkiaSharp" />
+    <PackageReference Include="Tmds.DBus.Protocol" />
+    <InternalsVisibleTo Include="Nazor.Linux.Tests" />
+    <InternalsVisibleTo Include="DBusAot" />
+    <None Include="Native/ThirdPartyNotices.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+  <Target Name="NazorCollectNativeAssets" BeforeTargets="AssignTargetPaths;_GetPackageFiles">
+    <ItemGroup>
+      <_NazorNativeAsset Include="$(MSBuildThisFileDirectory)../../../artifacts/native/linux-*/libnazor-wayland.so;$(MSBuildThisFileDirectory)../../../artifacts/native/linux-*/libnazor-x11.so" />
+      <None Include="@(_NazorNativeAsset)">
+        <Link>runtimes/%(_NazorNativeAsset.RecursiveDir)native/%(_NazorNativeAsset.Filename)%(_NazorNativeAsset.Extension)</Link>
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+        <Pack>true</Pack>
+        <PackagePath>runtimes/%(_NazorNativeAsset.RecursiveDir)native/%(_NazorNativeAsset.Filename)%(_NazorNativeAsset.Extension)</PackagePath>
+      </None>
+    </ItemGroup>
+  </Target>
+  <Target Name="NazorBuildNativeLibrary" BeforeTargets="PrepareForBuild" Condition="$([MSBuild]::IsOSPlatform('Linux')) and '$(TargetFramework)' != '' and '$(NazorSkipNativeBuild)' != 'true' and '$(_NazorNativeLibrariesToBuild)' != 'None'">
+    <PropertyGroup>
+      <_NazorBuildWayland>ON</_NazorBuildWayland>
+      <_NazorBuildX11>ON</_NazorBuildX11>
+      <_NazorBuildWayland Condition="'$(_NazorNativeLibrariesToBuild)' == 'X11'">OFF</_NazorBuildWayland>
+      <_NazorBuildX11 Condition="'$(_NazorNativeLibrariesToBuild)' == 'Wayland'">OFF</_NazorBuildX11>
+    </PropertyGroup>
+    <Error Condition="'$(NazorNativeRid)' != '$(NETCoreSdkPortableRuntimeIdentifier)'" Text="The native bridge build targets the SDK host '$(NETCoreSdkPortableRuntimeIdentifier)', not '$(NazorNativeRid)'. Build the requested RID in a matching environment and use NazorSkipNativeBuild=true when publishing from another host." />
+    <Exec Command="cmake -S &quot;$(MSBuildThisFileDirectory)Native&quot; -B &quot;$(BaseIntermediateOutputPath)native/$(NazorNativeRid)/$(Configuration)/$(TargetFramework)&quot; -DCMAKE_BUILD_TYPE=$(Configuration) -DBUILD_TESTING=OFF -DNAZOR_WAYLAND=$(_NazorBuildWayland) -DNAZOR_X11=$(_NazorBuildX11) -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=&quot;$(NazorNativeDirectory)&quot;" />
+    <Exec Command="cmake --build &quot;$(BaseIntermediateOutputPath)native/$(NazorNativeRid)/$(Configuration)/$(TargetFramework)&quot; --parallel 2" />
+  </Target>
+  <Target Name="NazorVerifyNativePackage" BeforeTargets="GenerateNuspec">
+    <ItemGroup>
+      <_NazorRequiredNativeRid Include="linux-x64;linux-arm64;linux-musl-x64;linux-musl-arm64" />
+    </ItemGroup>
+    <Error Condition="!Exists('$(MSBuildThisFileDirectory)../../../artifacts/native/%(_NazorRequiredNativeRid.Identity)/libnazor-wayland.so')" Text="Build libnazor-wayland.so for '%(_NazorRequiredNativeRid.Identity)' with Scripts/Build/build-native-matrix.sh before packing Nazor.Platform.Linux." />
+    <Error Condition="!Exists('$(MSBuildThisFileDirectory)../../../artifacts/native/%(_NazorRequiredNativeRid.Identity)/libnazor-x11.so')" Text="Build libnazor-x11.so for '%(_NazorRequiredNativeRid.Identity)' with Scripts/Build/build-native-matrix.sh before packing Nazor.Platform.Linux." />
+  </Target>
+</Project>

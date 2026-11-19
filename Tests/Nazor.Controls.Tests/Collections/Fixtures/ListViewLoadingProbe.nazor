@@ -1,0 +1,28 @@
+@implements IRefreshable
+<Container Class="page">
+    <ListView TItem="string" Class="empty" Items="Empty">
+        <EmptyContent><TextBlock Class="nothing">Nothing here</TextBlock></EmptyContent>
+    </ListView>
+    <ListView TItem="int" Class="paged" Items="Paged" ItemHeight="20" EndThreshold="2" IsLoadingMore="Loading" OnEndReached="LoadMore" />
+</Container>
+
+@code {
+    public void Refresh() => StateHasChanged();
+    public IReadOnlyList<string> Empty { get; set; } = [];
+    public List<int> Paged { get; } = [.. Enumerable.Range(0, 20)];
+    public bool Loading { get; set; }
+    public int Requests { get; set; }
+    public bool Stop { get; set; }
+
+    private void LoadMore()
+    {
+        Requests++;
+        if (Stop) return;
+        Paged.AddRange(Enumerable.Range(Paged.Count, 20));
+    }
+}
+
+@style {
+    .page { display: flex; flex-direction: row; gap: 4px; }
+    .empty, .paged { width: 200px; height: 100px; }
+}

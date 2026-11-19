@@ -1,0 +1,10 @@
+* text=auto
+*.sh text eol=lf
+
+*.png binary
+*.ico binary
+*.ttf binary
+*.otf binary
+*.nupkg binary
+Sources/Themes/Nazor.Themes.Fluent/Catalog/FluentSystemIcons-*.json text eol=lf
+Sources/Themes/Nazor.Themes.NazorLeaf/Fonts/OFL-*.txt whitespace=-blank-at-eol

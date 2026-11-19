@@ -1,0 +1,38 @@
+@using Nazor.Controls.Primitives
+
+<Button @ref="button" OnClick="() => open = !open">Open the File menu</Button>
+<Menu @bind-IsOpen="open" Anchor="button?.Element" AccessibleName="File">
+    <MenuItem Shortcut="newGesture" OnClick="@(() => Run("New"))">New</MenuItem>
+    <MenuItem Shortcut="openGesture" OnClick="@(() => Run("Open"))">Open…</MenuItem>
+    <Submenu>
+        <ChildContent>Recent</ChildContent>
+        <Content>
+            <MenuItem OnClick="@(() => Run("theme.json"))">theme.json</MenuItem>
+            <MenuItem OnClick="@(() => Run("notes.md"))">notes.md</MenuItem>
+        </Content>
+    </Submenu>
+    <MenuSeparator />
+    <MenuSection Header="View">
+        <MenuCheckItem @bind-IsChecked="sidebar">Sidebar</MenuCheckItem>
+        <MenuRadioGroup TValue="string" @bind-Value="zoom">
+            <MenuRadioItem TValue="string" Value="@("100")">100%</MenuRadioItem>
+            <MenuRadioItem TValue="string" Value="@("150")">150%</MenuRadioItem>
+        </MenuRadioGroup>
+    </MenuSection>
+    <MenuSeparator />
+    <MenuItem Intent="Intent.Danger" OnClick="@(() => Run("Delete"))">
+        <ChildContent>Delete</ChildContent>
+        <Description>Moves the file to the trash.</Description>
+    </MenuItem>
+</Menu>
+<TextBlock>@($"Last command: {last}; sidebar: {sidebar}; zoom: {zoom}%")</TextBlock>
+
+@code {
+    private readonly KeyGesture newGesture = KeyGesture.Primary("N");
+    private readonly KeyGesture openGesture = KeyGesture.Primary("O");
+    private Button? button;
+    private bool open, sidebar = true;
+    private string last = "none";
+    private string? zoom = "100";
+    private void Run(string name) => last = name;
+}

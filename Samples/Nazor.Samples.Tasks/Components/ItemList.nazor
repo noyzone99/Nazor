@@ -1,0 +1,27 @@
+@* TItem is inferred from Items at the call site. The list controls scrolling and row identity;
+   RenderFragment<TItem> lets the caller provide presentation without subclassing the list. *@
+@typeparam TItem
+
+<Container Class="@($"item-list {Class}".TrimEnd())" AccessibleName="@AccessibleName">
+	@foreach (var item in Items)
+	{
+		@* Put the key on the outer repeated row, not inside its isolated template, to preserve focus when items change. *@
+		<Container @key="ItemKey?.Invoke(item) ?? (object?)item">
+			@ItemTemplate(item)
+		</Container>
+	}
+	@if (!Items.Any())
+	{
+		@EmptyContent
+	}
+</Container>
+
+@code {
+	// Parameters are inputs. The parent supplies the collection and template; this component does not mutate either.
+	[Parameter] public IEnumerable<TItem> Items { get; set; } = [];
+	[Parameter] public RenderFragment<TItem> ItemTemplate { get; set; } = null!;
+	[Parameter] public Func<TItem, object>? ItemKey { get; set; }
+	[Parameter] public RenderFragment? EmptyContent { get; set; }
+	[Parameter] public string? Class { get; set; }
+	[Parameter] public string? AccessibleName { get; set; }
+}

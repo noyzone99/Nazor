@@ -1,0 +1,43 @@
+@window
+@* The shell owns only navigation state. Task data belongs to the injected store, so replacing
+   a view does not discard it. A few local views do not need a route table or navigation history. *@
+
+<Container Class="shell">
+	<Container Class="navigation row" AccessibleName="Navigation">
+		<TextBlock Class="brand">NAZOR TASKS</TextBlock>
+		<Button Class="@(screen == Screen.Tasks ? "primary" : "")" @onclick="ShowTasks">Tasks</Button>
+		<Button Class="@(screen == Screen.Scrollbars ? "primary" : "")" @onclick="ShowScrollbars">Scrollbars</Button>
+		<Button Class="@(screen == Screen.About ? "primary" : "")" @onclick="ShowAbout">About</Button>
+		<Container Class="spacer" />
+		<TextBlock Class="muted">Your workspace</TextBlock>
+	</Container>
+	@* Switching views disposes the previous component instance; the store remains owned by the application host. *@
+	@if (screen == Screen.About)
+	{
+		<AboutView />
+	}
+	else if (screen == Screen.Scrollbars)
+	{
+		<ScrollbarsView />
+	}
+	else
+	{
+		<TasksView />
+	}
+</Container>
+
+@code {
+    protected override void OnInitialized()
+    {
+        Window.Title = "Nazor — Tasks";
+        Window.Width = 1080;
+        Window.Height = 760;
+    }
+
+	// An enum prevents impossible combinations of independent "show view" flags.
+	private enum Screen { Tasks, Scrollbars, About }
+	private Screen screen;
+	private void ShowTasks() => screen = Screen.Tasks;
+	private void ShowScrollbars() => screen = Screen.Scrollbars;
+	private void ShowAbout() => screen = Screen.About;
+}

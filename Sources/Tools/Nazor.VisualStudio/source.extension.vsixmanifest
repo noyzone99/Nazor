@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
+  <Metadata>
+    <Identity Id="Nazor.VisualStudio.Languages" Version="0.1.0" Language="en-US" Publisher="Nazor" />
+    <DisplayName>Nazor Languages</DisplayName>
+    <Description xml:space="preserve">Editor support for Nazor 0.1.0-alpha. C# 15 language services, diagnostics, completion and hover for .nazor and .nss files, with the language server running on .NET 10 LTS.</Description>
+    <License>LICENSE.txt</License>
+    <Icon>nazor.png</Icon>
+    <Tags>nazor;razor;nss;syntax;language server</Tags>
+  </Metadata>
+  <Installation>
+    <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[17.0,19.0)">
+      <ProductArchitecture>amd64</ProductArchitecture>
+    </InstallationTarget>
+  </Installation>
+  <Prerequisites>
+    <Prerequisite Id="Microsoft.VisualStudio.Component.CoreEditor" Version="[17.0,)" DisplayName="Visual Studio core editor" />
+  </Prerequisites>
+  <Assets>
+    <Asset Type="Microsoft.VisualStudio.ItemTemplate" d:Source="File" Path="ItemTemplates" />
+    <Asset Type="Microsoft.VisualStudio.ImageManifest" d:Source="File" Path="NazorCompletionColors.imagemanifest" />
+    <Asset Type="Microsoft.VisualStudio.ImageManifest" d:Source="File" Path="NazorIcons.imagemanifest" />
+    <Asset Type="Microsoft.VisualStudio.VsPackage" d:Source="File" Path="Nazor.pkgdef" />
+    <Asset Type="Microsoft.VisualStudio.VsPackage" d:Source="Project" d:ProjectName="%CurrentProject%" Path="|%CurrentProject%;PkgdefProjectOutputGroup|" />
+    <Asset Type="Microsoft.VisualStudio.CodeLensComponent" d:Source="File" Path="Nazor.VisualStudio.CodeLens.dll" />
+    <Asset Type="Microsoft.VisualStudio.MefComponent" d:Source="Project" d:ProjectName="%CurrentProject%" Path="|%CurrentProject%|" />
+  </Assets>
+</PackageManifest>

@@ -1,0 +1,5 @@
+<TextBlock>Before</TextBlock>
+@style {
+    .card { background: #fff; }
+}
+<TextBlock>@missingValue</TextBlock>

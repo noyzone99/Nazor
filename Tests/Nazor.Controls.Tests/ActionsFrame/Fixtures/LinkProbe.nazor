@@ -1,0 +1,15 @@
+@implements IRefreshable
+<Container Class="page">
+    <Link Class="docs" NavigateUri="@(new Uri("https://example.com/docs"))">Documentation</Link>
+    <Link Class="handler" OnClick="() => Clicks++">Show details</Link>
+    <Link Class="external" IsExternal="true" NavigateUri="@(new Uri("mailto:team@example.com"))">Write to us</Link>
+    <Link Class="unsafe" NavigateUri="@(new Uri("file:///c:/windows/system32/calc.exe"))">Unsafe</Link>
+    <Link Class="relative" NavigateUri="@(new Uri("/settings", UriKind.Relative))">Relative</Link>
+    <Link Class="bare" NavigateUri="@(new Uri("https://example.com/"))" />
+    <Link Class="off" Disabled="true" OnClick="() => Clicks += 100" NavigateUri="@(new Uri("https://example.com/off"))">Off</Link>
+</Container>
+
+@code {
+    public void Refresh() => StateHasChanged();
+    public int Clicks { get; set; }
+}

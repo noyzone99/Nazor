@@ -1,0 +1,13 @@
+<Project>
+  <Import Project="../../Sources/Tools/Nazor.Sdk/Sdk/Sdk.props" />
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <OutputType>WinExe</OutputType>
+    <NazorApplicationId>org.nazor.samples.theming</NazorApplicationId>
+    <RootNamespace>Nazor.Samples.Theming</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../Sources/Themes/Nazor.Themes.Fluent/Nazor.Themes.Fluent.csproj" />
+  </ItemGroup>
+  <Import Project="../../Sources/Tools/Nazor.Sdk/Sdk/Sdk.targets" />
+</Project>

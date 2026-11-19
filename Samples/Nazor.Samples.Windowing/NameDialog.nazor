@@ -1,0 +1,38 @@
+@window (bool CustomTitlebar = false, string Name = "")
+@inject IWindow CurrentWindow
+
+@* The caller supplies initial parameters and awaits the result. This component need not know which window opened it. *@
+
+<UserTitleBar Style="height: max(var(--nz-window-controls-height, 32px), 32px)"><WindowTitleBar /></UserTitleBar>
+<UserCaptionButtons><CaptionButtons Buttons="closeButtons" /></UserCaptionButtons>
+<Container Class="dialog-content">
+    <TextBlock>The result is returned to the window that opened this dialog.</TextBlock>
+    <TextBlock Id="name-label">Name</TextBlock>
+    <TextField @bind-Value="Name" LabeledBy="name-label" />
+    <Container Class="actions">
+        <Button OnClick="() => CurrentWindow.Close()">Cancel</Button>
+        <Button IsDefault="true" Disabled="@string.IsNullOrWhiteSpace(Name)" OnClick="Save">Confirm</Button>
+    </Container>
+</Container>
+
+@style {
+    :root { font-family: "Fira Sans", sans-serif; }
+    .dialog-content { display: flex; flex-direction: column; gap: 12px; padding: 24px; }
+    TextBox { width: 100%; }
+    .actions { display: flex; justify-content: flex-end; gap: 8px; }
+}
+
+@code {
+    private static readonly CaptionButton[] closeButtons = [CaptionButton.Close];
+    protected override void OnInitialized()
+    {
+        Window.Title = "Rename window";
+        Window.Decorations = CustomTitlebar
+            ? WindowDecorationPolicy.Require(WindowDecorations.Nazor(WindowTitleBarContent.User, WindowCaptionButtons.User))
+            : WindowDecorationPolicy.Default;
+        Window.FullScreenEnabled = false;
+    }
+
+    // Close(value) completes the caller's typed dialog task; closing without a value represents cancellation.
+    private void Save() => CurrentWindow.Close(Name.Trim());
+}

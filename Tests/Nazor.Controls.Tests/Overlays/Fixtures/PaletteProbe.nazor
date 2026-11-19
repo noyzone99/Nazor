@@ -1,0 +1,32 @@
+@implements IRefreshable
+@using Nazor.Controls.Primitives
+<Button Class="before">Before</Button>
+<CommandPalette @bind-IsOpen="Open" Commands="Commands" GroupBy="c => c.Text.StartsWith(Prefix) ? Group : null" Gesture="gesture"
+                OnExecute="c => Executed.Add(c.Text)" EmptyText="Nothing here">
+    <CommandPaletteGroup Name="Theme" Commands="Themes" />
+</CommandPalette>
+
+@code {
+    public void Refresh() => StateHasChanged();
+    private readonly KeyGesture gesture = KeyGesture.Parse("Ctrl+K");
+    public bool Open { get; set; }
+    public string Prefix { get; set; } = "File";
+    public string Group { get; set; } = "Files";
+    public List<string> Ran { get; } = [];
+    public List<string> Executed { get; } = [];
+    public Command[] Commands { get; set; } = [];
+    public Command[] Themes { get; set; } = [];
+
+    protected override void OnInitialized()
+    {
+        Commands =
+        [
+            new Command("File new", () => Ran.Add("File new"), KeyGesture.Parse("Ctrl+N")) { Description = "Create a document" },
+            new Command("File open", () => Ran.Add("File open")),
+            new Command("Find in files", () => Ran.Add("Find in files")) { Description = "Search everywhere" },
+            new Command("Toggle sidebar", () => Ran.Add("Toggle sidebar")),
+            new Command("Disabled thing", () => Ran.Add("Disabled thing")) { IsEnabled = false },
+        ];
+        Themes = [new Command("Dark theme", () => Ran.Add("Dark theme")), new Command("Light theme", () => Ran.Add("Light theme"))];
+    }
+}

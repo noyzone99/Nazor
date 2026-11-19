@@ -1,0 +1,17 @@
+@typeparam TItem
+
+<Container Class="generic-list">
+    @foreach (var item in Items)
+    {
+        @ItemTemplate(item)
+    }
+</Container>
+
+@code {
+    [Parameter] public IEnumerable<TItem> Items { get; set; } = [];
+    [Parameter] public RenderFragment<TItem> ItemTemplate { get; set; } = null!;
+}
+
+@style {
+    .generic-list { padding: 7px; }
+}

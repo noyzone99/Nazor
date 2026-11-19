@@ -1,0 +1,15 @@
+{
+  "profiles": {
+    "Localization": {
+      "commandName": "Project",
+      "hotReloadEnabled": true,
+      "environmentVariables": {
+        "NAZOR_DEVCHANNEL": "1"
+      }
+    },
+    "Localization (Italian)": {
+      "commandName": "Project",
+      "commandLineArgs": "--culture it-IT"
+    }
+  }
+}

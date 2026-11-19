@@ -1,0 +1,15 @@
+<PropertyGrid Class="inspector" Target="settings" OnPropertyChanged="Changed" />
+<TextBlock>@lastChange</TextBlock>
+@code {
+    public sealed class Settings
+    {
+        public string Name { get; set; } = "Draft report";
+        public int Copies { get; set; } = 2;
+        public bool Landscape { get; set; }
+    }
+
+    private readonly Settings settings = new();
+    private string lastChange = "Edit a property to see the change.";
+    private void Changed(PropertyGridChange change) => lastChange = $"New value: {change.NewValue}";
+}
+@style { .inspector { align-self: stretch; height: 210px; } }

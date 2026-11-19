@@ -1,0 +1,18 @@
+@using Nazor.Controls.Primitives
+<Container Class="states">
+    <Button OnClick="ShowReady">Ready</Button>
+    <Button OnClick="ShowLoading">Loading</Button>
+    <Button OnClick='() => error = "The report is unavailable."'>Failure</Button>
+</Container>
+<LoadingBoundary IsLoading="loading" ErrorMessage="@error" Delay="TimeSpan.Zero" MinimumDuration="TimeSpan.Zero" OnRetry="ShowReady">
+    <Loading><Spinner Label="Loading report" /></Loading>
+    <ChildContent><TextBlock>The report is ready.</TextBlock></ChildContent>
+</LoadingBoundary>
+@code {
+    private bool loading;
+    private string? error;
+
+    private void ShowReady() { loading = false; error = null; }
+    private void ShowLoading() { loading = true; error = null; }
+}
+@style { .states { display: flex; flex-direction: row; gap: 6px; } }

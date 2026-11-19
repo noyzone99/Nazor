@@ -1,0 +1,31 @@
+@implements IRefreshable
+@using Nazor.Controls.Primitives
+<Button Class="opener" @ref="opener" OnClick="() => Open = !Open">File</Button>
+<Menu @bind-IsOpen="Open" Anchor="opener?.Element" AccessibleName="File">
+    <MenuItem Class="new" Shortcut="newGesture" OnClick="@(() => Log.Add("new"))">New</MenuItem>
+    <MenuItem Class="disabled" Disabled="true" OnClick="@(() => Log.Add("disabled"))">Disabled</MenuItem>
+    <MenuCheckItem Class="sidebar" @bind-IsChecked="Sidebar" CloseOnSelect="false">Sidebar</MenuCheckItem>
+    <MenuRadioGroup TValue="string" @bind-Value="Zoom">
+        <MenuRadioItem TValue="string" Class="zoom-100" Value="@("100")">100%</MenuRadioItem>
+        <MenuRadioItem TValue="string" Class="zoom-200" Value="@("200")">200%</MenuRadioItem>
+    </MenuRadioGroup>
+    <MenuSeparator />
+    <Submenu Class="recent">
+        <ChildContent>Recent</ChildContent>
+        <Content><MenuItem Class="recent-1" OnClick="@(() => Log.Add("recent"))">One</MenuItem></Content>
+    </Submenu>
+</Menu>
+<ContextMenu>
+    <Trigger><Container Class="area">Area</Container></Trigger>
+    <ChildContent><MenuItem Class="copy" OnClick="@(() => Log.Add("copy"))">Copy</MenuItem></ChildContent>
+</ContextMenu>
+
+@code {
+    public void Refresh() => StateHasChanged();
+    private readonly KeyGesture newGesture = KeyGesture.Parse("Ctrl+N");
+    private Button? opener;
+    public bool Open { get; set; }
+    public bool Sidebar { get; set; }
+    public string? Zoom { get; set; } = "100";
+    public List<string> Log { get; } = [];
+}

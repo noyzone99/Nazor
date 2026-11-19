@@ -1,0 +1,32 @@
+<Field LabelText="Available width">
+    <Slider Minimum="120" Maximum="720" Step="10" @bind-Value="width" />
+</Field>
+<Container Style="@($"width: {width:0}px; max-width: 100%")">
+    <BreadcrumbBar TItem="PathNode" Items="path" ItemKey="node => node.Id" ItemText="node => node.Label"
+                   OnItemInvoked="Navigate" AccessibleName="Project path" />
+</Container>
+<TextBlock>@status</TextBlock>
+<Button OnClick="Reset">Restore full path</Button>
+
+@code {
+    public sealed record PathNode(int Id, string Label, string Route);
+    private static readonly PathNode[] FullPath =
+    [
+        new(0, "Home", "/"), new(1, "Documents", "/documents"),
+        new(2, "Design", "/documents/design"), new(3, "Northwind", "/documents/design/northwind"),
+        new(4, "Images", "/documents/design/northwind/images"), new(5, "Drafts", "/documents/design/northwind/images/drafts"),
+    ];
+    private PathNode[] path = FullPath;
+    private double width = 320;
+    private string status = "Resize the path or choose an ancestor, including from the leading menu.";
+    private void Navigate(BreadcrumbItemInvokedEventArgs<PathNode> request)
+    {
+        path = path.Take(request.Index + 1).ToArray();
+        status = $"Requested route: {request.Item.Route}";
+    }
+    private void Reset()
+    {
+        path = FullPath;
+        status = "Full path restored.";
+    }
+}

@@ -1,0 +1,25 @@
+@* This is a Razor comment, not NSS:
+@style missing-brace
+*@
+@code {
+    private const string raw = """
+@style { text in a raw C# string }
+""";
+    private const string verbatim = @"first line
+@style missing-brace";
+    private readonly string interpolated = $"""
+@style value: {1 + 2}
+""";
+    /* C# comment:
+@style invalid
+    */
+}
+
+@style {
+    .card {
+        --text: "@code { /* }";
+        @media (max-width: 720px) { &:hover { background: #0078d4; } }
+    }
+}
+<TextBlock>@raw @verbatim @interpolated</TextBlock>
+@style { .second { padding: 8px; } }

@@ -1,0 +1,42 @@
+@using Nazor.Controls.Primitives
+
+<Container Class="options">
+    <Field LabelText="Spectrum axes"><Select TValue="ColorSpectrumComponents" @bind-Value="components" Items="componentChoices" /></Field>
+    <CheckBox @bind-IsChecked="alpha">Edit opacity</CheckBox>
+    <CheckBox @bind-IsChecked="horizontal">Horizontal layout</CheckBox>
+    <CheckBox @bind-IsChecked="showSpectrum">Spectrum</CheckBox>
+    <CheckBox @bind-IsChecked="showSlider">Remaining-channel slider</CheckBox>
+    <CheckBox @bind-IsChecked="showPreview">Preview</CheckBox>
+    <CheckBox @bind-IsChecked="showChannels">Channel text</CheckBox>
+    <CheckBox @bind-IsChecked="showHex">Hex text</CheckBox>
+    <CheckBox @bind-IsChecked="readOnly">Read only</CheckBox>
+    <CheckBox @bind-IsChecked="disabled">Disabled</CheckBox>
+</Container>
+<Container Class="picker-region">
+    <Field LabelText="Paint color">
+        <ColorPicker @bind-Color="color" @bind-Representation="representation" SpectrumComponents="components"
+                     Orientation="@(horizontal ? Orientation.Horizontal : Orientation.Vertical)" PreviousColor="previous"
+                     IsAlphaEnabled="alpha" IsColorSpectrumVisible="showSpectrum" IsColorSliderVisible="showSlider"
+                     IsColorPreviewVisible="showPreview" IsColorChannelTextInputVisible="showChannels" IsHexInputVisible="showHex"
+                     ReadOnly="readOnly" Disabled="disabled" OnChange="Committed" />
+    </Field>
+</Container>
+<TextBlock>@($"CSS RGBA: {ColorModel.ToHex(color, true)}; representation: {representation}; completed edits: {commits}")</TextBlock>
+<Paragraph>Tab through the spectrum, sliders, format choice and text fields. Arrows move along the spectrum's screen axes; Shift increases the step. Numeric and hex drafts commit with Enter or when focus leaves. Hexadecimal uses CSS order #RRGGBBAA. The previous swatch is a comparison color.</Paragraph>
+
+@code {
+    private Nazor.Style.Color color = new(51, 102, 153, 160);
+    private readonly Nazor.Style.Color previous = new(217, 72, 102, 255);
+    private ColorRepresentation representation;
+    private ColorSpectrumComponents components = ColorSpectrumComponents.HueSaturation;
+    private readonly ColorSpectrumComponents[] componentChoices = Enum.GetValues<ColorSpectrumComponents>();
+    private bool alpha = true, showSpectrum = true, showSlider = true, showPreview = true, showChannels = true, showHex = true;
+    private bool horizontal, readOnly, disabled;
+    private int commits;
+    private void Committed(Nazor.Style.Color _) => commits++;
+}
+
+@style {
+    .options { display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: center; }
+    .picker-region { padding: 8px; overflow-x: auto; }
+}

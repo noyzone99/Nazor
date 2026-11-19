@@ -1,0 +1,24 @@
+<Project>
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+  <PropertyGroup>
+    <TargetFramework />
+    <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
+    <IsPackable>true</IsPackable>
+    <Description>Nazor: native desktop UI for .NET written with Razor components and NSS styles. Assembly $(MSBuildProjectName).</Description>
+    <PackageTags>nazor;razor;ui;windows;linux;wayland;skia</PackageTags>
+    <PackageIcon>nazor.png</PackageIcon>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageReadmeFile>NuGet.md</PackageReadmeFile>
+    <NazorProjectUrl Condition="'$(NazorProjectUrl)' == ''">https://github.com/noyzone99/Nazor</NazorProjectUrl>
+    <PackageProjectUrl>$(NazorProjectUrl)</PackageProjectUrl>
+    <RepositoryUrl>$(NazorProjectUrl).git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)../Docs/Assets/nazor.png" Pack="true" PackagePath="/" Visible="false" />
+    <None Include="$(MSBuildThisFileDirectory)../LICENSE;$(MSBuildThisFileDirectory)../Docs/NuGet.md" Pack="true" PackagePath="/" Visible="false" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
+    <Using Include="System.Object" Alias="Lock" />
+  </ItemGroup>
+</Project>

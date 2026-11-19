@@ -1,0 +1,47 @@
+@implements IRefreshable
+@using Nazor.Controls.Primitives
+@using System.ComponentModel
+<DataGrid TItem="Person" Class="grid" Items="People" SelectionMode="Mode" ShowSelectionColumn="Checks" @bind-SelectedItem="Selected" @bind-SelectedItems="Many"
+          @bind-Sorts="Sorts" Filter="Filter" GroupBy="Group" RowDetailsTemplate="Details" OnCellEdited="e => Edits.Add(e)" OnRowActivated="p => Activated = p"
+          ItemKey="p => p.Id" AccessibleName="People" Striped="true" EmptyContent="Empty" Loading="Busy" ReorderableColumns="true">
+    <DataGridColumn TItem="Person" Key="name" Header="Name" Field="p => p.Name" Width="120" Frozen="FreezeName" IsRowHeader="true" Editable="true" Setter="(p, v) => p.Name = (string?)v ?? string.Empty" />
+    <DataGridColumn TItem="Person" Key="age" Header="Age" Field="p => p.Age" Width="80" Alignment="DataGridAlignment.End" Editable="true" Setter="(p, v) => p.Age = (int)v!" FooterTemplate="AgeTotal" />
+    <DataGridColumn TItem="Person" Key="city" Header="City" Field="p => p.City" Flex="1" MinWidth="100" />
+    <DataGridColumn TItem="Person" Key="salary" Header="Salary" Field="p => p.Salary" Format="N0" Width="100" Hidden="HideSalary" Resizable="false" Sortable="false" />
+</DataGrid>
+
+@code {
+    public sealed class Person
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = "";
+        public int Age { get; set; }
+        public string City { get; set; } = "";
+        public decimal Salary { get; set; }
+    }
+
+    public void Refresh() => StateHasChanged();
+    public IReadOnlyList<Person> People { get; set; } = Enumerable.Range(0, 1000).Select(i => new Person
+    {
+        Id = i, Name = "Person " + i.ToString("0000"), Age = 20 + i % 50, City = (i % 3) switch { 0 => "Rome", 1 => "Milan", _ => "Turin" }, Salary = 1000 + i,
+    }).ToArray();
+    public SelectionMode Mode { get; set; } = SelectionMode.Multiple;
+    public bool Checks { get; set; }
+    public Person? Selected { get; set; }
+    public IReadOnlyList<Person> Many { get; set; } = [];
+    public IReadOnlyList<DataSort> Sorts { get; set; } = [];
+    public Func<Person, bool>? Filter { get; set; }
+    public Func<Person, object?>? Group { get; set; }
+    public RenderFragment<Person>? Details { get; set; }
+    public bool FreezeName { get; set; }
+    public bool HideSalary { get; set; }
+    public bool Busy { get; set; }
+    public List<DataGridCellEdit<Person>> Edits { get; } = [];
+    public Person? Activated { get; set; }
+    private readonly RenderFragment Empty = b => b.AddContent(0, "Nobody");
+    private readonly RenderFragment<IReadOnlyList<Person>> AgeTotal = items => b => b.AddContent(0, "Σ " + items.Sum(p => p.Age));
+}
+
+@style {
+    .grid { width: 600px; height: 300px; }
+}

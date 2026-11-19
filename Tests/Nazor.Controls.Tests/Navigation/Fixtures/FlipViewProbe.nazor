@@ -1,0 +1,30 @@
+@implements IRefreshable
+<FlipView TItem="FlipViewEntry" @ref="View" Class="flip" Items="Entries" SelectedIndex="Index"
+          SelectedIndexChanged="Changed" Disabled="Disabled" SwipeEnabled="SwipeEnabled" AccessibleName="Feature pages"
+          Style="width: 360px; height: 240px">
+    <ItemTemplate Context="entry">
+        <Container Class="content" Style="display: flex; flex-direction: column; gap: 8px; width: 100%; height: 100%; padding: 36px">
+            <FlipViewLifetime Name="@entry.Name" Created="name => Created.Add(name)" Disposed="name => Disposed.Add(name)" />
+            <TextField Class="editor" @bind-Value="entry.Text" />
+            <Button Class="action" OnClick="() => Actions++">Use feature</Button>
+            <Container Class="handled" TabIndex="0" @onkeydown="Handle">Handled keys</Container>
+        </Container>
+    </ItemTemplate>
+</FlipView>
+<Button Class="outside">Outside</Button>
+
+@code {
+    public void Refresh() => StateHasChanged();
+    public FlipView<FlipViewEntry> View { get; set; } = null!;
+    public List<FlipViewEntry> Entries { get; set; } = [new("One"), new("Two"), new("Three")];
+    public int Index { get; set; }
+    public bool Disabled { get; set; }
+    public bool SwipeEnabled { get; set; } = true;
+    public int Actions { get; set; }
+    public List<int> Changes { get; } = [];
+    public List<string> Created { get; } = [];
+    public List<string> Disposed { get; } = [];
+
+    private void Changed(int index) { Index = index; Changes.Add(index); }
+    private static void Handle(Nazor.Input.KeyboardEventArgs e) => e.Handled = true;
+}

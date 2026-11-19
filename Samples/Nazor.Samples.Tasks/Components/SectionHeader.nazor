@@ -1,0 +1,8 @@
+@* ChildContent is a slot for caller-provided actions or a summary. The header needs no knowledge of task data. *@
+<Container Class="section-header row">
+    <Container Class="column spacer">
+        <TextBlock Class="title">@Title</TextBlock>
+        <TextBlock Class="muted">@Description</TextBlock>
+    </Container>
+    @ChildContent
+</Container>

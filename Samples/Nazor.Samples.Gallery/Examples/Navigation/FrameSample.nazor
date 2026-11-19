@@ -1,0 +1,16 @@
+@using Nazor.Routing
+@inject NavigationManager Navigation
+
+<Container Class="routes">
+    <Button OnClick='() => Navigation.NavigateTo("/gallery/overview")'>Overview</Button>
+    <Button OnClick='() => Navigation.NavigateTo("/gallery/details")'>Details</Button>
+    <Button OnClick="Navigation.GoBack">Back</Button>
+    <Button OnClick="Navigation.GoForward">Forward</Button>
+</Container>
+<Frame Assemblies="routeAssemblies">
+    <NotFound><TextBlock>Choose a route to display its content.</TextBlock></NotFound>
+</Frame>
+@code {
+    private readonly System.Reflection.Assembly[] routeAssemblies = [typeof(FrameRoutePreview).Assembly];
+}
+@style { .routes { display: flex; flex-direction: row; flex-wrap: wrap; gap: 6px; } }

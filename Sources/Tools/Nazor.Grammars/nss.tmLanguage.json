@@ -1,0 +1,589 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "information_for_contributors": [
+    "NSS: the CSS subset of Nazor with nesting. Property names, value keywords and colors follow the NSS compiler;",
+    "Nazor.Tooling.Tests checks them against Nazor.Style."
+  ],
+  "name": "NSS",
+  "scopeName": "source.nss",
+  "fileTypes": [
+    "nss"
+  ],
+  "patterns": [
+    {
+      "include": "#stylesheet"
+    }
+  ],
+  "repository": {
+    "stylesheet": {
+      "patterns": [
+        {
+          "include": "#comment"
+        },
+        {
+          "include": "#at-rule"
+        },
+        {
+          "include": "#selector"
+        },
+        {
+          "include": "#block"
+        }
+      ]
+    },
+    "comment": {
+      "name": "comment.block.nss",
+      "begin": "/\\*",
+      "end": "\\*/",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.definition.comment.begin.nss"
+        }
+      },
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.definition.comment.end.nss"
+        }
+      }
+    },
+    "at-rule": {
+      "patterns": [
+        {
+          "name": "meta.at-rule.media.nss",
+          "begin": "(@)media(?![\\w-])",
+          "beginCaptures": {
+            "0": {
+              "name": "keyword.control.at-rule.media.nss"
+            },
+            "1": {
+              "name": "punctuation.definition.keyword.nss"
+            }
+          },
+          "end": "(?<=\\})",
+          "patterns": [
+            {
+              "include": "#comment"
+            },
+            {
+              "include": "#media-query"
+            },
+            {
+              "include": "#block"
+            }
+          ]
+        },
+        {
+          "name": "meta.at-rule.keyframes.nss",
+          "begin": "(@)keyframes(?![\\w-])",
+          "beginCaptures": {
+            "0": {
+              "name": "keyword.control.at-rule.keyframes.nss"
+            },
+            "1": {
+              "name": "punctuation.definition.keyword.nss"
+            }
+          },
+          "end": "(?<=\\})",
+          "patterns": [
+            {
+              "include": "#comment"
+            },
+            {
+              "name": "entity.name.function.keyframes.nss",
+              "match": "[A-Za-z_-][\\w-]*|\"(?:[^\"\\\\]|\\\\[\\s\\S])*\"|'(?:[^'\\\\]|\\\\[\\s\\S])*'"
+            },
+            {
+              "name": "meta.keyframes-list.nss",
+              "begin": "\\{",
+              "end": "\\}",
+              "beginCaptures": {
+                "0": {
+                  "name": "punctuation.section.property-list.begin.nss"
+                }
+              },
+              "endCaptures": {
+                "0": {
+                  "name": "punctuation.section.property-list.end.nss"
+                }
+              },
+              "patterns": [
+                {
+                  "include": "#comment"
+                },
+                {
+                  "name": "entity.other.keyframe-offset.nss",
+                  "match": "(?i)(?<![\\w-])(?:from|to)(?![\\w-])|(?<![\\w.-])\\d+(?:\\.\\d+)?%"
+                },
+                {
+                  "name": "punctuation.separator.list.comma.nss",
+                  "match": ","
+                },
+                {
+                  "include": "#block"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "invalid.illegal.at-rule.nss",
+          "match": "@[\\w-]+"
+        }
+      ]
+    },
+    "media-query": {
+      "patterns": [
+        {
+          "name": "keyword.operator.logical.nss",
+          "match": "(?<![\\w-])(?:and|not|only)(?![\\w-])"
+        },
+        {
+          "name": "meta.media-feature.nss",
+          "begin": "\\(",
+          "end": "\\)",
+          "beginCaptures": {
+            "0": {
+              "name": "punctuation.definition.parameters.begin.nss"
+            }
+          },
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.definition.parameters.end.nss"
+            }
+          },
+          "patterns": [
+            {
+              "name": "support.type.property-name.media.nss",
+              "match": "(?<![\\w-])(?:min\\-width|max\\-width|min\\-height|max\\-height|prefers\\-color\\-scheme|prefers\\-reduced\\-motion|forced\\-colors|prefers\\-contrast|platform|density)(?![\\w-])"
+            },
+            {
+              "name": "invalid.illegal.media-feature.nss",
+              "match": "[A-Za-z][\\w-]*(?=\\s*:)"
+            },
+            {
+              "name": "punctuation.separator.key-value.nss",
+              "match": ":"
+            },
+            {
+              "name": "support.constant.property-value.nss",
+              "match": "(?<![\\w-])(?:middle|shrink|standard|tall|light|dark|reduce|no\\-preference|active|none|more|less|windows|linux|macos|android|ios|compact|touch)(?![\\w-])"
+            },
+            {
+              "include": "#number"
+            }
+          ]
+        }
+      ]
+    },
+    "selector": {
+      "name": "meta.selector.nss",
+      "begin": "(?=[A-Za-z_.#&*:>\\[+~])",
+      "end": "(?=[{};])",
+      "patterns": [
+        {
+          "include": "#selector-items"
+        }
+      ]
+    },
+    "block": {
+      "name": "meta.property-list.nss",
+      "begin": "\\{",
+      "end": "\\}",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.section.property-list.begin.nss"
+        }
+      },
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.section.property-list.end.nss"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#comment"
+        },
+        {
+          "include": "#at-rule"
+        },
+        {
+          "include": "#declaration"
+        },
+        {
+          "include": "#selector"
+        },
+        {
+          "include": "#block"
+        },
+        {
+          "name": "punctuation.terminator.rule.nss",
+          "match": ";"
+        }
+      ]
+    },
+    "declaration": {
+      "name": "meta.property.nss",
+      "begin": "(?<![\\w-])(?:(--[\\w-]+)|(-?[A-Za-z][\\w-]*))\\s*(:)(?=(?:[^;{}\"']|\"(?:[^\"\\\\]|\\\\[\\s\\S])*\"|'(?:[^'\\\\]|\\\\[\\s\\S])*')*(?:;|\\}|$))",
+      "beginCaptures": {
+        "1": {
+          "name": "variable.other.custom-property.nss"
+        },
+        "2": {
+          "patterns": [
+            {
+              "name": "support.type.property-name.nss",
+              "match": "(?<![\\w-])(?:font-feature-settings|font-synthesis|mix-blend-mode|background-blend-mode|isolation|filter|backdrop\\-filter|font\\-optical\\-sizing|font\\-variation\\-settings|ring\\-shape|submenu\\-open\\-delay|number\\-boundary\\-tolerance|number\\-motion\\-duration|number\\-motion\\-tolerance|number\\-motion\\-decay|number\\-motion|\\-windows\\-badge\\-background\\-position|\\-windows\\-badge\\-border\\-bottom\\-color|\\-windows\\-badge\\-border\\-bottom\\-style|\\-windows\\-badge\\-border\\-bottom\\-width|\\-windows\\-badge\\-border\\-right\\-color|\\-windows\\-badge\\-border\\-right\\-style|\\-windows\\-badge\\-border\\-right\\-width|\\-windows\\-badge\\-background\\-repeat|\\-windows\\-badge\\-border\\-left\\-color|\\-windows\\-badge\\-border\\-left\\-style|\\-windows\\-badge\\-border\\-left\\-width|\\-windows\\-badge\\-background\\-image|\\-windows\\-badge\\-border\\-top\\-color|\\-windows\\-badge\\-border\\-top\\-style|\\-windows\\-badge\\-border\\-top\\-width|\\-windows\\-badge\\-transform\\-origin|\\-windows\\-badge\\-background\\-clip|\\-windows\\-badge\\-background\\-size|\\-windows\\-badge\\-border\\-bottom|\\-windows\\-badge\\-border\\-right|\\-windows\\-badge\\-border\\-left|\\-windows\\-badge\\-background|\\-windows\\-badge\\-border\\-top|\\-windows\\-badge\\-mask\\-image|\\-windows\\-badge\\-transform|\\-windows\\-badge\\-border\\-bottom\\-right\\-radius|\\-windows\\-badge\\-border\\-bottom\\-left\\-radius|\\-windows\\-badge\\-border\\-top\\-right\\-radius|\\-windows\\-badge\\-border\\-top\\-left\\-radius|\\-windows\\-badge\\-image\\-background\\-color|\\-windows\\-badge\\-text\\-stroke\\-color|\\-windows\\-badge\\-text\\-stroke\\-width|\\-windows\\-badge\\-background\\-color|\\-windows\\-badge\\-image\\-position|\\-windows\\-badge\\-letter\\-spacing|\\-windows\\-badge\\-padding\\-bottom|\\-windows\\-badge\\-vertical\\-align|\\-windows\\-badge\\-border\\-radius|\\-windows\\-badge\\-image\\-opacity|\\-windows\\-badge\\-padding\\-right|\\-windows\\-badge\\-border\\-color|\\-windows\\-badge\\-border\\-style|\\-windows\\-badge\\-border\\-width|\\-windows\\-badge\\-padding\\-left|\\-windows\\-badge\\-font\\-family|\\-windows\\-badge\\-font\\-weight|\\-windows\\-badge\\-padding\\-top|\\-windows\\-badge\\-text\\-shadow|\\-windows\\-badge\\-box\\-shadow|\\-windows\\-badge\\-font\\-style|\\-windows\\-badge\\-image\\-clip|\\-windows\\-badge\\-text\\-align|\\-windows\\-badge\\-font\\-size|\\-windows\\-badge\\-image\\-fit|\\-windows\\-badge\\-offset\\-x|\\-windows\\-badge\\-offset\\-y|\\-windows\\-badge\\-text\\-fit|\\-windows\\-badge\\-opacity|\\-windows\\-badge\\-padding|\\-windows\\-badge\\-border|\\-windows\\-badge\\-height|\\-windows\\-badge\\-color|\\-windows\\-badge\\-width|\\-windows\\-badge\\-size|\\-windows\\-title\\-bar\\-background\\-color|\\-windows\\-title\\-bar\\-foreground\\-color|\\-windows\\-title\\-bar\\-inactive\\-background\\-color|\\-windows\\-title\\-bar\\-inactive\\-foreground\\-color|\\-windows\\-title\\-bar\\-button\\-background\\-color|\\-windows\\-title\\-bar\\-button\\-foreground\\-color|\\-windows\\-title\\-bar\\-button\\-inactive\\-background\\-color|\\-windows\\-title\\-bar\\-button\\-inactive\\-foreground\\-color|\\-windows\\-title\\-bar\\-button\\-hover\\-background\\-color|\\-windows\\-title\\-bar\\-button\\-hover\\-foreground\\-color|\\-windows\\-title\\-bar\\-button\\-pressed\\-background\\-color|\\-windows\\-title\\-bar\\-button\\-pressed\\-foreground\\-color|clip\\-path|scroll\\-behavior|overlay\\-exit\\-duration|scroll\\-duration|scroll\\-timing\\-function|scroll\\-wheel\\-step|scrollbar\\-placement|scrollbar\\-track\\-radius|scrollbar\\-track\\-border\\-width|scrollbar\\-track\\-border\\-color|scrollbar\\-buttons|scrollbar\\-button\\-length|scrollbar\\-button\\-color|scrollbar\\-button\\-background|scrollbar\\-button\\-hover\\-background|scrollbar\\-button\\-active\\-background|scrollbar\\-button\\-disabled\\-color|scrollbar\\-button\\-radius|scrollbar\\-button\\-step|scrollbar\\-button\\-repeat\\-delay|scrollbar\\-button\\-repeat\\-interval|scrollbar\\-fade\\-in\\-duration|scrollbar\\-fade\\-out\\-duration|scrollbar\\-fade\\-out\\-delay|scrollbar\\-fade\\-timing\\-function|scrollbar\\-wheel\\-timeout|scrollbar\\-reveal\\-distance|scrollbar\\-opacity|scrollbar\\-visibility|scrollbar\\-width|scrollbar\\-thumb\\-color|scrollbar\\-track\\-color|scrollbar\\-radius|scrollbar\\-inset|scrollbar\\-min\\-thumb\\-length|\\-windows\\-title\\-bar\\-height|\\-window\\-frame\\-resize\\-corner\\-length|\\-window\\-frame\\-border\\-top\\-left\\-radius|\\-window\\-frame\\-border\\-top\\-right\\-radius|\\-window\\-frame\\-border\\-bottom\\-right\\-radius|\\-window\\-frame\\-border\\-bottom\\-left\\-radius|\\-window\\-frame\\-border\\-radius|\\-window\\-frame\\-resize\\-outset|\\-window\\-frame\\-border\\-width|\\-window\\-frame\\-border\\-style|\\-window\\-frame\\-border\\-color|\\-window\\-frame\\-resize\\-inset|\\-window\\-resize\\-grip\\-color|\\-window\\-frame\\-box\\-shadow|\\-window\\-frame\\-border|\\-window\\-resize\\-grip|border\\-bottom\\-right\\-radius|border\\-bottom\\-left\\-radius|text\\-decoration\\-thickness|border\\-top\\-right\\-radius|border\\-top\\-left\\-radius|grid\\-template\\-columns|text\\-decoration\\-color|text\\-decoration\\-style|text\\-decoration\\-line|background\\-position|border\\-bottom\\-color|border\\-bottom\\-style|border\\-bottom\\-width|border\\-image\\-source|grid\\-template\\-areas|outline\\-inner\\-color|outline\\-inner\\-width|border\\-right\\-color|border\\-right\\-style|border\\-right\\-width|grid\\-template\\-rows|background\\-repeat|border\\-left\\-color|border\\-left\\-style|border\\-left\\-width|grid\\-auto\\-columns|grid\\-column\\-start|stroke\\-trim\\-start|background\\-color|background\\-image|border\\-top\\-color|border\\-top\\-style|border\\-top\\-width|transform\\-origin|background\\-clip|background\\-size|grid\\-column\\-end|justify\\-content|object\\-position|stroke\\-trim\\-end|text\\-decoration|flex\\-direction|grid\\-auto\\-flow|grid\\-auto\\-rows|grid\\-row\\-start|letter\\-spacing|outline\\-offset|padding\\-bottom|pointer\\-events|text\\-transform|align\\-content|border\\-bottom|border\\-radius|justify\\-items|margin\\-bottom|outline\\-color|outline\\-style|outline\\-width|overflow\\-wrap|padding\\-right|place\\-content|stroke\\-radius|text\\-overflow|aspect\\-ratio|border\\-color|border\\-right|border\\-style|border\\-width|grid\\-row\\-end|justify\\-self|margin\\-right|padding\\-left|stroke\\-width|align\\-items|border\\-left|flex\\-shrink|font\\-symbol|font\\-family|font\\-weight|grid\\-column|line\\-height|margin\\-left|padding\\-top|place\\-items|user\\-select|white\\-space|align\\-self|background|border\\-top|box\\-shadow|box\\-sizing|column\\-gap|flex\\-basis|font\\-style|margin\\-top|max\\-height|min\\-height|object\\-fit|overflow\\-x|overflow\\-y|place\\-self|text\\-align|transition|visibility|animation|flex\\-flow|flex\\-grow|flex\\-wrap|font\\-size|grid\\-area|max\\-width|min\\-width|transform|grid\\-row|overflow|position|display|opacity|outline|padding|row\\-gap|z\\-index|border|bottom|cursor|height|margin|content|color|inset|order|right|width|flex|left|gap|top)(?![\\w-])"
+            },
+            {
+              "name": "meta.property-name.unknown.nss",
+              "match": ".+"
+            }
+          ]
+        },
+        "3": {
+          "name": "punctuation.separator.key-value.nss"
+        }
+      },
+      "end": "(;)|(?=\\})",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.terminator.rule.nss"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#value"
+        }
+      ]
+    },
+    "value": {
+      "patterns": [
+        {
+          "include": "#comment"
+        },
+        {
+          "name": "invalid.illegal.important.nss",
+          "match": "!\\s*important"
+        },
+        {
+          "name": "meta.function.variable.nss",
+          "begin": "(?<![\\w-])(var)(\\()",
+          "beginCaptures": {
+            "1": {
+              "name": "support.function.misc.nss"
+            },
+            "2": {
+              "name": "punctuation.section.function.begin.nss"
+            }
+          },
+          "end": "\\)",
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.section.function.end.nss"
+            }
+          },
+          "patterns": [
+            {
+              "name": "variable.other.custom-property.nss",
+              "match": "--[\\w-]+"
+            },
+            {
+              "name": "punctuation.separator.list.comma.nss",
+              "match": ","
+            },
+            {
+              "include": "#value"
+            }
+          ]
+        },
+        {
+          "name": "meta.function.calc.nss",
+          "begin": "(?<![\\w-])(calc|min|max|clamp)(\\()",
+          "beginCaptures": {
+            "1": {
+              "name": "support.function.misc.nss"
+            },
+            "2": {
+              "name": "punctuation.section.function.begin.nss"
+            }
+          },
+          "end": "\\)",
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.section.function.end.nss"
+            }
+          },
+          "patterns": [
+            {
+              "include": "#calc-items"
+            }
+          ]
+        },
+        {
+          "name": "meta.function.nss",
+          "begin": "(?<![\\w-])(rgba?|hsla?|color-mix|blur|brightness|contrast|grayscale|hue-rotate|invert|opacity|saturate|sepia|cubic-bezier|repeat|minmax|fit-content|(?:repeating-)?(?:linear|radial|conic)-gradient|translate[XY]?|scale[XY]?|rotate|skew[XY]?|matrix|inset|url)(\\()",
+          "beginCaptures": {
+            "1": {
+              "name": "support.function.misc.nss"
+            },
+            "2": {
+              "name": "punctuation.section.function.begin.nss"
+            }
+          },
+          "end": "\\)",
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.section.function.end.nss"
+            }
+          },
+          "patterns": [
+            {
+              "name": "punctuation.separator.list.comma.nss",
+              "match": ","
+            },
+            {
+              "include": "#value"
+            }
+          ]
+        },
+        {
+          "name": "constant.other.color.rgb-value.hex.nss",
+          "match": "(#)(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3,4})(?![\\w-])",
+          "captures": {
+            "1": {
+              "name": "punctuation.definition.constant.nss"
+            }
+          }
+        },
+        {
+          "include": "#number"
+        },
+        {
+          "name": "support.constant.property-value.global.nss",
+          "match": "(?<![\\w-])(?:inherit|initial|unset)(?![\\w-])"
+        },
+        {
+          "name": "support.constant.color.system.nss",
+          "match": "(?i)(?<![\\w-])(?:AccentColorText|AccentColor|ActiveText|ButtonBorder|ButtonFace|ButtonText|CanvasText|Canvas|FieldText|Field|GrayText|HighlightText|Highlight|LinkText|MarkText|Mark|SelectedItemText|SelectedItem|VisitedText)(?![\\w-])"
+        },
+        {
+          "name": "support.constant.color.nss",
+          "match": "(?i)(?<![\\w-])(?:currentcolor|transparent|lightgoldenrodyellow|mediumspringgreen|mediumaquamarine|mediumslateblue|mediumturquoise|mediumvioletred|blanchedalmond|cornflowerblue|darkolivegreen|lightslategray|lightslategrey|lightsteelblue|mediumseagreen|darkgoldenrod|darkslateblue|darkslategray|darkslategrey|darkturquoise|lavenderblush|lightseagreen|palegoldenrod|paleturquoise|palevioletred|rebeccapurple|antiquewhite|darkseagreen|lemonchiffon|lightskyblue|mediumorchid|mediumpurple|midnightblue|darkmagenta|deepskyblue|floralwhite|forestgreen|greenyellow|lightsalmon|lightyellow|navajowhite|saddlebrown|springgreen|yellowgreen|aquamarine|blueviolet|chartreuse|darkorange|darkorchid|darksalmon|darkviolet|dodgerblue|ghostwhite|lightcoral|lightgreen|mediumblue|papayawhip|powderblue|sandybrown|whitesmoke|aliceblue|burlywood|cadetblue|chocolate|darkgreen|darkkhaki|firebrick|gainsboro|goldenrod|indianred|lawngreen|lightblue|lightcyan|lightgray|lightgrey|lightpink|limegreen|mintcream|mistyrose|olivedrab|orangered|palegreen|peachpuff|rosybrown|royalblue|slateblue|slategray|slategrey|steelblue|turquoise|cornsilk|darkblue|darkcyan|darkgray|darkgrey|deeppink|honeydew|lavender|moccasin|seagreen|seashell|crimson|darkred|dimgray|dimgrey|fuchsia|hotpink|magenta|oldlace|skyblue|thistle|bisque|indigo|maroon|orange|orchid|purple|salmon|sienna|silver|tomato|violet|yellow|azure|beige|black|brown|coral|green|ivory|khaki|linen|olive|wheat|white|aqua|blue|cyan|gold|gray|grey|lime|navy|peru|pink|plum|snow|teal|red|tan)(?![\\w-])"
+        },
+        {
+          "name": "support.constant.property-value.nss",
+          "match": "(?<![\\w-])(?:on|off|weight|style|isolate|multiply|screen|darken|lighten|color-dodge|color-burn|hard-light|soft-light|difference|exclusion|hue|saturation|color|luminosity|from|inline|native|srgb|oklab|linear\\-increase|exponential|middle|shrink|smooth|lines|overlay|reserve|autohide|standard|tall|alternate\\-reverse|farthest\\-corner|closest\\-corner|column\\-reverse|farthest\\-side|space\\-between|closest\\-side|line\\-through|space\\-around|space\\-evenly|wrap\\-reverse|content\\-box|ease\\-in\\-out|fit\\-content|max\\-content|min\\-content|not\\-allowed|row\\-reverse|border\\-box|padding\\-box|break\\-word|capitalize|col\\-resize|flex\\-start|row\\-resize|scale\\-down|alternate|auto\\-fill|backwards|crosshair|ew\\-resize|nwse\\-resize|nesw\\-resize|lowercase|no\\-repeat|ns\\-resize|underline|uppercase|absolute|anywhere|auto\\-fit|ease\\-out|ellipsis|flex\\-end|forwards|infinite|overline|pre\\-line|pre\\-wrap|progress|relative|repeat\\-x|repeat\\-y|contain|content|default|ease\\-in|ellipse|pointer|reverse|running|stretch|visible|bottom|center|circle|column|dashed|dotted|double|hidden|italic|linear|medium|normal|nowrap|paused|repeat|scroll|static|block|cover|dense|inset|round|right|solid|start|thick|auto|bold|both|clip|ease|fill|flex|grid|help|left|move|none|span|text|thin|wait|wavy|wrap|all|end|pre|row|top|at|to)(?![\\w-])"
+        },
+        {
+          "name": "string.quoted.double.nss",
+          "begin": "\"",
+          "end": "\"",
+          "patterns": [
+            {
+              "name": "constant.character.escape.nss",
+              "match": "\\\\(?:[0-9A-Fa-f]{1,6}(?:\\r\\n|[ \\t\\r\\n\\f])?|\\r\\n|[\\s\\S])"
+            }
+          ]
+        },
+        {
+          "name": "string.quoted.single.nss",
+          "begin": "'",
+          "end": "'",
+          "patterns": [
+            {
+              "name": "constant.character.escape.nss",
+              "match": "\\\\(?:[0-9A-Fa-f]{1,6}(?:\\r\\n|[ \\t\\r\\n\\f])?|\\r\\n|[\\s\\S])"
+            }
+          ]
+        },
+        {
+          "name": "punctuation.separator.list.comma.nss",
+          "match": ","
+        },
+        {
+          "name": "support.constant.property-value.property-name.nss",
+          "match": "(?<![\\w-])(?:ring\\-shape|submenu\\-open\\-delay|number\\-boundary\\-tolerance|number\\-motion\\-duration|number\\-motion\\-tolerance|number\\-motion\\-decay|number\\-motion|clip\\-path|scroll\\-behavior|overlay\\-exit\\-duration|scroll\\-duration|scroll\\-timing\\-function|scroll\\-wheel\\-step|scrollbar\\-placement|scrollbar\\-track\\-radius|scrollbar\\-track\\-border\\-width|scrollbar\\-track\\-border\\-color|scrollbar\\-buttons|scrollbar\\-button\\-length|scrollbar\\-button\\-color|scrollbar\\-button\\-background|scrollbar\\-button\\-hover\\-background|scrollbar\\-button\\-active\\-background|scrollbar\\-button\\-disabled\\-color|scrollbar\\-button\\-radius|scrollbar\\-button\\-step|scrollbar\\-button\\-repeat\\-delay|scrollbar\\-button\\-repeat\\-interval|scrollbar\\-fade\\-in\\-duration|scrollbar\\-fade\\-out\\-duration|scrollbar\\-fade\\-out\\-delay|scrollbar\\-fade\\-timing\\-function|scrollbar\\-wheel\\-timeout|scrollbar\\-reveal\\-distance|scrollbar\\-opacity|scrollbar\\-visibility|scrollbar\\-width|scrollbar\\-thumb\\-color|scrollbar\\-track\\-color|scrollbar\\-radius|scrollbar\\-inset|scrollbar\\-min\\-thumb\\-length|\\-windows\\-title\\-bar\\-height|\\-window\\-frame\\-resize\\-corner\\-length|\\-window\\-frame\\-border\\-top\\-left\\-radius|\\-window\\-frame\\-border\\-top\\-right\\-radius|\\-window\\-frame\\-border\\-bottom\\-right\\-radius|\\-window\\-frame\\-border\\-bottom\\-left\\-radius|\\-window\\-frame\\-border\\-radius|\\-window\\-frame\\-resize\\-outset|\\-window\\-frame\\-border\\-width|\\-window\\-frame\\-border\\-style|\\-window\\-frame\\-border\\-color|\\-window\\-frame\\-resize\\-inset|\\-window\\-resize\\-grip\\-color|\\-window\\-frame\\-box\\-shadow|\\-window\\-frame\\-border|\\-window\\-resize\\-grip|border\\-bottom\\-right\\-radius|border\\-bottom\\-left\\-radius|text\\-decoration\\-thickness|border\\-top\\-right\\-radius|border\\-top\\-left\\-radius|grid\\-template\\-columns|text\\-decoration\\-color|text\\-decoration\\-style|text\\-decoration\\-line|background\\-position|border\\-bottom\\-color|border\\-bottom\\-style|border\\-bottom\\-width|border\\-image\\-source|grid\\-template\\-areas|outline\\-inner\\-color|outline\\-inner\\-width|border\\-right\\-color|border\\-right\\-style|border\\-right\\-width|grid\\-template\\-rows|background\\-repeat|border\\-left\\-color|border\\-left\\-style|border\\-left\\-width|grid\\-auto\\-columns|grid\\-column\\-start|stroke\\-trim\\-start|background\\-color|background\\-image|border\\-top\\-color|border\\-top\\-style|border\\-top\\-width|transform\\-origin|background\\-clip|background\\-size|grid\\-column\\-end|justify\\-content|object\\-position|stroke\\-trim\\-end|text\\-decoration|flex\\-direction|grid\\-auto\\-flow|grid\\-auto\\-rows|grid\\-row\\-start|letter\\-spacing|outline\\-offset|padding\\-bottom|pointer\\-events|text\\-transform|align\\-content|border\\-bottom|border\\-radius|justify\\-items|margin\\-bottom|outline\\-color|outline\\-style|outline\\-width|overflow\\-wrap|padding\\-right|place\\-content|stroke\\-radius|text\\-overflow|aspect\\-ratio|border\\-color|border\\-right|border\\-style|border\\-width|grid\\-row\\-end|justify\\-self|margin\\-right|padding\\-left|stroke\\-width|align\\-items|border\\-left|flex\\-shrink|font\\-symbol|font\\-family|font\\-weight|grid\\-column|line\\-height|margin\\-left|padding\\-top|place\\-items|user\\-select|white\\-space|align\\-self|background|border\\-top|box\\-shadow|box\\-sizing|column\\-gap|flex\\-basis|font\\-style|margin\\-top|max\\-height|min\\-height|object\\-fit|overflow\\-x|overflow\\-y|place\\-self|text\\-align|transition|visibility|animation|flex\\-flow|flex\\-grow|flex\\-wrap|font\\-size|grid\\-area|max\\-width|min\\-width|transform|grid\\-row|overflow|position|display|opacity|outline|padding|row\\-gap|z\\-index|border|bottom|cursor|height|margin|content|color|inset|order|right|width|flex|left|gap|top)(?![\\w-])"
+        }
+      ]
+    },
+    "number": {
+      "name": "constant.numeric.nss",
+      "match": "(?<![\\w-])[-+]?(?:\\d+\\.?\\d*|\\.\\d+)(?:(lines|px|rem|em|ch|ex|vmin|vmax|vw|vh|ms|s|deg|grad|rad|turn|fr|%)|(?=[^\\w-]|$))",
+      "captures": {
+        "1": {
+          "name": "keyword.other.unit.nss"
+        }
+      }
+    },
+    "selector-items": {
+      "patterns": [
+        {
+          "include": "#comment"
+        },
+        {
+          "name": "invalid.illegal.window-selector.nss",
+          "match": "(?<![\\w.#:-])Window(?![\\w-])"
+        },
+        {
+          "name": "entity.name.tag.reference.nss",
+          "match": "&"
+        },
+        {
+          "name": "entity.name.tag.wildcard.nss",
+          "match": "\\*"
+        },
+        {
+          "match": "(\\.)[A-Za-z_-][\\w-]*",
+          "name": "entity.other.attribute-name.class.nss",
+          "captures": {
+            "1": {
+              "name": "punctuation.definition.entity.nss"
+            }
+          }
+        },
+        {
+          "match": "(#)[A-Za-z_-][\\w-]*",
+          "name": "entity.other.attribute-name.id.nss",
+          "captures": {
+            "1": {
+              "name": "punctuation.definition.entity.nss"
+            }
+          }
+        },
+        {
+          "name": "keyword.operator.combinator.nss",
+          "match": "(?i)::deep(?![\\w-])"
+        },
+        {
+          "name": "entity.other.attribute-name.pseudo-element.nss",
+          "match": "(?i)::(?:before|after|placeholder|selection)(?![\\w-])"
+        },
+        {
+          "name": "entity.other.attribute-name.pseudo-element.nss",
+          "match": "(?i)::part\\([A-Za-z_][\\w-]*\\)"
+        },
+        {
+          "name": "meta.function.pseudo-class.nss",
+          "begin": "(:)(nth-last-of-type|nth-last-child|nth-of-type|nth-child|nth-item|where|state|has|not|is)(\\()",
+          "beginCaptures": {
+            "1": {
+              "name": "punctuation.definition.entity.nss"
+            },
+            "2": {
+              "name": "entity.other.attribute-name.pseudo-class.nss"
+            },
+            "3": {
+              "name": "punctuation.section.function.begin.nss"
+            }
+          },
+          "end": "\\)",
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.section.function.end.nss"
+            }
+          },
+          "patterns": [
+            {
+              "name": "support.constant.property-value.nss",
+              "match": "(?<![\\w-])(?:middle|shrink|standard|tall|odd|even|of)(?![\\w-])"
+            },
+            {
+              "name": "constant.numeric.nss",
+              "match": "[+-]?\\d*n(?:\\s*[+-]\\s*\\d+)?(?![\\w-])|[+-]?\\d+"
+            },
+            {
+              "include": "#selector-items"
+            }
+          ]
+        },
+        {
+          "match": "(:)(?:enabled|indeterminate|read-only|read-write|placeholder-shown|user-valid|user-invalid|valid|invalid|required|optional|wheel-scrolling|popup-above|popup-left|popup-right|popup-origin-right|popup-origin-bottom|window-active|window-inactive|hover|active|focus-visible|focus-within|focus|disabled|checked|first-child|last-child|only-child|first-of-type|last-of-type|only-of-type|first-item|last-item|component-root|empty|root)(?![\\w-])",
+          "name": "entity.other.attribute-name.pseudo-class.nss",
+          "captures": {
+            "1": {
+              "name": "punctuation.definition.entity.nss"
+            }
+          }
+        },
+        {
+          "name": "invalid.illegal.pseudo.nss",
+          "match": "::?[\\w-]+(?:\\([^)]*\\))?"
+        },
+        {
+          "name": "meta.attribute-selector.nss",
+          "match": "(\\[)\\s*([A-Za-z_-][\\w-]*)\\s*(?:([~|^$*]?=)\\s*(?:(\"(?:[^\"\\\\]|\\\\[\\s\\S])*\"|'(?:[^'\\\\]|\\\\[\\s\\S])*')|([^\\]\\s]+))\\s*(?:(?<=\\s)([iIsS])(?![\\w-]))?)?\\s*(\\])",
+          "captures": {
+            "1": {
+              "name": "punctuation.definition.entity.nss"
+            },
+            "2": {
+              "name": "entity.other.attribute-name.nss"
+            },
+            "3": {
+              "name": "keyword.operator.pattern.nss"
+            },
+            "4": {
+              "name": "string.quoted.double.nss"
+            },
+            "5": {
+              "name": "string.unquoted.attribute-value.nss"
+            },
+            "6": {
+              "name": "keyword.operator.pattern.nss"
+            },
+            "7": {
+              "name": "punctuation.definition.entity.nss"
+            }
+          }
+        },
+        {
+          "name": "invalid.illegal.attribute-selector.nss",
+          "match": "\\[[^\\]]*\\]?"
+        },
+        {
+          "name": "keyword.operator.combinator.nss",
+          "match": "[>+~]"
+        },
+        {
+          "name": "punctuation.separator.list.comma.nss",
+          "match": ","
+        },
+        {
+          "name": "entity.name.tag.nss",
+          "match": "[A-Za-z_][\\w-]*"
+        }
+      ]
+    },
+    "calc-items": {
+      "patterns": [
+        {
+          "name": "meta.group.nss",
+          "begin": "\\(",
+          "beginCaptures": {
+            "0": {
+              "name": "punctuation.section.function.begin.nss"
+            }
+          },
+          "end": "\\)",
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.section.function.end.nss"
+            }
+          },
+          "patterns": [
+            {
+              "include": "#calc-items"
+            }
+          ]
+        },
+        {
+          "name": "keyword.operator.arithmetic.nss",
+          "match": "[*/]|(?<=\\s)[-+](?=\\s)"
+        },
+        {
+          "include": "#value"
+        }
+      ]
+    }
+  }
+}

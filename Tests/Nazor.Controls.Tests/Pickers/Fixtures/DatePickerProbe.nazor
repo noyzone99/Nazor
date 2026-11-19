@@ -1,0 +1,23 @@
+@implements IRefreshable
+@using System.Globalization
+<Field LabelText="Birthday">
+    <DatePicker Class="date" @bind-Value="Date" Culture="Culture" Today="Today" Minimum="Minimum" Maximum="Maximum" Clearable="true" ShowTodayButton="true" />
+</Field>
+<TimePicker Class="time" @bind-Value="Time" Culture="Culture" Use24Hour="Use24" MinuteIncrement="15" Minimum="MinTime" AccessibleName="Start" />
+<TimePicker Class="time-list" @bind-Value="ListTime" Culture="Culture" Presentation="TimePickerPresentation.List" MinuteIncrement="30" AccessibleName="Slot" />
+<DateTimePicker Class="moment" @bind-Value="Moment" Culture="Culture" Today="Today" AccessibleName="Meeting" />
+<Button Class="outside">Outside</Button>
+
+@code {
+    public void Refresh() => StateHasChanged();
+    public DateOnly? Date { get; set; }
+    public TimeOnly? Time { get; set; }
+    public TimeOnly? ListTime { get; set; }
+    public DateTime? Moment { get; set; }
+    public bool? Use24 { get; set; }
+    public DateOnly Today { get; set; } = new DateOnly(2026, 3, 10);
+    public CultureInfo Culture { get; set; } = CultureInfo.GetCultureInfo("it-IT");
+    public DateOnly? Minimum { get; set; } = new DateOnly(2026, 1, 1);
+    public DateOnly? Maximum { get; set; } = new DateOnly(2026, 12, 31);
+    public TimeOnly? MinTime { get; set; }
+}

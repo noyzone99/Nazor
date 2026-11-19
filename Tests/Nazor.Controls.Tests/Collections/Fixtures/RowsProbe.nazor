@@ -1,0 +1,28 @@
+@implements IRefreshable
+<RowGroup Class="group" Title="Network" Description="Connections and sharing">
+    <HeaderActions><Button Class="add">Add</Button></HeaderActions>
+    <ChildContent>
+        <ActionRow Class="wifi" Title="Wi-Fi" Subtitle="Home network" Chevron="true" OnClick="() => Opened++" />
+        <ActionRow Class="share" Title="Share connection" ActivatesTrailing="true">
+            <Trailing><CheckBox Class="share-check" @bind-IsChecked="Sharing" AccessibleName="Share connection" /></Trailing>
+        </ActionRow>
+        @if (ShowExtra)
+        {
+            <ActionRow Class="extra" Title="Extra" />
+        }
+        <ActionRow Class="off" Title="Airplane mode" Disabled="true" ActivatesTrailing="true">
+            <Trailing><CheckBox Class="off-check" @bind-IsChecked="Airplane" /></Trailing>
+        </ActionRow>
+    </ChildContent>
+</RowGroup>
+<ActionRow Class="alone" Title="Standalone" Subtitle="No group">
+    <Leading><TextBlock>*</TextBlock></Leading>
+</ActionRow>
+
+@code {
+    public void Refresh() => StateHasChanged();
+    public int Opened { get; set; }
+    public bool Sharing { get; set; }
+    public bool Airplane { get; set; }
+    public bool ShowExtra { get; set; }
+}

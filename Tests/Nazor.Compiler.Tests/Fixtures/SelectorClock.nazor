@@ -1,0 +1,20 @@
+@typeparam T
+
+<Container Class="clock-panel">
+    <TextBlock Class="clock-time">@Value</TextBlock>
+    <SelectorDetails />
+    @if (Depth > 0)
+    {
+        <SelectorClock Value="@Value" Depth="@(Depth - 1)">
+            <TextBlock Class="clock-projected">From outer Clock</TextBlock>
+            @ChildContent
+        </SelectorClock>
+    }
+    @ChildContent
+</Container>
+
+@code {
+    [Parameter] public T Value { get; set; } = default!;
+    [Parameter] public int Depth { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+}

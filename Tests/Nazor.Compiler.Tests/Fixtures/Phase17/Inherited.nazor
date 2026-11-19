@@ -1,0 +1,10 @@
+@inherits BaseCard
+@implements IDisposable
+@attribute [DemoTag]
+
+<TextBlock>@Caption</TextBlock>
+
+@code {
+    public static int DisposeCount { get; private set; }
+    public void Dispose() => DisposeCount++;
+}

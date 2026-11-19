@@ -1,0 +1,9 @@
+<DataGrid TItem="City" Items="items" AccessibleName="City populations" Style="height: 180px">
+    <DataGridColumn TItem="City" Key="name" Header="City" Field="city => city.Name" Flex="1" />
+    <DataGridColumn TItem="City" Key="population" Header="Population" Field="city => city.Population" Width="120" Format="N0" />
+</DataGrid>
+
+@code {
+    public sealed record City(string Name, int Population);
+    private readonly City[] items = [new("Rome", 2750000), new("Milan", 1370000), new("Turin", 850000)];
+}

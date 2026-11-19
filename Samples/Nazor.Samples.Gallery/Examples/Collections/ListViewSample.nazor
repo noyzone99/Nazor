@@ -1,0 +1,15 @@
+<ListView TItem="string" Items="items" ItemKey="city => city" @bind-SelectedItem="selection" CanReorderItems="true" OnItemReorder="Move" AccessibleName="Cities" Style="height: 150px" />
+<TextBlock>@(selection ?? "Choose a city")</TextBlock>
+<TextBlock>Drag a city, or focus one and press Ctrl+Shift+Up/Down (Command+Shift on macOS).</TextBlock>
+
+@code {
+    private string[] items = ["Rome", "Milan", "Turin", "Bologna", "Naples"];
+    private string? selection;
+    private void Move(ItemReorderRequest<string> request)
+    {
+        var updated = items.ToList();
+        updated.RemoveAt(request.OldIndex);
+        updated.Insert(request.NewIndex, request.Item);
+        items = updated.ToArray();
+    }
+}

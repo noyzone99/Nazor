@@ -1,0 +1,17 @@
+<linker>
+  <!-- IL2081 is emitted by CsWinRT's dynamic ABI fallback. Both assemblies are copied intact for JIT trimming. -->
+  <assembly fullname="Microsoft.Windows.SDK.NET">
+    <attribute fullname="System.Diagnostics.CodeAnalysis.UnconditionalSuppressMessageAttribute" assembly="System.Runtime">
+      <argument>Trimming</argument>
+      <argument>IL2081</argument>
+      <property name="Justification">The SDK preserves the entire WinRT projection and runtime, including the ABI value types used by the JIT fallback.</property>
+    </attribute>
+  </assembly>
+  <assembly fullname="WinRT.Runtime">
+    <attribute fullname="System.Diagnostics.CodeAnalysis.UnconditionalSuppressMessageAttribute" assembly="System.Runtime">
+      <argument>Trimming</argument>
+      <argument>IL2081</argument>
+      <property name="Justification">The SDK preserves the entire WinRT projection and runtime, including the ABI value types used by the JIT fallback.</property>
+    </attribute>
+  </assembly>
+</linker>

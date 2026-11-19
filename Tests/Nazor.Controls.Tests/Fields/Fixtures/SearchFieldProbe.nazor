@@ -1,0 +1,37 @@
+@implements IRefreshable
+<Field LabelText="Find a place">
+    <SearchField TItem="SearchEntry" @ref="Search" Class="search" Value="@Value" ValueChanged="Changed"
+                 Suggestions="Suggestions" AsyncSuggestionProvider="Provider" MaxSuggestions="Maximum"
+                 ItemText="entry => entry.Title" Filter="Match" Disabled="Disabled" IsQueryButtonEnabled="QueryEnabled"
+                 TextEdited="Edited.Add" SuggestionChosen="Chosen.Add" QuerySubmitted="Submitted" OnSearch="Searches.Add">
+        <ItemTemplate Context="entry"><TextBlock Class="title">@entry.Title</TextBlock><TextBlock Class="detail">@entry.Detail</TextBlock></ItemTemplate>
+        <EmptyContent>No places</EmptyContent>
+        <LoadingContent>Finding places</LoadingContent>
+        <ErrorContent>Try again</ErrorContent>
+    </SearchField>
+</Field>
+<Button @ref="Outside" Class="outside">Outside</Button>
+@code {
+    public SearchField<SearchEntry> Search { get; set; } = null!;
+    public Button Outside { get; set; } = null!;
+    public string Value { get; set; } = "";
+    public IReadOnlyList<SearchEntry> Suggestions { get; set; } = [new("Rome", "Italy"), new("Milan", "Italy"), new("Paris", "France")];
+    public Func<string, CancellationToken, Task<IReadOnlyList<SearchEntry>>>? Provider { get; set; }
+    public Func<SearchEntry, string, bool>? Match { get; set; }
+    public int Maximum { get; set; } = 8;
+    public bool Disabled { get; set; }
+    public bool QueryEnabled { get; set; } = true;
+    public bool MoveFocusOnSubmit { get; set; }
+    public List<string> Changes { get; } = [];
+    public List<string> Edited { get; } = [];
+    public List<SearchEntry> Chosen { get; } = [];
+    public List<SearchQuery<SearchEntry>> Queries { get; } = [];
+    public List<string> Searches { get; } = [];
+    private void Changed(string value) { Value = value; Changes.Add(value); }
+    private async Task Submitted(SearchQuery<SearchEntry> query)
+    {
+        Queries.Add(query);
+        if (MoveFocusOnSubmit) await Outside.FocusAsync(preventScroll: true);
+    }
+    public void Refresh() => StateHasChanged();
+}

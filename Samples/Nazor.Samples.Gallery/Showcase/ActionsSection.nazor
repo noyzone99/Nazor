@@ -1,0 +1,60 @@
+@using Nazor.Themes.NazorLeaf
+@using Nazor.Controls.Primitives
+
+<Container Class="demo-section">
+    <Heading Level="3">Pulsanti</Heading>
+    <Paragraph Class="demo-lead">Al passaggio del mouse la foglia si apre un poco, alla pressione si stringe. Il colore pieno getta luce sotto di sé, e il clic accende un riflesso dal punto toccato.</Paragraph>
+    <Container Class="demo-card">
+        <Heading Level="4">Gerarchia delle azioni</Heading>
+        <Container Class="demo-row">
+            <Button Appearance="ControlAppearance.Accent" OnClick='() => Notify("Modifiche salvate")'>Salva modifiche</Button>
+            <Button Appearance="ControlAppearance.Tonal" OnClick='() => Notify("Tema duplicato")'>Duplica</Button>
+            <Button Appearance="ControlAppearance.Outline">Annulla</Button>
+            <Button Appearance="ControlAppearance.Subtle">Altre opzioni</Button>
+            <Button Appearance="ControlAppearance.Accent" Intent="Intent.Danger" OnClick="() => deleting = true">Elimina tema</Button>
+        </Container>
+        <Container Class="demo-row">
+            <Button Appearance="ControlAppearance.Accent"><Leading><Icon Symbol="@LeafSymbol.Plus" /></Leading><ChildContent>Nuovo progetto</ChildContent></Button>
+            <Button Appearance="ControlAppearance.Outline"><Leading><Icon Symbol="@LeafSymbol.Download" /></Leading><ChildContent>Esporta</ChildContent></Button>
+            <SplitButton Appearance="ControlAppearance.Tonal" OnClick='() => Notify("Build avviata per tutte le piattaforme")'>
+                <Menu>
+                    <MenuItem OnClick='() => Notify("Build di debug")'>Build di debug</MenuItem>
+                    <MenuItem OnClick='() => Notify("Build di rilascio")'>Build di rilascio</MenuItem>
+                    <MenuSeparator />
+                    <MenuItem>Configura destinazioni</MenuItem>
+                </Menu>
+                <ChildContent>Avvia build</ChildContent>
+            </SplitButton>
+            <ToggleButton Appearance="ControlAppearance.Outline"><Leading><Icon Symbol="@LeafSymbol.Pin" /></Leading><ChildContent>Fissa</ChildContent></ToggleButton>
+            <Button Appearance="ControlAppearance.Accent" Disabled="true">Pubblica</Button>
+        </Container>
+    </Container>
+    <Container Class="demo-grid">
+        <Container Class="demo-card">
+            <Heading Level="4">Barra degli strumenti</Heading>
+            <Toolbar AccessibleName="Strumenti">
+                <Button AccessibleName="Annulla" Tooltip="Annulla"><Leading><Icon Symbol="@LeafSymbol.Undo" /></Leading></Button>
+                <Button AccessibleName="Ripeti" Tooltip="Ripeti"><Leading><Icon Symbol="@LeafSymbol.Redo" /></Leading></Button>
+                <Button AccessibleName="Copia" Tooltip="Copia"><Leading><Icon Symbol="@LeafSymbol.Copy" /></Leading></Button>
+                <Button AccessibleName="Condividi" Tooltip="Condividi"><Leading><Icon Symbol="@LeafSymbol.Share" /></Leading></Button>
+                <ToggleButton AccessibleName="Preferito" Tooltip="Preferito" @bind-IsPressed="favorite"><Leading><Icon Symbol="@(favorite ? LeafSymbol.StarFilled : LeafSymbol.Star)" /></Leading></ToggleButton>
+                <Button AccessibleName="Altro" Tooltip="Altro"><Leading><Icon Symbol="@LeafSymbol.More" /></Leading></Button>
+            </Toolbar>
+        </Container>
+        <Container Class="demo-card demo-floating">
+            <Heading Level="4">Azione principale flottante</Heading>
+            <FloatingActionButton OnClick='() => Notify("Nuovo documento creato")'><Leading><Icon Symbol="@LeafSymbol.Pen" /></Leading><ChildContent>Componi</ChildContent></FloatingActionButton>
+        </Container>
+    </Container>
+    <AlertDialog @bind-IsOpen="deleting" Severity="Severity.Warning" Title="Eliminare il tema «Vassoio scuro»?" Message="Questa operazione non può essere annullata.">
+        <Actions><DialogButton Role="DialogButtonRole.Cancel">Annulla</DialogButton><DialogButton Role="DialogButtonRole.Destructive">Elimina</DialogButton></Actions>
+    </AlertDialog>
+</Container>
+
+@code {
+    [CascadingParameter] public ToastQueue Notifications { get; set; } = null!;
+    private bool deleting;
+    private bool favorite;
+
+    private void Notify(string message) => Notifications.Show(new ToastOptions { Message = message, Duration = TimeSpan.FromMilliseconds(4200) });
+}

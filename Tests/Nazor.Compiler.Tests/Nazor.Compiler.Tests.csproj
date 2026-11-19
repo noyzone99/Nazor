@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <AssemblyMetadata Include="Nazor.TestDotnetRoot" Value="$(NetCoreRoot)" />
+    <PackageReference Include="xunit.v3" />
+    <PackageReference Include="Tmds.DBus.Protocol" PrivateAssets="all" />
+    <ProjectReference Include="../../Sources/Tools/Nazor.Compiler/Nazor.Compiler.csproj" />
+    <ProjectReference Include="../../Sources/Core/Nazor.Controls/Nazor.Controls.csproj" />
+    <ProjectReference Include="../Fixtures/Projects/ExternalComponents/Nazor.Sample.Components.csproj" />
+    <ProjectReference Include="../Nazor.Testing/Nazor.Testing.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="Xunit" />
+    <Compile Include="../RepositoryPaths.cs" Link="Infrastructure/RepositoryPaths.cs" />
+    <Compile Remove="Fixtures/**" />
+    <None Include="Fixtures/**" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../Samples/Nazor.Samples.Counter/Counter.nazor" Link="Fixtures/Counter.nazor" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../Fixtures/Projects/LibraryConsumer/LibraryCounter.nazor" Link="Fixtures/LibraryCounter.nazor" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  <Import Project="../../Sources/Tools/Nazor.Roslyn.props" />
+</Project>

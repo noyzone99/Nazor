@@ -1,0 +1,6 @@
+<TextBlock>@Prefix@Value</TextBlock>
+
+@code {
+    [Parameter] public string Prefix { get; set; } = "";
+    [CascadingParameter(Name = "message")] private string Value { get; set; } = "fallback";
+}

@@ -1,0 +1,16 @@
+<Select Items="values" @bind-Value="choice">
+    <ItemTemplate Context="option"><TextBlock>@option</TextBlock></ItemTemplate>
+</Select>
+<Expander Header="Details">
+    <HeaderContent><TextBlock>Details</TextBlock></HeaderContent>
+    <ChildContent><TextBlock>Expanded content</TextBlock></ChildContent>
+</Expander>
+<Tabs Placement="TabsPlacement.Bottom">
+    <Tab Label="First"><TextBlock>First panel</TextBlock></Tab>
+    <Tab Label="Second"><TextBlock>Second panel</TextBlock></Tab>
+</Tabs>
+
+@code {
+    private readonly string[] values = ["One", "Two"];
+    private string choice = "One";
+}

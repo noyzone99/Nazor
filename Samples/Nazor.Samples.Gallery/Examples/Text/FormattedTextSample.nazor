@@ -1,0 +1,5 @@
+<Paragraph IsTextSelectionEnabled="true"><Span>Copy the <Strong>selected text</Strong></Span> with <Kbd>Ctrl</Kbd> + <Kbd>C</Kbd>. <Emphasis>Text</Emphasis>, <InlineCode>inline code</InlineCode> and <Mark>highlights</Mark> wrap together.</Paragraph>
+<Paragraph><Deleted>Old wording</Deleted> <Inserted>Revised wording</Inserted>; H<Subscript>2</Subscript>O and x<Superscript>2</Superscript>.<LineBreak /><Abbreviation Tooltip="Application programming interface">API</Abbreviation> <SmallText>reference</SmallText>: <Quote>Keep it simple.</Quote></Paragraph>
+<Blockquote Cite="Edsger W. Dijkstra">Simplicity is prerequisite for reliability.</Blockquote>
+<CodeBlock Language="csharp" ShowLineNumbers="true">var total = 12;
+Console.WriteLine(total);</CodeBlock>

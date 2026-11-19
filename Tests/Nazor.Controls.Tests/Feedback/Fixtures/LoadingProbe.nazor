@@ -1,0 +1,19 @@
+@implements IRefreshable
+@using Nazor.Controls.Primitives
+<LoadingBoundary Class="boundary" Time="Clock" IsLoading="Loading" Error="Failure" OnRetry="() => Retries++">
+    <TextBlock Class="data">Data</TextBlock>
+</LoadingBoundary>
+<LoadingBoundary Class="custom" Time="Clock" IsLoading="Loading" ErrorMessage="@CustomError" Delay="TimeSpan.Zero" MinimumDuration="TimeSpan.Zero">
+    <Loading><TextBlock Class="wait">Wait</TextBlock></Loading>
+    <ErrorContent Context="message"><TextBlock Class="oops">@message</TextBlock></ErrorContent>
+    <ChildContent><TextBlock>Other</TextBlock></ChildContent>
+</LoadingBoundary>
+
+@code {
+    public void Refresh() => StateHasChanged();
+    public static FeedbackClock Clock { get; set; } = new();
+    public bool Loading { get; set; }
+    public Exception? Failure { get; set; }
+    public string? CustomError { get; set; }
+    public int Retries { get; set; }
+}

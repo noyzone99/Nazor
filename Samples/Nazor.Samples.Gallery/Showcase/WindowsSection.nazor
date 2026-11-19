@@ -1,0 +1,51 @@
+@using Nazor.Themes.NazorLeaf
+@inject IWindowService Windows
+
+<Container Class="demo-section">
+    <Heading Level="3">Barra del titolo</Heading>
+    <Paragraph Class="demo-lead">Confronta due altezze e apri una finestra reale per provare i pulsanti del sistema o le luci a foglia.</Paragraph>
+    <Container Class="demo-row">
+        <SegmentedControl TValue="string" @bind-Value="platform" AccessibleName="Piattaforma">
+            <Segment Value="@("Windows")">Windows</Segment><Segment Value="@("macOS")">macOS</Segment><Segment Value="@("Linux")">Linux</Segment>
+        </SegmentedControl>
+        <Switch @bind-IsOn="inactive">Inattiva</Switch>
+        <Switch @bind-IsOn="drag">Aree di trascinamento</Switch>
+    </Container>
+    @foreach (var size in sizes)
+    {
+        <Container Class="demo-card">
+            <TextBlock>@size</TextBlock>
+            <Container Class="@(drag ? "demo-row demo-titlebar drag" : "demo-row demo-titlebar")" Style="@(size == "Alta" ? "min-height: 48px" : "min-height: 32px")">
+                <LeafMark Size="18" />
+                <TextBlock>@(inactive ? "Atelier · Inattiva" : "Atelier")</TextBlock>
+                <TextBlock Class="demo-secondary">Progetto</TextBlock>
+                <TextField Class="demo-search" Placeholder="Cerca" />
+                <TextBlock Class="demo-secondary">@platform</TextBlock>
+                <Button Appearance="ControlAppearance.Subtle" AccessibleName="Riduci">−</Button>
+                <Button Appearance="ControlAppearance.Subtle" AccessibleName="Ingrandisci">□</Button>
+                <Button Appearance="ControlAppearance.Subtle" AccessibleName="Chiudi">×</Button>
+            </Container>
+        </Container>
+    }
+    <Container Class="demo-row">
+        <Button OnClick="() => Open(false)">Apri barra normale</Button>
+        <Button OnClick="() => Open(true)">Apri barra alta</Button>
+    </Container>
+</Container>
+
+@code {
+    private readonly string[] sizes = ["Normale", "Alta"];
+    private string platform = "Windows";
+    private bool inactive;
+    private bool drag;
+
+    private void Open(bool tall) => Windows.Open<CaptionPreview>(new Dictionary<string, object?>
+    {
+        [nameof(CaptionPreview.Tall)] = tall,
+        [nameof(CaptionPreview.SystemButtons)] = platform != "Linux",
+    });
+}
+@style {
+    .demo-titlebar { padding: 0 10px; background: var(--leaf-tray); border-radius: 12px 4px 12px 4px; }
+    .demo-titlebar.drag { background-image: repeating-linear-gradient(-45deg, var(--leaf-pc) 0px 5px, transparent 5px 11px); }
+}

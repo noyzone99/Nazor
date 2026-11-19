@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../Nazor.Presentation/Nazor.Presentation.csproj" />
+    <ProjectReference Include="../Nazor.Input/Nazor.Input.csproj" />
+    <InternalsVisibleTo Include="Nazor.Diagnostics.Tests" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,28 @@
+@using Nazor.Controls.Primitives
+
+<Container Class="row">
+    <Listbox TValue="string" @bind-Value="single" SelectionFollowsFocus="true" AccessibleName="Fruit">
+        @foreach (var fruit in fruits)
+        {
+            <ListboxOption TValue="string" Value="fruit">@fruit</ListboxOption>
+        }
+    </Listbox>
+    <Listbox TValue="string" SelectionMode="SelectionMode.Multiple" @bind-Values="many" AccessibleName="Toppings">
+        @foreach (var topping in toppings)
+        {
+            <ListboxOption TValue="string" Value="topping" Disabled="@(topping == "Ice")">@topping</ListboxOption>
+        }
+    </Listbox>
+</Container>
+<TextBlock>@($"Fruit: {single}; toppings: {string.Join(", ", many)}")</TextBlock>
+
+@code {
+    private readonly string[] fruits = ["Apple", "Banana", "Cherry", "Grape", "Mango"];
+    private readonly string[] toppings = ["Cream", "Honey", "Ice", "Nuts", "Syrup"];
+    private string? single = "Banana";
+    private IReadOnlyCollection<string> many = ["Honey"];
+}
+
+@style {
+    .row { display: flex; gap: 16px; }
+}

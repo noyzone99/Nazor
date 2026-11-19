@@ -1,0 +1,4 @@
+<Container>
+    <Progress Label="la mia barra" />
+    <Nazor.Controls.ProgressBar Value="40" />
+</Container>

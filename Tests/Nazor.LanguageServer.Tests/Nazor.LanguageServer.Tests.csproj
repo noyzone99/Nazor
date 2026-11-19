@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <AssemblyMetadata Include="Nazor.TestSdkDirectory" Value="$([MSBuild]::EnsureTrailingSlash('$(NetCoreRoot)'))sdk/$(NazorLanguageServicesSdkVersion)" />
+    <PackageReference Include="xunit.v3" />
+    <ProjectReference Include="../../Sources/Tools/Nazor.LanguageServer/Nazor.LanguageServer.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="Xunit" />
+    <Compile Include="../../Sources/Tools/Nazor.VisualStudio/NativeCodeLensReferences.cs" Link="VisualStudio/NativeCodeLensReferences.cs" />
+  </ItemGroup>
+  <PropertyGroup><NazorRoslynFeatures>true</NazorRoslynFeatures></PropertyGroup>
+  <Import Project="../../Sources/Tools/Nazor.Roslyn.props" />
+</Project>

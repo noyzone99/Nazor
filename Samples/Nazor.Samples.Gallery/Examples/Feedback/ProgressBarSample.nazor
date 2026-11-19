@@ -1,0 +1,8 @@
+<Slider @bind-Value="progress" AccessibleName="Progress" />
+<ProgressBar Value="progress" Label="Download" ShowValue="true" />
+<ProgressBar Label="Compiling shaders" ShowValue="true" ValueText="In progress" />
+<Spinner Value="progress" Label="Download" />
+
+@code {
+    private double progress = 40;
+}

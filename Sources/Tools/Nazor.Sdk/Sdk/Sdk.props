@@ -1,0 +1,13 @@
+<Project>
+  <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
+  <PropertyGroup Condition="Exists('$(MSBuildThisFileDirectory)../Nazor.Sdk.csproj')">
+    <NazorRepositoryRoot>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)../../../../'))</NazorRepositoryRoot>
+  </PropertyGroup>
+  <Import Project="Nazor.Sdk.Version.props" Condition="'$(NazorRepositoryRoot)' == ''" />
+
+  <PropertyGroup>
+    <Nullable Condition="'$(Nullable)' == ''">enable</Nullable>
+    <ImplicitUsings Condition="'$(ImplicitUsings)' == ''">enable</ImplicitUsings>
+    <NazorCompilerPath Condition="'$(NazorCompilerPath)' == '' and '$(NazorRepositoryRoot)' == ''">$(MSBuildThisFileDirectory)../tools/net10.0/Nazor.Compiler.dll</NazorCompilerPath>
+  </PropertyGroup>
+</Project>

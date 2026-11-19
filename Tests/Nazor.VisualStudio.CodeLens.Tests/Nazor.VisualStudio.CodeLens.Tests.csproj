@@ -1,0 +1,31 @@
+<Project ToolsVersion="Current" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" />
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <LangVersion>latest</LangVersion>
+    <OutputPath>bin\$(Configuration)\</OutputPath>
+    <NoWarn>NU1603</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <Compile Include="Program.cs" />
+    <Compile Include="NazorIconChecks.cs" />
+    <Compile Include="NssCodeLensChecks.cs" />
+    <Compile Include="QuickAddChecks.cs" />
+    <Compile Include="CSharpOptionsChecks.cs" />
+    <Compile Include="EditingSequenceChecks.cs" />
+    <Compile Include="RoslynStartupChecks.cs" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="WindowsBase" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <PackageReference Include="Microsoft.VisualStudio.SDK" />
+    <PackageReference Include="Microsoft.VisualStudio.ProjectSystem" />
+    <ProjectReference Include="../../Sources/Tools/Nazor.VisualStudio.CodeLens/Nazor.VisualStudio.CodeLens.csproj" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

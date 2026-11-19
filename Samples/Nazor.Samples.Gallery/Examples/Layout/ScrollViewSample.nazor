@@ -1,0 +1,8 @@
+<ScrollView Class="log" IsFocusable="true" AccessibleName="Activity log">
+    @for (var i = 1; i <= 25; i++)
+    {
+        var entry = i;
+        <TextBlock>@($"Activity entry {entry}")</TextBlock>
+    }
+</ScrollView>
+@style { .log { height: 140px; align-self: stretch; } }

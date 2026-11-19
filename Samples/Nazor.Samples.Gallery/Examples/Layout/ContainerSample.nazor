@@ -1,0 +1,20 @@
+<Container Class="grid">
+    @for (var i = 1; i <= 6; i++)
+    {
+        var cell = i;
+        <Container Class="cell">@($"Cell {cell}")</Container>
+    }
+</Container>
+<Container Class="scroll" AccessibleName="Scrollable list">
+    @for (var i = 1; i <= 20; i++)
+    {
+        var line = i;
+        <TextBlock>@($"Line {line}")</TextBlock>
+    }
+</Container>
+
+@style {
+    .grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; width: 420px; }
+    .cell { padding: 12px; border: 1px solid GrayText; }
+    .scroll { height: 120px; width: 420px; overflow-y: auto; border: 1px solid GrayText; padding: 4px; }
+}

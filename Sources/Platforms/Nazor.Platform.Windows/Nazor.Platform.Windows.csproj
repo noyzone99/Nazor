@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NazorRuntimeIdentifier Condition="'$(NazorRuntimeIdentifier)' == ''">$(RuntimeIdentifier)</NazorRuntimeIdentifier>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <NoWarn Condition="'$(TargetFramework)' == 'net8.0' or '$(TargetFramework)' == 'net9.0'">$(NoWarn);CA2256</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../Shared/WindowFrameShadow.cs" Link="WindowFrameShadow.cs" />
+    <PackageReference Include="SkiaSharp" />
+    <ProjectReference Include="../Nazor.Platform/Nazor.Platform.csproj" GlobalPropertiesToRemove="NazorRuntimeIdentifier" />
+    <ProjectReference Include="../../Core/Nazor.Renderer.Skia/Nazor.Renderer.Skia.csproj" GlobalPropertiesToRemove="NazorRuntimeIdentifier" />
+    <InternalsVisibleTo Include="Nazor.Application.Tests" />
+
+    <PackageDownload Include="Microsoft.WindowsAppSDK.InteractiveExperiences" Version="[$(NazorWindowingVersion)]" />
+    <PackageDownload Include="Microsoft.Windows.SDK.NET.Ref" Version="[$(NazorWindowsProjectionVersion)]" />
+    <Reference Include="Microsoft.InteractiveExperiences.Projection" HintPath="$(NuGetPackageRoot)microsoft.windowsappsdk.interactiveexperiences/$(NazorWindowingVersion)/lib/net6.0-windows10.0.18362.0/Microsoft.InteractiveExperiences.Projection.dll" />
+    <Reference Include="Microsoft.Windows.SDK.NET" HintPath="$(NuGetPackageRoot)microsoft.windows.sdk.net.ref/$(NazorWindowsProjectionVersion)/lib/$(NazorWindowsProjectionFramework)/Microsoft.Windows.SDK.NET.dll" />
+    <Reference Include="WinRT.Runtime" HintPath="$(NuGetPackageRoot)microsoft.windows.sdk.net.ref/$(NazorWindowsProjectionVersion)/lib/$(NazorWindowsProjectionFramework)/WinRT.Runtime.dll" />
+    <None Include="$(NuGetPackageRoot)microsoft.windowsappsdk.interactiveexperiences/$(NazorWindowingVersion)/runtimes-framework/win-x64/native/*" Link="runtimes/win-x64/native/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" Condition="'$(NazorRuntimeIdentifier)' == '' or '$(NazorRuntimeIdentifier)' == 'win-x64'" />
+    <None Include="$(NuGetPackageRoot)microsoft.windowsappsdk.interactiveexperiences/$(NazorWindowingVersion)/runtimes-framework/win-x86/native/*" Link="runtimes/win-x86/native/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" Condition="'$(NazorRuntimeIdentifier)' == '' or '$(NazorRuntimeIdentifier)' == 'win-x86'" />
+    <None Include="$(NuGetPackageRoot)microsoft.windowsappsdk.interactiveexperiences/$(NazorWindowingVersion)/runtimes-framework/win-arm64/native/*" Link="runtimes/win-arm64/native/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" Condition="'$(NazorRuntimeIdentifier)' == '' or '$(NazorRuntimeIdentifier)' == 'win-arm64'" />
+    <None Include="Windowing.manifest" Link="runtimes/win-x64/native/Windowing.manifest" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" Pack="true" PackagePath="runtimes/win-x64/native/" Condition="'$(NazorRuntimeIdentifier)' == '' or '$(NazorRuntimeIdentifier)' == 'win-x64'" />
+    <None Include="Windowing.manifest" Link="runtimes/win-x86/native/Windowing.manifest" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" Pack="true" PackagePath="runtimes/win-x86/native/" Condition="'$(NazorRuntimeIdentifier)' == '' or '$(NazorRuntimeIdentifier)' == 'win-x86'" />
+    <None Include="Windowing.manifest" Link="runtimes/win-arm64/native/Windowing.manifest" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" Pack="true" PackagePath="runtimes/win-arm64/native/" Condition="'$(NazorRuntimeIdentifier)' == '' or '$(NazorRuntimeIdentifier)' == 'win-arm64'" />
+    <None Include="$(NuGetPackageRoot)microsoft.windowsappsdk.interactiveexperiences/$(NazorWindowingVersion)/license.txt" Link="WindowsAppSDK.LICENSE.txt" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <None Remove="ThirdPartyNotices.md;buildTransitive/Nazor.Platform.Windows.targets" />
+    <None Include="ThirdPartyNotices.md" Link="ThirdPartyNotices.md" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" Pack="true" PackagePath="buildTransitive/ThirdPartyNotices.md" />
+    <None Include="buildTransitive/Nazor.Platform.Windows.targets" Pack="true" PackagePath="buildTransitive/" />
+  </ItemGroup>
+</Project>

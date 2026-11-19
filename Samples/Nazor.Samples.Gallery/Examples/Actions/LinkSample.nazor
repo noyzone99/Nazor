@@ -1,0 +1,6 @@
+<Link OnClick="() => opened = !opened">Show project details</Link>
+@if (opened)
+{
+    <Paragraph>The project uses Nazor controls and NSS styles.</Paragraph>
+}
+@code { private bool opened; }

@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <RootNamespace>Nazor.Themes.NazorLeaf</RootNamespace>
+    <Description>NazorLeaf, the Nazor visual language: leaf corners, the seed selection mark, accent glow, paper grain and the four-leaf mark, with private text/icon fonts, typed LeafSymbol icons and the LeafTitlebar.</Description>
+    <EnableDefaultNazorAssets>false</EnableDefaultNazorAssets>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../Core/Nazor.Graphics/Nazor.Graphics.csproj" />
+  </ItemGroup>
+
+  <!-- Fonts and the grain texture are copied next to the application, under Themes/NazorLeaf, where NazorLeafTheme finds them. -->
+  <ItemGroup>
+    <None Remove="Fonts/**;Assets/**" />
+    <None Include="Fonts/*.ttf;Fonts/*.otf;Fonts/*.txt;Assets/*.png" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" Link="Themes/NazorLeaf/%(Filename)%(Extension)" Pack="true" PackagePath="contentFiles/any/any/Themes/NazorLeaf/" PackageCopyToOutput="true" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Update="Resources\Strings.it.resx">
+      <DependentUpon>Strings.resx</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <Import Project="../../Tools/Nazor.Sdk/build/Nazor.targets" />
+</Project>

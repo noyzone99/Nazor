@@ -1,0 +1,38 @@
+@implements IRefreshable
+<Button Class="before">Before</Button>
+<MenuBar AccessibleName="Main">
+    <MenuBarItem Class="file">
+        <ChildContent>File</ChildContent>
+        <Content>
+            <MenuItem Class="new" OnClick="@(() => Log.Add("new"))">New</MenuItem>
+            <MenuItem Class="open" OnClick="@(() => Log.Add("open"))">Open</MenuItem>
+            <Submenu Class="recent">
+                <ChildContent>Recent</ChildContent>
+                <Content><MenuItem Class="recent-1" OnClick="@(() => Log.Add("recent"))">One</MenuItem></Content>
+            </Submenu>
+            <MenuItem Class="exit" OnClick="@(() => Log.Add("exit"))">Exit</MenuItem>
+        </Content>
+    </MenuBarItem>
+    <MenuBarItem Class="edit" IsOpenChanged="v => EditOpen = v">
+        <ChildContent>Edit</ChildContent>
+        <Content>
+            <MenuItem Class="undo" OnClick="@(() => Log.Add("undo"))">Undo</MenuItem>
+            <MenuItem Class="redo" OnClick="@(() => Log.Add("redo"))">Redo</MenuItem>
+        </Content>
+    </MenuBarItem>
+    <MenuBarItem Class="tools" Disabled="true">
+        <ChildContent>Tools</ChildContent>
+        <Content><MenuItem Class="options">Options</MenuItem></Content>
+    </MenuBarItem>
+    <MenuBarItem Class="help">
+        <ChildContent>Help</ChildContent>
+        <Content><MenuItem Class="about" OnClick="@(() => Log.Add("about"))">About</MenuItem></Content>
+    </MenuBarItem>
+</MenuBar>
+<Button Class="after">After</Button>
+
+@code {
+    public void Refresh() => StateHasChanged();
+    public List<string> Log { get; } = [];
+    public bool EditOpen { get; set; }
+}

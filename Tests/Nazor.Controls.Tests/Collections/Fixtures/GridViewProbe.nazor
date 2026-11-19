@@ -1,0 +1,16 @@
+@implements IRefreshable
+@using Nazor.Controls.Primitives
+<GridView TItem="int" Class="tiles" Items="Items" ItemWidth="100" ItemHeight="60" SelectionMode="SelectionMode.Multiple" @bind-SelectedItems="Picked"
+          ItemText="n => Name(n)" OnItemActivated="n => Activated = n" ShowCheckBoxes="Checks" Style="@Width" />
+<GridView TItem="int" Class="none" Items="None" />
+
+@code {
+    public void Refresh() => StateHasChanged();
+    public IReadOnlyList<int> Items { get; set; } = Enumerable.Range(0, 1000).ToArray();
+    public IReadOnlyList<int> None { get; } = [];
+    public IReadOnlyCollection<int> Picked { get; set; } = [];
+    public int? Activated { get; set; }
+    public bool Checks { get; set; }
+    public string Width { get; set; } = "width: 402px; height: 200px";
+    private static string Name(int n) => "Tile " + n;
+}

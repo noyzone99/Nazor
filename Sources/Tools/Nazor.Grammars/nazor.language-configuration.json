@@ -1,0 +1,93 @@
+{
+  "comments": {
+    "blockComment": [
+      "@*",
+      "*@"
+    ]
+  },
+  "brackets": [
+    [
+      "@*",
+      "*@"
+    ],
+    [
+      "<",
+      ">"
+    ],
+    [
+      "{",
+      "}"
+    ],
+    [
+      "[",
+      "]"
+    ],
+    [
+      "(",
+      ")"
+    ]
+  ],
+  "autoClosingPairs": [
+    {
+      "open": "{",
+      "close": "}",
+      "notIn": ["string", "comment"]
+    },
+    {
+      "open": "[",
+      "close": "]",
+      "notIn": ["string", "comment"]
+    },
+    {
+      "open": "(",
+      "close": ")",
+      "notIn": ["string", "comment"]
+    },
+    {
+      "open": "\"",
+      "close": "\"",
+      "notIn": [
+        "string"
+      ]
+    },
+    {
+      "open": "'",
+      "close": "'",
+      "notIn": [
+        "string"
+      ]
+    },
+    {
+      "open": "@*",
+      "close": "*@",
+      "notIn": ["string", "comment"]
+    }
+  ],
+  "surroundingPairs": [
+    {
+      "open": "\"",
+      "close": "\""
+    },
+    {
+      "open": "'",
+      "close": "'"
+    },
+    {
+      "open": "<",
+      "close": ">"
+    },
+    {
+      "open": "{",
+      "close": "}"
+    },
+    {
+      "open": "(",
+      "close": ")"
+    }
+  ],
+  "indentationRules": {
+    "increaseIndentPattern": "<(?!/)([A-Za-z][\\w.]*)\\b(?:\"[^\"]*\"|'[^']*'|[^>])*(?<!/)>(?!.*</\\1>)|\\{[^}\"']*$",
+    "decreaseIndentPattern": "^\\s*(</[A-Za-z][\\w.]*\\b[^>]*>|\\})"
+  },
+  "autoCloseBefore": ";:.,=}])> \n\t"
+}

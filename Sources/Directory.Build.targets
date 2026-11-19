@@ -1,0 +1,15 @@
+<Project>
+  <!-- The SDK adds transitive references without the original reference metadata.
+       Keep native-content properties out of shared library project instances. -->
+  <Target Name="NazorIsolateNativeReferenceProperties" AfterTargets="IncludeTransitiveProjectReferences"
+          BeforeTargets="_GetProjectReferenceTargetFrameworkProperties;_GenerateRestoreProjectPathWalk">
+    <ItemGroup>
+      <ProjectReference Condition="'%(ProjectReference.Filename)' != 'Nazor.Platform.Linux' and !$([System.String]::Copy('%(ProjectReference.Filename)').StartsWith('Nazor.Hosting.Desktop'))">
+        <GlobalPropertiesToRemove>%(ProjectReference.GlobalPropertiesToRemove);_NazorNativeLibrariesToBuild</GlobalPropertiesToRemove>
+      </ProjectReference>
+      <ProjectReference Condition="'%(ProjectReference.Filename)' != 'Nazor.Platform.Linux' and '%(ProjectReference.Filename)' != 'Nazor.Platform.Windows' and '%(ProjectReference.Filename)' != 'Nazor.Hosting.Windows' and !$([System.String]::Copy('%(ProjectReference.Filename)').StartsWith('Nazor.Hosting.Desktop'))">
+        <GlobalPropertiesToRemove>%(ProjectReference.GlobalPropertiesToRemove);NazorRuntimeIdentifier</GlobalPropertiesToRemove>
+      </ProjectReference>
+    </ItemGroup>
+  </Target>
+</Project>

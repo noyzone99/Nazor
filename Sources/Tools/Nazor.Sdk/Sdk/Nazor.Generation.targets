@@ -1,0 +1,113 @@
+<Project>
+  <PropertyGroup>
+    <WarningsNotAsErrors>$(WarningsNotAsErrors);CS0169;CS0414</WarningsNotAsErrors>
+    <_NazorCompilerEnvironment Condition="!$([MSBuild]::IsOSPlatform('Windows'))">DOTNET_ReadyToRun=0</_NazorCompilerEnvironment>
+  </PropertyGroup>
+  <ItemGroup>
+    <NazorComponent Include="**/*.nazor" Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder);**/_Imports.nazor" />
+    <NazorStyleSheet Include="**/*.nss" Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder);**/*.nazor.nss" />
+    <NazorInput Include="**/*.nazor;**/*.nss" Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)" />
+    <None Remove="@(NazorInput)" />
+    <None Include="@(NazorInput)" />
+
+    <UpToDateCheckInput Include="@(NazorInput)" Set="Nazor" />
+    <UpToDateCheckOutput Include="$(IntermediateOutputPath)Nazor/nazor.stamp" Set="Nazor" />
+
+    <Compile Update="**/*.nazor.cs" DependentUpon="%(Filename)" />
+    <None Update="**/*.nazor.nss" DependentUpon="%(Filename)" />
+
+    <ProjectCapability Include="Nazor" />
+
+    <Watch Include="@(NazorInput)" />
+
+    <AssemblyMetadata Include="Nazor.ProjectDirectory" Value="$(MSBuildProjectDirectory)" Condition="'$(Configuration)' == 'Debug' and '$(NazorProjectMetadata)' != 'false'" />
+
+    <NazorAsset Include="**/*.png;**/*.jpg;**/*.jpeg;**/*.gif;**/*.webp;**/*.bmp;**/*.ico;**/*.svg;**/*.ttf;**/*.otf;**/*.ttc"
+                Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)" Condition="'$(EnableDefaultNazorAssets)' != 'false'" />
+    <None Update="@(NazorAsset)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+
+    <None Update="appsettings.json;appsettings.*.json" CopyToOutputDirectory="PreserveNewest" Condition="'$(OutputType)' != 'Library' and '$(NazorCopyAppSettings)' != 'false'" />
+  </ItemGroup>
+
+  <Target Name="NazorPrepareGeneration" DependsOnTargets="ResolveAssemblyReferences" Condition="'@(NazorComponent)@(NazorStyleSheet)' != ''">
+    <PropertyGroup>
+      <NazorRootNamespace Condition="'$(NazorRootNamespace)' == ''">$(RootNamespace)</NazorRootNamespace>
+      <NazorGeneratedDirectory>$([System.IO.Path]::GetFullPath($([System.IO.Path]::Combine('$(MSBuildProjectDirectory)', '$(IntermediateOutputPath)Nazor/'))))</NazorGeneratedDirectory>
+      <NazorDotnetHost Condition="'$(NazorDotnetHost)' == '' and '$(DOTNET_HOST_PATH)' != '' and Exists('$(DOTNET_HOST_PATH)')">$(DOTNET_HOST_PATH)</NazorDotnetHost>
+      <NazorDotnetHost Condition="'$(NazorDotnetHost)' == '' and '$(NetCoreRoot)' != '' and Exists('$(NetCoreRoot)dotnet.exe')">$(NetCoreRoot)dotnet.exe</NazorDotnetHost>
+      <NazorDotnetHost Condition="'$(NazorDotnetHost)' == ''">dotnet</NazorDotnetHost>
+      <_NazorContinueOnError>false</_NazorContinueOnError>
+      <_NazorContinueOnError Condition="'$(DesignTimeBuild)' == 'true'">true</_NazorContinueOnError>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(NazorCompilerPath)')" Code="NZB001" Text="The Nazor compiler was not found at '$(NazorCompilerPath)'." />
+    <ItemGroup>
+      <_NazorGenerated Include="@(NazorComponent->'$(NazorGeneratedDirectory)%(RelativeDir)%(Filename)%(Extension).g.cs')" />
+      <_NazorGenerated Include="$(NazorGeneratedDirectory)NazorStyleSheets.g.cs" Condition="'@(NazorStyleSheet)' != ''" />
+      <_NazorArguments Include="generate" />
+      <_NazorArguments Include="--out;$(NazorGeneratedDirectory)" />
+      <_NazorArguments Include="--root-namespace;$(NazorRootNamespace)" />
+      <_NazorArguments Include="--project-dir;$(MSBuildProjectDirectory)" />
+      <_NazorArguments Include="--language-version;$(LangVersion)" Condition="'$(LangVersion)' != ''" />
+      <_NazorArguments Include="--define;$(DefineConstants.Replace(';', ','))" Condition="'$(DefineConstants)' != ''" />
+      <_NazorArguments Include="--reference;%(ReferencePath.FullPath)" Condition="'@(ReferencePath)' != ''" />
+      <_NazorArguments Include="--source;%(Compile.FullPath)" Condition="'@(Compile)' != ''" />
+      <_NazorArguments Include="--stylesheet;%(NazorStyleSheet.FullPath)" Condition="'@(NazorStyleSheet)' != ''" />
+      <_NazorArguments Include="@(NazorComponent->'%(FullPath)')" />
+    </ItemGroup>
+    <MakeDir Directories="$(NazorGeneratedDirectory)" />
+    <WriteLinesToFile File="$(NazorGeneratedDirectory)nazorc.rsp" Lines="@(_NazorArguments)" Overwrite="true" WriteOnlyWhenDifferent="true" />
+  </Target>
+
+  <Target Name="NazorGenerate" BeforeTargets="CoreCompile" DependsOnTargets="NazorPrepareGeneration" Condition="'@(NazorComponent)@(NazorStyleSheet)' != ''"
+          Inputs="@(NazorInput);@(Compile);@(ReferencePath);$(NazorCompilerPath);$(MSBuildProjectFullPath);$(MSBuildThisFileFullPath);$(NazorGeneratedDirectory)nazorc.rsp"
+          Outputs="$(NazorGeneratedDirectory)nazor.stamp">
+    <Exec Command="&quot;$(NazorDotnetHost)&quot; &quot;$(NazorCompilerPath)&quot; @&quot;$(NazorGeneratedDirectory)nazorc.rsp&quot;" ContinueOnError="$(_NazorContinueOnError)" EnvironmentVariables="$(_NazorCompilerEnvironment)">
+      <Output TaskParameter="ExitCode" PropertyName="_NazorExitCode" />
+    </Exec>
+    <Touch Files="$(NazorGeneratedDirectory)nazor.stamp" AlwaysCreate="true" Condition="'$(_NazorExitCode)' == '0'" />
+  </Target>
+
+  <Target Name="NazorAddGenerated" BeforeTargets="CoreCompile" AfterTargets="NazorGenerate" DependsOnTargets="NazorPrepareGeneration" Condition="'@(NazorComponent)@(NazorStyleSheet)' != ''">
+    <WriteLinesToFile File="$(NazorGeneratedDirectory)nazorc.ide" Lines="$(NazorDotnetHost);$(NazorCompilerPath)" Overwrite="true" WriteOnlyWhenDifferent="true" />
+    <ItemGroup>
+      <_NazorGeneratedExisting Include="@(_NazorGenerated)" Condition="Exists('%(Identity)')" />
+      <Compile Include="@(_NazorGeneratedExisting)" />
+      <FileWrites Include="@(_NazorGenerated);$(NazorGeneratedDirectory)nazor.stamp;$(NazorGeneratedDirectory)nazorc.rsp;$(NazorGeneratedDirectory)nazorc.watch.rsp;$(NazorGeneratedDirectory)nazorc.ide" />
+    </ItemGroup>
+  </Target>
+
+  <Target Name="NazorEditorRoslynInputs" BeforeTargets="CoreCompile"
+          DependsOnTargets="NazorPrepareGeneration;GenerateMSBuildEditorConfigFile"
+          Condition="'@(NazorComponent)@(NazorStyleSheet)' != ''">
+    <ItemGroup>
+      <_NazorRoslynArguments Remove="@(_NazorRoslynArguments)" />
+      <_NazorRoslynArguments Include="/analyzer:&quot;%(Analyzer.FullPath)&quot;" Condition="'@(Analyzer)' != ''" />
+      <_NazorRoslynArguments Include="/analyzerconfig:&quot;%(EditorConfigFiles.FullPath)&quot;" Condition="'@(EditorConfigFiles)' != ''" />
+      <_NazorRoslynArguments Include="/analyzerconfig:&quot;%(GlobalAnalyzerConfigFiles.FullPath)&quot;" Condition="'@(GlobalAnalyzerConfigFiles)' != ''" />
+      <_NazorRoslynArguments Include="/additionalfile:&quot;%(AdditionalFiles.FullPath)&quot;" Condition="'@(AdditionalFiles)' != ''" />
+      <_NazorRoslynArguments Include="/define:$(DefineConstants.Replace(';', ','))" Condition="'$(DefineConstants)' != ''" />
+      <_NazorRoslynArguments Include="/langversion:$(LangVersion)" Condition="'$(LangVersion)' != ''" />
+      <_NazorRoslynArguments Include="/nullable:$(Nullable)" Condition="'$(Nullable)' != ''" />
+      <_NazorRoslynArguments Include="/unsafe+" Condition="'$(AllowUnsafeBlocks)' == 'true'" />
+      <_NazorRoslynArguments Include="/nowarn:$(NoWarn.Replace(';', ','))" Condition="'$(NoWarn)' != ''" />
+      <_NazorRoslynArguments Include="/warnaserror+" Condition="'$(TreatWarningsAsErrors)' == 'true'" />
+      <_NazorRoslynArguments Include="/warnaserror:$(WarningsAsErrors.Replace(';', ','))" Condition="'$(WarningsAsErrors)' != ''" />
+      <_NazorRoslynArguments Include="/warnaserror-:$(WarningsNotAsErrors.Replace(';', ','))" Condition="'$(WarningsNotAsErrors)' != ''" />
+    </ItemGroup>
+    <WriteLinesToFile File="$(NazorGeneratedDirectory)nazorc.roslyn.rsp" Lines="@(_NazorRoslynArguments)" Overwrite="true" WriteOnlyWhenDifferent="true" />
+    <ItemGroup><FileWrites Include="$(NazorGeneratedDirectory)nazorc.roslyn.rsp" /></ItemGroup>
+  </Target>
+
+  <Target Name="NazorWatch" DependsOnTargets="PrepareForBuild;GenerateGlobalUsings;GenerateAssemblyInfo;GenerateTargetFrameworkMonikerAttribute;NazorPrepareGeneration" Condition="'@(NazorComponent)@(NazorStyleSheet)' != ''">
+    <ItemGroup>
+      <_NazorWatchArguments Include="watch" />
+      <_NazorWatchArguments Include="@(_NazorArguments)" />
+      <_NazorWatchArguments Remove="generate" />
+    </ItemGroup>
+    <WriteLinesToFile File="$(NazorGeneratedDirectory)nazorc.watch.rsp" Lines="@(_NazorWatchArguments)" Overwrite="true" WriteOnlyWhenDifferent="true" />
+    <Message Importance="High" Text="NazorWatch: starting nazorc watch (if nothing appears below, run the build with -tl:off)." />
+    <Exec Command="&quot;$(NazorDotnetHost)&quot; &quot;$(NazorCompilerPath)&quot; @&quot;$(NazorGeneratedDirectory)nazorc.watch.rsp&quot;"
+          EnvironmentVariables="$(_NazorCompilerEnvironment)"
+          StandardOutputImportance="High" StandardErrorImportance="High" IgnoreStandardErrorWarningFormat="true" IgnoreExitCode="true" />
+  </Target>
+</Project>

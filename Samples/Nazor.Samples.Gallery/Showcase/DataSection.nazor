@@ -1,0 +1,147 @@
+@using Nazor.Themes.NazorLeaf
+@using Nazor.Controls.Primitives
+
+<Container Class="demo-section">
+    <Heading Level="3">Tabelle e liste</Heading>
+    <Paragraph Class="demo-lead">Righe a foglia staccate tra loro, evidenziazione che scivola sotto il puntatore, barra delle azioni che cambia colore quando selezioni.</Paragraph>
+    <Container Class="demo-tbl">
+        <Container Class="@(selected.Count == 0 ? "demo-tbar" : "demo-tbar has")">
+            @if (selected.Count == 0)
+            {
+                <TextBlock Class="demo-tbar-title">Build della versione 1.0</TextBlock>
+                <Button Id="showcase-new-build" Appearance="ControlAppearance.Accent" OnClick='() => Notify("Build avviata per tutte le piattaforme")'><Leading><Icon Symbol="@LeafSymbol.Plus" /></Leading><ChildContent>Nuova build</ChildContent></Button>
+            }
+            else
+            {
+                <TextBlock Class="demo-tbar-title">@(selected.Count == 1 ? "1 build selezionata" : $"{selected.Count} build selezionate")</TextBlock>
+                <Button Id="showcase-download-builds" Appearance="ControlAppearance.Outline" OnClick="Download"><Leading><Icon Symbol="@LeafSymbol.Download" /></Leading><ChildContent>Scarica</ChildContent></Button>
+                <Button Id="showcase-clear-builds" Appearance="ControlAppearance.Subtle" Class="demo-inherit" OnClick="Clear">Deseleziona</Button>
+            }
+        </Container>
+        <DataGrid TItem="BuildRow" Class="demo-data" Items="rows" AccessibleName="Build per piattaforma" GridLines="DataGridLines.None"
+                  SelectionMode="SelectionMode.Multiple" ShowSelectionColumn="true" @bind-SelectedItems="selected">
+            <DataGridColumn TItem="BuildRow" Key="platform" Header="Piattaforma" Field="row => row.Platform" Width="176">
+                <CellTemplate Context="row"><Container Class="demo-cm"><Container Class="demo-os" Style="@($"--demo-c: var(--leaf-{row.Color})")" /><TextBlock>@row.Platform</TextBlock></Container></CellTemplate>
+            </DataGridColumn>
+            <DataGridColumn TItem="BuildRow" Key="arch" Header="Architettura" Field="row => row.Architecture" Width="146">
+                <CellTemplate Context="row"><TextBlock Class="demo-text-2">@row.Architecture</TextBlock></CellTemplate>
+            </DataGridColumn>
+            <DataGridColumn TItem="BuildRow" Key="version" Header="Versione" Field="row => row.Version" Width="122">
+                <CellTemplate Context="row"><TextBlock Class="demo-mono">@row.Version</TextBlock></CellTemplate>
+            </DataGridColumn>
+            <DataGridColumn TItem="BuildRow" Key="status" Header="Stato" Field="row => row.Status" Width="150">
+                <CellTemplate Context="row"><Tag Intent="row.Intent" Dot="true" IsLive='@(row.Status == "In coda")'>@row.Status</Tag></CellTemplate>
+            </DataGridColumn>
+            <DataGridColumn TItem="BuildRow" Key="duration" Header="Durata" Field="row => row.Duration" Flex="1" Alignment="DataGridAlignment.End">
+                <CellTemplate Context="row"><TextBlock>@(row.Duration is { } seconds ? $"{seconds / 60} min {seconds % 60:00} s" : "—")</TextBlock></CellTemplate>
+            </DataGridColumn>
+            <DataGridColumn TItem="BuildRow" Key="package" Header="Pacchetto" Field="row => row.Package" Width="112" Alignment="DataGridAlignment.End">
+                <CellTemplate Context="row"><TextBlock>@(row.Package is { } size ? size.ToString("0.0") + " MB" : "—")</TextBlock></CellTemplate>
+            </DataGridColumn>
+        </DataGrid>
+    </Container>
+    <Container Class="demo-grid demo-two">
+        <RowGroup>
+            <ActionRow Title="Materiale della finestra" Subtitle="Bordi e materiali gestiti dal sistema operativo">
+                <Leading><Container Class="demo-licon" Style="--demo-c: var(--leaf-g1)"><Icon Symbol="@LeafSymbol.Layers" /></Container></Leading>
+            </ActionRow>
+            <ActionRow Title="Animazioni" Subtitle="Foglie che si aprono e semi che viaggiano" ActivatesTrailing="true">
+                <Leading><Container Class="demo-licon" Style="--demo-c: var(--leaf-g4)"><Icon Symbol="@LeafSymbol.Motion" /></Container></Leading>
+                <Trailing><Switch IsOn="Motion" IsOnChanged="MotionChanged" AccessibleName="Animazioni" /></Trailing>
+            </ActionRow>
+            <ActionRow Id="showcase-seed-settings" Title="Seme dell’app" Subtitle="Il colore da cui nasce ogni tinta" IsClickable="true" Chevron="true" OnClick='() => Notify($"Apertura delle impostazioni del seme: {SeedName}")'>
+                <Leading><Container Class="demo-licon" Style="--demo-c: var(--leaf-g2)"><Icon Symbol="@LeafSymbol.Palette" /></Container></Leading>
+                <Trailing><TextBlock>@SeedName</TextBlock></Trailing>
+            </ActionRow>
+            <ActionRow Id="showcase-language-settings" Title="Lingua e area geografica" Subtitle="Formati di data e numeri" IsClickable="true" Chevron="true" OnClick='() => Notify("Apertura delle impostazioni di lingua e area geografica")'>
+                <Leading><Container Class="demo-licon" Style="--demo-c: var(--leaf-g3); color: #3d2e00"><Icon Symbol="@LeafSymbol.Globe" /></Container></Leading>
+                <Trailing><TextBlock>Italiano</TextBlock></Trailing>
+            </ActionRow>
+        </RowGroup>
+        <ListView TItem="Message" Id="showcase-messages" Class="demo-list" Items="messages" ItemHeight="66" SelectionMode="SelectionMode.Single" SelectedItem="message" SelectedItemChanged="ReadMessage"
+                  ItemText="item => item.Author" AccessibleName="Messaggi">
+            <ItemTemplate Context="item">
+                <Container Class="demo-mrow">
+                    <Avatar Name="@item.Author" Style="@($"--leaf-avatar: var(--leaf-{item.Color})" + (item.Color == "g3" ? "; --leaf-avatar-text: #3d2e00" : ""))" />
+                    <Container Class="demo-mtx">
+                        <Container Class="demo-mtl"><TextBlock Class="demo-mt">@item.Author</TextBlock><TextBlock Class="demo-mtime">@item.Time</TextBlock></Container>
+                        <TextBlock Class="demo-ms">@item.Text</TextBlock>
+                    </Container>
+                    @if (item.Unread && !readMessages.Contains(item))
+                    {
+                        <Container Class="demo-unread" />
+                    }
+                </Container>
+            </ItemTemplate>
+        </ListView>
+    </Container>
+</Container>
+
+@code {
+    [Parameter] public bool Motion { get; set; }
+    [Parameter] public EventCallback<bool> MotionChanged { get; set; }
+    [Parameter] public string SeedName { get; set; } = "";
+    [CascadingParameter] public ToastQueue Notifications { get; set; } = null!;
+
+    public sealed record BuildRow(string Platform, string Color, string Architecture, string Version, string Status, Intent Intent, int? Duration, double? Package);
+    public sealed record Message(string Author, string Color, string Time, string Text, bool Unread);
+    private readonly BuildRow[] rows =
+    [
+        new("Windows 11", "g1", "x64", "1.0.0", "Completata", Intent.Success, 192, 18.4),
+        new("Windows 11", "g1", "ARM64", "1.0.0", "Completata", Intent.Success, 220, 17.9),
+        new("macOS 15", "g2", "Apple Silicon", "1.0.0", "In revisione", Intent.Warning, 178, 21.2),
+        new("Ubuntu 24.04", "g3", "x64", "1.0.0", "Completata", Intent.Success, 151, 16.0),
+        new("Fedora 41", "g3", "x64", "1.0.0-rc2", "In coda", Intent.Accent, null, null),
+        new("Android 15", "g4", "arm64-v8a", "1.0.0", "Fallita", Intent.Danger, 245, null),
+        new("iOS 18", "g4", "arm64", "0.9.9", "Completata", Intent.Success, 320, 24.7),
+    ];
+    private readonly Message[] messages =
+    [
+        new("Giulia Ferri", "g1", "09:41", "Ho provato la foglia sui campi di testo, funziona benissimo", false),
+        new("Marco Bellini", "g2", "09:12", "La build Android si ferma sulla firma del pacchetto", true),
+        new("Sara Conti", "g3", "Ieri", "Le icone a 20 px sono nel ramo design", false),
+        new("Luca Moretti", "g4", "Lun", "Skia disegna la tabella grande in 2,1 ms", false),
+    ];
+
+    private IReadOnlyList<BuildRow> selected = [];
+    private Message? message;
+    private readonly HashSet<Message> readMessages = [];
+
+    protected override void OnInitialized()
+    {
+        selected = [rows[2]];
+        message = messages[0];
+    }
+
+    private void Clear() => selected = [];
+    private void Download() => Notify($"Download di {selected.Count} {(selected.Count == 1 ? "pacchetto avviato" : "pacchetti avviato")}");
+    private void Notify(string text) => Notifications.Show(new ToastOptions { Message = text, Duration = TimeSpan.FromMilliseconds(4200) });
+    private void ReadMessage(Message? item)
+    {
+        message = item;
+        if (item is not null) readMessages.Add(item);
+    }
+}
+@style {
+    .demo-tbl { display: flex; flex-direction: column; border-radius: var(--leaf-r-ovl); background: var(--leaf-pane); box-shadow: inset 0 0 0 1px var(--leaf-stroke); overflow-x: hidden; overflow-y: hidden; }
+    .demo-tbar { display: flex; flex-direction: row; align-items: center; gap: 8px; min-height: 58px; padding: 10px 12px 10px 18px; transition: background-color 300ms; }
+    .demo-tbar.has { background: var(--leaf-pc); color: var(--leaf-on-pc); }
+    .demo-tbar-title { flex: 1; font-family: var(--leaf-font-display); font-size: 15px; font-weight: 700; letter-spacing: -0.01em; }
+    .demo-tbar.has Button[appearance="outline"] { background: var(--leaf-pane); color: var(--leaf-text); }
+    .demo-inherit, .demo-inherit:hover { color: inherit; }
+    .demo-data { height: 392px; border-radius: 0; box-shadow: none; }
+    .demo-cm { display: flex; flex-direction: row; align-items: center; gap: 10px; font-weight: 550; }
+    .demo-os { width: 9px; height: 13px; border-radius: 6px 1px 6px 1px; background: var(--demo-c); }
+    .demo-text-2 { color: var(--leaf-text-2); }
+    .demo-mono { font-family: var(--leaf-font-mono); font-size: 12.5px; color: var(--leaf-text-2); }
+    .demo-two { margin-top: 14px; grid-template-columns: repeat(auto-fit, minmax(310px, 1fr)); }
+    .demo-list { height: 274px; }
+    .demo-mrow { display: flex; flex-direction: row; align-items: flex-start; gap: 12px; flex: 1; min-width: 0; padding: 10px 0; }
+    .demo-mtx { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+    .demo-mtl { display: flex; flex-direction: row; justify-content: space-between; gap: 8px; }
+    .demo-mt { font-weight: 650; font-size: 13.5px; }
+    .demo-mtime { font-size: 12px; color: var(--leaf-text-3); }
+    .demo-ms { font-size: 13px; color: var(--leaf-text-2); overflow-x: hidden; white-space: pre; text-overflow: ellipsis; }
+    ListViewItem[selected] .demo-mtime, ListViewItem[selected] .demo-ms { color: inherit; opacity: 0.8; }
+    .demo-unread { width: 7px; height: 11px; margin-top: 6px; border-radius: 5px 1px 5px 1px; background: var(--leaf-primary); }
+}

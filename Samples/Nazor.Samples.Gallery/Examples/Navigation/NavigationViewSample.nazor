@@ -1,0 +1,35 @@
+<Container Style="display: flex; flex-direction: column; gap: 12px">
+    <Field LabelText="Pane mode"><Select TValue="NavigationViewPaneDisplayMode" Items="modes" @bind-Value="mode" /></Field>
+    <Field LabelText="Available width"><Slider Minimum="280" Maximum="1120" Step="20" @bind-Value="width" /></Field>
+    <NavigationView TItem="Section" Items="sections" Children="section => section.Children"
+                    ItemText="section => section.Title" ItemKey="section => section.Key"
+                    PaneDisplayMode="mode" @bind-SelectedItem="selected" OnItemInvoked="Navigate"
+                    Style="@($"width: {width:0}px; max-width: 100%; height: 360px")">
+        <Header><TextBlock>Workspace</TextBlock></Header>
+        <PaneHeader><TextBlock>Northwind</TextBlock></PaneHeader>
+        <PaneFooter><TextBlock>Account</TextBlock></PaneFooter>
+        <ChildContent>
+            <Container Style="padding: 16px">
+                <TextBlock>@route</TextBlock>
+                <Field LabelText="Local draft"><TextField Placeholder="This editor stays mounted while navigation adapts" /></Field>
+            </Container>
+        </ChildContent>
+    </NavigationView>
+    <TextBlock>Resize in Auto mode or choose Top. The application handles route requests and preserves its content state.</TextBlock>
+</Container>
+
+@code {
+    public sealed record Section(string Key, string Title, Section[] Children);
+    private readonly Section[] sections =
+    [
+        new("home", "Home", []),
+        new("projects", "Projects", [new("active", "Active projects", []), new("archive", "Archive", [])]),
+        new("reports", "Reports", []), new("settings", "Settings", []),
+    ];
+    private readonly NavigationViewPaneDisplayMode[] modes = Enum.GetValues<NavigationViewPaneDisplayMode>();
+    private NavigationViewPaneDisplayMode mode;
+    private Section? selected;
+    private double width = 1040;
+    private string route = "Choose a navigation item.";
+    private void Navigate(Section section) => route = "Requested route: /" + section.Key;
+}

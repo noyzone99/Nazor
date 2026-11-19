@@ -1,0 +1,30 @@
+@window
+
+<Container Class="page"><LauncherPanel/></Container>
+
+@style {
+    :root {
+        font-family: "Fira Sans", sans-serif;
+        -windows-badge-background-color: #005fb8;
+        -windows-badge-background-image: linear-gradient(to bottom, #1685dd, #00519d);
+        -windows-badge-color: white;
+        -windows-badge-size: 14px;
+        -windows-badge-border: 1px solid white;
+        -windows-badge-border-radius: 0;
+        -windows-badge-font-family: "Fira Sans", "Segoe UI";
+        -windows-badge-font-weight: bold;
+        -windows-badge-image-background-color: white;
+        -windows-badge-image-fit: contain;
+        -windows-badge-image-clip: border-box;
+        -windows-badge-padding: 1px;
+        -windows-badge-border-bottom-width: 2px;
+        -windows-badge-transform: rotate(-8deg);
+        -windows-badge-transform-origin: center;
+        -windows-badge-mask-image: url(Assets/launcher-mask.svg);
+    }
+    .page { display: flex; flex-direction: column; flex: 1; min-height: 0; padding: 24px; overflow-y: auto; }
+}
+
+@code {
+    protected override void OnInitialized() => Window.Title = "Nazor — Application launcher";
+}

@@ -1,0 +1,19 @@
+@using Nazor.Controls.Primitives
+
+<Virtualizer TItem="int" Items="rows" ItemSize="28" Class="list" Role="list">
+    <ItemTemplate Context="row"><TextBlock>@($"Row {row.Item + 1:N0} of {rows.Count:N0}")</TextBlock></ItemTemplate>
+</Virtualizer>
+<Virtualizer TItem="int" Items="tiles" ItemSize="64" Columns="4" Class="grid">
+    <ItemTemplate Context="tile"><Container Class="tile">@(tile.Item + 1)</Container></ItemTemplate>
+</Virtualizer>
+
+@code {
+    private readonly IReadOnlyList<int> rows = Enumerable.Range(0, 100_000).ToArray();
+    private readonly IReadOnlyList<int> tiles = Enumerable.Range(0, 2_000).ToArray();
+}
+
+@style {
+    .list { height: 200px; width: 320px; border: 1px solid GrayText; }
+    .grid { height: 200px; width: 320px; border: 1px solid GrayText; display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; }
+    .tile { display: flex; align-items: center; justify-content: center; height: 100%; border: 1px solid ButtonBorder; }
+}

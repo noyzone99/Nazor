@@ -1,0 +1,53 @@
+@using Nazor.Input
+
+<Container Class="area" @oncontextmenu="e => menu?.ShowAsync(e) ?? Task.CompletedTask">
+    <Button OnClick="Save" Tooltip="Save the document (Ctrl+S)">Save</Button>
+    <Button @ref="moreButton" OnClick="() => opened = !opened">More</Button>
+    <Popover @bind-IsOpen="opened" Anchor="moreButton?.Element">
+        <TextBlock>More options</TextBlock>
+        <Button OnClick="Export">Export</Button>
+    </Popover>
+    <ContextMenu @ref="menu">
+        <MenuItem OnClick="Copy">Copy</MenuItem>
+        <MenuItem OnClick="Paste" Disabled="!canPaste">Paste</MenuItem>
+        <MenuCheckItem CloseOnSelect="false">Show details</MenuCheckItem>
+        <MenuRadioGroup TValue="string" Value="@("csv")">
+            <MenuRadioItem Value="@("csv")" CloseOnSelect="false">CSV</MenuRadioItem>
+            <MenuRadioItem Value="@("json")" CloseOnSelect="false">JSON</MenuRadioItem>
+        </MenuRadioGroup>
+        <Submenu>
+            <ChildContent><TextBlock>Export</TextBlock></ChildContent>
+            <Content><MenuItem OnClick="Export">Export document</MenuItem></Content>
+        </Submenu>
+    </ContextMenu>
+    <SplitButton OnClick="Save">
+        <ChildContent>Save</ChildContent>
+        <Menu>
+            <MenuItem OnClick="SaveAs">Save as…</MenuItem>
+        </Menu>
+    </SplitButton>
+    <MenuBar>
+        <MenuBarItem>
+            <ChildContent>File</ChildContent>
+            <Content><MenuItem OnClick="New">New</MenuItem></Content>
+        </MenuBarItem>
+    </MenuBar>
+    <Toolbar>
+        <Button OnClick="Save">Save</Button>
+        <Separator />
+    </Toolbar>
+</Container>
+
+@code {
+    private ContextMenu? menu;
+    private Button? moreButton;
+    private bool opened;
+    private bool canPaste;
+    public List<string> Log { get; } = [];
+    private void Save() => Log.Add("save");
+    private void Export() => Log.Add("export");
+    private void SaveAs() => Log.Add("save as");
+    private void New() => Log.Add("new");
+    private void Copy() => Log.Add("copy");
+    private void Paste() => Log.Add("paste");
+}

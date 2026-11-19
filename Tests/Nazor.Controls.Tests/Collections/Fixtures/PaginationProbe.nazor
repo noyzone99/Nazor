@@ -1,0 +1,13 @@
+@implements IRefreshable
+<Pagination Class="pager" @bind-Page="Page" TotalItems="Total" @bind-PageSize="Size" ShowFirstLast="true" ShowPageSize="true" ShowSummary="true"
+            PageSizes="Sizes" Disabled="Disabled" />
+<Pagination Class="counted" PageCount="3" Page="2" ShowPreviousNext="false" />
+
+@code {
+    public void Refresh() => StateHasChanged();
+    public int Page { get; set; } = 1;
+    public int Total { get; set; } = 200;
+    public int Size { get; set; } = 10;
+    public bool Disabled { get; set; }
+    public IReadOnlyList<int> Sizes { get; } = [10, 20, 50];
+}

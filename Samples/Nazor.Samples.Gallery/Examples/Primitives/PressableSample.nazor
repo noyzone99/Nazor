@@ -1,0 +1,18 @@
+@using Nazor.Controls.Primitives
+
+<Container Class="row">
+    <Pressable Class="tile" OnPress="() => presses++">Press me</Pressable>
+    <Pressable Class="tile" RepeatInterval="TimeSpan.FromMilliseconds(80)" OnPress="() => value++">Hold to count</Pressable>
+    <Pressable Class="tile" OnPress="() => presses++" OnLongPress="() => longPresses++">Long press me</Pressable>
+</Container>
+<TextBlock>@($"Presses: {presses}; counter: {value}; long presses: {longPresses}")</TextBlock>
+
+@code {
+    private int presses, value, longPresses;
+}
+
+@style {
+    .row { display: flex; gap: 12px; }
+    .tile { padding: 16px; border: 1px dashed GrayText; }
+    .tile:active { background: Highlight; color: HighlightText; }
+}

@@ -1,0 +1,38 @@
+@implements IRefreshable
+<Container Class="page">
+    <Badge Class="count" Count="Count"><Button>Inbox</Button></Badge>
+    <Badge Class="dot" Dot="true" Position="BadgePosition.BottomStart" Intent="Intent.Success"><TextBlock>Chat</TextBlock></Badge>
+    <Badge Class="label" Text="Beta" Intent="Intent.Neutral" />
+    <Badge Class="zero" Count="0" />
+    <Badge Class="named" Count="3" AccessibleName="3 unread messages" />
+    <Tag Class="tag" Dot="true" Intent="Intent.Success">Active</Tag>
+    <Tag Class="live" IsLive="true">Deploying</Tag>
+    <Tag Class="removable" Removable="true" OnRemove="() => Removed++">Rome</Tag>
+    <Tag Class="locked" Removable="true" Disabled="true" OnRemove="() => Removed += 100">Locked</Tag>
+    <EmptyState Class="empty" Title="No results" Description="@((RenderFragment)(b => b.AddContent(0, "Try another search.")))">
+        <Illustration><TextBlock>?</TextBlock></Illustration>
+        <Actions><Button Class="clear" OnClick="() => Cleared++">Clear filters</Button></Actions>
+    </EmptyState>
+    <Skeleton Class="lines" Lines="3" />
+    <Skeleton Class="circle" Shape="SkeletonShape.Circle" Width="40px" Height="40px" />
+    <Skeleton Class="rect" Shape="SkeletonShape.Rectangle" Height="20px" />
+    <Avatar Class="ada" Name="Ada Lovelace" Presence="AvatarPresence.Online" />
+    <Avatar Class="initials" Initials="XY" Shape="Shape.Square" Size="ControlSize.Large" />
+    <Avatar Class="anon" PixelSize="20" />
+    <Avatar Class="badged" Name="Grace"><Badge><Badge Count="2" /></Badge></Avatar>
+    <AvatarGroup Class="team" Max="GroupMax" Size="ControlSize.Small">
+        @foreach (var name in People)
+        {
+            <Avatar @key="name" Name="@name" />
+        }
+    </AvatarGroup>
+</Container>
+
+@code {
+    public void Refresh() => StateHasChanged();
+    public int? Count { get; set; } = 5;
+    public int Removed { get; set; }
+    public int Cleared { get; set; }
+    public int? GroupMax { get; set; } = 3;
+    public List<string> People { get; set; } = ["Ada Lovelace", "Alan Turing", "Grace Hopper", "Edsger Dijkstra", "Barbara Liskov"];
+}

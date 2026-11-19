@@ -1,0 +1,6 @@
+<TextField @bind-Value="name" />
+<TextBlock>Ciao @name</TextBlock>
+
+@code {
+    private string name = "mondo";
+}

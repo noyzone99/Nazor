@@ -1,0 +1,176 @@
+@using Nazor.Themes.NazorLeaf
+@using Nazor.Controls.Primitives
+<Container Class="demo-section">
+    <Heading Level="3">Menu</Heading>
+    <Paragraph Class="demo-lead">Un menu non compare: si srotola dall’angolo da cui l’hai chiamato. Dentro, l’evidenziazione scivola da una voce all’altra invece di saltare.</Paragraph>
+    <Container Class="demo-grid">
+        <Container Class="demo-card">
+            <Heading Level="4">Barra dei menu</Heading>
+            <Container Class="demo-mbframe">
+                <MenuBar>
+                    <MenuBarItem>
+                        <ChildContent>File</ChildContent>
+                        <Content>
+                            <MenuItem Shortcut="@Key("Ctrl+N")" OnClick='() => Notify("Nuovo documento creato")'><Leading><Icon Symbol="@LeafSymbol.File" /></Leading><ChildContent>Nuovo</ChildContent></MenuItem>
+                            <MenuItem Shortcut="@Key("Ctrl+O")" OnClick='() => Notify("Apertura del progetto")'><Leading><Icon Symbol="@LeafSymbol.Folder" /></Leading><ChildContent>Apri…</ChildContent></MenuItem>
+                            <Submenu><ChildContent>Recenti</ChildContent><Content><MenuItem OnClick='() => Notify("Apertura di tema-nazor.json")'>tema-nazor.json</MenuItem><MenuItem OnClick='() => Notify("Apertura di icone-v3.svg")'>icone-v3.svg</MenuItem><MenuItem OnClick='() => Notify("Apertura di note.md")'>note.md</MenuItem></Content></Submenu>
+                            <MenuSeparator />
+                            <MenuItem Shortcut="@Key("Ctrl+E")" OnClick='() => Notify("Tema esportato")'><Leading><Icon Symbol="@LeafSymbol.Download" /></Leading><ChildContent>Esporta</ChildContent></MenuItem>
+                        </Content>
+                    </MenuBarItem>
+                    <MenuBarItem>
+                        <ChildContent>Modifica</ChildContent>
+                        <Content>
+                            <MenuItem Shortcut="@Key("Ctrl+Z")" Disabled="@(!CanUndo)" OnClick="Undo"><Leading><Icon Symbol="@LeafSymbol.Undo" /></Leading><ChildContent>Annulla</ChildContent></MenuItem>
+                            <MenuItem Shortcut="@Key("Ctrl+Y")" Disabled="@(!CanRedo)" OnClick="Redo"><Leading><Icon Symbol="@LeafSymbol.Redo" /></Leading><ChildContent>Ripeti</ChildContent></MenuItem>
+                            <MenuSeparator />
+                            <MenuItem Shortcut="@Key("Ctrl+X")" OnClick='() => Notify("Selezione tagliata")'><Leading><Icon Symbol="@LeafSymbol.Cut" /></Leading><ChildContent>Taglia</ChildContent></MenuItem>
+                            <MenuItem Shortcut="@Key("Ctrl+C")" OnClick='() => Notify("Selezione copiata")'><Leading><Icon Symbol="@LeafSymbol.Copy" /></Leading><ChildContent>Copia</ChildContent></MenuItem>
+                            <MenuItem Shortcut="@Key("Ctrl+V")" OnClick='() => Notify("Contenuto incollato")'><Leading><Icon Symbol="@LeafSymbol.Paste" /></Leading><ChildContent>Incolla</ChildContent></MenuItem>
+                        </Content>
+                    </MenuBarItem>
+                    <MenuBarItem>
+                        <ChildContent>Vista</ChildContent>
+                        <Content>
+                            <MenuCheckItem @bind-IsChecked="sidebar">Barra laterale</MenuCheckItem>
+                            <MenuCheckItem @bind-IsChecked="rulers">Righelli</MenuCheckItem>
+                            <MenuCheckItem @bind-IsChecked="grid">Griglia</MenuCheckItem>
+                        </Content>
+                    </MenuBarItem>
+                    <MenuBarItem>
+                        <ChildContent>Aiuto</ChildContent>
+                        <Content>
+                            <MenuItem OnClick='() => Notify("Apertura della documentazione")'><Leading><Icon Symbol="@LeafSymbol.Info" /></Leading><ChildContent>Documentazione</ChildContent></MenuItem>
+                            <MenuItem OnClick='() => Notify("Scorciatoie: Ctrl N, Ctrl O, Ctrl E, Ctrl Z e Ctrl Y")'><Leading><Icon Symbol="@LeafSymbol.Sliders" /></Leading><ChildContent>Scorciatoie</ChildContent></MenuItem>
+                        </Content>
+                    </MenuBarItem>
+                </MenuBar>
+                <Container Class="demo-mbdoc">
+                    <TextBlock>Con un menu aperto, passa sugli altri per cambiarlo.</TextBlock>
+                    <TextBlock Id="showcase-view-settings">@(sidebar ? "Barra laterale visibile" : "Barra laterale nascosta") · @(rulers ? "Righelli attivi" : "Righelli disattivati") · @(grid ? "Griglia attiva" : "Griglia disattivata")</TextBlock>
+                    <Container Class="demo-ln" Style="width: 92%" /><Container Class="demo-ln" Style="width: 74%" /><Container Class="demo-ln" Style="width: 84%" />
+                </Container>
+            </Container>
+        </Container>
+        <Container Class="demo-card">
+            <Heading Level="4">Menu contestuale</Heading>
+            <Container @ref="tilesHost" Class="demo-tiles" AccessibleName="Risorse del progetto" @attributes="TileHoverAttributes">
+                <Indicator As="HoverIndicator" Target="tilesHover.Target" />
+                @foreach (var tile in tiles)
+                {
+                    <ContextMenu @key="tile.Id" @ref="tile.Menu" IsOpenChanged="open => ContextChanged(tile, open)">
+                        <Trigger>
+                            <Pressable As="ShowcaseTile" Id="@($"showcase-tile-{tile.Id}")" Class="demo-tile" @attributes="TileAttributes(tile)" AccessibleName="@tile.Name"
+                                       Style="@($"--demo-c: var(--leaf-{tile.Color})")" OnPress="() => selectedTile = tile" OnLongPress="e => ShowContextAsync(tile, e)">
+                                <Container Class="demo-tic"><Icon Symbol="@tile.Glyph" /></Container>
+                                <TextBlock>@tile.Name</TextBlock>
+                            </Pressable>
+                        </Trigger>
+                        <ChildContent>
+                            <MenuItem Disabled="true">@tile.Name</MenuItem>
+                            <MenuSeparator />
+                            <MenuItem Shortcut="@Key("Enter")" OnClick='() => Notify($"Apertura di {tile.Name}")'><Leading><Icon Symbol="@LeafSymbol.Folder" /></Leading><ChildContent>Apri</ChildContent></MenuItem>
+                            <MenuItem Shortcut="@Key("F2")" OnClick='() => Notify($"Rinomina {tile.Name}")'><Leading><Icon Symbol="@LeafSymbol.Pen" /></Leading><ChildContent>Rinomina</ChildContent></MenuItem>
+                            <MenuSeparator />
+                            <MenuItem Shortcut="@Key("Ctrl+X")" OnClick='() => Notify($"{tile.Name} tagliato")'><Leading><Icon Symbol="@LeafSymbol.Cut" /></Leading><ChildContent>Taglia</ChildContent></MenuItem>
+                            <MenuItem Shortcut="@Key("Ctrl+C")" OnClick='() => Notify($"{tile.Name} copiato")'><Leading><Icon Symbol="@LeafSymbol.Copy" /></Leading><ChildContent>Copia</ChildContent></MenuItem>
+                            <MenuSeparator />
+                            <MenuItem Intent="Intent.Danger" Shortcut="@Key("Delete")" OnClick="() => Remove(tile)"><Leading><Icon Symbol="@LeafSymbol.Trash" /></Leading><ChildContent>Elimina</ChildContent></MenuItem>
+                        </ChildContent>
+                    </ContextMenu>
+                }
+            </Container>
+            <TextBlock Class="demo-hint demo-tiles-hint">Clic destro su un elemento, oppure tieni premuto sul touch.</TextBlock>
+        </Container>
+    </Container>
+</Container>
+
+@code {
+    private Container? tilesHost;
+    private HoverTracker tilesHover = null!;
+    private IReadOnlyDictionary<string, object?> TileHoverAttributes => tilesHover.Attributes(this, () => tilesHost?.Element, node => node.Name == "ShowcaseTile");
+    protected override void OnInitialized() => tilesHover = new(StateHasChanged);
+    protected override void OnAfterRender(bool firstRender) => tilesHover.Refresh();
+    private IReadOnlyDictionary<string, object?> TileAttributes(Tile tile) => new Dictionary<string, object?> { ["selected"] = selectedTile == tile };
+    [CascadingParameter] public ToastQueue Notifications { get; set; } = null!;
+    private sealed class Tile(int id, string name, LeafSymbol glyph, string color)
+    {
+        public int Id { get; } = id;
+        public string Name { get; } = name;
+        public LeafSymbol Glyph { get; } = glyph;
+        public string Color { get; } = color;
+        public ContextMenu? Menu { get; set; }
+    }
+    private readonly List<Tile> tiles = [new(0, "Risorse", LeafSymbol.Folder, "g1"), new(1, "Copertina.png", LeafSymbol.Image, "g2"), new(2, "Tema.json", LeafSymbol.File, "g4"), new(3, "Note.md", LeafSymbol.File, "g3")];
+    private readonly Stack<Tile> removed = new();
+    private readonly Stack<Tile> restored = new();
+    private Tile? selectedTile;
+    private bool sidebar = true;
+    private bool rulers;
+    private bool grid = true;
+
+    private bool CanUndo => removed.Any(tile => !tiles.Contains(tile));
+    private bool CanRedo => restored.Any(tiles.Contains);
+
+    private void Notify(string message) => Notifications.Show(new ToastOptions { Message = message, Duration = TimeSpan.FromMilliseconds(4200) });
+
+    private void ContextChanged(Tile tile, bool open) { if (open) selectedTile = tile; }
+
+    private Task ShowContextAsync(Tile tile, PointerEventArgs e)
+    {
+        selectedTile = tile;
+        return tile.Menu?.ShowAsync(e) ?? Task.CompletedTask;
+    }
+
+    private void Remove(Tile tile, bool clearRedo = true)
+    {
+        if (!tiles.Remove(tile)) return;
+        if (selectedTile == tile) selectedTile = null;
+        removed.Push(tile);
+        if (clearRedo) restored.Clear();
+        Notifications.Show(new ToastOptions
+        {
+            Message = $"{tile.Name} spostato nel cestino",
+            Duration = TimeSpan.FromMilliseconds(4200),
+            ActionText = "Annulla",
+            Action = () => InvokeAsync(() => Restore(tile)),
+        });
+        StateHasChanged();
+    }
+
+    private void Restore(Tile tile)
+    {
+        if (tiles.Contains(tile)) return;
+        tiles.Add(tile);
+        tiles.Sort((left, right) => left.Id.CompareTo(right.Id));
+        selectedTile = tile;
+        restored.Push(tile);
+        StateHasChanged();
+    }
+
+    private void Undo()
+    {
+        while (removed.TryPop(out var tile))
+            if (!tiles.Contains(tile)) { Restore(tile); return; }
+    }
+
+    private void Redo()
+    {
+        while (restored.TryPop(out var tile))
+            if (tiles.Contains(tile)) { Remove(tile, clearRedo: false); return; }
+    }
+
+    private static KeyGesture Key(string text) => KeyGesture.Parse(text);
+}
+@style {
+    .demo-mbframe { border-radius: var(--leaf-r-ovl); background: var(--leaf-pane); box-shadow: inset 0 0 0 1px var(--leaf-stroke); }
+    .demo-mbdoc { display: flex; flex-direction: column; padding: 16px 16px 20px; color: var(--leaf-text-3); font-size: 13px; }
+    .demo-ln { height: 8px; margin-top: 10px; border-radius: 5px 1px 5px 1px; background: var(--leaf-s2); }
+    .demo-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); gap: 8px; }
+    .demo-tile { display: flex; flex-direction: column; align-items: center; gap: 9px; padding: 16px 8px 12px; border-radius: var(--leaf-r-ovl); color: var(--leaf-text); font-size: 13px; }
+    .demo-tile[selected] { background: color-mix(in oklab, var(--leaf-primary) 12%, transparent); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--leaf-primary) 45%, transparent); }
+    .demo-tic { display: flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 18px 5px 18px 5px; color: var(--demo-c); background: color-mix(in srgb, var(--demo-c) 16%, transparent); transition: transform 400ms cubic-bezier(0.34, 1.5, 0.64, 1), border-radius 400ms cubic-bezier(0.34, 1.5, 0.64, 1); }
+    .demo-tile:hover .demo-tic { transform: rotate(-6deg); border-radius: 5px 18px 5px 18px; }
+    .demo-tic Icon { width: 24px; height: 24px; font-size: 24px; }
+    .demo-tiles-hint { margin-top: 12px; }
+}

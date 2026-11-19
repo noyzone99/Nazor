@@ -1,0 +1,19 @@
+<ContextMenu>
+    <Trigger>
+        <Container Class="area" TabIndex="0">Right-click here, or focus it and press Shift+F10.</Container>
+    </Trigger>
+    <ChildContent>
+        <MenuItem OnClick="@(() => last = "Cut")">Cut</MenuItem>
+        <MenuItem OnClick="@(() => last = "Copy")">Copy</MenuItem>
+        <MenuItem OnClick="@(() => last = "Paste")">Paste</MenuItem>
+    </ChildContent>
+</ContextMenu>
+<TextBlock>@($"Last command: {last}")</TextBlock>
+
+@code {
+    private string last = "none";
+}
+
+@style {
+    .area { padding: 32px; border: 1px dashed GrayText; width: 360px; }
+}

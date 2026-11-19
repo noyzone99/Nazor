@@ -1,0 +1,12 @@
+**/bin/
+**/obj/
+.vs/
+.dotnet/
+artifacts/
+# npm packages of the VS Code extension: Scripts/Build/build-editors.ps1 installs them in artifacts.
+node_modules/
+*.user
+
+/Private/
+/AGENTS.md
+/graphify-out/

@@ -1,0 +1,19 @@
+<Project>
+  <Import Project="../../Sources/Tools/Nazor.Sdk/Sdk/Sdk.props" />
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <NazorApplicationId>org.nazor.samples.gallery</NazorApplicationId>
+    <RootNamespace>Nazor.Samples.Gallery</RootNamespace>
+  </PropertyGroup>
+  <Import Project="../../Sources/Tools/Nazor.Sdk/Sdk/Sdk.targets" />
+  <ItemGroup>
+    <ProjectReference Include="../../Sources/Themes/Nazor.Themes.Fluent/Nazor.Themes.Fluent.csproj" />
+    <ProjectReference Include="../../Sources/Themes/Nazor.Themes.NazorLeaf/Nazor.Themes.NazorLeaf.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Examples/**/*.nazor" LogicalName="GallerySamples.%(Filename)%(Extension)" />
+    <None Include="../../Docs/Assets/nazor.png" Link="Assets/nazor.png" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <None Include="../../Docs/Assets/nazor-app.png" Link="Assets/nazor-app.png" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

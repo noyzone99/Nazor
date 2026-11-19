@@ -1,0 +1,9 @@
+@page "/orders/{Id:int}"
+@page "/orders/{Id:int}/{View}"
+
+<TextBlock>Order @Id @View</TextBlock>
+
+@code {
+    [Parameter] public int Id { get; set; }
+    [Parameter] public string? View { get; set; }
+}

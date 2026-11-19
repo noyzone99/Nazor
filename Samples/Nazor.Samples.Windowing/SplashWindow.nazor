@@ -1,0 +1,38 @@
+@window
+
+<Container Class="splash">
+    <TextBlock Class="title">Nazor</TextBlock>
+    <TextBlock>Loading your workspace…</TextBlock>
+    <Button OnClick="() => Window.Close()">Close preview</Button>
+</Container>
+
+@style {
+    :root { background: #174878; color: white; }
+    :root.translucent { background: rgba(23, 72, 120, 0.65); }
+    .splash { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; }
+    .title { font-size: 32px; font-weight: bold; }
+}
+
+@code {
+    [Parameter] public bool Transparent { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Window.Title = "Nazor — Splash preview";
+        Window.Decorations = WindowDecorationPolicy.Require(WindowDecorations.Nazor(WindowTitleBarContent.None, WindowCaptionButtons.None));
+        Window.IsResizable = false;
+        if (Transparent && Window.Capabilities.CanUseTransparentBackground)
+        {
+            Window.BackgroundMode = BackgroundMode.Transparent;
+            Window.Class = "translucent";
+        }
+        Window.Width = 420;
+        Window.Height = 240;
+        Window.IsMinimizable = false;
+        Window.IsMaximizable = false;
+        Window.IsResizable = false;
+        Window.FullScreenEnabled = false;
+        if (Window.Capabilities.CanSetAlwaysOnTop) Window.IsAlwaysOnTop = true;
+        if (Window.Capabilities.CanSetTaskbarVisibility) Window.IsVisibleInTaskbar = false;
+    }
+}

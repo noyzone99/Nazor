@@ -1,0 +1,4 @@
+<Pagination @bind-Page="page" TotalItems="128" @bind-PageSize="pageSize"
+            ShowFirstLast="true" ShowPageSize="true" ShowSummary="true" />
+<TextBlock>@($"Page {page}, {pageSize} items per page")</TextBlock>
+@code { private int page = 1; private int pageSize = 10; }

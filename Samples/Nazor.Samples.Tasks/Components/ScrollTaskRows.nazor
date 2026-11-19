@@ -1,0 +1,32 @@
+@* Both preview surfaces receive the same read-only records. This component owns row presentation only:
+   overflow, scroll offsets and interaction belong to its parent scroll container. *@
+<Container Class="@(Compact ? "demo-rows compact" : "demo-rows")">
+    <Container Class="table-row table-heading">
+        <TextBlock>Task</TextBlock>
+        <TextBlock>State</TextBlock>
+        @if (!Compact)
+        {
+            <TextBlock>Owner</TextBlock>
+            <TextBlock>Notes</TextBlock>
+        }
+    </Container>
+    @foreach (var item in Items)
+    {
+        @* Stable keys keep focused titles attached to their records when settings or content length change.
+           Selectable text provides a real keyboard/copy use case instead of a button with no action. *@
+        <Container @key="item.Id" Class="table-row">
+            <TextBlock Class="task-name" IsTextSelectionEnabled="true" TabIndex="0">@item.Title</TextBlock>
+            <TextBlock Class="muted">@(item.IsCompleted ? "Done" : "Open")</TextBlock>
+            @if (!Compact)
+            {
+                <TextBlock>Sample team</TextBlock>
+                <TextBlock Class="muted">Drag horizontally to read this column.</TextBlock>
+            }
+        </Container>
+    }
+</Container>
+
+@code {
+    [Parameter] public IEnumerable<TaskItem> Items { get; set; } = [];
+    [Parameter] public bool Compact { get; set; }
+}

@@ -1,0 +1,5 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>Exe</OutputType><NazorApplicationId>org.nazor.devtoolslaunch</NazorApplicationId><NazorEnableDevTools>true</NazorEnableDevTools><NazorEnablePublishValidation>false</NazorEnablePublishValidation></PropertyGroup>
+  <ItemGroup><ProjectReference Include="../../../Sources/Hosts/Nazor.Hosting.Desktop/Nazor.Hosting.Desktop.csproj" /></ItemGroup>
+  <Import Project="../../../Sources/Tools/Nazor.Sdk/build/Nazor.targets" />
+</Project>

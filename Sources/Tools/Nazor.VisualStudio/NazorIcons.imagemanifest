@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='utf-8'?>
+<ImageManifest xmlns="http://schemas.microsoft.com/VisualStudio/ImageManifestSchema/2014">
+  <Images>
+    <Image Guid="df813fe5-43b7-40ab-9ba5-4ac6892fdbb6" ID="1" AllowColorInversion="false">
+      <Source Uri="/Nazor.VisualStudio;Component/Icons/Project.Light.xaml" Background="Light" />
+      <Source Uri="/Nazor.VisualStudio;Component/Icons/Project.Dark.xaml" Background="Dark" />
+      <Source Uri="/Nazor.VisualStudio;Component/Icons/Project.HighContrastLight.xaml" Background="HighContrastLight" />
+      <Source Uri="/Nazor.VisualStudio;Component/Icons/Project.HighContrastDark.xaml" Background="HighContrastDark" />
+    </Image>
+    <Image Guid="df813fe5-43b7-40ab-9ba5-4ac6892fdbb6" ID="2" AllowColorInversion="false">
+      <Source Uri="/Nazor.VisualStudio;Component/Icons/Component.Light.xaml" Background="Light" />
+      <Source Uri="/Nazor.VisualStudio;Component/Icons/Component.Dark.xaml" Background="Dark" />
+      <Source Uri="/Nazor.VisualStudio;Component/Icons/Component.HighContrastLight.xaml" Background="HighContrastLight" />
+      <Source Uri="/Nazor.VisualStudio;Component/Icons/Component.HighContrastDark.xaml" Background="HighContrastDark" />
+    </Image>
+    <Image Guid="df813fe5-43b7-40ab-9ba5-4ac6892fdbb6" ID="3" AllowColorInversion="false">
+      <Source Uri="/Nazor.VisualStudio;Component/Icons/StyleSheet.Light.xaml" Background="Light" />
+      <Source Uri="/Nazor.VisualStudio;Component/Icons/StyleSheet.Dark.xaml" Background="Dark" />
+      <Source Uri="/Nazor.VisualStudio;Component/Icons/StyleSheet.HighContrastLight.xaml" Background="HighContrastLight" />
+      <Source Uri="/Nazor.VisualStudio;Component/Icons/StyleSheet.HighContrastDark.xaml" Background="HighContrastDark" />
+    </Image>
+  </Images>
+</ImageManifest>

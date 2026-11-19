@@ -1,0 +1,54 @@
+@using Nazor.Input
+
+<Container Class="choices">
+    <RadioGroup @bind-Value="shipping" AccessibleName="ShippingMethod">
+        <RadioButton Value="ShippingMethod.Standard">Standard</RadioButton>
+        <RadioButton Value="ShippingMethod.Express">Express</RadioButton>
+        <RadioButton Value="ShippingMethod.Pickup" Disabled="!storeOpen">Store pickup</RadioButton>
+    </RadioGroup>
+    <Switch @bind-IsOn="notifications">Notifications</Switch>
+    <Slider @bind-Value="volume" Step="5" AccessibleName="Volume" Style="@($"width: {width}px")" />
+    <ProgressBar Value="@volume" Maximum="100" />
+    <Spinner />
+    <Select @bind-Value="country" Placeholder="Country" AccessibleName="Country">
+        <SelectItem Value="@("IT")">Italy</SelectItem>
+        <SelectItem Value="@("FR")">France</SelectItem>
+    </Select>
+    <Select @bind-Value="items" Items="@(Enumerable.Range(1, 5))" ItemText="@(n => $"{n} items")" />
+    <ListView Items="orders" SelectionMode="Nazor.Controls.Primitives.SelectionMode.Multiple" @bind-SelectedItems="selected" OnItemActivated="(string o) => Open(o)">
+        <ItemTemplate Context="o">
+            <TextBlock>@o</TextBlock>
+        </ItemTemplate>
+    </ListView>
+    <DatePicker @bind-Value="delivery" Minimum="@today" Placeholder="Delivery" Culture="@italianCulture" />
+    <Calendar @bind-Value="delivery" IsDateUnavailable="@(d => d.DayOfWeek == DayOfWeek.Sunday)" Culture="@italianCulture" Today="@today" />
+</Container>
+
+@code {
+    public enum ShippingMethod { Standard, Express, Pickup }
+
+    private ShippingMethod shipping = ShippingMethod.Express;
+    private bool storeOpen;
+    private bool notifications;
+    private double volume = 40;
+    private int width = 180;
+    private string? country;
+    private int items = 2;
+
+    public ShippingMethod Selection => shipping;
+    public bool Notifications => notifications;
+    public double Volume => volume;
+    public string? Country => country;
+
+    private readonly string[] orders = ["A1", "B2", "C3"];
+    private IReadOnlyCollection<string> selected = [];
+    private string? opened;
+    private void Open(string order) => opened = order;
+    public string Selected => string.Join(",", selected);
+    public string? Opened => opened;
+
+    private readonly DateOnly today = new(2026, 10, 14);
+    private readonly System.Globalization.CultureInfo italianCulture = System.Globalization.CultureInfo.GetCultureInfo("it-IT");
+    private DateOnly? delivery;
+    public DateOnly? Delivery => delivery;
+}

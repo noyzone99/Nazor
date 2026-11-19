@@ -1,0 +1,25 @@
+NazorLeaf Icons
+Copyright (c) Nazor contributors. MIT License.
+
+This OpenType font is generated from the original monochrome NazorLeaf SVG
+artwork maintained in Sources/Themes/Nazor.Themes.NazorLeaf/Icons. These icons
+previously lived in the Gallery sample. The theme owns the source artwork,
+stable codepoint map, generated font and typed LeafSymbol catalog.
+
+Generation: Scripts/Assets/generate-nazorleaf-symbols.py with the versions in
+Scripts/Assets/requirements-nazorleaf-icons.txt. Skia expands the original
+round strokes to filled outlines and fontTools writes the OpenType/CFF font.
+These are development tools, not dependencies of applications using the font.
+
+Keep LICENSE-NazorLeaf-Icons.txt with the distributed font. Text fonts retain
+their separate Open Font License notices.
+
+StarFilled is the filled form of the same original MIT-licensed Star path,
+retaining its round stroke. Existing icon codepoints remain unchanged;
+StarFilled uses the appended private-use codepoint U+E030.
+
+Mail, Chat, At, Pause, Dot and Dock preserve the corresponding original
+reference SVG paths/shapes and use the catalog's regular round-stroke style.
+They append U+E031 through U+E036; all 49 earlier mappings are unchanged.
+The regular font stroke is 1.8 units. The reference's default SVG stroke is
+1.7 units, with separate tile/badge overrides; exact optical parity is not claimed.

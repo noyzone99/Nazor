@@ -1,0 +1,13 @@
+<CheckBox @bind-IsChecked="loading">Simulate loading</CheckBox>
+@if (loading)
+{
+    <Skeleton Lines="3" Width="230px" />
+}
+else
+{
+    <EmptyState Title="No results">
+        <Description>Try a different search.</Description>
+        <Actions><Button OnClick="() => loading = true">Search again</Button></Actions>
+    </EmptyState>
+}
+@code { private bool loading; }

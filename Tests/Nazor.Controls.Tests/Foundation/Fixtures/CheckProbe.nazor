@@ -1,0 +1,17 @@
+@implements IRefreshable
+<Container Class="page">
+    <CheckBox Class="mixed" @bind-IsChecked="Checked" @bind-IsIndeterminate="Mixed">Everything</CheckBox>
+    <CheckBox Class="off" Disabled="true">Off</CheckBox>
+    <Field LabelText="Notify" Description="@Help" Required="true" Invalid="true" Error="@Problem">
+        <CheckBox Class="field-check" @bind-IsChecked="Notify">By email</CheckBox>
+    </Field>
+</Container>
+
+@code {
+    public void Refresh() => StateHasChanged();
+    public bool Checked { get; set; }
+    public bool Mixed { get; set; } = true;
+    public bool Notify { get; set; }
+    private readonly RenderFragment Help = b => b.AddContent(0, "Once a day.");
+    private readonly RenderFragment Problem = b => b.AddContent(0, "Required.");
+}

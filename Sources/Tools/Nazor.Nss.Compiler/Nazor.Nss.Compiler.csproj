@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk" TreatAsLocalProperty="TargetFramework">
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace>Nazor.Nss</RootNamespace>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../Core/Nazor.Style/Nazor.Style.csproj" />
+  </ItemGroup>
+</Project>

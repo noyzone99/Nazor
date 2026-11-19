@@ -1,0 +1,53 @@
+@inject IApplicationLauncher Launcher
+@implements IDisposable
+
+<Container Class="section">
+    <TextBlock Class="heading">Application launcher</TextBlock>
+    <TextBlock>@($"Jump List: {Launcher.Capabilities.SupportsJumpList}; badge count: {Launcher.Capabilities.SupportsBadgeCount}; badge icon: {Launcher.Capabilities.SupportsBadgeIcon}")</TextBlock>
+    <TextBlock>The badge is shared by all windows in this process.</TextBlock>
+    <Button Disabled="@(!Launcher.Capabilities.SupportsJumpList)" OnClick="PublishTasks">Publish launcher tasks</Button>
+    <Button Disabled="@(!Launcher.Capabilities.SupportsJumpList)" OnClick="RemoveTasks">Remove launcher tasks</Button>
+    <Button Disabled="@(!Launcher.Capabilities.SupportsBadgeCount)" OnClick="Increment">Increase badge count</Button>
+    <Button Disabled="@(!Launcher.Capabilities.SupportsBadgeIcon)" OnClick="ShowIcon">Replace badge with an icon</Button>
+    <Button Disabled="@(!Launcher.Capabilities.SupportsBadgeCount && !Launcher.Capabilities.SupportsBadgeIcon)" OnClick="Clear">Clear either badge</Button>
+    <TextBlock>@result</TextBlock>
+    @if (OperatingSystem.IsLinux())
+    {
+        <TextBlock>On Linux, configure launcher actions in the installed .desktop file.</TextBlock>
+    }
+</Container>
+
+@style {
+    .section { display: flex; flex-direction: column; gap: 12px; }
+    .heading { font-size: 22px; font-weight: bold; }
+}
+
+@code {
+    private int count;
+    private string result = "The result reports whether the desktop accepted the request.";
+    protected override void OnInitialized() => Launcher.CapabilitiesChanged += Refresh;
+    private void Refresh() => StateHasChanged();
+    private void Report(bool accepted) => result = accepted ? "Request accepted." : "Request unavailable or rejected.";
+    private void PublishTasks() => Report(Launcher.SetJumpList(
+    [
+        new("Launcher example", ["--launcher"]),
+        new("Windowing example", []),
+        new("Start in tray", ["--tray"])
+    ]));
+    private void RemoveTasks() => Report(Launcher.SetJumpList([]));
+    private void Increment()
+    {
+        var next = count + 1;
+        var accepted = Launcher.SetBadgeCount(next);
+        if (accepted) count = next;
+        Report(accepted);
+    }
+    private void ShowIcon() => Report(Launcher.SetBadgeIcon("Assets/launcher.png", "Application launcher example"));
+    private void Clear()
+    {
+        var accepted = Launcher.ClearBadge();
+        if (accepted) count = 0;
+        Report(accepted);
+    }
+    public void Dispose() => Launcher.CapabilitiesChanged -= Refresh;
+}

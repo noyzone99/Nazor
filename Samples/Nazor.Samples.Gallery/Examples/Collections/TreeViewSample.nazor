@@ -1,0 +1,10 @@
+@using Nazor.Controls.Primitives
+<TreeView TItem="FileNode" Class="files" Roots="files" Children="node => node.Children" ItemText="node => node.Name"
+          SelectionMode="SelectionMode.Single" @bind-SelectedItem="selected" AccessibleName="Project files" />
+<TextBlock>@(selected?.Name ?? "Select a file")</TextBlock>
+@code {
+    public sealed record FileNode(string Name, params FileNode[] Children);
+    private readonly FileNode[] files = [new("src", new("App.nazor"), new("Program.cs")), new("README.md")];
+    private FileNode? selected;
+}
+@style { .files { align-self: stretch; height: 160px; } }

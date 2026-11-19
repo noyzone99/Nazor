@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Nazor.Application" />
+    <ProjectReference Include="../Nazor.Input/Nazor.Input.csproj" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,26 @@
+<Project>
+  <PropertyGroup>
+    <NazorInspectorBundleRoot Condition="'$(NazorInspectorBundleRoot)' == ''">$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)../../../artifacts/devtools-bundle/'))</NazorInspectorBundleRoot>
+    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);NazorInspectorPackageContent</TargetsForTfmSpecificContentInPackage>
+  </PropertyGroup>
+  <Target Name="NazorBuildInspectorBundles" Condition="'$(TargetFramework)' == 'net8.0'">
+    <PropertyGroup><_NazorInspectorRepository>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)../../../'))</_NazorInspectorRepository></PropertyGroup>
+    <Error Condition="!$([System.IO.Path]::GetFullPath('$(NazorInspectorBundleRoot)').StartsWith('$(_NazorInspectorRepository)'))" Text="Inspector staging must stay inside the repository." />
+    <RemoveDir Directories="$(NazorInspectorBundleRoot)win-x64;$(NazorInspectorBundleRoot)linux-x64" />
+    <ItemGroup><_NazorInspectorPlatform Include="win-x64;linux-x64" /></ItemGroup>
+    <MSBuild Projects="$(MSBuildThisFileDirectory)../Nazor.DevTools/Nazor.DevTools.csproj" Targets="Restore;Publish" BuildInParallel="false"
+             RemoveProperties="TargetFramework;TargetFrameworks;RuntimeIdentifiers;PublishSelfContained"
+             Properties="RuntimeIdentifier=%(_NazorInspectorPlatform.Identity);SelfContained=false;UseAppHost=false;NazorEnableDevTools=false;NazorEnablePublishValidation=false;ArtifactsPath=$(NazorInspectorBundleRoot)build/%(_NazorInspectorPlatform.Identity);UseArtifactsOutput=true;PublishDir=$(NazorInspectorBundleRoot)%(_NazorInspectorPlatform.Identity)/" />
+  </Target>
+  <Target Name="NazorInspectorPackageContent" DependsOnTargets="NazorBuildInspectorBundles" Condition="'$(TargetFramework)' == 'net8.0'">
+    <ItemGroup>
+      <_NazorMicrosoftWindowingFile Include="$(NuGetPackageRoot)microsoft.windowsappsdk.interactiveexperiences/$(NazorWindowingVersion)/runtimes-framework/win-x64/native/*;$(NazorWindowingProjectionAssembly);$(NazorWindowsProjectionAssemblies);WindowsAppSDK.LICENSE.txt" />
+      <_NazorInspectorPayload Include="$(NazorInspectorBundleRoot)win-x64/**/*"
+                             Exclude="$(NazorInspectorBundleRoot)**/*.pdb;$(NazorInspectorBundleRoot)**/*.xml;@(_NazorMicrosoftWindowingFile->'$(NazorInspectorBundleRoot)win-x64/%(Filename)%(Extension)')" PayloadRid="win-x64" />
+      <_NazorInspectorPayload Include="$(NazorInspectorBundleRoot)linux-x64/**/*" Exclude="$(NazorInspectorBundleRoot)**/*.pdb;$(NazorInspectorBundleRoot)**/*.xml" PayloadRid="linux-x64" />
+      <TfmSpecificPackageFile Include="@(_NazorInspectorPayload)" PackagePath="tools/%(PayloadRid)/%(RecursiveDir)%(Filename)%(Extension)" />
+    </ItemGroup>
+    <Error Condition="!Exists('$(NazorInspectorBundleRoot)win-x64/Nazor.DevTools.bundle.json') or !Exists('$(NazorInspectorBundleRoot)linux-x64/Nazor.DevTools.bundle.json')"
+           Text="Build both supported inspector bundles before packing Nazor.DevTools.Agent." />
+  </Target>
+</Project>

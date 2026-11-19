@@ -1,0 +1,28 @@
+@using Nazor.Controls.Primitives
+
+<Container Class="row">
+    @foreach (var where in placements)
+    {
+        <Button OnClick="() => Open(where)">@where</Button>
+    }
+</Container>
+<DialogContainer @bind-IsOpen="open" Placement="placement" CloseOnOutside="true" LabeledBy="dialog-title">
+    <Container Class="body">
+        <Heading Level="2" Id="dialog-title">@($"{placement} dialog")</Heading>
+        <TextBlock>The container supplies the scrim, focus trapping, Escape and placement; the content is entirely yours.</TextBlock>
+        <TextField AccessibleName="Name" Placeholder="Focus starts here" />
+        <Button IsDefault="true" OnClick="() => open = false">Done</Button>
+    </Container>
+</DialogContainer>
+
+@code {
+    private bool open;
+    private DialogPlacement placement;
+    private readonly DialogPlacement[] placements = Enum.GetValues<DialogPlacement>();
+    private void Open(DialogPlacement where) => (placement, open) = (where, true);
+}
+
+@style {
+    .row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .body { display: flex; flex-direction: column; gap: 10px; min-width: 280px; }
+}

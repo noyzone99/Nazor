@@ -1,0 +1,23 @@
+<Form OnSubmit="Submit">
+    <FormLayout DefaultLayout="FieldLayout.Inline" LabelWidth="140">
+        <Field LabelText="First name"><TextField @bind-Value="first" /></Field>
+        <Field LabelText="Last name"><TextField @bind-Value="last" /></Field>
+        <Field LabelText="Country"><Select TValue="string" @bind-Value="country" Items="countries" /></Field>
+        <Field LabelText="Notes" Layout="FieldLayout.Stacked"><TextArea @bind-Value="notes" Rows="3" /></Field>
+        <Container Class="actions">
+            <Button Type="ButtonType.Submit" IsDefault="true">Submit</Button>
+        </Container>
+    </FormLayout>
+</Form>
+<TextBlock>@submitted</TextBlock>
+
+@code {
+    private string first = "Giulia", last = "Ferri", notes = "", submitted = "Press Enter in a field or Submit.";
+    private string? country = "Italy";
+    private readonly string[] countries = ["Italy", "France", "Germany", "Spain"];
+    private void Submit() => submitted = $"Submitted {first} {last} from {country}.";
+}
+
+@style {
+    .actions { display: flex; justify-content: flex-end; }
+}

@@ -1,0 +1,34 @@
+@implements IRefreshable
+<Container Class="tabs-frame" Style="@($"width: {Width}px")">
+    <Tabs Class="tabs" @bind-SelectedIndex="Index" @bind-SelectedKey="Key" Placement="Placement" Overflow="Overflow" KeepMounted="KeepMounted">
+        <Tab Key="general" Label="General" Class="t-general">
+            <TextBlock Class="p-general">General page</TextBlock>
+        </Tab>
+        <Tab Key="colors" Label="Colors" Class="t-colors">
+            <Badge><TextBlock>3</TextBlock></Badge>
+            <ChildContent><TextBlock Class="p-colors">Colors page</TextBlock></ChildContent>
+        </Tab>
+        <Tab Key="hidden" Label="Disabled" Class="t-disabled" Disabled="true">
+            <TextBlock>Never</TextBlock>
+        </Tab>
+        @foreach (var name in Extra)
+        {
+            <Tab Key="@name" Label="@name" Class="@("t-" + name)" Closable="true" OnClose="@(() => Closed.Add(name))">
+                <TextBlock Class="@("p-" + name)">@name page</TextBlock>
+            </Tab>
+        }
+    </Tabs>
+</Container>
+<Button Class="outside">Outside</Button>
+
+@code {
+    public void Refresh() => StateHasChanged();
+    public int Index { get; set; }
+    public string? Key { get; set; }
+    public double Width { get; set; } = 600;
+    public TabsPlacement Placement { get; set; }
+    public TabsOverflow Overflow { get; set; }
+    public bool KeepMounted { get; set; }
+    public List<string> Extra { get; set; } = ["files"];
+    public List<string> Closed { get; } = [];
+}

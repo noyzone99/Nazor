@@ -1,0 +1,38 @@
+@implements IDisposable
+@inject IWindow CurrentWindow
+
+@* The selected window policy supplies caption controls around this content. Empty space remains draggable. *@
+<Container Class="app-titlebar">
+    <TextBlock Class="brand">@(Title ?? CurrentWindow.Title)</TextBlock>
+    <Container Class="drag-space" />
+</Container>
+
+@style {
+    .app-titlebar {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        /* Use the measured native inset height when present; the fallback also works with app-drawn caption buttons. */
+        height: 100%;
+        flex-shrink: 0;
+        padding: 0;
+    }
+    .brand { font-weight: bold; margin: 0 12px; }
+    .drag-space { flex: 1; height: 100%; min-width: 32px; }
+}
+
+@code {
+    [Parameter] public string? Title { get; set; }
+    // This fragment supplies the title; the window policy selects the caption controls separately.
+    protected override void OnInitialized()
+    {
+        CurrentWindow.Changed += Refresh;
+    }
+
+    private void Refresh() => StateHasChanged();
+    // Pair every subscription with unsubscription so reopening dialogs does not accumulate listeners.
+    public void Dispose()
+    {
+        CurrentWindow.Changed -= Refresh;
+    }
+}

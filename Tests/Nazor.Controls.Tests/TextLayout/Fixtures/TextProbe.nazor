@@ -1,0 +1,66 @@
+@implements IRefreshable
+<Container Class="page">
+    <Paragraph Class="p1">First paragraph.</Paragraph>
+    <Paragraph Class="p2" IsTextSelectionEnabled="true">Second paragraph.</Paragraph>
+    <Container Class="keys"><Kbd Class="key">Ctrl</Kbd><Kbd>C</Kbd></Container>
+    <Blockquote Class="quote" Cite="@Cite">Simplicity is prerequisite for reliability.</Blockquote>
+    <Blockquote Class="bare">No source.</Blockquote>
+    <List Class="bullets">
+        <ListItem Class="b1">Alpha</ListItem>
+        <ListItem Class="b2">
+            Beta
+            <List Class="nested">
+                <ListItem Class="n1">Inner</ListItem>
+                <List Class="deeper"><ListItem Class="d1">Deep</ListItem></List>
+            </List>
+        </ListItem>
+        @if (ShowThird)
+        {
+            <ListItem Class="b3">Gamma</ListItem>
+        }
+    </List>
+    <List Class="numbers" Ordered="true" Start="Start" Reversed="Reversed" MarkerStyle="Style">
+        <ListItem Class="o1">One</ListItem>
+        <ListItem Class="o2" Value="Override">Two</ListItem>
+        <ListItem Class="o3">Three</ListItem>
+    </List>
+    <List Class="silent" MarkerStyle="ListMarkerStyle.None"><ListItem Class="s1">Plain</ListItem></List>
+    <DefinitionList Class="terms" Layout="Layout">
+        <DefinitionTerm Class="t1">Nazor</DefinitionTerm>
+        <DefinitionDescription Class="dd1">A native UI framework.</DefinitionDescription>
+        <DefinitionTerm>NSS</DefinitionTerm>
+        <DefinitionDescription Class="dd2">The style language.</DefinitionDescription>
+    </DefinitionList>
+    <CodeBlock Class="code" Code="@Code" Language="csharp" ShowLineNumbers="Numbers" FirstLineNumber="First" Wrap="Wrap" />
+    <CodeBlock Class="code-child" ShowLineNumbers="true" AccessibleName="Sample">line one
+line two
+line three</CodeBlock>
+    <Figure Class="figure">
+        <Container Class="art">Picture</Container>
+        @if (ShowCaption)
+        {
+            <FigureCaption Class="caption">Figure 1. The art.</FigureCaption>
+        }
+    </Figure>
+</Container>
+
+@code {
+    public void Refresh() => StateHasChanged();
+    public bool ShowThird { get; set; } = true;
+    public int? Start { get; set; }
+    public bool Reversed { get; set; }
+    public int? Override { get; set; }
+    public ListMarkerStyle Style { get; set; }
+    public DefinitionListLayout Layout { get; set; }
+    public string Code { get; set; } = "var a = 1;\r\nvar b = 2;\nvar c = 3;\n";
+    public bool Numbers { get; set; } = true;
+    public int First { get; set; } = 1;
+    public bool Wrap { get; set; }
+    public bool ShowCaption { get; set; } = true;
+    public string? Cite { get; set; } = "Edsger W. Dijkstra";
+}
+
+@style {
+    .page { display: flex; flex-direction: column; width: 600px; }
+    .keys { display: flex; gap: 4px; }
+}

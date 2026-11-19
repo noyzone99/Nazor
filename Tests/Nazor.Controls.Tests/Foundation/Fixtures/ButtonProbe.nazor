@@ -1,0 +1,22 @@
+@implements IRefreshable
+@using Nazor.Controls.Primitives
+<Container Class="page">
+    <Button Class="save" IsDefault="true" OnClick="() => Saved++">Save</Button>
+    <Button Class="danger" Appearance="ControlAppearance.Accent" Intent="Intent.Danger" Size="ControlSize.Large" Shape="Shape.Pill">Delete</Button>
+    <Button Class="off" Disabled="true" OnClick="() => Saved += 100">Off</Button>
+    <Button Class="busy" IsBusy="true" OnClick="() => Saved += 100">Busy</Button>
+    <Button Class="command" Command="RefreshCommand" />
+    <Button Class="icon" AccessibleName="Add"><Leading><Icon Glyph="+" /></Leading></Button>
+    <ToggleButton Class="bold" @bind-IsPressed="Bold">B</ToggleButton>
+    <Form OnSubmit="() => Submitted++"><Button Class="submit" Type="ButtonType.Submit">Send</Button></Form>
+</Container>
+
+@code {
+    public void Refresh() => StateHasChanged();
+    public int Saved { get; set; }
+    public int Submitted { get; set; }
+    public int Refreshed { get; set; }
+    public bool Bold { get; set; }
+    public Command RefreshCommand { get; private set; } = null!;
+    protected override void OnInitialized() => RefreshCommand = new Command("Refresh", () => Refreshed++, KeyGesture.Parse("F5"));
+}

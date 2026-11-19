@@ -1,0 +1,108 @@
+@using Nazor.Controls.Primitives
+<Container Class="demo-section">
+    <Heading Level="3">Selezione</Heading>
+    <Paragraph Class="demo-lead">Le radio restano cerchi finché non le scegli: quella selezionata ruota e diventa una foglia. L’interruttore è un segmentato in miniatura: una foglia scivola dentro l’altra e scopre il simbolo I o O.</Paragraph>
+    <Container Class="demo-grid">
+        <Container Class="demo-card">
+            <Heading Level="4">Caselle di controllo</Heading>
+            <Container Class="demo-stack">
+                <CheckBox IsChecked="@(parts.All(value => value))" IsIndeterminate="@(parts.Any(value => value) && !parts.All(value => value))" IsCheckedChanged="SelectAll">Componenti da includere</CheckBox>
+                <CheckBox Class="demo-indent" @bind-IsChecked="parts[0]">Controlli di base</CheckBox>
+                <CheckBox Class="demo-indent" @bind-IsChecked="parts[1]">Grafici</CheckBox>
+                <CheckBox Class="demo-indent" @bind-IsChecked="parts[2]">Editor di testo</CheckBox>
+                <CheckBox IsChecked="true" Disabled="true">Motore Skia (obbligatorio)</CheckBox>
+            </Container>
+        </Container>
+        <Container Class="demo-card">
+            <Heading Level="4">Canale di aggiornamento</Heading>
+            <RadioGroup TValue="string" @bind-Value="channel">
+                <RadioButton Value="@("Stabile")"><Description>Una versione al mese, testata</Description><ChildContent>Stabile</ChildContent></RadioButton>
+                <RadioButton Value="@("Beta")"><Description>Funzioni nuove con qualche settimana di anticipo</Description><ChildContent>Beta</ChildContent></RadioButton>
+                <RadioButton Value="@("Notturno")"><Description>Compilato ogni notte dal ramo principale</Description><ChildContent>Notturno</ChildContent></RadioButton>
+                <RadioButton Value="@("Supporto esteso")" Disabled="true"><Description>Con la licenza aziendale</Description><ChildContent>Supporto esteso</ChildContent></RadioButton>
+            </RadioGroup>
+        </Container>
+        <Container Class="demo-card">
+            <Heading Level="4">Interruttori</Heading>
+            <Container Class="demo-switches">
+                <Switch IsOn="true" LabelPosition="SwitchLabelPosition.Before"><Description>Vulkan, Metal o Direct3D</Description><ChildContent>Accelerazione GPU</ChildContent></Switch>
+                <Switch IsOn="true" LabelPosition="SwitchLabelPosition.Before"><Description>Chiaro e scuro automatici</Description><ChildContent>Segui il tema di sistema</ChildContent></Switch>
+                <Switch LabelPosition="SwitchLabelPosition.Before"><Description>Meno fotogrammi al secondo</Description><ChildContent>Risparmio energetico</ChildContent></Switch>
+                <Switch Disabled="true" LabelPosition="SwitchLabelPosition.Before"><Description>Gestita dall’amministratore</Description><ChildContent>Telemetria</ChildContent></Switch>
+            </Container>
+        </Container>
+    </Container>
+    <Container Class="demo-card">
+        <Heading Level="4">Filtri, intervalli e valori continui</Heading>
+        <ChipGroup TValue="string" SelectionMode="SelectionMode.Multiple" @bind-Values="platforms">
+            @foreach (var (platform, color) in platformNames)
+            {
+                <Chip Value="@platform" ShowDot="true" Style="@($"--leaf-chip: var(--leaf-{color})")">@platform</Chip>
+            }
+        </ChipGroup>
+        <Container Class="demo-row demo-gap-16">
+            <SegmentedControl TValue="string" @bind-Value="period" AccessibleName="Intervallo">
+                @foreach (var label in periods)
+                {
+                    <Segment Value="@label">@label</Segment>
+                }
+            </SegmentedControl>
+        </Container>
+        <Container Class="demo-stack demo-gap-18">
+            <Container Class="demo-material-preview">
+                <Container Class="demo-material-grain" />
+                <TextBlock>Campione di materiale</TextBlock>
+            </Container>
+            <Container Class="demo-slider-row">
+                <TextBlock>Grana del materiale</TextBlock>
+                <Slider @bind-Value="grain" @onchange="CommitGrain" AccessibleName="Grana del materiale" />
+                <TextBlock Class="demo-output">@($"{grain:0}%")</TextBlock>
+            </Container>
+            <Container Class="demo-slider-row">
+                <TextBlock>Raggio della foglia</TextBlock>
+                <Slider @bind-Value="radius" @onchange="CommitRadius" Minimum="4" Maximum="20" AccessibleName="Raggio della foglia" />
+                <TextBlock Class="demo-output">@($"{radius:0} px")</TextBlock>
+            </Container>
+        </Container>
+    </Container>
+</Container>
+
+@code {
+    private readonly bool[] parts = [true, false, true];
+    private readonly (string, string)[] platformNames = [("Windows", "g1"), ("macOS", "g2"), ("Linux", "g3"), ("Android", "g4"), ("iOS", "g4")];
+    private readonly string[] periods = ["Giorno", "Settimana", "Mese", "Anno"];
+    private IReadOnlyList<string> platforms = ["Windows", "macOS", "Linux"];
+    private string period = "Settimana";
+    private string channel = "Stabile";
+    private double grain;
+    private double radius;
+    [Parameter] public double Grain { get; set; }
+    [Parameter] public EventCallback<double> GrainChanged { get; set; }
+    [Parameter] public double Radius { get; set; }
+    [Parameter] public EventCallback<double> RadiusChanged { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        grain = Grain;
+        radius = Radius;
+    }
+
+    // The readouts follow the drag locally. Grain is confined to the opaque material sample.
+    private Task CommitGrain() => GrainChanged.InvokeAsync(grain);
+    private Task CommitRadius() => RadiusChanged.InvokeAsync(radius);
+
+    private void SelectAll(bool value) => Array.Fill(parts, value);
+}
+@style {
+    .demo-indent { padding-left: 31px; }
+    .demo-switches { display: flex; flex-direction: column; gap: 14px; }
+    .demo-gap-16 { margin-top: 16px; }
+    .demo-gap-18 { margin-top: 18px; }
+    .demo-material-preview { position: relative; display: flex; align-items: center; justify-content: center; min-height: 60px; background: var(--leaf-s1); border-radius: var(--leaf-r-pane); overflow: hidden; }
+    .demo-material-grain { position: absolute; left: 0; top: 0; right: 0; bottom: 0; pointer-events: none; opacity: var(--demo-grain-opacity, 0.5); background-image: url("/Themes/NazorLeaf/grain.png"); background-repeat: repeat; background-size: 180px 180px; }
+    @media (forced-colors: active) { .demo-material-grain { display: none; } }
+    .demo-slider-row { display: flex; flex-direction: row; align-items: center; gap: 14px; }
+    .demo-slider-row > TextBlock:first-child { min-width: 160px; font-size: 13.5px; }
+    .demo-slider-row > Slider { flex: 1; }
+    .demo-output { min-width: 46px; text-align: right; font-family: var(--leaf-font-mono); font-size: 12.5px; font-weight: 500; color: var(--leaf-text-2); }
+}

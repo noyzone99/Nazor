@@ -1,0 +1,35 @@
+@using Nazor.Controls.Primitives
+@implements IRefreshable
+<Container @ref="Host" Class="hover-host" Style="height: 100px; width: 260px; overflow-y: auto; position: relative" @attributes="HostAttributes" @onscroll="Observe">
+    <Indicator As="HoverIndicator" Target="Outer.Target" />
+    @if (ShowFirst)
+    {
+        <Pressable As="HoverItem" Class="hover-item first" Style="height: 40px; width: 220px" OnPress="() => Clicks++">First</Pressable>
+    }
+    <Pressable As="HoverItem" Class="hover-item second" Disabled="Disabled" Style="@(Hidden ? "display: none" : "height: 60px; width: 220px")" OnPress="() => Clicks++">
+        <Container @ref="Nested" Class="nested-scroll" Style="height: 30px; overflow-y: auto"><Container Style="height: 130px">Second</Container></Container>
+    </Pressable>
+    <Container @ref="InnerHost" Class="inner-host" Style="height: 80px; position: relative" @attributes="InnerAttributes">
+        <Indicator As="HoverIndicator" Target="Inner.Target" />
+        <Pressable As="HoverItem" Class="hover-item inner" Style="height: 40px" OnPress="() => Clicks++">Inner</Pressable>
+    </Container>
+</Container>
+@code {
+    public Container? Host { get; set; }
+    public Container? Nested { get; set; }
+    public Container? InnerHost { get; set; }
+    public HoverTracker Outer { get; private set; } = null!;
+    public HoverTracker Inner { get; private set; } = null!;
+    public bool ShowFirst { get; set; } = true;
+    public bool Disabled { get; set; }
+    public bool Hidden { get; set; }
+    public int Clicks { get; set; }
+    public List<Nazor.Rendering.ElementNode?> ScrollSources { get; } = [];
+    private IReadOnlyDictionary<string, object?> HostAttributes => Outer.Attributes(this, () => Host?.Element, Match);
+    private IReadOnlyDictionary<string, object?> InnerAttributes => Inner.Attributes(this, () => InnerHost?.Element, Match);
+    private static bool Match(Nazor.Rendering.ElementNode node) => node.Name == "HoverItem";
+    protected override void OnInitialized() { Outer = new(StateHasChanged); Inner = new(StateHasChanged); }
+    protected override void OnAfterRender(bool firstRender) { Outer.Refresh(); Inner.Refresh(); }
+    private void Observe(ScrollEventArgs args) => ScrollSources.Add(args.OriginalTarget);
+    public void Refresh() => StateHasChanged();
+}

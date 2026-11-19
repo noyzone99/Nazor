@@ -1,0 +1,17 @@
+<Project>
+  <Import Project="../../Sources/Tools/Nazor.Sdk/Sdk/Sdk.props" />
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<OutputType>Exe</OutputType>
+		<NazorApplicationId>org.nazor.workspace</NazorApplicationId>
+		<RootNamespace>Nazor.Workspace</RootNamespace>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+		<NazorEnableDevTools>true</NazorEnableDevTools>
+	</PropertyGroup>
+	<Import Project="../../Sources/Tools/Nazor.Sdk/Sdk/Sdk.targets" />
+	<ItemGroup>
+	  <ProjectReference Include="..\..\Sources\Themes\Nazor.Themes.Fluent\Nazor.Themes.Fluent.csproj" />
+	  <ProjectReference Include="..\..\Sources\Themes\Nazor.Themes.NazorLeaf\Nazor.Themes.NazorLeaf.csproj" />
+	</ItemGroup>
+</Project>

@@ -1,0 +1,9 @@
+<Container Style="padding-top: 20px;">
+    <Select TValue="string" PreferredMinVisibleItems="3" PreferredMaxVisibleItems="3">
+        <SelectItem Value="@("one")" Group="First"><TextBlock Style="height: 40px;">One</TextBlock></SelectItem>
+        <SelectItem Value="@("two")" Group="First" Disabled="true">Two</SelectItem>
+        <SelectItem Value="@("three")" Group="Second"><TextBlock Style="height: 30px;">Three</TextBlock></SelectItem>
+        <SelectItem Value="@("four")" Group="Second">Four</SelectItem>
+        <SelectItem Value="@("five")" Group="Second">Five</SelectItem>
+    </Select>
+</Container>

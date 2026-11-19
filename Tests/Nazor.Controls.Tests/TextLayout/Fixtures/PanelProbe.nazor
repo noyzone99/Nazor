@@ -1,0 +1,32 @@
+@implements IRefreshable
+<Accordion Class="accordion" ExpandMode="Mode" RequireOne="RequireOne" @bind-ExpandedValues="Open" Disabled="AccordionDisabled">
+    <AccordionItem Class="a1" Value="one" Header="One" IsExpandedChanged="OneChanged"><TextBlock Class="body1">Body one</TextBlock></AccordionItem>
+    <AccordionItem Class="a2" Value="two" Header="Two" Disabled="true"><TextBlock>Body two</TextBlock></AccordionItem>
+    <AccordionItem Class="a3" Value="three" Header="Three" IsExpandedChanged="ThreeChanged"><TextBlock Class="body3">Body three</TextBlock></AccordionItem>
+</Accordion>
+<SplitView Class="split" @bind-PaneSize="Size" @bind-IsPaneOpen="PaneOpen" PanePlacement="Placement" Orientation="Orientation" DisplayMode="Mode2"
+           MinPaneSize="100" MaxPaneSize="300" CompactPaneSize="40" PaneAccessibleName="Navigation">
+    <Pane><Button Class="pane-button">Home</Button></Pane>
+    <ChildContent><Button Class="main-button" OnClick="() => MainClicks++">Main</Button></ChildContent>
+</SplitView>
+
+@code {
+    public void Refresh() => StateHasChanged();
+    public AccordionExpandMode Mode { get; set; }
+    public bool RequireOne { get; set; }
+    public bool AccordionDisabled { get; set; }
+    public IReadOnlyCollection<string> Open { get; set; } = [];
+    public List<string> Reports { get; } = [];
+    public double Size { get; set; } = 200;
+    public bool PaneOpen { get; set; } = true;
+    public SplitViewPanePlacement Placement { get; set; }
+    public Orientation Orientation { get; set; }
+    public SplitViewDisplayMode Mode2 { get; set; }
+    public int MainClicks { get; set; }
+    private void OneChanged(bool value) => Reports.Add("one:" + value);
+    private void ThreeChanged(bool value) => Reports.Add("three:" + value);
+}
+
+@style {
+    .split { width: 600px; height: 200px; }
+}

@@ -1,0 +1,15 @@
+@namespace Nazor.Controls
+@typeparam TItem
+
+<Container Class="shared-card">
+    @ItemTemplate(Item)
+</Container>
+
+@code {
+    [Parameter] public TItem Item { get; set; } = default!;
+    [Parameter] public RenderFragment<TItem> ItemTemplate { get; set; } = null!;
+}
+
+@style {
+    .shared-card { padding: 11px; }
+}

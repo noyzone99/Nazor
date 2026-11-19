@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <key>name</key>
+    <string>Nazor</string>
+    <key>includes</key>
+    <string>nss.tmLanguage.tmTheme</string>
+    <key>settings</key>
+    <array>
+      <dict>
+        <key>scope</key>
+        <string>comment.block.razor.nazor, punctuation.definition.comment.begin.nazor, punctuation.definition.comment.end.nazor</string>
+        <key>settings</key>
+        <dict><key>vsclassificationtype</key><string>comment</string></dict>
+      </dict>
+      <dict>
+        <key>scope</key>
+        <string>keyword.control.nazor.transition, keyword.control.directive.nazor, keyword.control.directive.code.nazor, keyword.control.directive.style.nazor, constant.character.escape.transition.nazor</string>
+        <key>settings</key>
+        <dict><key>vsclassificationtype</key><string>keyword</string></dict>
+      </dict>
+      <dict>
+        <key>scope</key>
+        <string>keyword.control.flow.nazor</string>
+        <key>settings</key>
+        <dict><key>vsclassificationtype</key><string>keyword - control</string></dict>
+      </dict>
+      <dict>
+        <key>scope</key>
+        <string>entity.name.tag.nazor, punctuation.definition.tag.begin.nazor, punctuation.definition.tag.end.nazor</string>
+        <key>settings</key>
+        <dict><key>vsclassificationtype</key><string>markup node</string></dict>
+      </dict>
+      <dict>
+        <key>scope</key>
+        <string>entity.other.attribute-name.nazor, entity.other.attribute-name.directive.nazor, entity.other.attribute-name.parameter.nazor</string>
+        <key>settings</key>
+        <dict><key>vsclassificationtype</key><string>markup attribute</string></dict>
+      </dict>
+      <dict>
+        <key>scope</key>
+        <string>string.quoted.double.nazor, string.quoted.single.nazor, punctuation.definition.string.begin.nazor, punctuation.definition.string.end.nazor</string>
+        <key>settings</key>
+        <dict><key>vsclassificationtype</key><string>markup attribute value</string></dict>
+      </dict>
+      <dict>
+        <key>scope</key>
+        <string>punctuation.separator.key-value.nazor, punctuation.separator.nazor</string>
+        <key>settings</key>
+        <dict><key>vsclassificationtype</key><string>operator</string></dict>
+      </dict>
+      <dict>
+        <key>scope</key>
+        <string>constant.character.entity.nazor</string>
+        <key>settings</key>
+        <dict><key>vsclassificationtype</key><string>literal</string></dict>
+      </dict>
+      <dict>
+        <key>scope</key>
+        <string>entity.name.type.namespace.nazor</string>
+        <key>settings</key>
+        <dict><key>vsclassificationtype</key><string>namespace name</string></dict>
+      </dict>
+      <dict>
+        <key>scope</key>
+        <string>entity.name.type.nazor</string>
+        <key>settings</key>
+        <dict><key>vsclassificationtype</key><string>class name</string></dict>
+      </dict>
+      <dict>
+        <key>scope</key>
+        <string>variable.other.member.nazor</string>
+        <key>settings</key>
+        <dict><key>vsclassificationtype</key><string>property name</string></dict>
+      </dict>
+      <dict>
+        <key>scope</key>
+        <string>punctuation.section.embedded.begin.nazor, punctuation.section.embedded.end.nazor</string>
+        <key>settings</key>
+        <dict><key>vsclassificationtype</key><string>punctuation</string></dict>
+      </dict>
+
+      <dict>
+        <key>scope</key>
+        <string>comment, punctuation.definition.comment, punctuation.whitespace.comment, punctuation.definition.tag.cs</string>
+        <key>settings</key>
+        <dict><key>vsclassificationtype</key><string>comment</string></dict>
+      </dict>
+      <dict>
+        <key>scope</key>
+        <string>keyword, storage, constant.language, variable.language, keyword.operator.expression</string>
+        <key>settings</key>
+        <dict><key>vsclassificationtype</key><string>keyword</string></dict>
+      </dict>
+      <dict>
+        <key>scope</key>
+        <string>keyword.control</string>
+        <key>settings</key>
+        <dict><key>vsclassificationtype</key><string>keyword - control</string></dict>
+      </dict>
+      <dict>
+        <key>scope</key>
+        <string>keyword.operator</string>
+        <key>settings</key>
+        <dict><key>vsclassificationtype</key><string>operator</string></dict>
+      </dict>
+      <dict>
+        <key>scope</key>
+        <string>keyword.preprocessor, meta.preprocessor</string>
+        <key>settings</key>
+        <dict><key>vsclassificationtype</key><string>preprocessor keyword</string></dict>
+      </dict>
+      <dict>
+        <key>scope</key>
+        <string>string, punctuation.definition.string, punctuation.definition.char, punctuation.definition.interpolation</string>
+        <key>settings</key>
+        <dict><key>vsclassificationtype</key><string>string</string></dict>
+      </dict>
+      <dict>
+        <key>scope</key>
+        <string>constant.character.escape</string>
+        <key>settings</key>
+        <dict><key>vsclassificationtype</key><string>string - escape character</string></dict>
+      </dict>
+      <dict>
+        <key>scope</key>
+        <string>constant.numeric</string>
+        <key>settings</key>
+        <dict><key>vsclassificationtype</key><string>number</string></dict>
+      </dict>
+      <dict>
+        <key>scope</key>
+        <string>entity.name.type</string>
+        <key>settings</key>
+        <dict><key>vsclassificationtype</key><string>class name</string></dict>
+      </dict>
+      <dict>
+        <key>scope</key>
+        <string>entity.name.type.namespace, entity.name.type.alias</string>
+        <key>settings</key>
+        <dict><key>vsclassificationtype</key><string>namespace name</string></dict>
+      </dict>
+      <dict>
+        <key>scope</key>
+        <string>entity.name.type.interface</string>
+        <key>settings</key>
+        <dict><key>vsclassificationtype</key><string>interface name</string></dict>
+      </dict>
+      <dict>
+        <key>scope</key>
+        <string>entity.name.type.struct</string>
+        <key>settings</key>
+        <dict><key>vsclassificationtype</key><string>struct name</string></dict>
+      </dict>
+      <dict>
+        <key>scope</key>
+        <string>entity.name.type.enum</string>
+        <key>settings</key>
+        <dict><key>vsclassificationtype</key><string>enum name</string></dict>
+      </dict>
+      <dict>
+        <key>scope</key>
+        <string>entity.name.type.delegate</string>
+        <key>settings</key>
+        <dict><key>vsclassificationtype</key><string>delegate name</string></dict>
+      </dict>
+      <dict>
+        <key>scope</key>
+        <string>entity.name.type.type-parameter</string>
+        <key>settings</key>
+        <dict><key>vsclassificationtype</key><string>type parameter name</string></dict>
+      </dict>
+      <dict>
+        <key>scope</key>
+        <string>entity.name.function</string>
+        <key>settings</key>
+        <dict><key>vsclassificationtype</key><string>method name</string></dict>
+      </dict>
+      <dict>
+        <key>scope</key>
+        <string>variable, entity.name.variable</string>
+        <key>settings</key>
+        <dict><key>vsclassificationtype</key><string>identifier</string></dict>
+      </dict>
+      <dict>
+        <key>scope</key>
+        <string>entity.name.variable.local, entity.name.variable.tuple-element, variable.other.object</string>
+        <key>settings</key>
+        <dict><key>vsclassificationtype</key><string>local name</string></dict>
+      </dict>
+      <dict>
+        <key>scope</key>
+        <string>entity.name.variable.parameter</string>
+        <key>settings</key>
+        <dict><key>vsclassificationtype</key><string>parameter name</string></dict>
+      </dict>
+      <dict>
+        <key>scope</key>
+        <string>entity.name.variable.field, entity.name.variable.enum-member, variable.other.constant</string>
+        <key>settings</key>
+        <dict><key>vsclassificationtype</key><string>field name</string></dict>
+      </dict>
+      <dict>
+        <key>scope</key>
+        <string>entity.name.variable.property, entity.name.variable.event, variable.other.object.property</string>
+        <key>settings</key>
+        <dict><key>vsclassificationtype</key><string>property name</string></dict>
+      </dict>
+      <dict>
+        <key>scope</key>
+        <string>punctuation</string>
+        <key>settings</key>
+        <dict><key>vsclassificationtype</key><string>punctuation</string></dict>
+      </dict>
+
+      <dict>
+        <key>scope</key>
+        <string>keyword.control.nazor.transition, keyword.control.directive.nazor, keyword.control.directive.code.nazor, keyword.control.directive.style.nazor, constant.character.escape.transition.nazor</string>
+        <key>settings</key>
+        <dict><key>vsclassificationtype</key><string>RazorDirective</string></dict>
+      </dict>
+      <dict>
+        <key>scope</key>
+        <string>entity.name.tag.nazor</string>
+        <key>settings</key>
+        <dict><key>vsclassificationtype</key><string>HTML Element Name</string></dict>
+      </dict>
+      <dict>
+        <key>scope</key>
+        <string>punctuation.definition.tag.begin.nazor, punctuation.definition.tag.end.nazor</string>
+        <key>settings</key>
+        <dict><key>vsclassificationtype</key><string>HTML Tag Delimiter</string></dict>
+      </dict>
+      <dict>
+        <key>scope</key>
+        <string>entity.other.attribute-name.nazor, entity.other.attribute-name.directive.nazor, entity.other.attribute-name.parameter.nazor</string>
+        <key>settings</key>
+        <dict><key>vsclassificationtype</key><string>HTML Attribute Name</string></dict>
+      </dict>
+      <dict>
+        <key>scope</key>
+        <string>string.quoted.double.nazor, string.quoted.single.nazor, punctuation.definition.string.begin.nazor, punctuation.definition.string.end.nazor</string>
+        <key>settings</key>
+        <dict><key>vsclassificationtype</key><string>HTML Attribute Value</string></dict>
+      </dict>
+      <dict>
+        <key>scope</key>
+        <string>punctuation.separator.key-value.nazor, punctuation.separator.nazor</string>
+        <key>settings</key>
+        <dict><key>vsclassificationtype</key><string>HTML Operator</string></dict>
+      </dict>
+    </array>
+  </dict>
+</plist>

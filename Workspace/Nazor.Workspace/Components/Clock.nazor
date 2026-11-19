@@ -1,0 +1,38 @@
+@using Timer = System.Timers.Timer
+@implements IDisposable
+
+<TextBlock Class="clock-time">@CurrentTime</TextBlock>
+
+@code {
+	[Parameter, EditorRequired]
+	public DateTime InitialDate { get; set; }
+
+	[Parameter]
+	public string MyProperty { get; set; } = string.Empty;
+
+	private string CurrentTime => InitialDate.ToString("HH:mm:ss");
+	private readonly Timer timer = new(1000) { AutoReset = true };
+	private bool disposed;
+
+	protected override void OnInitialized()
+	{
+		timer.Elapsed += OnElapsed;
+		timer.Start();
+	}
+
+	private void OnElapsed(object? sender, System.Timers.ElapsedEventArgs e) => _ = InvokeAsync(UpdateTime);
+
+	private void UpdateTime()
+	{
+		if (disposed) return;
+		InitialDate = InitialDate.AddSeconds(1);
+		StateHasChanged();
+	}
+
+	public void Dispose()
+	{
+		disposed = true;
+		timer.Elapsed -= OnElapsed;
+		timer.Dispose();
+	}
+}

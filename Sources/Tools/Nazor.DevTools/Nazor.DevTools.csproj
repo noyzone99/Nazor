@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <NazorApplicationId>org.nazor.devtools</NazorApplicationId>
+    <RootNamespace>Nazor.DevTools</RootNamespace>
+    <IsPackable>false</IsPackable>
+    <NazorEnableDevTools>false</NazorEnableDevTools>
+    <ApplicationIcon>Assets/nazor-devtools.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Assets/nazor-devtools.png" />
+    <EmbeddedResource Include="Assets/Icons/*.svg" />
+    <Compile Include="../../Shared/DevTools/IdeWire.cs" Link="IdeWire.cs" />
+    <ProjectReference Include="../Nazor.DevTools.Protocol/Nazor.DevTools.Protocol.csproj" />
+    <ProjectReference Include="../../Hosts/Nazor.Hosting.Desktop/Nazor.Hosting.Desktop.csproj" />
+    <ProjectReference Include="../../Themes/Nazor.Themes.NazorLeaf/Nazor.Themes.NazorLeaf.csproj" />
+  </ItemGroup>
+  <Import Project="../Nazor.Sdk/build/Nazor.targets" />
+  <Target Name="NazorRejectInspectorAgent" BeforeTargets="CollectPackageReferences;PrepareForBuild">
+    <Error Condition="'$(NazorEnableDevTools)' != 'false'" Text="The standalone inspector must not include the target Agent. Build it with NazorEnableDevTools=false." />
+  </Target>
+  <Target Name="NazorInspectorManifest" AfterTargets="Build">
+    <PropertyGroup><_InspectorRid Condition="'$(RuntimeIdentifier)' == ''">portable</_InspectorRid><_InspectorRid Condition="'$(RuntimeIdentifier)' != ''">$(RuntimeIdentifier)</_InspectorRid></PropertyGroup>
+    <WriteLinesToFile File="$(TargetDir)Nazor.DevTools.bundle.json" Overwrite="true" WriteOnlyWhenDifferent="true"
+        Lines="{ &quot;formatVersion&quot;: 1, &quot;version&quot;: &quot;$(Version)&quot;, &quot;framework&quot;: &quot;net10.0&quot;, &quot;runtimeIdentifier&quot;: &quot;$(_InspectorRid)&quot; }" />
+    <ItemGroup><ContentWithTargetPath Include="$(TargetDir)Nazor.DevTools.bundle.json" TargetPath="Nazor.DevTools.bundle.json" CopyToPublishDirectory="PreserveNewest" /></ItemGroup>
+  </Target>
+</Project>

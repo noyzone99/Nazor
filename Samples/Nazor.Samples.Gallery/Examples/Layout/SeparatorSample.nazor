@@ -1,0 +1,16 @@
+<Container Class="column">
+    <TextBlock>Above</TextBlock>
+    <Separator />
+    <TextBlock>Below</TextBlock>
+    <Separator>or</Separator>
+    <Container Class="row">
+        <TextBlock>Left</TextBlock>
+        <Separator Orientation="Orientation.Vertical" />
+        <TextBlock>Right</TextBlock>
+    </Container>
+</Container>
+
+@style {
+    .column { display: flex; flex-direction: column; gap: 8px; width: 360px; }
+    .row { display: flex; gap: 8px; align-items: center; height: 32px; }
+}

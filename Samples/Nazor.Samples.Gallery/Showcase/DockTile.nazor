@@ -1,0 +1,44 @@
+@using Nazor.Themes.NazorLeaf
+
+@* An application tile of the badge section (.ttile inside .tw): a leaf in the app color, or the seed with the mark,
+   decorated by the theme's Badge. ChildContent draws over the tile, such as the macOS progress strip. *@
+<Badge Class="demo-tw" Size="@(Large ? ControlSize.Large : ControlSize.Medium)" Count="@Count" Text="@Text" Icon="@IndicatorIcon" AccessibleName="@IndicatorName" Intent="@Intent">
+    @if (Mark)
+    {
+        <Container Class="demo-ttile nz" Style="@($"--demo-ts: {Size}px")"><LeafMark Size="@Math.Round(Size * 0.56)" /></Container>
+    }
+    else
+    {
+        <Container Class="demo-ttile" Style="@TileStyle"><Icon Symbol="@Symbol" /></Container>
+    }
+    @ChildContent
+</Badge>
+
+@code {
+    [Parameter] public bool Mark { get; set; }
+    [Parameter] public string Color { get; set; } = "var(--leaf-primary)";
+    [Parameter] public string? Ink { get; set; }
+    [Parameter] public LeafSymbol Symbol { get; set; }
+    [Parameter] public int Size { get; set; } = 26;
+    [Parameter] public bool Large { get; set; }
+    [Parameter] public int? Count { get; set; }
+    [Parameter] public string? Text { get; set; }
+    [Parameter] public Intent Intent { get; set; } = Intent.Accent;
+    [Parameter] public IFontSymbol? IndicatorIcon { get; set; }
+    [Parameter] public string? IndicatorName { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    private string TileStyle => $"--demo-ts: {Size}px; --demo-c: {Color}" + (Ink is null ? "" : $"; color: {Ink}");
+}
+@style {
+    .demo-tw { position: relative; }
+    /* Tiles, as .ttile: leaves in the app color with a white glyph covering 56% of the tile. */
+    .demo-ttile {
+        display: flex; align-items: center; justify-content: center; flex-shrink: 0; width: var(--demo-ts); height: var(--demo-ts);
+        border-radius: calc(var(--demo-ts) * 0.36) calc(var(--demo-ts) * 0.1) calc(var(--demo-ts) * 0.36) calc(var(--demo-ts) * 0.1);
+        background: var(--demo-c); color: #ffffff; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28);
+    }
+    .demo-ttile Icon { width: calc(var(--demo-ts) * 0.56); height: calc(var(--demo-ts) * 0.56); font-size: calc(var(--demo-ts) * 0.56); }
+    .demo-ttile.nz { background: var(--leaf-primary); }
+    .demo-ttile.nz LeafMark { --leaf-mk1: var(--leaf-on-primary); --leaf-mk2: color-mix(in oklab, var(--leaf-on-primary) 50%, var(--leaf-primary)); }
+}

@@ -1,0 +1,30 @@
+@implements IRefreshable
+@using Nazor.Controls.Primitives
+<Container Class="page">
+    <ButtonGroup Class="row" AccessibleName="Alignment">
+        <Button Class="left" OnClick="() => Clicks++">Left</Button>
+        @if (ShowMiddle)
+        {
+            <ToggleButton Class="center">Center</ToggleButton>
+        }
+        <Button Class="right">Right</Button>
+    </ButtonGroup>
+    <ButtonGroup Class="single"><Button Class="alone">Alone</Button></ButtonGroup>
+    <ButtonGroup Class="column" Orientation="Orientation.Vertical" Appearance="ControlAppearance.Accent" Size="ControlSize.Small" Disabled="GroupDisabled">
+        <Button Class="inherits">Inherits</Button>
+        <Button Class="own" Appearance="ControlAppearance.Outline" Size="ControlSize.Large">Own</Button>
+    </ButtonGroup>
+    <ButtonGroup Class="mixed">
+        <Button Class="mixed-button">Save</Button>
+        <MenuButton Class="mixed-menu"><Menu><MenuItem>Copy</MenuItem></Menu><ChildContent>More</ChildContent></MenuButton>
+        <SplitButton Class="mixed-split"><Menu><MenuItem>Paste special</MenuItem></Menu><ChildContent>Paste</ChildContent></SplitButton>
+    </ButtonGroup>
+    <Button Class="outside">Outside</Button>
+</Container>
+
+@code {
+    public void Refresh() => StateHasChanged();
+    public bool ShowMiddle { get; set; } = true;
+    public bool GroupDisabled { get; set; }
+    public int Clicks { get; set; }
+}

@@ -1,0 +1,13 @@
+@window
+@implements IRefreshable
+@if (Show)
+{
+    <UserTitleBar Class="free"><TextBlock Class="free-text">Free content</TextBlock></UserTitleBar>
+}
+<Container Class="content"><TextBlock>Content</TextBlock></Container>
+
+@code {
+    public void Refresh() => StateHasChanged();
+    public bool Show { get; set; } = true;
+    protected override void OnInitialized() => Window.Decorations = WindowDecorationPolicy.Require(WindowDecorations.Nazor(WindowTitleBarContent.User, WindowCaptionButtons.None));
+}

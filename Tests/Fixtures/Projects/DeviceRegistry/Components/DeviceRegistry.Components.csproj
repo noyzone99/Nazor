@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>DeviceRegistry.Components</RootNamespace>
+  </PropertyGroup>
+  <Import Project="../../../../../Sources/Tools/Nazor.Sdk/build/Nazor.targets" />
+</Project>

@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>Exe</OutputType><NazorApplicationId>org.nazor.dbusaot</NazorApplicationId><NazorImplicitRuntimeReference>false</NazorImplicitRuntimeReference><NazorUseControls>false</NazorUseControls></PropertyGroup>
+  <PropertyGroup Condition="'$(NazorDeploymentFramework)' != ''"><TargetFramework>$(NazorDeploymentFramework)</TargetFramework></PropertyGroup>
+  <ItemGroup><ProjectReference Include="../../../Sources/Platforms/Nazor.Platform.Linux/Nazor.Platform.Linux.csproj" /></ItemGroup>
+  <Import Project="../../../Sources/Tools/Nazor.Sdk/build/Nazor.targets" />
+</Project>

@@ -1,0 +1,13 @@
+@implements IRefreshable
+@using Nazor.Controls.Primitives
+<ToastHost Class="host" Time="Clock" Placement="Placement" MaxVisible="MaxVisible">
+    <ToastSender />
+    <Button Class="other">Elsewhere</Button>
+</ToastHost>
+
+@code {
+    public void Refresh() => StateHasChanged();
+    public static FeedbackClock Clock { get; set; } = new();
+    public ToastPlacement Placement { get; set; } = ToastPlacement.BottomEnd;
+    public int MaxVisible { get; set; } = 2;
+}

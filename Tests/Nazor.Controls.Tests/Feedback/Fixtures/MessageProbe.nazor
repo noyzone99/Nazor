@@ -1,0 +1,19 @@
+@implements IRefreshable
+<Container Class="page">
+    <InlineMessage Class="info" Title="Heads up">The report is generated nightly.</InlineMessage>
+    <InlineMessage Class="error" Severity="Severity.Error" Title="Save failed" IsClosable="true" @bind-IsOpen="ErrorOpen" OnClose="() => Closed++" Layout="InlineMessageLayout.Expanded">
+        <ChildContent>The disk is full.</ChildContent>
+        <Actions><Button Class="retry">Retry</Button></Actions>
+    </InlineMessage>
+    <InlineMessage Class="success" Severity="Severity.Success">Saved.</InlineMessage>
+    <Banner Class="banner" Severity="Severity.Warning" ActionText="Reconnect" OnAction="() => Actions++" @bind-IsOpen="BannerOpen">You are offline.</Banner>
+    <Banner Class="fixed" Dismissible="false">Maintenance tonight.</Banner>
+</Container>
+
+@code {
+    public void Refresh() => StateHasChanged();
+    public bool ErrorOpen { get; set; } = true;
+    public bool BannerOpen { get; set; } = true;
+    public int Closed { get; set; }
+    public int Actions { get; set; }
+}

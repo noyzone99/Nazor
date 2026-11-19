@@ -1,0 +1,3 @@
+@using Nazor.Sample.Components
+
+<DeviceCard Name="Sensore" Active="@(42)" />

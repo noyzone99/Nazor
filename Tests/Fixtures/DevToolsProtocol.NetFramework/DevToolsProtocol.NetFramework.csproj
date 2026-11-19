@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><TargetFramework>net472</TargetFramework><LangVersion>12</LangVersion><OutputType>Exe</OutputType><ImplicitUsings>disable</ImplicitUsings></PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../../Sources/Tools/Nazor.DevTools.Protocol/Nazor.DevTools.Protocol.csproj" />
+    <PackageReference Include="Newtonsoft.Json" />
+  </ItemGroup>
+</Project>

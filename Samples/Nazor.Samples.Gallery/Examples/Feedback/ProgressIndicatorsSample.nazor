@@ -1,0 +1,11 @@
+<Spinner Label="Syncing" />
+<Container Class="rings">
+    <Spinner Value="progress" Size="ControlSize.Small" Label="Small" />
+    <Spinner Value="progress" Label="Progress" />
+    <Spinner Value="progress" Size="ControlSize.Large" Label="Large" />
+</Container>
+<Slider @bind-Value="progress" AccessibleName="Progress" />
+<Slider @bind-Value="usage" Maximum="1" Step="0.01" AccessibleName="Disk usage" />
+<Meter Value="usage" Low="0.6" High="0.85" Optimum="0.2" Label="Disk usage" ShowValue="true" />
+@code { private double usage = 0.7, progress = 42; }
+@style { .rings { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; } }

@@ -1,0 +1,73 @@
+@using Nazor.Controls.Primitives
+
+<Container Style="display: flex; flex-direction: column; gap: 12px">
+    <TextBlock>Change pages, reorder items or connect two layouts. Motion follows the active theme and reduced-motion preference.</TextBlock>
+    <Container Style="display: flex; gap: 8px">
+        <Button OnClick="Previous">Previous page</Button>
+        <Button OnClick="Next">Next page</Button>
+    </Container>
+    <ContentTransition ContentKey="@(page)" Transition="ContentTransitionKind.Slide" Direction="direction" ChildContent="PageContent" />
+    <Container Style="display: flex; gap: 8px">
+        <Button OnClick="Add">Add item</Button>
+        <Button OnClick="RemoveLast" Disabled="@(items.Count == 0)">Remove last</Button>
+        <Button OnClick="Reverse" Disabled="@(items.Count < 2)">Reverse order</Button>
+    </Container>
+    <ItemsTransition TItem="int" Items="items" ItemKey="item => item" Style="gap: 6px">
+        <ItemTemplate Context="item">
+            <Button OnClick="() => Remove(item)">Remove item @item</Button>
+        </ItemTemplate>
+    </ItemsTransition>
+    <Button OnClick="Connect">@(connected ? "Reset connected layout" : "Connect source to destination")</Button>
+    <Container Style="min-height: 120px">
+        @if (connected)
+        {
+            <LayoutTransition From="origin" Style="display: block; width: 220px; height: 100px; margin-left: 40px">
+                <Button Style="width: 100%; height: 100%">Connected destination</Button>
+            </LayoutTransition>
+        }
+        else
+        {
+            <LayoutTransition @ref="source" Style="display: block; width: 140px; height: 50px">
+                <Button Style="width: 100%; height: 100%">Connected source</Button>
+            </LayoutTransition>
+        }
+    </Container>
+</Container>
+
+@code {
+    private int page = 1;
+    private TransitionDirection direction;
+    private readonly List<int> items = [1, 2, 3];
+    private int nextItem = 4;
+    private bool connected;
+    private LayoutTransition? source;
+    private Nazor.Rendering.LayoutTransitionOrigin? origin;
+
+    private RenderFragment PageContent
+    {
+        get
+        {
+            // Capture the page data before the previous subtree becomes an outgoing layer.
+            var number = page;
+            return builder =>
+            {
+                builder.OpenComponent<TextField>(0);
+                builder.AddComponentParameter(1, nameof(TextField.Value), $"Editable state on page {number}");
+                builder.AddComponentParameter(2, nameof(TextField.AccessibleName), $"Page {number}");
+                builder.CloseComponent();
+            };
+        }
+    }
+
+    private void Previous() { page--; direction = TransitionDirection.Backward; }
+    private void Next() { page++; direction = TransitionDirection.Forward; }
+    private void Add() => items.Add(nextItem++);
+    private void RemoveLast() { if (items.Count > 0) items.RemoveAt(items.Count - 1); }
+    private void Remove(int item) => items.Remove(item);
+    private void Reverse() => items.Reverse();
+    private void Connect()
+    {
+        origin = connected ? null : source?.CaptureOrigin();
+        connected = !connected;
+    }
+}

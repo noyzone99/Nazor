@@ -1,0 +1,6 @@
+<StatusBar Class="status">
+    <StatusBarSection IsFlexible="true">Ready</StatusBarSection>
+    <StatusBarSection Width="110" Alignment="StatusBarSectionAlignment.End">Ln 12, Col 3</StatusBarSection>
+    <StatusBarSection AccessibleName="Encoding">UTF-8</StatusBarSection>
+</StatusBar>
+@style { .status { align-self: stretch; } }

@@ -1,0 +1,10 @@
+<Field LabelText="Opening time">
+    <TimePicker @bind-Value="time" Use24Hour="true" MinuteIncrement="15" />
+</Field>
+<Field LabelText="Appointment">
+    <DateTimePicker @bind-Value="appointment" Use24Hour="true" MinuteIncrement="15" />
+</Field>
+@code {
+    private TimeOnly? time = new TimeOnly(9, 30);
+    private DateTime? appointment = new DateTime(2026, 10, 15, 14, 0, 0);
+}

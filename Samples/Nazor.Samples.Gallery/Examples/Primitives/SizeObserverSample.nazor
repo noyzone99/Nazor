@@ -1,0 +1,20 @@
+@using Nazor.Controls.Primitives
+
+<SizeObserver Class="box" OnResize="Resized" Style="@($"width: {width}px")">
+    @(size)
+</SizeObserver>
+<Container Class="row">
+    <Button OnClick="() => width = Math.Max(120, width - 40)">Narrower</Button>
+    <Button OnClick="() => width += 40">Wider</Button>
+</Container>
+
+@code {
+    private double width = 260;
+    private string size = "measuring";
+    private void Resized(Nazor.Input.ResizeEventArgs e) => size = $"{e.Width:0} x {e.Height:0}";
+}
+
+@style {
+    .box { padding: 16px; border: 1px solid GrayText; }
+    .row { display: flex; gap: 8px; }
+}

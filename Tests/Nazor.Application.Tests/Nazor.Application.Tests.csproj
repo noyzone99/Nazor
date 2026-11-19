@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <ApplicationIcon>../../Docs/Assets/nazor.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <AssemblyMetadata Include="Nazor.ApplicationId" Value="org.nazor.applicationtests" />
+    <PackageReference Include="xunit.v3" />
+    <ProjectReference Include="../../Sources/Hosts/Nazor.Hosting.Windows/Nazor.Hosting.Windows.csproj" />
+    <ProjectReference Include="../../Sources/Hosts/Nazor.Hosting.Desktop/Nazor.Hosting.Desktop.csproj" />
+    <ProjectReference Include="../../Samples/Nazor.Samples.Counter/Nazor.Samples.Counter.csproj" />
+    <ProjectReference Include="../Fixtures/Projects/DeviceRegistry/DeviceRegistry.csproj" />
+    <ProjectReference Include="../../Samples/Nazor.Samples.Gallery/Nazor.Samples.Gallery.csproj" />
+    <ProjectReference Include="../../Samples/Nazor.Samples.Windowing/Nazor.Samples.Windowing.csproj" />
+    <ProjectReference Include="../../Samples/Nazor.Samples.Localization/Nazor.Samples.Localization.csproj" />
+    <ProjectReference Include="../Nazor.Testing/Nazor.Testing.csproj" />
+    <ProjectReference Include="../../Sources/Tools/Nazor.Nss.Compiler/Nazor.Nss.Compiler.csproj" />
+    <ProjectReference Include="../../Sources/Tools/Nazor.DevTools.Agent/Nazor.DevTools.Agent.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="Xunit" />
+    <EmbeddedResource Include="../../Docs/Assets/nazor.ico" LogicalName="Nazor.Tests.Icon.ico" />
+    <Reference Include="Microsoft.InteractiveExperiences.Projection" HintPath="$(NuGetPackageRoot)microsoft.windowsappsdk.interactiveexperiences/$(NazorWindowingVersion)/lib/net6.0-windows10.0.18362.0/Microsoft.InteractiveExperiences.Projection.dll" />
+    <Reference Include="Microsoft.Windows.SDK.NET" HintPath="$(NuGetPackageRoot)microsoft.windows.sdk.net.ref/$(NazorWindowsProjectionVersion)/lib/$(NazorWindowsProjectionFramework)/Microsoft.Windows.SDK.NET.dll" />
+    <Reference Include="WinRT.Runtime" HintPath="$(NuGetPackageRoot)microsoft.windows.sdk.net.ref/$(NazorWindowsProjectionVersion)/lib/$(NazorWindowsProjectionFramework)/WinRT.Runtime.dll" />
+    <None Include="../Assets/Fonts/*.ttf" Link="Fonts/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../Sources/Themes/Nazor.Themes.NazorLeaf/Fonts/NazorLeafIcons.otf" Link="Fonts/NazorLeafIcons.otf" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../Scripts/Tests/UiaClient.ps1" Link="Scripts/UiaClient.ps1" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../Samples/Nazor.Samples.Counter/Counter.nazor" Link="Fixtures/Counter.nazor" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

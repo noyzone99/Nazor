@@ -1,0 +1,45 @@
+@using Nazor.Controls.Primitives
+
+<Container Class="row">
+    @* A click popover with a title, a close button, a body and a footer. *@
+    <Popover @bind-IsOpen="filtersOpen" Title="Filters" ShowCloseButton="true" ShowArrow="showArrow" Placement="placement" Alignment="alignment">
+        <Trigger><Button>Filters…</Button></Trigger>
+        <ChildContent>
+            <CheckBox @bind-IsChecked="onlyUnread">Only unread</CheckBox>
+            <CheckBox @bind-IsChecked="withAttachments">With attachments</CheckBox>
+        </ChildContent>
+        <Footer>
+            <Button OnClick="Reset">Reset</Button>
+            <Button Appearance="ControlAppearance.Accent" OnClick="() => filtersOpen = false">Apply</Button>
+        </Footer>
+    </Popover>
+
+    @* A hover card: it opens after a short rest of the pointer, or at once when the focus reaches the trigger. *@
+    <Popover OpenOnHover="true" Placement="OverlayPlacement.Bottom" Alignment="OverlayAlignment.Center" ShowArrow="true" @bind-IsOpen="cardOpen">
+        <Trigger><Button Appearance="ControlAppearance.Link">Ada Lovelace</Button></Trigger>
+        <ChildContent>
+            <TextBlock Class="name">Ada Lovelace</TextBlock>
+            <TextBlock>Mathematician, wrote the first published algorithm for a computing machine.</TextBlock>
+        </ChildContent>
+    </Popover>
+</Container>
+<Container Class="row">
+    <Select TValue="OverlayPlacement" @bind-Value="placement" Items="placements" AccessibleName="Placement" />
+    <Select TValue="OverlayAlignment" @bind-Value="alignment" Items="alignments" AccessibleName="Alignment" />
+    <CheckBox @bind-IsChecked="showArrow">Arrow</CheckBox>
+</Container>
+<TextBlock>@($"Filters open: {filtersOpen}; only unread: {onlyUnread}; with attachments: {withAttachments}; hover card open: {cardOpen}")</TextBlock>
+
+@code {
+    private bool filtersOpen, cardOpen, onlyUnread, withAttachments, showArrow = true;
+    private OverlayPlacement placement;
+    private OverlayAlignment alignment;
+    private readonly OverlayPlacement[] placements = Enum.GetValues<OverlayPlacement>();
+    private readonly OverlayAlignment[] alignments = Enum.GetValues<OverlayAlignment>();
+    private void Reset() => (onlyUnread, withAttachments) = (false, false);
+}
+
+@style {
+    .row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+    .name { font-weight: 700; }
+}

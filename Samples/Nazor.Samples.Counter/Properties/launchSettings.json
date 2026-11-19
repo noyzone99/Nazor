@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "Counter": {
+      "commandName": "Project",
+      "hotReloadEnabled": true,
+      "environmentVariables": {
+        "NAZOR_DEVCHANNEL": "1"
+      }
+    }
+  }
+}

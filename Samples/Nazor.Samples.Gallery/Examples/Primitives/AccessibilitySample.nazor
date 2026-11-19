@@ -1,0 +1,18 @@
+@using Nazor.Controls.Primitives
+
+<Button OnClick="Announce" Shape="Shape.Circle">
+    <Leading><Icon Glyph="&#xE710;" /></Leading>
+    <ChildContent><VisuallyHidden>Add an item</VisuallyHidden></ChildContent>
+</Button>
+<LiveRegion Class="status">@status</LiveRegion>
+<TextBlock>The button label is read by screen readers but not shown; the status line is announced when it changes.</TextBlock>
+
+@code {
+    private int count;
+    private string status = "No items yet.";
+    private void Announce() => status = $"{++count} items added.";
+}
+
+@style {
+    .status { color: GrayText; }
+}

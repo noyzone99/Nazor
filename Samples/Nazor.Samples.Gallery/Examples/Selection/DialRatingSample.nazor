@@ -1,0 +1,5 @@
+<CheckBox @bind-IsChecked="wheelChanges">Adjust the dial with the mouse wheel</CheckBox>
+<Dial @bind-Value="gain" TickFrequency="10" WheelChanges="wheelChanges" AccessibleName="Gain" />
+<Rating @bind-Value="rating" AllowHalf="true" AccessibleName="Review rating" />
+<TextBlock>@($"Gain {gain:0}, rating {rating:0.#}")</TextBlock>
+@code { private double gain = 40; private double rating = 3.5; private bool wheelChanges; }

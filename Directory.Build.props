@@ -1,0 +1,19 @@
+<Project>
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <NazorToolchainSdkVersion>10.0.404</NazorToolchainSdkVersion>
+    <NazorLanguageServicesSdkVersion>11.0.100</NazorLanguageServicesSdkVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <Deterministic>true</Deterministic>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <NazorVersion>0.1.0-alpha</NazorVersion>
+    <Version>$(NazorVersion)</Version>
+    <Authors>Nazor</Authors>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(ContinuousIntegrationBuild)' == 'true' and '$(EnableSourceControlManagerQueries)' == 'false'">
+    <SourceRoot Include="$(MSBuildThisFileDirectory)" />
+  </ItemGroup>
+</Project>

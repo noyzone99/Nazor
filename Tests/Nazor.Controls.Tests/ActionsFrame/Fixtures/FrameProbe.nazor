@@ -1,0 +1,28 @@
+@implements IRefreshable
+@using Nazor.Controls.Primitives
+<Container Class="page">
+    <CaptionButtons Class="caption" />
+    <CaptionButtons Class="caption-help" Buttons="HelpOrder" OnHelp="() => Helped++" IsTabStop="true" HideWithSystemButtons="false" />
+    <WindowCommands Context="window">
+        <TextBlock Class="state">@($"{window.State} max={window.IsMaximized} min={window.CanMinimize} canmax={window.CanMaximize} system={window.ShowsSystemButtons}")</TextBlock>
+        <Button Class="custom-max" OnClick="window.ToggleMaximizeAsync">Toggle</Button>
+        <Button Class="custom-full" OnClick="window.ToggleFullScreenAsync">Full screen</Button>
+        <Button Class="custom-restore" OnClick="window.RestoreAsync">Restore</Button>
+    </WindowCommands>
+    <PageHeader Class="header" Title="Settings" Subtitle="Manage your account" HeadingLevel="2" IsCompact="Compact">
+        <Breadcrumb><TextBlock>Home / Settings</TextBlock></Breadcrumb>
+        <Leading><Button Class="back">Back</Button></Leading>
+        <Actions><Button Class="save">Save</Button></Actions>
+        <ChildContent><TextBlock Class="tabs">General, Privacy</TextBlock></ChildContent>
+    </PageHeader>
+    <PageHeader Class="plain" Title="Plain" />
+    <DragRegion Class="drag"><TextBlock>Drag here</TextBlock><Button Class="in-drag">Inside</Button></DragRegion>
+    <SnapLayoutArea Class="snap"><Button>Maximize</Button></SnapLayoutArea>
+</Container>
+
+@code {
+    public void Refresh() => StateHasChanged();
+    public bool Compact { get; set; }
+    public int Helped { get; set; }
+    private static readonly IReadOnlyList<CaptionButton> HelpOrder = [CaptionButton.Close, CaptionButton.Help, CaptionButton.Minimize];
+}

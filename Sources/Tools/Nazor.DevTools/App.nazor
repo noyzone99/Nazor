@@ -1,0 +1,113 @@
+@window
+@using Nazor.DevTools.Protocol
+@using Nazor.Themes.NazorLeaf
+@implements IDisposable
+@inject IApplicationAppearance Appearance
+@inject KeyBindings Shortcuts
+
+<InspectorShell @ref="shell" Store="store" Client="client" Scheme="Appearance.ColorScheme" SchemeChanged="ChangeScheme"
+                FollowSelection="followSelection" FollowSelectionChanged="ChangeFollowSelection" />
+
+@code {
+    private readonly InspectionStore store = new();
+    private readonly List<IDisposable> shortcuts = [];
+    private InspectorClient client = null!;
+    private InspectorShell? shell;
+    private bool followSelection = InspectorPreferences.ReadFlag(InspectorPreferences.HighlightFilePath, true);
+    protected override void OnInitialized()
+    {
+        Window.Title = "Nazor DevTools";
+        Window.Icon = Nazor.ImageSource.FromResource(typeof(App).Assembly, "Nazor.DevTools.Assets.nazor-devtools.png");
+        store.Changed += UpdateTitle;
+        Window.Width = 1180;
+        Window.Height = 780;
+        Window.Decorations = WindowDecorationPolicy.Require(WindowDecorations.Nazor());
+        client = new InspectorClient(store, Program.DiscoveryDirectory);
+        Program.Activated += OnActivated;
+        // Browser developer tools conventions: Ctrl+Shift+C picks, Ctrl+F filters and F5 reloads the inspected tree.
+        Shortcut("c", Nazor.Input.KeyModifiers.Control | Nazor.Input.KeyModifiers.Shift, () => shell?.TogglePickAsync());
+        Shortcut("f", Nazor.Input.KeyModifiers.Control, () => shell?.FocusFilterAsync());
+        Shortcut("F5", Nazor.Input.KeyModifiers.None, () => shell?.RefreshCaptureAsync());
+    }
+    private void Shortcut(string key, Nazor.Input.KeyModifiers modifiers, Func<Task?> command) =>
+        shortcuts.Add(Shortcuts.Register(key, modifiers, EventCallback.Factory.Create<Nazor.Input.KeyboardEventArgs>(this, () => command() ?? Task.CompletedTask)));
+    private bool disposed;
+    private void UpdateTitle() => _ = InvokeAsync(() =>
+    {
+        if (disposed) return;
+        Window.Title = store.WindowTitle;
+        StateHasChanged();
+    });
+    private void ChangeScheme(Nazor.Style.ColorScheme value)
+    {
+        Appearance.ColorScheme = value;
+        if (!InspectorPreferences.Save(InspectorPreferences.FilePath, value)) store.Report("Appearance changed for this session; the preference could not be saved.");
+    }
+    private void ChangeFollowSelection(bool value)
+    {
+        followSelection = value;
+        if (!InspectorPreferences.SaveFlag(InspectorPreferences.HighlightFilePath, value)) store.Report("The highlight preference changed for this session; it could not be saved.");
+    }
+    private InspectorDebugger? debugger;
+    private readonly CancellationTokenSource lifetime = new();
+    private LocalDevToolsDescriptor? targetDescriptor;
+    private void OnActivated() => _ = InvokeAsync(async () =>
+    {
+        try { Window.Activate(); await ConnectDebuggerAsync(); }
+        catch (Exception error) when (error is not OutOfMemoryException) { store.Report("Inspector activation unavailable: " + error.Message); }
+    });
+    private async Task<bool> ConnectDebuggerAsync()
+    {
+        if (targetDescriptor is not { } descriptor) return false;
+        IInspectorDebugger? adapter = Program.IdeDescriptor is { } explicitBridge ? new PipeDebugger(explicitBridge) :
+            PipeDebugger.Find(descriptor.Identity.ProcessId) is { } bridge ? new PipeDebugger(bridge) : null;
+        if (OperatingSystem.IsWindows() && adapter is null)
+        {
+            if (Program.VisualStudioProcessId > 0) adapter = new VisualStudioDebugger(Program.VisualStudioProcessId);
+            else if (Program.FindDebugger) adapter = await VisualStudioDebugger.FindAttachedAsync(descriptor.Identity.ProcessId, lifetime.Token);
+        }
+        if (adapter is null) return false;
+        debugger?.Dispose();
+        debugger = new(client, descriptor, adapter);
+        debugger.Start();
+        return true;
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender || Program.SessionId is null) return;
+        var descriptor = (await client.DiscoverAsync()).FirstOrDefault(d => d.Identity.SessionId == Program.SessionId);
+        if (descriptor is null) { store.Report("The requested application window is no longer available."); return; }
+        targetDescriptor = descriptor;
+        try
+        {
+            if (await ConnectDebuggerAsync()) return;
+            await client.ConnectAsync(descriptor);
+            _ = FindBridgeAsync(descriptor.Identity.ProcessId);
+        }
+        catch (Exception error) when (error is not OutOfMemoryException) { store.Report("Debugger connection unavailable: " + error.Message); }
+    }
+    private async Task FindBridgeAsync(int processId)
+    {
+        try
+        {
+            while (debugger is null && !lifetime.IsCancellationRequested)
+            {
+                await Task.Delay(1000, lifetime.Token);
+                if (PipeDebugger.Find(processId) is { } bridge)
+                {
+                    debugger = new(client, targetDescriptor!, new PipeDebugger(bridge));
+                    debugger.Start();
+                }
+                if (!LocalDevTools.IsAlive(targetDescriptor!)) break;
+            }
+        }
+        catch (OperationCanceledException) { }
+        catch (Exception error) when (error is IOException or UnauthorizedAccessException) { store.Report(error.Message); }
+    }
+    public void Dispose()
+    {
+        disposed = true;
+        foreach (var shortcut in shortcuts) shortcut.Dispose();
+        store.Changed -= UpdateTitle; Program.Activated -= OnActivated; lifetime.Cancel(); debugger?.Dispose(); client?.Dispose();
+    }
+}

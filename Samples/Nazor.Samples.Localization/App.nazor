@@ -1,0 +1,68 @@
+@window
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<App> Text
+@inject IWindowService Windows
+
+@* Resource keys describe intent rather than hard-coded text. The same component tree can be rendered in
+   another language, while CurrentCulture controls formatting and CurrentUICulture selects resources. *@
+
+<Container Class="page">
+    <TextBlock Class="heading">@Text["Heading"]</TextBlock>
+    <TextBlock Class="today">@Text["Today", today.ToString("D")]</TextBlock>
+
+    @* Keep a numeric value in state; let NumberField parse and format it using the active culture. *@
+    <TextBlock Id="quantity-label">@Text["Quantity"]</TextBlock>
+    <NumberField Class="quantity" @bind-Value="quantity" Format="N2" LabeledBy="quantity-label" />
+
+    <TextBlock Id="date-label">@Text["Delivery"]</TextBlock>
+    <DatePicker @bind-Value="delivery" LabeledBy="date-label" />
+
+    <Container Class="actions">
+        <Button IsDefault="true" OnClick="Delete">@Text["Delete"]</Button>
+        <TextBlock Class="status" @attributes="@(new Dictionary<string, object?> { ["live"] = "polite" })">@status</TextBlock>
+    </Container>
+</Container>
+
+@code {
+    protected override void OnInitialized()
+    {
+        Window.Title = Text["Title"];
+        Window.Width = 520;
+        Window.Height = 440;
+    }
+
+    private readonly DateTime today = DateTime.Today;
+    private double? quantity = 1234.5;
+    private DateOnly? delivery = DateOnly.FromDateTime(DateTime.Today.AddDays(7));
+    private string status = "";
+
+    // App text comes from our resources; standard message-box button labels come from the framework resources
+    // for the same culture. A localizer returns the neutral English text when no satellite language exists.
+    private async Task Delete()
+    {
+        var answer = await Windows.ShowMessageAsync(Text["ConfirmDelete"], Text["Title"], MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+        status = answer == MessageBoxResult.Yes ? Text["Deleted"] : Text["Kept"];
+    }
+}
+
+@style {
+    .page {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 20px;
+    }
+
+    .heading { font-size: 20px; font-weight: 600; }
+
+    .today { color: var(--nz-muted); margin-bottom: 8px; }
+
+    .quantity { width: 160px; }
+
+    .actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-top: 12px;
+    }
+}

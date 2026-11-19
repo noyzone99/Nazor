@@ -1,0 +1,15 @@
+@namespace Nazor.Sample.Components
+
+<Container Class="device-card">
+    <TextBlock>@Name</TextBlock>
+    <TextBlock>@(Active ? "Attivo" : "Non attivo")</TextBlock>
+    @ChildContent
+    <Button @onclick="OnSelect">Seleziona</Button>
+</Container>
+
+@code {
+    [Parameter] public string Name { get; set; } = "";
+    [Parameter] public bool Active { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public EventCallback OnSelect { get; set; }
+}

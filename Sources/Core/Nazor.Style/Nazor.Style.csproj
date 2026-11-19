@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Nazor.Core/Nazor.Core.csproj" />
+    <InternalsVisibleTo Include="Nazor.Style.Tests" />
+    <InternalsVisibleTo Include="Nazor.Nss.Compiler" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' != 'net8.0'">
+    <Compile Remove="Engine/SpanSplitExtensions.cs" />
+  </ItemGroup>
+</Project>

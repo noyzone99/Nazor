@@ -1,0 +1,5 @@
+<TextBlock Class="x">Testo</TextBlock>
+
+@style {
+    .x { colr: red; padding: 1pt; }
+}

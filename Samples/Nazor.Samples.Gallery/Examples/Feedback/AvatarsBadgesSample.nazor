@@ -1,0 +1,40 @@
+@using Nazor.Themes.NazorLeaf
+
+<AvatarGroup Max="3" AccessibleName="Project team">
+    <Avatar Name="Ada Lovelace" Presence="AvatarPresence.Online" />
+    <Avatar Name="Grace Hopper" />
+    <Avatar Name="Alan Turing" />
+    <Avatar Name="Barbara Liskov" />
+</AvatarGroup>
+<Badge Count="unread"><Button OnClick="() => unread = 0">Inbox</Button></Badge>
+<Field LabelText="Presence"><Select Id="sample-avatar-presence" TValue="AvatarPresence" Items="presences" @bind-Value="presence" /></Field>
+<CheckBox Id="sample-avatar-image" @bind-IsChecked="showImage">Show the packaged image</CheckBox>
+<Container Class="avatar-variants">
+    <Avatar Id="sample-avatar-live" Name="Nazor project" Source="@(showImage ? (ImageSource?)"Assets/nazor-app.png" : null)" Presence="presence" PixelSize="48">
+        <Badge><Badge Count="badgeCount" ShowZero="showZero" /></Badge>
+    </Avatar>
+    <Avatar Name="Ada Lovelace" Initials="AL" Shape="Shape.Square" Size="ControlSize.Large" Presence="AvatarPresence.Busy" />
+    <Avatar AccessibleName="Unnamed account" />
+</Container>
+<Field LabelText="Badge count"><Slider Id="sample-badge-count" Minimum="0" Maximum="120" Step="1" Value="badgeCount" ValueChanged="value => badgeCount = (int)value" /></Field>
+<CheckBox Id="sample-badge-show-zero" @bind-IsChecked="showZero">Show zero</CheckBox>
+<CheckBox Id="sample-badge-dot" @bind-IsChecked="dot">Dot instead of a count</CheckBox>
+<Badge Id="sample-configurable-badge" Count="badgeCount" Max="99" ShowZero="showZero" Dot="dot"><Button>Notifications</Button></Badge>
+<Badge Text="New" Intent="Intent.Success" AccessibleName="New feature" />
+<Badge Id="sample-icon-badge" Icon="@LeafSymbol.At" AccessibleName="Mentions"><Button>Messages</Button></Badge>
+<Badge Id="sample-custom-badge" AccessibleName="Synchronization needs attention">
+    <ChildContent><Button>Sync</Button></ChildContent>
+    <IndicatorContent><TextBlock>!</TextBlock></IndicatorContent>
+</Badge>
+<Button Id="sample-badge-clear" OnClick="() => badgeCount = 0">Clear count</Button>
+@if (tagVisible)
+{
+    <Tag Intent="Intent.Success" Dot="true" Removable="true" OnRemove="() => tagVisible = false">Ready</Tag>
+}
+@code {
+    private int unread = 4, badgeCount = 105;
+    private bool tagVisible = true, showImage, showZero, dot;
+    private AvatarPresence presence = AvatarPresence.Online;
+    private readonly AvatarPresence[] presences = Enum.GetValues<AvatarPresence>();
+}
+@style { .avatar-variants { display: flex; align-items: center; gap: 12px; } }

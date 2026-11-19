@@ -1,0 +1,297 @@
+@using Nazor.Themes.NazorLeaf
+@using Nazor.Controls.Primitives
+
+@* The prototype's #badge section: badges, progress and attention requests on the icons of three simulated desktop
+   bars. The badge leaves are the theme's Badge; the bars, tiles and progress strips are drawn by this section. *@
+<Container Class="demo-section">
+    <Heading Level="3">Badge sulle icone</Heading>
+    <Paragraph Class="demo-lead">Illustrazioni interattive di numeri, glifi, avanzamento e attenzione sulle icone di tre barre desktop simulate. I badge a foglia usano il colore della barra illustrata per il ritaglio; queste figure non rappresentano il supporto nativo del sistema in uso.</Paragraph>
+    <Container Class="demo-bdctl">
+        <Container Class="demo-bdgroup">
+            <TextBlock Class="demo-lab">Notifiche di Atelier</TextBlock>
+            <Toolbar AccessibleName="Notifiche di Atelier">
+                <Button AccessibleName="Una in meno" OnClick="() => AddCount(-1)"><Leading><Icon Symbol="@LeafSymbol.Minimize" /></Leading></Button>
+                <TextBlock Class="demo-cntv">@count</TextBlock>
+                <Button AccessibleName="Una in più" OnClick="() => AddCount(1)"><Leading><Icon Symbol="@LeafSymbol.Plus" /></Leading></Button>
+                <Button Appearance="ControlAppearance.Subtle" OnClick="() => AddCount(40)">+40</Button>
+            </Toolbar>
+        </Container>
+        <Container Class="demo-bdgroup">
+            <TextBlock Class="demo-lab">Glifo di Posta</TextBlock>
+            <SegmentedControl TValue="string" @bind-Value="glyph" AccessibleName="Glifo">
+                @foreach (var (value, label, _, _) in glyphs)
+                {
+                    <Segment @key="value" Value="@value">@label</Segment>
+                }
+            </SegmentedControl>
+        </Container>
+        <Container Class="demo-bdgroup">
+            <TextBlock Class="demo-lab">Avanzamento di Build</TextBlock>
+            <Container Class="demo-row demo-gap-8">
+                <SegmentedControl TValue="string" Value="state" ValueChanged="SetState" AccessibleName="Stato">
+                    <Segment Value="@("normal")">In corso</Segment><Segment Value="@("paused")">Pausa</Segment>
+                    <Segment Value="@("error")">Errore</Segment><Segment Value="@("indet")">Indeterminato</Segment>
+                </SegmentedControl>
+                <Button Appearance="ControlAppearance.Tonal" OnClick="StartBuild">Avvia build</Button>
+            </Container>
+        </Container>
+        <Container Class="demo-bdgroup">
+            <TextBlock Class="demo-lab">Chat</TextBlock>
+            <Button Appearance="ControlAppearance.Outline" OnClick="RequestAttention">Richiedi attenzione</Button>
+        </Container>
+    </Container>
+    <Container Class="demo-desks">
+        <Container Class="demo-deskf">
+            <TextBlock Class="demo-figcaption">Windows</TextBlock>
+            <Container Class="demo-desk win">
+                <Container Class="demo-wbar">
+                    @foreach (var app in apps)
+                    {
+                        <Button @key="app.Id" Class="@WindowsButtonClass(app)" AccessibleName="@app.Name" OnClick="() => Clear(app)">
+                            <DockTile Mark="@(app.Id == "nazor")" Color="@app.Color" Ink="@app.Ink" Symbol="@app.Symbol" Size="26"
+                                Count="@BadgeFor(app)?.Count" IndicatorIcon="@BadgeFor(app)?.Icon" IndicatorName="@BadgeFor(app)?.Name" Intent="@(BadgeFor(app)?.Intent ?? Intent.Accent)" />
+                            @if (Progressing(app))
+                            {
+                                <Container Class="@($"demo-wprog {state}")"><Container Class="demo-prog-fill" Style="@ProgressStyle" /></Container>
+                            }
+                        </Button>
+                    }
+                </Container>
+            </Container>
+            <Paragraph Class="demo-hint demo-deskhint">Illustrazione Windows: badge, avanzamento e attenzione sono simulati qui. L’integrazione reale di Nazor offre icone sovrapposte, avanzamento e richiesta di attenzione tramite i servizi Windows; geometria e resa dipendono dalla barra di sistema. Questa figura non attiva quei servizi.</Paragraph>
+        </Container>
+        <Container Class="demo-deskf">
+            <TextBlock Class="demo-figcaption">macOS</TextBlock>
+            <Container Class="demo-desk mac">
+                <Container Class="demo-dock">
+                    @foreach (var app in apps)
+                    {
+                        <Button @key="app.Id" Class="@(app.Id == "chat" && attention ? "demo-mbt bounce" : "demo-mbt")" AccessibleName="@app.Name" OnClick="() => Clear(app)">
+                            <DockTile Mark="@(app.Id == "nazor")" Color="@app.Color" Ink="@app.Ink" Symbol="@app.Symbol" Size="46" Large="true"
+                                Count="@BadgeFor(app)?.Count" IndicatorIcon="@BadgeFor(app)?.Icon" IndicatorName="@BadgeFor(app)?.Name" Intent="@(BadgeFor(app)?.Intent ?? Intent.Accent)">
+                                @if (Progressing(app))
+                                {
+                                    <Container Class="@($"demo-mprog {state}")"><Container Class="demo-prog-fill" Style="@ProgressStyle" /></Container>
+                                }
+                            </DockTile>
+                            <Container Class="demo-mdot" />
+                        </Button>
+                    }
+                </Container>
+            </Container>
+            <Paragraph Class="demo-hint demo-deskhint">Illustrazione macOS: tessere, badge, avanzamento e rimbalzo sono disegnati dentro la Gallery. Il backend nativo macOS di Nazor non è ancora disponibile; questa simulazione non certifica un’integrazione con il Dock.</Paragraph>
+        </Container>
+        <Container Class="demo-deskf">
+            <TextBlock Class="demo-figcaption">Linux</TextBlock>
+            <Container Class="demo-desk lx">
+                <Container Class="demo-ldock">
+                    @foreach (var app in apps)
+                    {
+                        <Button @key="app.Id" Class="@LinuxButtonClass(app)" AccessibleName="@app.Name" OnClick="() => Clear(app)">
+                            @if (Progressing(app))
+                            {
+                                <Spinner Class="@($"demo-lring {state}")" Value="@(state == "indet" ? 30 : progress)" Size="ControlSize.Small" AccessibleName="Build" />
+                            }
+                            <DockTile Mark="@(app.Id == "nazor")" Color="@app.Color" Ink="@app.Ink" Symbol="@app.Symbol" Size="36"
+                                Count="@BadgeFor(app)?.Count" IndicatorIcon="@BadgeFor(app)?.Icon" IndicatorName="@BadgeFor(app)?.Name" Intent="@(BadgeFor(app)?.Intent ?? Intent.Accent)" />
+                        </Button>
+                    }
+                </Container>
+            </Container>
+            <Paragraph Class="demo-hint demo-deskhint">Illustrazione Linux: anello, badge e attenzione sono simulati. Il servizio launcher reale può mostrare un conteggio negli ambienti compatibili; icone personalizzate, avanzamento e attenzione non sono garantiti dalle attuali integrazioni. Il dock e il compositore controllano il risultato.</Paragraph>
+        </Container>
+    </Container>
+    <Paragraph Class="demo-hint demo-gap-6">Clicca sull’icona di un’app per azzerarne il badge o fermare la richiesta di attenzione.</Paragraph>
+</Container>
+
+@code {
+    private sealed record App(string Id, string Name, string Color, LeafSymbol Symbol, string? Ink = null);
+
+    private static readonly App[] apps =
+    [
+        new("nazor", "Atelier", "var(--leaf-primary)", LeafSymbol.Leaf),
+        new("mail", "Posta", "var(--leaf-g1)", LeafSymbol.Mail),
+        new("build", "Build", "var(--leaf-g4)", LeafSymbol.Layers),
+        new("chat", "Chat", "var(--leaf-g2)", LeafSymbol.Chat),
+        new("files", "File", "var(--leaf-g3)", LeafSymbol.Folder, "#3D2E00"),
+    ];
+
+    // Value, accessible label, typed icon and intent.
+    private static readonly (string Value, string Label, IFontSymbol? Icon, Intent Intent)[] glyphs =
+    [
+        ("none", "Nessuno", null, Intent.Accent), ("new", "Nuovo", LeafSymbol.Dot, Intent.Accent), ("at", "Menzione", LeafSymbol.At, Intent.Accent),
+        ("pause", "Pausa", LeafSymbol.Pause, Intent.Warning), ("err", "Errore", LeafSymbol.Close, Intent.Danger), ("ok", "Fatto", LeafSymbol.Check, Intent.Success),
+    ];
+
+    private int count = 3;
+    private string glyph = "new";
+    private string state = "normal";
+    private double progress;
+    private bool running;
+    private bool attention;
+    private int buildRun;
+
+    private string ProgressStyle => $"width: {(state == "indet" ? 40 : progress):0.##}%";
+
+    private bool Progressing(App app) => app.Id == "build" && running;
+
+    private string WindowsButtonClass(App app) => "demo-wbt" + (app.Id == "nazor" ? " active" : "") + (Progressing(app) ? " has-prog" : "") +
+        (app.Id == "chat" && attention ? " attn flash" : "");
+
+    private string LinuxButtonClass(App app) => "demo-lbt" + (app.Id == "nazor" ? " active" : "") + (app.Id == "chat" && attention ? " attn" : "");
+
+    private (int? Count, IFontSymbol? Icon, Intent Intent, string? Name)? BadgeFor(App app)
+    {
+        if (app.Id == "nazor") return (count, null, Intent.Accent, null);
+        if (app.Id != "mail" || glyph == "none") return null;
+        var (_, label, icon, intent) = glyphs.First(item => item.Value == glyph);
+        return (null, icon, intent, label);
+    }
+
+    private void AddCount(int delta) => count = Math.Clamp(count + delta, 0, 999);
+
+    private void SetState(string value)
+    {
+        state = value;
+        if (!running) { running = true; progress = Math.Max(progress, 35); }
+    }
+
+    private async Task StartBuild()
+    {
+        var run = ++buildRun;
+        running = true;
+        progress = 0;
+        while (run == buildRun)
+        {
+            if (state == "normal") progress = Math.Min(100, progress + Random.Shared.NextDouble() * 9 + 2);
+            StateHasChanged();
+            if (progress >= 100)
+            {
+                await Task.Delay(700);
+                if (run != buildRun) return;
+                running = false;
+                progress = 0;
+                StateHasChanged();
+                return;
+            }
+            await Task.Delay(300);
+        }
+    }
+
+    private void RequestAttention() => attention = true;
+
+    private void Clear(App app)
+    {
+        if (app.Id == "nazor") count = 0;
+        if (app.Id == "mail") glyph = "none";
+        if (app.Id == "chat") attention = false;
+    }
+}
+@style {
+    .demo-gap-6 { margin-top: 6px; }
+    .demo-gap-8 { gap: 8px; }
+    .demo-bdctl { display: flex; flex-direction: row; flex-wrap: wrap; row-gap: 16px; column-gap: 26px; margin-bottom: 18px; }
+    .demo-bdgroup { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+    .demo-lab { color: var(--leaf-text-2); font-size: 12.5px; font-weight: 600; }
+    .demo-cntv { min-width: 40px; align-self: center; text-align: center; font-family: var(--leaf-font-mono); font-size: 14px; font-weight: 600; }
+    .demo-desks { display: flex; flex-direction: column; gap: 18px; }
+    .demo-figcaption { margin-bottom: 8px; font-size: 13px; font-weight: 600; }
+    .demo-deskhint { margin-top: 8px; max-width: 640px; /* 78ch of the prototype: NSS has no ch unit */ }
+    .demo-hint { color: var(--leaf-text-3); font-size: 12.5px; line-height: 1.5; }
+
+    /* The desktop wallpaper, as .desk: two seed glows on the s2 surface. */
+    .demo-desk {
+        position: relative; height: 132px; display: flex; flex-direction: row; align-items: flex-end; justify-content: center; overflow-x: hidden; overflow-y: hidden;
+        background-color: var(--leaf-s2);
+        background-image: radial-gradient(70% 120% at 20% 0%, color-mix(in srgb, var(--leaf-primary) 35%, transparent), transparent 70%),
+            radial-gradient(60% 120% at 100% 100%, color-mix(in srgb, var(--leaf-primary) 22%, transparent), transparent 70%);
+    }
+    .demo-desk.win { --leaf-badge-cutout: color-mix(in oklab, var(--leaf-pane) 82%, var(--leaf-s2)); border-radius: 8px; }
+    .demo-desk.mac { --leaf-badge-cutout: color-mix(in oklab, var(--leaf-pane) 60%, var(--leaf-s2)); border-radius: 12px; }
+    .demo-desk.lx { --leaf-badge-cutout: var(--leaf-pane); border-radius: var(--leaf-r-pane); }
+
+    /* Windows taskbar, as .wbar and .wbt; the running-app line under each button is the button's ::after. */
+    .demo-wbar {
+        width: 100%; height: 50px; display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 4px;
+        background: color-mix(in oklab, var(--leaf-pane) 82%, transparent); box-shadow: inset 0 1px 0 var(--leaf-stroke-2);
+    }
+    .demo-wbt, .demo-wbt:hover, .demo-wbt:active {
+        position: relative; width: 44px; height: 42px; min-height: 0; padding: 0; border-radius: 6px; background: transparent; box-shadow: none;
+        transform: scale(1); transition: background-color 150ms;
+    }
+    .demo-wbt:hover { background: color-mix(in srgb, var(--leaf-text) 7%, transparent); }
+    .demo-wbt::after {
+        content: ""; position: absolute; bottom: 2px; left: 50%; width: 6px; height: 3px; margin-left: -3px; border-radius: 2px; background: var(--leaf-text-3);
+        transition: width 300ms cubic-bezier(0.16, 1, 0.3, 1), margin-left 300ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .demo-wbt.active { background: color-mix(in srgb, var(--leaf-text) 5%, transparent); }
+    .demo-wbt.active::after { width: 16px; margin-left: -8px; background: var(--leaf-primary); }
+    .demo-wbt.has-prog::after { opacity: 0; }
+    .demo-wbt.attn { background: color-mix(in srgb, #f7a800 30%, transparent); }
+    .demo-wbt.flash { animation: demo-wflash 450ms 6 alternate; }
+    .demo-wprog { position: absolute; left: 7px; right: 7px; bottom: 2px; height: 3px; border-radius: 2px; background: color-mix(in srgb, var(--leaf-text) 15%, transparent); overflow-x: hidden; overflow-y: hidden; }
+    .demo-prog-fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 2px; background: #16a34a; transition: width 250ms; }
+    .demo-wprog.paused > .demo-prog-fill { background: #e8a400; }
+    .demo-wprog.error > .demo-prog-fill { background: #d13438; }
+    .demo-wprog.indet > .demo-prog-fill, .demo-mprog.indet > .demo-prog-fill {
+        animation: leaf-sweep 1.4s cubic-bezier(0.2, 0, 0, 1) infinite; --leaf-sweep-start: -87.5%; --leaf-sweep-end: 262.5%;
+    }
+
+    /* macOS Dock, as .dock and .mbt: the tile rises under the pointer and bounces to ask for attention. */
+    .demo-dock {
+        display: flex; flex-direction: row; align-items: flex-end; gap: 8px; margin-bottom: 8px; padding: 7px 9px 9px; border-radius: 20px;
+        background: color-mix(in oklab, var(--leaf-pane) 55%, transparent);
+        box-shadow: inset 0 0 0 1px var(--leaf-stroke-2), inset 0 1px 0 var(--leaf-hi), 0 10px 24px -14px rgba(0, 0, 0, 0.35);
+    }
+    .demo-mbt, .demo-mbt:hover, .demo-mbt:active {
+        display: flex; flex-direction: column; align-items: center; gap: 4px; min-height: 0; padding: 0; border-radius: 0; background: transparent; box-shadow: none;
+        transform: translateY(0px) scale(1); transition: transform 250ms cubic-bezier(0.34, 1.5, 0.64, 1);
+    }
+    .demo-mbt:hover { transform: translateY(-4px) scale(1.06); }
+    .demo-mbt ::deep ButtonLabel { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .demo-mdot { width: 4px; height: 4px; border-radius: 2px; background: var(--leaf-text-2); opacity: 0.75; }
+    .demo-mbt.bounce ::deep .demo-tw { animation: demo-mbounce 700ms cubic-bezier(0.3, 0, 0.3, 1) 3; }
+    .demo-mprog { position: absolute; left: 7px; right: 7px; bottom: 6px; height: 6px; border-radius: 3px; background: rgba(0, 0, 0, 0.35); box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.25); overflow-x: hidden; overflow-y: hidden; }
+    .demo-mprog > .demo-prog-fill { border-radius: 3px; background: #ffffff; }
+    .demo-mprog.paused > .demo-prog-fill { background: #ffd25e; }
+    .demo-mprog.error > .demo-prog-fill { background: #ff8a80; }
+
+    /* The Nazor dock on Linux, as .ldock and .lbt: the running line is the button's ::after. */
+    .demo-ldock {
+        display: flex; flex-direction: row; align-items: center; gap: 6px; margin-bottom: 10px; padding: 7px; border-radius: var(--leaf-r-ovl);
+        background: var(--leaf-pane); box-shadow: inset 0 0 0 1px var(--leaf-stroke-2), var(--leaf-sh-pop);
+    }
+    .demo-lbt, .demo-lbt:hover, .demo-lbt:active {
+        position: relative; width: 54px; height: 54px; min-height: 0; padding: 0; border-radius: var(--leaf-r-ctl); background: transparent; box-shadow: none;
+        transform: scale(1); transition: background-color 200ms;
+    }
+    .demo-lbt:hover { background: var(--leaf-hover); }
+    .demo-lbt::after {
+        content: ""; position: absolute; bottom: 1px; left: 50%; width: 8px; height: 3px; margin-left: -4px; border-radius: 2px; background: var(--leaf-text-3);
+        transition: width 300ms cubic-bezier(0.16, 1, 0.3, 1), margin-left 300ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .demo-lbt.active::after { width: 18px; margin-left: -9px; background: var(--leaf-primary); }
+    .demo-lbt.attn ::deep .demo-ttile { animation: demo-lglow 1s cubic-bezier(0.2, 0, 0, 1) 3; box-shadow: 0 0 0 3px color-mix(in srgb, var(--leaf-primary) 45%, transparent); }
+    .demo-lring { position: absolute; left: 2px; top: 2px; }
+    .demo-lring ::deep SpinnerIndicator { width: 50px; height: 50px; }
+    .demo-lring[size] ::deep SpinnerTrack { stroke-width: 3.333%; }
+    .demo-lring[size] ::deep SpinnerRing { stroke-width: 5.833%; }
+    .demo-lring.paused ::deep SpinnerRing { color: var(--leaf-warn); }
+    .demo-lring.error ::deep SpinnerRing { color: var(--leaf-err); }
+    .demo-lring.indet ::deep SpinnerIndicator { animation: leaf-turn 1.2s linear infinite; }
+    @keyframes demo-wflash {
+        from { background-color: color-mix(in srgb, #f7a800 30%, transparent); }
+        to { background-color: color-mix(in srgb, #f7a800 75%, transparent); }
+    }
+    @keyframes demo-mbounce {
+        0% { transform: translateY(0px); }
+        40% { transform: translateY(-22px); }
+        60% { transform: translateY(-22px); }
+        100% { transform: translateY(0px); }
+    }
+    @keyframes demo-lglow {
+        0% { box-shadow: 0 0 0 3px color-mix(in srgb, var(--leaf-primary) 45%, transparent); transform: scale(1); }
+        50% { box-shadow: 0 0 0 7px color-mix(in srgb, var(--leaf-primary) 0%, transparent); transform: scale(1.06); }
+        100% { box-shadow: 0 0 0 3px color-mix(in srgb, var(--leaf-primary) 45%, transparent); transform: scale(1); }
+    }
+}

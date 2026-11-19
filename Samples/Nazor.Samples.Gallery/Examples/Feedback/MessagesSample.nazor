@@ -1,0 +1,33 @@
+<Banner Severity="Severity.Info" ActionText="Reconnect" OnAction='() => connection = "Connected"' @bind-IsOpen="bannerOpen">
+    @connection
+</Banner>
+<Field LabelText="Severity"><Select Id="sample-message-severity" TValue="Severity" Items="severities" @bind-Value="severity" /></Field>
+<Field LabelText="Message layout"><Select Id="sample-message-layout" TValue="InlineMessageLayout" Items="layouts" @bind-Value="layout" /></Field>
+<CheckBox Id="sample-message-closable" @bind-IsChecked="closable">Allow dismissal</CheckBox>
+<InlineMessage Id="sample-configurable-message" Severity="severity" Layout="layout" Title="Draft" IsClosable="closable" @bind-IsOpen="messageOpen">
+    <ChildContent>@message</ChildContent>
+    <Actions><Button Id="sample-message-publish" OnClick="Publish">Publish</Button></Actions>
+</InlineMessage>
+<Button OnClick="Reset">Reset messages</Button>
+@code {
+    private bool bannerOpen = true;
+    private bool messageOpen = true;
+    private string connection = "Working offline";
+    private string message = "Changes have not been published.";
+    private Severity severity = Severity.Warning;
+    private InlineMessageLayout layout;
+    private bool closable = true;
+    private readonly Severity[] severities = Enum.GetValues<Severity>();
+    private readonly InlineMessageLayout[] layouts = Enum.GetValues<InlineMessageLayout>();
+
+    private void Publish() { message = "Changes published."; severity = Severity.Success; }
+
+    private void Reset()
+    {
+        bannerOpen = true;
+        messageOpen = true;
+        connection = "Working offline";
+        message = "Changes have not been published.";
+        severity = Severity.Warning;
+    }
+}

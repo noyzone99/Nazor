@@ -1,0 +1,14 @@
+<GroupBox Header="Notifications" IsCheckable="true" @bind-IsChecked="enabled">
+    <CheckBox>Include a weekly digest</CheckBox>
+</GroupBox>
+<Expander Header="Delivery details">
+    <TextBlock>Messages are sent to the project owner.</TextBlock>
+</Expander>
+<Expander Header="Retained details above the header" ExpandDirection="ExpandDirection.Up" KeepMounted="true">
+    <TextField Value="Edit this local value, collapse and reopen." AccessibleName="Retained details" />
+</Expander>
+<Accordion>
+    <AccordionItem Value="daily" Header="Daily"><TextBlock>One summary per day.</TextBlock></AccordionItem>
+    <AccordionItem Value="weekly" Header="Weekly"><TextBlock>One summary on Monday.</TextBlock></AccordionItem>
+</Accordion>
+@code { private bool enabled = true; }

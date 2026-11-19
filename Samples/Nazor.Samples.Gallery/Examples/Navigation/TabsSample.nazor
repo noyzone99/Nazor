@@ -1,0 +1,63 @@
+<Container Style="display: flex; flex-direction: column; gap: 16px">
+    <TextBlock>Section navigation</TextBlock>
+    <Tabs>
+        <Tab Label="Overview"><TextBlock>Project overview</TextBlock></Tab>
+        <Tab Label="Details"><TextBlock>Project details</TextBlock></Tab>
+    </Tabs>
+
+    <TextBlock>Documents: add, close, reorder or drag outside the strip</TextBlock>
+    <Field LabelText="Header width"><Select TValue="TabWidthMode" Items="widthModes" @bind-Value="widthMode" /></Field>
+    <Tabs Id="sample-document-tabs" Presentation="TabsPresentation.Document" WidthMode="widthMode" KeepMounted="true"
+          ShowAddButton="true" OnAdd="AddDocument" CanReorderTabs="true" OnTabReorder="Reorder"
+          OnTabDragOut="DragOut" @bind-SelectedKey="selectedKey">
+        @foreach (var document in documents)
+        {
+            <Tab @key="document.Key" Key="@document.Key" Label="@document.Label" Closable="true" OnClose="@(() => Close(document))">
+                <Leading><TextBlock>▣</TextBlock></Leading>
+                <ChildContent>
+                    <Field LabelText="@document.Label"><TextField Id="@(document.Key + "-editor")" Placeholder="Edits stay mounted while switching and reordering" /></Field>
+                </ChildContent>
+            </Tab>
+        }
+    </Tabs>
+    <TextBlock>@status</TextBlock>
+    <TextBlock>Ctrl+T adds; Ctrl+F4 closes; Ctrl+Shift+Left/Right requests a reorder. The application applies each model change.</TextBlock>
+</Container>
+
+@code {
+    private sealed record Document(string Key, string Label);
+    private readonly List<Document> documents = [new("notes", "Notes"), new("schedule", "Schedule"), new("budget", "Budget")];
+    private readonly TabWidthMode[] widthModes = Enum.GetValues<TabWidthMode>();
+    private TabWidthMode widthMode;
+    private string? selectedKey = "notes";
+    private int nextDocument = 1;
+    private string status = "Drag a header beyond the strip to inspect a drag-out request.";
+
+    private void AddDocument()
+    {
+        var number = nextDocument++;
+        var document = new Document("document-" + number, "Document " + number);
+        documents.Add(document);
+        selectedKey = document.Key;
+        status = "Added " + document.Label;
+    }
+
+    private void Close(Document document)
+    {
+        documents.Remove(document);
+        status = "Closed " + document.Label;
+    }
+
+    private void Reorder(ItemReorderRequest<Tab> request)
+    {
+        var document = documents[request.OldIndex];
+        documents.RemoveAt(request.OldIndex);
+        documents.Insert(request.NewIndex, document);
+        status = "Moved " + document.Label + " to position " + (request.NewIndex + 1);
+    }
+
+    private void DragOut(TabDragOutRequest request)
+    {
+        status = "Drag-out requested for " + request.Tab.Label + " at " + request.X.ToString("0") + ", " + request.Y.ToString("0") + ". The application decides whether to open a window.";
+    }
+}

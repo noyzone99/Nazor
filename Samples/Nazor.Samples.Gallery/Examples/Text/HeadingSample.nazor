@@ -1,0 +1,11 @@
+<Container Class="stack">
+    @for (var level = 1; level <= 6; level++)
+    {
+        var shown = level;
+        <Heading Level="shown">@($"Heading level {shown}")</Heading>
+    }
+</Container>
+
+@style {
+    .stack { display: flex; flex-direction: column; gap: 4px; }
+}

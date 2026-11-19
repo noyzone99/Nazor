@@ -1,0 +1,10 @@
+<Project>
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)ThirdPartyNotices.md" Link="ThirdPartyNotices.md" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" Visible="false" />
+  </ItemGroup>
+  <Target Name="NazorRequireWindowsSdkIntegration" BeforeTargets="ResolveAssemblyReferences"
+          Condition="'$(DesignTimeBuild)' != 'true' and '$(_NazorResolveWindowsDependencies)' != 'true' and ('$(OutputType)' == 'Exe' or '$(OutputType)' == 'WinExe')
+                     and ('$(RuntimeIdentifier)' == '' or $(RuntimeIdentifier.StartsWith('win-')))">
+    <Error Text="Use Nazor.Sdk in the executable project to restore Microsoft Windows dependencies. Set NazorRestoreWindowsDependencies=true if you disable implicit runtime references and configure a Windows-capable host explicitly." />
+  </Target>
+</Project>

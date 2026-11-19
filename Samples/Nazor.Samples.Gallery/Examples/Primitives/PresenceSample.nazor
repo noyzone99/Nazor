@@ -1,0 +1,16 @@
+@using Nazor.Controls.Primitives
+
+<Button OnClick="() => shown = !shown">@(shown ? "Hide" : "Show")</Button>
+<Presence Present="shown" ExitDuration="TimeSpan.FromMilliseconds(600)" Context="state">
+    <Container Class="@(state.IsExiting ? "box exiting" : "box")">@(state.IsExiting ? "Leaving…" : "Here")</Container>
+</Presence>
+<TextBlock>The content stays for 600 ms after hiding, with an exiting attribute a theme can animate.</TextBlock>
+
+@code {
+    private bool shown = true;
+}
+
+@style {
+    .box { padding: 16px; border: 1px solid GrayText; width: 200px; }
+    .box.exiting { color: GrayText; border-style: dashed; }
+}

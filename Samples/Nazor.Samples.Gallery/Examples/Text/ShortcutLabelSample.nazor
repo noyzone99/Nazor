@@ -1,0 +1,21 @@
+@using Nazor.Controls.Primitives
+
+<Container Class="rows">
+    <TextBlock>Save</TextBlock><ShortcutLabel Gesture="save" />
+    <TextBlock>Save as</TextBlock><ShortcutLabel Gesture="saveAs" />
+    <TextBlock>Close window</TextBlock><ShortcutLabel Gesture="close" />
+    <TextBlock>Next field</TextBlock><ShortcutLabel Gesture="next" />
+</Container>
+<TextBlock Class="note">The notation follows the platform: Ctrl+S on Windows and Linux, the Command symbol on macOS.</TextBlock>
+
+@code {
+    private readonly KeyGesture save = KeyGesture.Primary("S");
+    private readonly KeyGesture saveAs = KeyGesture.Parse("Mod+Shift+S");
+    private readonly KeyGesture close = KeyGesture.Parse("Alt+F4");
+    private readonly KeyGesture next = new("Tab");
+}
+
+@style {
+    .rows { display: grid; grid-template-columns: max-content max-content; column-gap: 24px; row-gap: 6px; }
+    .note { color: GrayText; }
+}

@@ -1,0 +1,25 @@
+<Container Class="stack">
+    <Field LabelText="Project name" Required="true">
+        <Description>Shown in the title bar.</Description>
+        <ChildContent><TextField @bind-Value="name" /></ChildContent>
+    </Field>
+    <Field LabelText="Email for notifications" Invalid="@(!email.Contains('@'))">
+        <ChildContent><TextField @bind-Value="email" Type="TextFieldType.Email" /></ChildContent>
+        <Error>An email address contains an @@ sign.</Error>
+    </Field>
+    <Label For="reference-input">Reference code</Label>
+    <TextField Id="reference" @bind-Value="reference" />
+    <Field LabelText="Summary">
+        <CheckBox @bind-IsChecked="weekly">Send a weekly summary</CheckBox>
+    </Field>
+</Container>
+
+@code {
+    private string name = "Atelier", email = "giulia";
+    private string reference = "";
+    private bool weekly;
+}
+
+@style {
+    .stack { display: flex; flex-direction: column; gap: 14px; width: 360px; }
+}

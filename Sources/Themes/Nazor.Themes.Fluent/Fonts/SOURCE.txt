@@ -1,0 +1,11 @@
+Fluent UI System Icons, Microsoft Corporation
+https://github.com/microsoft/fluentui-system-icons
+Release: 1.1.345
+Commit: 9eb184e96268d3293462f9d9d19225b4c7b07774
+
+FluentSystemIcons-Regular.ttf and FluentSystemIcons-Filled.ttf are redistributed
+unmodified from the fonts directory of the above commit under the MIT license.
+See LICENSE.txt and NOTICE.txt in this directory.
+
+These fonts are Fluent UI System Icons, not the proprietary Segoe Fluent Icons
+or Segoe MDL2 Assets fonts shipped with Windows.

@@ -1,0 +1,12 @@
+@using Nazor.Controls.Primitives
+<Field LabelText="Phone number">
+    <MaskedField Mask="(000) 000-0000" @bind-Value="phone" />
+</Field>
+<Field LabelText="Custom shortcut">
+    <ShortcutField @bind-Value="shortcut" RequireModifier="true" />
+</Field>
+<TextBlock>@($"Phone: {phone}")</TextBlock>
+@code {
+    private string phone = "";
+    private KeyGesture? shortcut;
+}

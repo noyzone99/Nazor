@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <PackageId>Nazor.Templates</PackageId>
+    <PackageType>Template</PackageType>
+    <Description>dotnet new templates for Nazor applications, including nazor-app.</Description>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+    <EnableDefaultItems>false</EnableDefaultItems>
+    <NoDefaultExcludes>true</NoDefaultExcludes>
+    <NoWarn>$(NoWarn);NU5128;NU5110;NU5111</NoWarn>
+    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);NazorTemplateContent</TargetsForTfmSpecificContentInPackage>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="templates/**/*" Exclude="templates/**/*.csproj.in" Pack="true" PackagePath="content/" />
+    <_NazorProjectTemplate Include="templates/**/*.csproj.in" />
+  </ItemGroup>
+
+  <Target Name="NazorTemplateContent">
+    <ItemGroup>
+      <_NazorProjectFile Include="@(_NazorProjectTemplate->'$(IntermediateOutputPath)templates/%(RecursiveDir)%(Filename)')" Source="%(FullPath)" Folder="%(RecursiveDir)" />
+    </ItemGroup>
+    <WriteLinesToFile File="%(_NazorProjectFile.Identity)" Overwrite="true" WriteOnlyWhenDifferent="true"
+                      Lines="$([System.IO.File]::ReadAllText('%(_NazorProjectFile.Source)').Replace('NAZOR_SDK_VERSION', '$(Version)'))" />
+    <ItemGroup>
+      <TfmSpecificPackageFile Include="@(_NazorProjectFile)" PackagePath="content/%(_NazorProjectFile.Folder)" />
+    </ItemGroup>
+  </Target>
+</Project>

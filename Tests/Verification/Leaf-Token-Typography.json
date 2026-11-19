@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "source": "NazorLeaf HTML reference",
+  "sourceHtmlHash": "3c638b8b7b7c8d43c232397fba9191e03ac3a4f89eeafa432ae1c09cebf2ecf1",
+  "offlineCopyHash": "899f3125b99c64ee44961b05c6ee481670e65d5b61b17372c776a977b3697d14",
+  "fontHashes": {
+    "Sources/Themes/Nazor.Themes.NazorLeaf/Fonts/Geist.ttf": "73894e0448cae90a92b6c2f8732b7bb9acb7b94c418bff559dad4a18e1de9659",
+    "Sources/Themes/Nazor.Themes.NazorLeaf/Fonts/BricolageGrotesque.ttf": "413e7357809ddd12fd80a96a8a396de0e401638d4acd3cb3e37532f0472ac682",
+    "Sources/Themes/Nazor.Themes.NazorLeaf/Fonts/GeistMono.ttf": "d00e590b8eb3a59acc329b2d044fd143ae935090b7da33199ebee27cc7de8196"
+  },
+  "browser": {
+    "protocolVersion": "1.3",
+    "product": "Chrome/157.0.8103.51",
+    "revision": "@653674df293788cf4932c40d914e9e15b41a2d31",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/157.0.0.0 Safari/537.36",
+    "jsVersion": "15.7.112.23"
+  },
+  "policy": "DOM geometry from the pinned offline HTML; zero-size inline-block baseline markers were inserted next to the name and code. Before/after text bounds remained unchanged. This is typography layout evidence, not native or cross-renderer raster acceptance.",
+  "clientSize": [
+    980,
+    800
+  ],
+  "colorScheme": "light",
+  "accent": "blue",
+  "density": "compact",
+  "culture": "it-IT",
+  "samples": [
+    {
+      "dpiScale": 1,
+      "labelFontSize": 12.5,
+      "holderLineHeight": 18.75,
+      "codeFontSize": 11.5,
+      "codeLineHeight": "normal",
+      "labelToCodeBaseline": 18.75,
+      "labelToCodeTextTop": 19.75,
+      "baselineMarkersPreservedTextBounds": true
+    },
+    {
+      "dpiScale": 1.5,
+      "labelFontSize": 12.5,
+      "holderLineHeight": 18.75,
+      "codeFontSize": 11.5,
+      "codeLineHeight": "normal",
+      "labelToCodeBaseline": 18.75,
+      "labelToCodeTextTop": 19.75,
+      "baselineMarkersPreservedTextBounds": true
+    },
+    {
+      "dpiScale": 2,
+      "labelFontSize": 12.5,
+      "holderLineHeight": 18.75,
+      "codeFontSize": 11.5,
+      "codeLineHeight": "normal",
+      "labelToCodeBaseline": 18.75,
+      "labelToCodeTextTop": 19.75,
+      "baselineMarkersPreservedTextBounds": true
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+@using Nazor.Themes.NazorLeaf
+<Container Class="demo-section">
+    <Heading Level="3">Campi di testo e menu a discesa</Heading>
+    <Paragraph Class="demo-lead">Al focus il campo si apre come i pulsanti e prende un alone del colore dell’app. L’etichetta resta sempre sopra, così niente si sposta mentre scrivi.</Paragraph>
+    <Container Class="demo-grid">
+        <Field LabelText="Nome del progetto"><Description>Compare nella barra del titolo</Description><ChildContent><TextField @bind-Value="project" /></ChildContent></Field>
+        <Field LabelText="Email per le notifiche" Invalid="@(!email.Contains('.'))">
+            <Error>Manca il dominio, ad esempio studio.it</Error>
+            <ChildContent><TextField @bind-Value="email" Type="TextFieldType.Email" /></ChildContent>
+        </Field>
+        <Field LabelText="Chiave di firma"><PasswordField @bind-Value="key" MaskCharacter="@('•')" /></Field>
+        <Field LabelText="Cerca nei componenti"><SearchField TItem="string" Placeholder="Pulsante, tabella, menu…" /></Field>
+        <Field LabelText="Tema dell’app">
+            <Select TValue="string" @bind-Value="theme">
+                @foreach (var name in themes) { <SelectItem Value="@name">@name</SelectItem> }
+            </Select>
+        </Field>
+        <Field LabelText="Lingua">
+            <Select TValue="string" @bind-Value="language">
+                <Leading><Icon Symbol="@LeafSymbol.Globe" /></Leading>
+                <ChildContent>@foreach (var name in languages) { <SelectItem Value="@name">@name</SelectItem> }</ChildContent>
+            </Select>
+        </Field>
+        <Field LabelText="Colonne della griglia"><NumberField @bind-Value="columns" Minimum="1" Maximum="24" SpinButtons="SpinButtonPlacement.Inline" /></Field>
+        <Field LabelText="Note di rilascio" Class="demo-span"><TextArea @bind-Value="notes" /></Field>
+    </Container>
+    <Container Class="demo-card demo-more">
+        <Heading Level="4">Altri campi</Heading>
+        <Container Class="demo-grid">
+            <Field LabelText="Destinazione">
+                <ComboBox TItem="string" Items="cities" @bind-Value="destination" Placeholder="Scrivi una città" PreferredMaxVisibleItems="4" />
+            </Field>
+            <Field LabelText="Cerca una città"><SearchField TItem="string" Suggestions="cities" Placeholder="Milano, Roma…" /></Field>
+            <Field LabelText="Copie"><NumberField @bind-Value="copies" Minimum="1" Maximum="99" SpinButtons="SpinButtonPlacement.Compact" /></Field>
+            <Field LabelText="Allegato"><FileField @bind-Paths="files" Pick="PickDemoFile" BrowseText="Sfoglia" Placeholder="Nessun file" /></Field>
+            <Field LabelText="Etichette">
+                <TokenField TItem="string" @bind-Values="tags" Suggestions="tagSuggestions" CreateToken="value => value" Placeholder="Aggiungi" />
+            </Field>
+            <Field LabelText="Codice di verifica"><PinField Length="4" Mask="true" @bind-Value="pin" /></Field>
+        </Container>
+        <Paragraph Class="demo-hint demo-more-hint">Il prototipo non li disegna: usano la stessa foglia, gli stessi pulsanti a icona dentro il campo e lo stesso menu a discesa staccato di 6 px.</Paragraph>
+    </Container>
+</Container>
+
+@code {
+    private readonly string[] themes = ["Sistema", "Chiaro", "Scuro", "Contrasto elevato"];
+    private readonly string[] languages = ["Italiano", "English", "Deutsch", "Español", "日本語"];
+    private string project = "Atelier";
+    private string email = "giulia@";
+    private string key = "sk-firma-7731";
+    private string theme = "Sistema";
+    private string language = "Italiano";
+    private double? columns = 12;
+    private readonly string[] cities = ["Milano", "Roma", "Torino", "Venezia", "Vienna"];
+    private readonly string[] tagSuggestions = ["bozza", "revisione", "approvato"];
+    private string? destination;
+    private double? copies = 2;
+    private IReadOnlyList<string> files = ["relazione.pdf"];
+    private IReadOnlyList<string> tags = ["bozza", "tema"];
+    private string pin = "";
+
+    // A demo selection, so the showcase does not need access to local files.
+    private static Task<IReadOnlyList<string>?> PickDemoFile() => Task.FromResult<IReadOnlyList<string>?>(["copertina.png"]);
+
+    private string notes = "Menu che si srotolano dall’angolo. Interruttori con cursore rotante. Grana regolabile nel materiale della finestra.";
+}
+@style {
+    .demo-span { grid-column-start: 1; grid-column-end: -1; }
+    .demo-more { margin-top: 14px; }
+    .demo-more-hint { margin-top: 14px; }
+}

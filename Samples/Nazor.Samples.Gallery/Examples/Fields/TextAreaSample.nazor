@@ -1,0 +1,12 @@
+<Container Class="stack">
+    <TextArea @bind-Value="notes" Rows="4" MaxLength="200" ShowCount="true" Resizable="true" AccessibleName="Release notes" />
+    <TextBlock>@($"{notes.Split('\n').Length} lines")</TextBlock>
+</Container>
+
+@code {
+    private string notes = "Menus open from the corner.\nSwitches with a rotating thumb.";
+}
+
+@style {
+    .stack { display: flex; flex-direction: column; gap: 8px; width: 420px; }
+}

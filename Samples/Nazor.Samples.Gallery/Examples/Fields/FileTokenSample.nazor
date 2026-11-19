@@ -1,0 +1,62 @@
+@inject IFileDialogService Files
+
+<Field LabelText="File type">
+    <Select TValue="string" @bind-Value="filter" Items="filterNames" Id="file-filter" />
+</Field>
+<Field LabelText="Single file">
+    <FileField Id="single-file" @bind-Paths="single" Pick="PickSingle" BrowseText="Choose file" />
+</Field>
+<Field LabelText="Multiple files">
+    <FileField Id="multiple-files" @bind-Paths="multiple" Pick="PickMultiple" Multiple="true" BrowseText="Choose files" />
+</Field>
+<Field LabelText="Folder">
+    <FileField Id="folder" @bind-Paths="folder" Pick="PickFolder" BrowseText="Choose folder" ShowFullPath="true" />
+</Field>
+<TextBlock Id="picker-result">@result</TextBlock>
+<Field LabelText="Tags">
+    <TokenField TItem="string" @bind-Values="tags" Suggestions="suggestions" CreateToken="value => value"
+                Placeholder="Type a tag and press Enter" />
+</Field>
+@code {
+    private IReadOnlyList<string> single = [], multiple = [], folder = [];
+    private IReadOnlyList<string> tags = ["draft"];
+    private readonly string[] suggestions = ["draft", "review", "approved"];
+    private readonly string[] filterNames = ["PDF documents", "Images", "All files"];
+    private string? filter = "PDF documents";
+    private string result = "The picker uses the current window's native file service.";
+
+    private OpenFileOptions Options => new()
+    {
+        Filters = filter switch
+        {
+            "Images" => [new FileFilter("Images", "*.png", "*.jpg", "*.jpeg", "*.webp")],
+            "All files" => [new FileFilter("All files", "*")],
+            _ => [new FileFilter("PDF documents", "*.pdf")],
+        },
+    };
+
+    private Task<IReadOnlyList<string>?> PickSingle() => Pick(async () =>
+        await Files.OpenFileAsync(Options) is { } path ? [path] : null);
+
+    private Task<IReadOnlyList<string>?> PickMultiple() => Pick(async () => await Files.OpenFilesAsync(Options));
+
+    private Task<IReadOnlyList<string>?> PickFolder() => Pick(async () =>
+        await Files.PickFolderAsync() is { } path ? [path] : null);
+
+    // Cancel preserves the previous selection; hosts without a desktop picker report that limitation.
+    private async Task<IReadOnlyList<string>?> Pick(Func<Task<IReadOnlyList<string>?>> choose)
+    {
+        try
+        {
+            var paths = await choose();
+            result = paths is { Count: > 0 } ? $"Selected {paths.Count}: {string.Join(", ", paths)}" : "Selection canceled.";
+            return paths;
+        }
+        catch (NotSupportedException)
+        {
+            result = "This host does not provide a native file picker.";
+            return null;
+        }
+        finally { StateHasChanged(); }
+    }
+}

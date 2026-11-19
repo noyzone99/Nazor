@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <NazorApplicationId>org.nazor.deviceregistry</NazorApplicationId>
+    <RootNamespace>DeviceRegistry</RootNamespace>
+    <DefaultItemExcludes>$(DefaultItemExcludes);Components/**</DefaultItemExcludes>
+    <NazorWindowsAppManifest>app.manifest</NazorWindowsAppManifest>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../../../Sources/Hosts/Nazor.Hosting.Desktop/Nazor.Hosting.Desktop.csproj" />
+    <ProjectReference Include="Components/DeviceRegistry.Components.csproj" />
+  </ItemGroup>
+  <Import Project="../../../../Sources/Tools/Nazor.Sdk/build/Nazor.targets" />
+</Project>

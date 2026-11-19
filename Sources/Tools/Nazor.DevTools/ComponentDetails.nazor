@@ -1,0 +1,152 @@
+@using Nazor.DevTools.Protocol
+
+@if (Component is not { } component)
+{
+    <Container Class="details">
+        <EmptyState Title="Nothing selected" TitleLevel="3" Class="placeholder">
+            <Illustration><Icon Source="InspectorIcons.Components" Class="placeholder-icon" /></Illustration>
+            <Description>Choose a component in the tree, or use the picker at the top left to select a control in the app.</Description>
+        </EmptyState>
+        @if (Debugger is not null)
+        {
+            <Container Class="details-scroll">@DebuggerSection</Container>
+        }
+    </Container>
+}
+else
+{
+    <Container Class="details">
+        <Container Class="details-header">
+            <Container Class="header-title">
+                <Icon Source="InspectorIcons.Components" Class="header-icon" />
+                <Container Class="tokens title-tokens">
+                    @foreach (var token in NodeSyntax.Component(component, withInstance: false))
+                    {
+                        <TextBlock Class="@token.Class">@token.Text</TextBlock>
+                    }
+                </Container>
+            </Container>
+            <TextBlock Class="type-name" IsTextSelectionEnabled="true">@component.TypeName</TextBlock>
+            <Container Class="header-actions">
+                <Button Id="highlight-selection" Appearance="ControlAppearance.Tonal" Size="ControlSize.Small" OnClick="OnShowInApp" Disabled="@(!CanShowInApp || component.OutputElements.Length == 0)"
+                        Tooltip="Highlight this component's output in the app">
+                    <Leading><Icon Source="InspectorIcons.Eye" /></Leading>
+                    <ChildContent>Show in app</ChildContent>
+                </Button>
+                <Button Id="hide-highlight" Size="ControlSize.Small" OnClick="OnHideInApp" Disabled="@(!CanShowInApp)" AccessibleName="Hide highlight" Tooltip="Remove the highlight from the app">
+                    <Leading><Icon Source="InspectorIcons.EyeOff" /></Leading>
+                </Button>
+            </Container>
+        </Container>
+        <Container Class="details-scroll">
+            @DebuggerSection
+            <Container Class="section">
+                <TextBlock Class="section-title">Parameters</TextBlock>
+                @if (component.Parameters is null) { <TextBlock Class="muted small">Parameters are unavailable from this capture.</TextBlock> }
+                else if (component.Parameters.Length == 0) { <TextBlock Class="muted small">No directly supplied values; defaults and cascading values are not captured.</TextBlock> }
+                else
+                {
+                    @foreach (var parameter in component.Parameters)
+                    {
+                        <Container Class="property">
+                            <TextBlock Class="syntax-attribute">@parameter.Name</TextBlock>
+                            <TextBlock Class="syntax-punctuation sep">:</TextBlock>
+                            <TextBlock Class="property-value" IsTextSelectionEnabled="true">@parameter.Value</TextBlock>
+                        </Container>
+                    }
+                    <TextBlock Class="muted small note">Last directly supplied values. Defaults and cascading values are not captured.</TextBlock>
+                }
+            </Container>
+            <Container Class="section">
+                <TextBlock Class="section-title">@("Rendered output" + (component.OutputElements.Length > 1 ? " · " + component.OutputElements.Length : ""))</TextBlock>
+                @if (component.OutputElements.Length == 0) { <TextBlock Class="muted small">This component has no physical output.</TextBlock> }
+                @foreach (var id in component.OutputElements)
+                {
+                    <Button Id="@("output-" + id)" Class="node-link" OnClick="@(() => OnNavigate.InvokeAsync(new("element", id)))" Tooltip="Inspect this element">
+                        @if (Elements.TryGetValue(id, out var output))
+                        {
+                            @foreach (var token in NodeSyntax.Element(output))
+                            {
+                                <TextBlock Class="@token.Class">@token.Text</TextBlock>
+                            }
+                        }
+                        else { <TextBlock>@id</TextBlock> }
+                    </Button>
+                }
+            </Container>
+            @if (Owners(component).ToArray() is { Length: > 0 } owners)
+            {
+                <Container Class="section">
+                    <TextBlock Class="section-title">Rendered by</TextBlock>
+                    @foreach (var owner in owners)
+                    {
+                        <Button Id="@("owner-" + owner.Id)" Class="node-link" OnClick="@(() => OnNavigate.InvokeAsync(new("component", owner.Id)))">
+                            @foreach (var token in NodeSyntax.Component(owner))
+                            {
+                                <TextBlock Class="@token.Class">@token.Text</TextBlock>
+                            }
+                        </Button>
+                    }
+                </Container>
+            }
+            <Container Class="section">
+                <TextBlock Class="section-title">Instance</TextBlock>
+                <Container Class="facts">
+                    <TextBlock Class="fact-label">Instance</TextBlock><TextBlock Class="fact-value" IsTextSelectionEnabled="true">@("#" + component.Id)</TextBlock>
+                    <TextBlock Class="fact-label">Key</TextBlock><TextBlock Class="fact-value" IsTextSelectionEnabled="true">@(component.Key ?? "None")</TextBlock>
+                    <TextBlock Class="fact-label">Root</TextBlock><TextBlock Class="fact-value">@(component.RootId is { } root ? Label(root) : "Unavailable")</TextBlock>
+                    <TextBlock Class="fact-label">Declared in</TextBlock><TextBlock Class="fact-value">@(component.DeclaringComponentId is { } declaring ? Label(declaring) : "Unavailable")</TextBlock>
+                    <TextBlock Class="fact-label">Framework</TextBlock><TextBlock Class="fact-value">@(component.IsFramework ? "Yes, provided by Nazor" : "No")</TextBlock>
+                    <TextBlock Class="fact-label">Layout box</TextBlock>
+                    <TextBlock Class="fact-value">@(component.OutputElements.Length == 0 ? "No output" : "Choose an output element; components have no single layout box.")</TextBlock>
+                </Container>
+            </Container>
+        </Container>
+    </Container>
+}
+
+@code {
+    [Parameter] public ComponentInfo? Component { get; set; }
+    [Parameter] public IReadOnlyDictionary<string, ComponentInfo> Components { get; set; } = new Dictionary<string, ComponentInfo>();
+    [Parameter] public IReadOnlyDictionary<string, ElementInfo> Elements { get; set; } = new Dictionary<string, ElementInfo>();
+    [Parameter] public DebuggerStatus? Debugger { get; set; }
+    [Parameter] public DebuggerFields? Fields { get; set; }
+    [Parameter] public bool CanShowInApp { get; set; }
+    [Parameter] public EventCallback OnShowInApp { get; set; }
+    [Parameter] public EventCallback OnHideInApp { get; set; }
+    [Parameter] public EventCallback<NodeLink> OnNavigate { get; set; }
+
+    // Nearest first, as React DevTools lists the components that rendered the selection.
+    private IEnumerable<ComponentInfo> Owners(ComponentInfo component)
+    {
+        for (var at = component.ParentId; at is not null && Components.TryGetValue(at, out var owner); at = owner.ParentId) yield return owner;
+    }
+    private string Label(string id) => Components.TryGetValue(id, out var component) ? NodeSyntax.ShortName(component.TypeName) + " #" + id : "#" + id;
+
+    private RenderFragment DebuggerSection => __builder =>
+    {
+        if (Debugger is not { } debugger) return;
+        <Container Class="section debugger">
+            <TextBlock Class="section-title">@("Debugger · " + debugger.Adapter)</TextBlock>
+            @if (debugger.Message is not null) { <TextBlock Class="muted small">@debugger.Message</TextBlock> }
+            @if (Fields is { } fields && Component?.Id == fields.ComponentId)
+            {
+                <TextBlock Class="small">@(debugger.CanReadFields && debugger.State == "paused" && debugger.StopId == fields.Capture.StopId ? "Current-stop fields · " + fields.Capture.StopId : "Retained debugger fields · " + fields.Capture.StopId)</TextBlock>
+                @if (fields.Message is not null) { <TextBlock Class="muted small">@fields.Message</TextBlock> }
+                @foreach (var entry in fields.Fields)
+                {
+                    <Container Class="property">
+                        <TextBlock Class="syntax-attribute">@entry.Name</TextBlock>
+                        <TextBlock Class="syntax-punctuation sep">:</TextBlock>
+                        <TextBlock Class="@(entry.Available ? "property-value" : "property-value unavailable")" IsTextSelectionEnabled="true">@(entry.Available ? entry.Value : "<unavailable>")</TextBlock>
+                        <TextBlock Class="property-type">@entry.Type</TextBlock>
+                    </Container>
+                }
+            }
+            else if (debugger.State == "paused")
+            {
+                <TextBlock Class="muted small">Select a captured component to read supported fields at this stop. Uncaptured traces and layout stay unavailable.</TextBlock>
+            }
+        </Container>
+    };
+}

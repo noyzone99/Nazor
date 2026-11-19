@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <NazorDesktopBackend>windows</NazorDesktopBackend>
+  </PropertyGroup>
+  <Import Project="../Nazor.Hosting.Desktop/Nazor.Desktop.targets" />
+</Project>

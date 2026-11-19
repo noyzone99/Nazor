@@ -1,0 +1,24 @@
+@window
+@using Nazor.Themes.NazorLeaf
+
+<UserTitleBar Title="Atelier" Subtitle="Progetto" Height="@(Tall ? TitleBarHeight.Tall : TitleBarHeight.Standard)">
+        <Center><SearchField TItem="string" Placeholder="Cerca" /></Center>
+    </UserTitleBar>
+<Container Class="demo-card"><Paragraph>Trascina la finestra dalla barra e prova i pulsanti di sistema.</Paragraph></Container>
+
+@code {
+    [Parameter] public bool Tall { get; set; }
+    [Parameter] public bool SystemButtons { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Window.Title = "Atelier";
+        Window.Width = 720;
+        Window.Height = 260;
+        Window.Backdrop = CommonBackdrop.Blur;
+        var client = WindowDecorations.Nazor(WindowTitleBarContent.User, WindowCaptionButtons.Nazor);
+        Window.Decorations = SystemButtons
+            ? WindowDecorationPolicy.Prefer(WindowDecorations.Native(WindowTitleBarContent.User, WindowCaptionButtons.Native), client)
+            : WindowDecorationPolicy.Require(client);
+    }
+}

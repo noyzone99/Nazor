@@ -1,0 +1,3 @@
+<Nazor.Sample.Components.InheritedCard Name="Parametro ereditato">
+    <TextBlock>Child proiettato</TextBlock>
+</Nazor.Sample.Components.InheritedCard>

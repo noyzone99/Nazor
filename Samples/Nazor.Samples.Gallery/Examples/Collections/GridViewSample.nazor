@@ -1,0 +1,9 @@
+@using Nazor.Controls.Primitives
+<GridView TItem="int" Class="tiles" Items="items" ItemWidth="86" ItemHeight="52" ItemText='n => $"Tile {n}"'
+          SelectionMode="SelectionMode.Multiple" ShowCheckBoxes="true" @bind-SelectedItems="selected" AccessibleName="Tiles" />
+<TextBlock>@($"{selected.Count} selected")</TextBlock>
+@code {
+    private readonly int[] items = Enumerable.Range(1, 100).ToArray();
+    private IReadOnlyCollection<int> selected = [];
+}
+@style { .tiles { align-self: stretch; height: 175px; } }

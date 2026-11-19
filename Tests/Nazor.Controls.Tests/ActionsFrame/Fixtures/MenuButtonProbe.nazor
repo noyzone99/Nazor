@@ -1,0 +1,28 @@
+@implements IRefreshable
+@using Nazor.Controls.Primitives
+<Container Class="page">
+    <MenuButton Class="sort" @bind-IsOpen="Open" OnClick="() => Clicks++" Appearance="ControlAppearance.Outline" Size="ControlSize.Small" AccessibleName="Sort by">
+        <Leading><Icon Glyph="S" /></Leading>
+        <Menu>
+            <MenuItem Class="by-name" OnClick="@(() => Sort = "name")">Name</MenuItem>
+            <MenuItem Class="by-date" OnClick="@(() => Sort = "date")">Date</MenuItem>
+            <MenuCheckItem Class="descending" @bind-IsChecked="Descending" CloseOnSelect="false">Descending</MenuCheckItem>
+        </Menu>
+        <ChildContent>Sort</ChildContent>
+    </MenuButton>
+    <MenuButton Class="up" Placement="OverlayPlacement.Top" Alignment="OverlayAlignment.End" ShowChevron="ShowChevron"><Menu><MenuItem Class="up-item">Up</MenuItem></Menu><ChildContent>Up</ChildContent></MenuButton>
+    <MenuButton Class="off" Disabled="true"><Menu><MenuItem>Never</MenuItem></Menu><ChildContent>Off</ChildContent></MenuButton>
+    <Toolbar Orientation="Orientation.Vertical" AccessibleName="Side">
+        <MenuButton Class="in-vertical"><Menu><MenuItem>One</MenuItem></Menu><ChildContent>First</ChildContent></MenuButton>
+        <Button Class="after-vertical">Second</Button>
+    </Toolbar>
+</Container>
+
+@code {
+    public void Refresh() => StateHasChanged();
+    public bool Open { get; set; }
+    public bool ShowChevron { get; set; } = true;
+    public bool Descending { get; set; }
+    public string? Sort { get; set; }
+    public int Clicks { get; set; }
+}

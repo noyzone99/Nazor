@@ -1,0 +1,47 @@
+@using Nazor.Controls.Primitives
+
+<Container Class="row">
+    <Button Intent="Intent.Danger" OnClick="() => deleteOpen = true">Delete 3 files…</Button>
+    <Button OnClick="() => errorOpen = true">Show an error</Button>
+    <Button OnClick="() => saveOpen = true">Close without saving…</Button>
+</Container>
+
+@* A destructive question: the Cancel action receives the focus and a press outside does nothing. *@
+<AlertDialog @bind-IsOpen="deleteOpen" Severity="Severity.Warning" Title="Delete 3 files?"
+             Message="The files will be removed permanently. This cannot be undone."
+             @bind-IsSuppressed="dontAsk" PreferCancel="true" OnAction="Answered">
+    <Actions>
+        <DialogButton Role="DialogButtonRole.Destructive">Delete</DialogButton>
+        <DialogButton Role="DialogButtonRole.Cancel" />
+    </Actions>
+</AlertDialog>
+
+@* An acknowledgement with technical details behind a toggle; without a Cancel action Escape does nothing. *@
+<AlertDialog @bind-IsOpen="errorOpen" Severity="Severity.Error" Title="Could not connect"
+             Message="The server did not answer in time." Details="@details" OnAction="Answered">
+    <Actions>
+        <DialogButton Role="DialogButtonRole.Primary">OK</DialogButton>
+    </Actions>
+</AlertDialog>
+
+@* Three choices with roles; the theme orders them. *@
+<AlertDialog @bind-IsOpen="saveOpen" Severity="Severity.Info" Title="Save changes to notes.md?" OnAction="Answered">
+    <ChildContent>Your changes will be lost if you do not save them.</ChildContent>
+    <Actions>
+        <DialogButton Role="DialogButtonRole.Primary">Save</DialogButton>
+        <DialogButton Role="DialogButtonRole.Secondary">Don't save</DialogButton>
+        <DialogButton Role="DialogButtonRole.Cancel" />
+    </Actions>
+</AlertDialog>
+<TextBlock>@($"Last answer: {answer}; don't ask again: {dontAsk}")</TextBlock>
+
+@code {
+    private bool deleteOpen, errorOpen, saveOpen, dontAsk;
+    private string answer = "none";
+    private const string details = "System.TimeoutException: The operation timed out after 30 seconds.\n   at Client.Connect(Uri server)\n   at App.Sync()";
+    private void Answered(DialogButtonRole role) => answer = role.ToString();
+}
+
+@style {
+    .row { display: flex; flex-wrap: wrap; gap: 8px; }
+}

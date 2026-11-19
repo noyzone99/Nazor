@@ -1,0 +1,25 @@
+@implements IRefreshable
+@using Nazor.Controls.Primitives
+<Button Class="anchor" @ref="anchor" OnClick="() => Popover = true">Anchor</Button>
+<PopoverContainer @bind-IsOpen="Popover" Anchor="anchor?.Element" Placement="OverlayPlacement.Bottom" Alignment="OverlayAlignment.End" Offset="6"
+                  OnDismiss="() => Dismissed++" AccessibleName="Details">
+    <Button Class="inside">Inside</Button>
+</PopoverContainer>
+<DialogContainer @bind-IsOpen="Dialog" AccessibleName="Settings" Placement="Placement">
+    <TextField Class="dialog-field" AccessibleName="Name" />
+    <Button Class="close" OnClick="() => Dialog = false">Close</Button>
+</DialogContainer>
+<TooltipContainer>
+    <Trigger><Button Class="tip-trigger">Help</Button></Trigger>
+    <ChildContent><TextBlock>Tip</TextBlock></ChildContent>
+</TooltipContainer>
+<Button Class="outside">Outside</Button>
+
+@code {
+    public void Refresh() => StateHasChanged();
+    private Button? anchor;
+    public bool Popover { get; set; }
+    public bool Dialog { get; set; }
+    public DialogPlacement Placement { get; set; }
+    public int Dismissed { get; set; }
+}

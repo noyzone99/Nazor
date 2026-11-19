@@ -1,0 +1,12 @@
+@using Nazor.Controls.Primitives
+<Button Class="send" OnClick="Send">Send</Button>
+
+@code {
+    [CascadingParameter] public ToastQueue Toasts { get; set; } = null!;
+
+    public static ToastQueue? Last { get; set; }
+
+    protected override void OnParametersSet() => Last = Toasts;
+
+    private void Send() => Toasts.Show("Sent");
+}

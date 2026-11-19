@@ -1,0 +1,77 @@
+@using Nazor.Controls.Primitives
+
+<Container Class="columns">
+    <Container Class="column">
+        <Heading Level="4">SelectionModel</Heading>
+        @foreach (var key in keys)
+        {
+            <Pressable Class="@(selection.IsSelected(key) ? "row selected" : "row")" OnPress="e => Click(key, e)">@key</Pressable>
+        }
+        <TextBlock Class="note">Click, Ctrl+click and Shift+click.</TextBlock>
+    </Container>
+    <Container Class="column">
+        <Heading Level="4">CalendarModel</Heading>
+        <Container Class="month">
+            @foreach (var day in calendar.Weekdays)
+            {
+                <TextBlock Class="head">@calendar.ShortDayName(day)</TextBlock>
+            }
+            @foreach (var week in calendar.Month(month))
+            {
+                @foreach (var day in week.Days)
+                {
+                    <TextBlock Class="@(day.InMonth ? "day" : "day outside")">@day.Date.Day</TextBlock>
+                }
+            }
+        </Container>
+        <TextBlock Class="note">@calendar.MonthTitle(month)</TextBlock>
+    </Container>
+    <Container Class="column">
+        <Heading Level="4">TreeModel</Heading>
+        @foreach (var row in tree.VisibleRows())
+        {
+            <Pressable Class="row" Style="@($"padding-left: {row.Level * 14}px")" OnPress="() => tree.SetExpandedAsync(row.Item, !row.IsExpanded)">
+                @((row.HasChildren ? (row.IsExpanded ? "▾ " : "▸ ") : "  ") + row.Item)
+            </Pressable>
+        }
+    </Container>
+</Container>
+
+@code {
+    private readonly string[] keys = ["Alpha", "Beta", "Gamma", "Delta", "Epsilon"];
+    private readonly SelectionModel<string> selection = new(SelectionMode.Multiple);
+    private readonly CalendarModel calendar = new();
+    private readonly DateOnly month = new(2026, 11, 1);
+    private readonly TreeModel<string> tree = new();
+    private readonly Dictionary<string, IReadOnlyList<string>> children = new()
+    {
+        ["Sources"] = ["Core", "Tools"], ["Core"] = ["Controls", "Style"], ["Tests"] = ["Rendering"],
+    };
+
+    protected override void OnInitialized()
+    {
+        selection.SetOrder(keys);
+        tree.Roots = ["Sources", "Tests", "Docs"];
+        tree.Children = item => children.GetValueOrDefault(item);
+        tree.Changed += StateHasChanged;
+    }
+
+    private void Click(string key, Nazor.Input.PointerEventArgs e)
+    {
+        if ((e.Modifiers & Nazor.Input.KeyModifiers.Shift) != 0) selection.Extend(key);
+        else if ((e.Modifiers & Nazor.Input.KeyModifiers.Control) != 0) selection.Toggle(key);
+        else selection.Select(key);
+    }
+}
+
+@style {
+    .columns { display: flex; gap: 32px; }
+    .column { display: flex; flex-direction: column; gap: 2px; min-width: 160px; }
+    .row { padding: 2px 6px; }
+    .selected { background: Highlight; color: HighlightText; }
+    .month { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr; gap: 2px; }
+    .head { font-weight: 700; font-size: 11px; }
+    .day { text-align: center; }
+    .outside { color: GrayText; }
+    .note { color: GrayText; font-size: 12px; }
+}

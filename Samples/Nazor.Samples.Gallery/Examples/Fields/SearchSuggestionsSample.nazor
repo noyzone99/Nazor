@@ -1,0 +1,43 @@
+<CheckBox @bind-IsChecked="highlightMatches">Highlight matching text</CheckBox>
+<Field LabelText="Search places by city or country">
+    <SearchField TItem="Place" @ref="placeSearch" Suggestions="places" ItemText="place => place.City"
+                 Filter="Matches" TextEdited="value => edited = value" SuggestionChosen="place => chosen = place.City"
+                 QuerySubmitted="Submitted" Placeholder="Try Italy or Paris" EmptyText="No matching places" HighlightMatches="highlightMatches">
+        <ItemTemplate Context="place">
+            <Container Style="display: flex; flex-direction: column; gap: 2px;">
+                <TextBlock>@(placeSearch!.RenderHighlightedText(place.City))</TextBlock>
+                <TextBlock>@(placeSearch!.RenderHighlightedText(place.Country))</TextBlock>
+            </Container>
+        </ItemTemplate>
+        <HighlightTemplate Context="match"><Strong>@match</Strong></HighlightTemplate>
+    </SearchField>
+</Field>
+<TextBlock>@($"Edited: {edited}; chosen: {chosen}; query: {query}")</TextBlock>
+<Field LabelText="Asynchronous suggestions">
+    <SearchField TItem="Place" @ref="asyncSearch" AsyncSuggestionProvider="FindAsync" ItemText="place => place.City"
+                 MaxSuggestions="3" Placeholder="Type a city or country" IconPlacement="SearchIconPlacement.End" HighlightMatches="highlightMatches">
+        <ItemTemplate Context="place"><TextBlock>@(asyncSearch!.RenderHighlightedText($"{place.City}, {place.Country}"))</TextBlock></ItemTemplate>
+        <LoadingContent>Finding places…</LoadingContent>
+        <EmptyContent><TextBlock>No matching places. Try another city or country.</TextBlock></EmptyContent>
+        <ErrorContent>Suggestions are unavailable; edit to try again</ErrorContent>
+    </SearchField>
+</Field>
+@code {
+    private sealed record Place(string City, string Country);
+    private SearchField<Place>? placeSearch;
+    private SearchField<Place>? asyncSearch;
+    private bool highlightMatches = true;
+    private readonly Place[] places = [new("Milan", "Italy"), new("Rome", "Italy"), new("Paris", "France"), new("Vienna", "Austria")];
+    private string edited = "";
+    private string chosen = "";
+    private string query = "";
+    private static bool Matches(Place place, string text) =>
+        place.City.Contains(text, StringComparison.CurrentCultureIgnoreCase) || place.Country.Contains(text, StringComparison.CurrentCultureIgnoreCase);
+    private void Submitted(SearchQuery<Place> submitted) =>
+        query = submitted.HasChosenSuggestion ? $"{submitted.Text} ({submitted.ChosenSuggestion!.Country})" : submitted.Text;
+    private async Task<IReadOnlyList<Place>> FindAsync(string text, CancellationToken cancellationToken)
+    {
+        await Task.Delay(250, cancellationToken);
+        return text.Length == 0 ? [] : places.Where(place => Matches(place, text)).ToArray();
+    }
+}

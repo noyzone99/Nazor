@@ -1,0 +1,10 @@
+<Container Class="stack">
+    <TextBlock>Plain text wraps inside its container and inherits the color and font of its parent.</TextBlock>
+    <TextBlock IsTextSelectionEnabled="true">This paragraph can be selected and copied: double-click a word or triple-click the whole text.</TextBlock>
+    <TextBlock Class="muted">Secondary text styled by the example's own stylesheet.</TextBlock>
+</Container>
+
+@style {
+    .stack { display: flex; flex-direction: column; gap: 8px; max-width: 520px; }
+    .muted { color: GrayText; font-size: 12px; }
+}

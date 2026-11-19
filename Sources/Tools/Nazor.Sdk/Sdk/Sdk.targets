@@ -1,0 +1,49 @@
+<Project>
+  <Import Project="Nazor.DevTools.props" />
+  <PropertyGroup>
+    <TargetFramework Condition="'$(TargetFramework)' == '' and '$(TargetFrameworks)' == ''">net10.0</TargetFramework>
+  </PropertyGroup>
+
+  <Import Project="../build/Nazor.Repository.targets" Condition="'$(NazorRepositoryRoot)' != ''" />
+
+  <Import Project="Nazor.PlatformBootstrap.targets" />
+  <Import Project="Nazor.ApplicationIcon.targets" />
+
+  <Import Project="Nazor.ImplicitUsings.targets" />
+
+  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
+  <Import Project="Nazor.WindowsManifest.targets" />
+  <Import Project="Nazor.Runtime.props" />
+  <Import Project="Nazor.ApplicationIdentity.targets" />
+  <Import Project="Nazor.LinuxDesktopEntry.targets" />
+  <ItemGroup Condition="'$(TargetFramework)' != '' and '$(NazorImplicitRuntimeReference)' != 'false' and '$(NazorRepositoryRoot)' == ''">
+    <PackageReference Include="Nazor.Application" Version="$(NazorSdkVersion)" IsImplicitlyDefined="true" />
+    <PackageReference Include="$(_NazorDesktopPackage)" Version="$(NazorSdkVersion)" IsImplicitlyDefined="true" Condition="'$(OutputType)' == 'Exe' or '$(OutputType)' == 'WinExe'" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' != '' and '$(NazorImplicitRuntimeReference)' != 'false' and '$(NazorRepositoryRoot)' != ''">
+    <ProjectReference Include="$(NazorRepositoryRoot)Sources/Core/Nazor.Application/Nazor.Application.csproj" />
+    <ProjectReference Include="$(NazorRepositoryRoot)Sources/Hosts/$(_NazorDesktopPackage)/$(_NazorDesktopPackage).csproj"
+                      AdditionalProperties="$(_NazorNativeReferenceProperties)" Condition="'$(OutputType)' == 'Exe' or '$(OutputType)' == 'WinExe'" />
+  </ItemGroup>
+  <Import Project="Nazor.WindowsDependencies.targets"
+          Condition="'$(NazorRepositoryRoot)' == '' and '$(TargetFramework)' != '' and ('$(OutputType)' == 'Exe' or '$(OutputType)' == 'WinExe')
+                     and ('$(_NazorRuntimePlatform)' == 'windows' or '$(_NazorRuntimePlatform)' == 'portable')
+                     and ('$(NazorImplicitRuntimeReference)' != 'false' or '$(NazorRestoreWindowsDependencies)' == 'true')" />
+  <Import Project="Nazor.Generation.targets" />
+  <Import Project="Nazor.Aot.targets" />
+  <ItemGroup Condition="'$(TargetFramework)' != '' and '$(NazorEnableDevTools)' == 'true' and ('$(OutputType)' == 'Exe' or '$(OutputType)' == 'WinExe')">
+    <PackageReference Include="$(_NazorDevToolsPackage)" Version="$(NazorSdkVersion)" IsImplicitlyDefined="true"
+                      Condition="'$(NazorRepositoryRoot)' == '' and '@(PackageReference->WithMetadataValue('Identity', 'Nazor.DevTools.Agent'))' == ''" />
+    <ProjectReference Include="$(NazorRepositoryRoot)Sources/Tools/Nazor.DevTools.Agent/Nazor.DevTools.Agent.csproj"
+                      Condition="'$(NazorRepositoryRoot)' != ''" />
+  </ItemGroup>
+  <Import Project="Nazor.DevTools.targets" />
+
+  <Target Name="NazorValidateTargetPlatform" BeforeTargets="CollectPackageReferences;PrepareForBuild"
+          Condition="'$(TargetFramework)' != '' and '$(NazorImplicitRuntimeReference)' != 'false'">
+    <Error Condition="'$(_NazorTargetPlatform)' != '' and '$(_NazorTargetPlatform)' != 'windows'" Code="NZB002"
+           Text="Nazor.Sdk currently provides desktop hosting only. Use net8.0 or later for desktop applications and shared component libraries. Target '$(TargetFramework)' requires a dedicated platform host that is not implemented yet." />
+    <Error Condition="'$(_NazorRuntimePlatform)' == 'unsupported' and ('$(OutputType)' == 'Exe' or '$(OutputType)' == 'WinExe')" Code="NZB003"
+           Text="Nazor has no desktop backend for RuntimeIdentifier '$(RuntimeIdentifier)'. Use a Windows or Linux RID, or omit the RID for a portable application." />
+  </Target>
+</Project>

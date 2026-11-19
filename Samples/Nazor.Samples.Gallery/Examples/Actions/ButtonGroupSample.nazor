@@ -1,0 +1,10 @@
+<ButtonGroup AccessibleName="Text alignment">
+    <ToggleButton @bind-IsPressed="left">Left</ToggleButton>
+    <ToggleButton @bind-IsPressed="center">Center</ToggleButton>
+    <ToggleButton @bind-IsPressed="right">Right</ToggleButton>
+</ButtonGroup>
+@code {
+    private bool left = true;
+    private bool center;
+    private bool right;
+}

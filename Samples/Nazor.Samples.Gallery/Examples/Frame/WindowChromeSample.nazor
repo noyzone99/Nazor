@@ -1,0 +1,5 @@
+@inject IWindowService Windows
+
+<TextBlock>The title bar and caption buttons run in a separate preview window.</TextBlock>
+<TitleBar Title="Composable title-bar surface" />
+<Button OnClick="() => Windows.Open<WindowChromePreview>()">Open title bar preview</Button>

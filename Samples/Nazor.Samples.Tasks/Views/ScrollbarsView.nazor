@@ -1,0 +1,83 @@
+@* The settings choose NSS classes, not renderer APIs or manually drawn scrollbars.
+   Keeping the same two surfaces mounted preserves their offsets while their computed styles change. *@
+<Container Class="lab" AccessibleName="Scrollbar playground">
+    <SectionHeader Title="Scrollbar playground" Description="Both previews are Containers. Settings override the right preview only.">
+        <Button @onclick="ResetSettings">Restore defaults</Button>
+    </SectionHeader>
+    <Container Class="settings">
+        <Container Class="field">
+            <TextBlock Id="visibility-label">Visibility</TextBlock>
+            <Select Id="scrollbar-visibility" @bind-Value="visibility" LabeledBy="visibility-label">
+                <SelectItem Value="@("inherit")">Global autohide</SelectItem>
+                <SelectItem Value="@("visible")">Visible</SelectItem>
+                <SelectItem Value="@("autohide")">Autohide</SelectItem>
+                <SelectItem Value="@("none")">None</SelectItem>
+            </Select>
+        </Container>
+        <Container Class="field">
+            <TextBlock Id="placement-label">Placement</TextBlock>
+            <Select Id="scrollbar-placement" @bind-Value="placement" LabeledBy="placement-label" Disabled="@IsAutohide">
+                <SelectItem Value="@("overlay")">Overlay</SelectItem>
+                <SelectItem Value="@("reserve")">Reserve space</SelectItem>
+            </Select>
+        </Container>
+        <Container Class="field">
+            <TextBlock Id="step-label">Wheel distance</TextBlock>
+            <Select Id="scroll-step" @bind-Value="step" LabeledBy="step-label">
+                <SelectItem Value="@("inherit")">Global 24px</SelectItem>
+                <SelectItem Value="@("pixels")">24.5px per notch</SelectItem>
+                <SelectItem Value="@("lines")">1.5 lines per notch</SelectItem>
+                <SelectItem Value="@("system")">System settings</SelectItem>
+                <SelectItem Value="@("zero")">Zero (wheel disabled)</SelectItem>
+            </Select>
+        </Container>
+        <Container Class="field">
+            <TextBlock Id="motion-label">Animation</TextBlock>
+            <Select Id="scroll-motion" @bind-Value="motion" LabeledBy="motion-label">
+                <SelectItem Value="@("default")">Default timing</SelectItem>
+                <SelectItem Value="@("slow")">Slow custom easing</SelectItem>
+                <SelectItem Value="@("instant")">Instant (0ms)</SelectItem>
+            </Select>
+        </Container>
+    </Container>
+    <Container Class="toggles">
+        <CheckBox Id="custom-scrollbar" @bind-IsChecked="customAppearance">Custom track and thumb</CheckBox>
+        <CheckBox Id="scrollbar-buttons" @bind-IsChecked="buttons">End buttons</CheckBox>
+        @if (buttons)
+        {
+            <CheckBox Id="repeat-buttons" @bind-IsChecked="repeatButtons">Repeat while held</CheckBox>
+        }
+        <CheckBox Id="smooth-scroll" @bind-IsChecked="smooth">Smooth scrolling</CheckBox>
+        <CheckBox Id="hide-on-wheel" @bind-IsChecked="hideOnWheel">Hide while wheeling</CheckBox>
+        <CheckBox Id="wheel-animation" @bind-IsChecked="wheelAnimation">Animate on wheel</CheckBox>
+        <CheckBox Id="fitting-content" @bind-IsChecked="fittingContent">Content fits</CheckBox>
+    </Container>
+    <Container Class="commands">
+        <Button @onclick="ScrollToTop">Back to top</Button>
+        <Button @onclick="ScrollToFraction">Go to x=25.5, y=40.25</Button>
+        <TextBlock Class="hint">@(IsAutohide ? "Autohide always overlays. Approach either edge to reveal the bar." : "Overlay covers content; reserve reduces the viewport.")</TextBlock>
+    </Container>
+    <Container Class="previews">
+        <Container Class="pane">
+            <TextBlock Class="pane-title">Container · global defaults</TextBlock>
+            @* Inheritance supplies appearance and smooth scrolling. The sidecar explicitly enables overflow. *@
+            <Container @ref="inherited" Id="inherited-preview" Class="preview" TabIndex="0"
+                       AccessibleName="Global defaults task preview" @onscroll="InheritedScrolled">
+                <ScrollTaskRows Items="VisibleExamples" Compact="@fittingContent" />
+            </Container>
+            @* Read actual offsets from onscroll rather than assuming the requested destination was reached.
+               This also makes interpolation and fractional positions visible without a polling timer. *@
+            <TextBlock Id="inherited-offset" Class="offset">@inheritedOffset</TextBlock>
+        </Container>
+        <Container Class="pane">
+            <TextBlock Class="pane-title">Container · component overrides</TextBlock>
+            @* Container has no special scrolling code: the .preview NSS rule activates both overflowing axes. *@
+            <Container @ref="container" Id="container-preview" Class="@SurfaceClasses" TabIndex="0"
+                       AccessibleName="Container task preview" @onscroll="ContainerScrolled">
+                <ScrollTaskRows Items="VisibleExamples" Compact="@fittingContent" />
+            </Container>
+            <TextBlock Id="container-offset" Class="offset">@containerOffset</TextBlock>
+        </Container>
+    </Container>
+    <TextBlock Class="hint">Drag a thumb, click the track, hold an end button, or try Shift+wheel. Focus a preview for PageUp/Down and Home/End. Distances never snap to rows. Reduced motion follows your system.</TextBlock>
+</Container>

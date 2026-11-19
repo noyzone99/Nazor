@@ -1,0 +1,7 @@
+@code {
+    private int value = 1;
+}
+@style {
+    .card { --text: "}"; }
+}
+<TextBlock>@(value + missingAfterStyle)</TextBlock>

@@ -1,0 +1,7 @@
+<Field LabelText="Delivery date">
+    <DatePicker @bind-Value="date" Clearable="true" />
+</Field>
+
+@code {
+    private DateOnly? date;
+}

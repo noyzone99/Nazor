@@ -1,0 +1,100 @@
+@using Nazor.DevTools.Protocol
+<Container Class="computed-panel">
+    <Container Class="box-section">
+        @if (Geometry is not { } geometry)
+        {
+            <Container Class="empty">
+                <TextBlock Class="empty-title">No box captured</TextBlock>
+                <TextBlock Class="muted small">@(IsText ? "Text nodes have no element box." : "Hidden elements have no rendered box. A running app provides the box when this panel is refreshed.")</TextBlock>
+            </Container>
+        }
+        else
+        {
+            <Container Class="box margin-box">
+                <TextBlock Class="box-label">margin</TextBlock>
+                <TextBlock Class="edge">@DetailFormatting.Edge(geometry.Margin.Top)</TextBlock>
+                <Container Class="box-row">
+                    <TextBlock Class="edge side">@DetailFormatting.Edge(geometry.Margin.Left)</TextBlock>
+                    <Container Class="box border-box">
+                        <TextBlock Class="box-label">border</TextBlock>
+                        <TextBlock Class="edge">@DetailFormatting.Edge(geometry.Border.Top)</TextBlock>
+                        <Container Class="box-row">
+                            <TextBlock Class="edge side">@DetailFormatting.Edge(geometry.Border.Left)</TextBlock>
+                            <Container Class="box padding-box">
+                                <TextBlock Class="box-label">padding</TextBlock>
+                                <TextBlock Class="edge">@DetailFormatting.Edge(geometry.Padding.Top)</TextBlock>
+                                <Container Class="box-row">
+                                    <TextBlock Class="edge side">@DetailFormatting.Edge(geometry.Padding.Left)</TextBlock>
+                                    <Container Class="content-box">
+                                        <TextBlock>@(geometry.ContentBox is { } content ? DetailFormatting.Number(content.Width) + " × " + DetailFormatting.Number(content.Height) : "–")</TextBlock>
+                                    </Container>
+                                    <TextBlock Class="edge side">@DetailFormatting.Edge(geometry.Padding.Right)</TextBlock>
+                                </Container>
+                                <TextBlock Class="edge">@DetailFormatting.Edge(geometry.Padding.Bottom)</TextBlock>
+                            </Container>
+                            <TextBlock Class="edge side">@DetailFormatting.Edge(geometry.Border.Right)</TextBlock>
+                        </Container>
+                        <TextBlock Class="edge">@DetailFormatting.Edge(geometry.Border.Bottom)</TextBlock>
+                    </Container>
+                    <TextBlock Class="edge side">@DetailFormatting.Edge(geometry.Margin.Right)</TextBlock>
+                </Container>
+                <TextBlock Class="edge">@DetailFormatting.Edge(geometry.Margin.Bottom)</TextBlock>
+            </Container>
+            <Container Class="boxes">
+                <TextBlock Class="boxes-heading">Box</TextBlock>
+                <TextBlock Class="boxes-heading">Viewport (logical)</TextBlock>
+                <TextBlock Class="boxes-heading">@("Physical px × " + DetailFormatting.Number(geometry.Scale))</TextBlock>
+                @foreach (var box in Boxes(geometry))
+                {
+                    <TextBlock Class="boxes-name">@box.Key</TextBlock>
+                    <TextBlock Class="boxes-value" IsTextSelectionEnabled="true">@DetailFormatting.Rect(box.Value)</TextBlock>
+                    <TextBlock Class="boxes-value" IsTextSelectionEnabled="true">@DetailFormatting.Rect(box.Value, geometry.Scale)</TextBlock>
+                }
+            </Container>
+            <TextBlock Class="muted small">@("Target scale: " + DetailFormatting.Number(geometry.Scale) + " physical pixels per logical unit. Edge widths are local logical values; viewport boxes include scrolling and transforms.")</TextBlock>
+        }
+    </Container>
+    @if (Styles is not null)
+    {
+        <Container Class="computed-toolbar">
+            <SearchField TItem="string" Value="@filter" ValueChanged="@(value => filter = value ?? "")" Placeholder="Filter properties" Size="ControlSize.Small"
+                         AccessibleName="Filter computed properties" Class="filter" />
+            <Switch IsOn="showAll" IsOnChanged="@(value => showAll = value)" Size="ControlSize.Small" Class="option" Tooltip="Include values that come from initial defaults">Show all</Switch>
+        </Container>
+        <ListView TItem="PropertyValue" Items="Values" ItemText="ValueText" ItemTemplate="ValueRow" SelectionMode="Nazor.Controls.Primitives.SelectionMode.None" ItemHeight="26"
+                  AccessibleName="Captured computed values" Class="computed-values" />
+    }
+    else
+    {
+        <TextBlock Class="muted small computed-empty">No computed values captured for this element.</TextBlock>
+    }
+</Container>
+@code {
+    [Parameter] public StyleDetails? Styles { get; set; }
+    [Parameter] public GeometryDetails? Geometry { get; set; }
+    [Parameter] public bool IsText { get; set; }
+    private string filter = "";
+    private bool showAll;
+    private PropertyValue[] Values => Styles is null ? [] : Styles.Computed.Concat(Styles.CustomProperties ?? [])
+        .Where(v => showAll || v.Origin != "initial")
+        .Where(v => filter.Length == 0 || v.Name.Contains(filter.Trim(), StringComparison.OrdinalIgnoreCase) || v.Value.Contains(filter.Trim(), StringComparison.OrdinalIgnoreCase))
+        .OrderBy(v => v.Name.StartsWith("--", StringComparison.Ordinal)).ThenBy(v => v.Name, StringComparer.Ordinal).ToArray();
+    private string ValueText(PropertyValue value) => value.Name + ": " + value.Value + " · " + DetailFormatting.Origin(value, Styles!);
+    private RenderFragment<PropertyValue> ValueRow => value => __builder =>
+    {
+        <Container Class="value-row" Tooltip="@DetailFormatting.Origin(value, Styles!)">
+            <TextBlock Class="property-name">@value.Name</TextBlock>
+            <TextBlock Class="colon sep">:</TextBlock>
+            <TextBlock Class="property-value">@value.Value</TextBlock>
+            <Container Class="spacer" />
+            <TextBlock Class="origin">@Origin(value)</TextBlock>
+        </Container>
+    };
+    private string Origin(PropertyValue value) => value.Rule is { } index && index < Styles!.Rules.Length
+        ? (Styles.Rules[index].Level == "inline" ? "element.style" : Styles.Rules[index].Selector) : value.Origin;
+    private static IEnumerable<KeyValuePair<string, WireRect?>> Boxes(GeometryDetails geometry)
+    {
+        yield return new("Margin", geometry.MarginBox); yield return new("Border", geometry.BorderBox);
+        yield return new("Padding", geometry.PaddingBox); yield return new("Content", geometry.ContentBox);
+    }
+}

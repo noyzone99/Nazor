@@ -1,0 +1,39 @@
+@using Nazor.Controls.Primitives
+
+<Container Class="row">
+    @foreach (var side in sides)
+    {
+        <Button OnClick="() => Open(side)">@($"{side} drawer")</Button>
+    }
+    <CheckBox @bind-IsChecked="modal">Modal</CheckBox>
+    <CheckBox @bind-IsChecked="wide">Custom size</CheckBox>
+</Container>
+
+@* A bottom sheet shows a grab handle; a press on the scrim closes a modal drawer. *@
+<Drawer @bind-IsOpen="open" Placement="placement" Title="@($"{placement} drawer")" Modal="modal"
+        Size="@(wide ? (placement is DrawerPlacement.Start or DrawerPlacement.End ? 420 : 300) : null)"
+        OnAction="role => result = role.ToString()" OnDismiss="@(() => result = "dismissed")">
+    <ChildContent>
+        <TextBlock>Notification settings</TextBlock>
+        <CheckBox @bind-IsChecked="email">Email</CheckBox>
+        <CheckBox @bind-IsChecked="push">Push notifications</CheckBox>
+        <CheckBox @bind-IsChecked="digest">Weekly digest</CheckBox>
+    </ChildContent>
+    <Footer>
+        <DialogButton Role="DialogButtonRole.Primary">Save</DialogButton>
+        <DialogButton Role="DialogButtonRole.Cancel" />
+    </Footer>
+</Drawer>
+<TextBlock>@($"Result: {result}; email: {email}; push: {push}; digest: {digest}")</TextBlock>
+
+@code {
+    private bool open, modal = true, wide, email = true, push, digest;
+    private DrawerPlacement placement = DrawerPlacement.End;
+    private string result = "none";
+    private readonly DrawerPlacement[] sides = Enum.GetValues<DrawerPlacement>();
+    private void Open(DrawerPlacement side) => (placement, open) = (side, true);
+}
+
+@style {
+    .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+}

@@ -1,0 +1,37 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Nazor",
+  "classifications": [ "Desktop", "Windows", "Nazor" ],
+  "identity": "Nazor.App.CSharp",
+  "name": "Nazor application",
+  "description": "A Windows application written with Nazor components (.nazor), code-behind and NSS styles.",
+  "shortName": "nazor-app",
+  "sourceName": "MyNazorApp",
+  "preferNameDirectory": true,
+  "symbols": {
+    "ApplicationId": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "org.example.myapp",
+      "description": "Stable application ID: at least three lowercase alphanumeric segments starting with letters, at most 128 characters. Replace the example domain before distribution.",
+      "replaces": "org.example.nazorapp"
+    },
+    "Framework": {
+      "type": "parameter",
+      "datatype": "choice",
+      "defaultValue": "net10.0",
+      "description": "Target framework. Use net8.0 for Visual Studio 2022.",
+      "replaces": "net10.0",
+      "choices": [
+        { "choice": "net8.0", "description": ".NET 8" },
+        { "choice": "net9.0", "description": ".NET 9" },
+        { "choice": "net10.0", "description": ".NET 10" },
+        { "choice": "net11.0", "description": ".NET 11 (requires the .NET 11 SDK)" }
+      ]
+    }
+  },
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  }
+}

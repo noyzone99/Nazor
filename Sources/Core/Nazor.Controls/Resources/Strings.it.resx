@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Close" xml:space="preserve"><value>Chiudi</value></data>
+  <data name="Cancel" xml:space="preserve"><value>Annulla</value></data>
+  <data name="Ok" xml:space="preserve"><value>OK</value></data>
+  <data name="Previous" xml:space="preserve"><value>Precedente</value></data>
+  <data name="Next" xml:space="preserve"><value>Successivo</value></data>
+  <data name="Back" xml:space="preserve"><value>Indietro</value></data>
+  <data name="Finish" xml:space="preserve"><value>Fine</value></data>
+  <data name="Clear" xml:space="preserve"><value>Cancella</value></data>
+  <data name="Remove" xml:space="preserve"><value>Rimuovi</value></data>
+  <data name="Search" xml:space="preserve"><value>Cerca</value></data>
+  <data name="ShowPassword" xml:space="preserve"><value>Mostra password</value></data>
+  <data name="HidePassword" xml:space="preserve"><value>Nascondi password</value></data>
+  <data name="CapsLockOn" xml:space="preserve"><value>Bloc Maiusc attivo</value></data>
+  <data name="Increase" xml:space="preserve"><value>Aumenta</value></data>
+  <data name="Decrease" xml:space="preserve"><value>Diminuisci</value></data>
+  <data name="ShowSpinButtons" xml:space="preserve"><value>Mostra pulsanti di incremento</value></data>
+  <data name="More" xml:space="preserve"><value>Altre opzioni</value></data>
+  <data name="Open" xml:space="preserve"><value>Apri</value></data>
+  <data name="Expand" xml:space="preserve"><value>Espandi</value></data>
+  <data name="Collapse" xml:space="preserve"><value>Comprimi</value></data>
+  <data name="Dismiss" xml:space="preserve"><value>Ignora</value></data>
+  <data name="Loading" xml:space="preserve"><value>Caricamento</value></data>
+  <data name="NoResults" xml:space="preserve"><value>Nessun risultato</value></data>
+  <data name="SelectAll" xml:space="preserve"><value>Seleziona tutto</value></data>
+  <data name="Today" xml:space="preserve"><value>Oggi</value></data>
+  <data name="PreviousMonth" xml:space="preserve"><value>Mese precedente</value></data>
+  <data name="NextMonth" xml:space="preserve"><value>Mese successivo</value></data>
+  <data name="PreviousYear" xml:space="preserve"><value>Anno precedente</value></data>
+  <data name="NextYear" xml:space="preserve"><value>Anno successivo</value></data>
+  <data name="FirstPage" xml:space="preserve"><value>Prima pagina</value></data>
+  <data name="LastPage" xml:space="preserve"><value>Ultima pagina</value></data>
+  <data name="PreviousPage" xml:space="preserve"><value>Pagina precedente</value></data>
+  <data name="NextPage" xml:space="preserve"><value>Pagina successiva</value></data>
+  <data name="PageNumber" xml:space="preserve"><value>Pagina {0}</value></data>
+  <data name="PageOf" xml:space="preserve"><value>Pagina {0} di {1}</value></data>
+  <data name="Pagination" xml:space="preserve"><value>Paginazione</value></data>
+  <data name="Minimize" xml:space="preserve"><value>Riduci a icona</value></data>
+  <data name="Maximize" xml:space="preserve"><value>Ingrandisci</value></data>
+  <data name="Restore" xml:space="preserve"><value>Ripristina</value></data>
+  <data name="Help" xml:space="preserve"><value>Guida</value></data>
+  <data name="Switch" xml:space="preserve"><value>interruttore</value></data>
+  <data name="Breadcrumb" xml:space="preserve"><value>Percorso</value></data>
+  <data name="Notifications" xml:space="preserve"><value>Notifiche</value></data>
+  <data name="SortAscending" xml:space="preserve"><value>Ordine crescente</value></data>
+  <data name="SortDescending" xml:space="preserve"><value>Ordine decrescente</value></data>
+  <data name="ColumnMenu" xml:space="preserve"><value>Opzioni colonna</value></data>
+  <data name="Required" xml:space="preserve"><value>obbligatorio</value></data>
+  <data name="Hours" xml:space="preserve"><value>Ore</value></data>
+  <data name="Minutes" xml:space="preserve"><value>Minuti</value></data>
+  <data name="Seconds" xml:space="preserve"><value>Secondi</value></data>
+  <data name="AmPm" xml:space="preserve"><value>AM/PM</value></data>
+  <data name="Hue" xml:space="preserve"><value>Tonalità</value></data>
+  <data name="Saturation" xml:space="preserve"><value>Saturazione</value></data>
+  <data name="Brightness" xml:space="preserve"><value>Luminosità</value></data>
+  <data name="Alpha" xml:space="preserve"><value>Opacità</value></data>
+  <data name="Red" xml:space="preserve"><value>Rosso</value></data>
+  <data name="Green" xml:space="preserve"><value>Verde</value></data>
+  <data name="Blue" xml:space="preserve"><value>Blu</value></data>
+  <data name="Hex" xml:space="preserve"><value>Esadecimale</value></data>
+  <data name="Color" xml:space="preserve"><value>Colore</value></data>
+  <data name="RatingValue" xml:space="preserve"><value>{0} di {1}</value></data>
+  <data name="StepOf" xml:space="preserve"><value>Passaggio {0} di {1}</value></data>
+  <data name="Completed" xml:space="preserve"><value>completato</value></data>
+  <data name="Current" xml:space="preserve"><value>corrente</value></data>
+  <data name="Browse" xml:space="preserve"><value>Sfoglia</value></data>
+  <data name="ChooseFile" xml:space="preserve"><value>Scegli un file</value></data>
+  <data name="NoFile" xml:space="preserve"><value>Nessun file selezionato</value></data>
+  <data name="Font" xml:space="preserve"><value>Carattere</value></data>
+  <data name="FontSize" xml:space="preserve"><value>Dimensione</value></data>
+  <data name="FontStyle" xml:space="preserve"><value>Stile</value></data>
+  <data name="Preview" xml:space="preserve"><value>Anteprima</value></data>
+  <data name="Navigation" xml:space="preserve"><value>Navigazione</value></data>
+  <data name="OpenNavigation" xml:space="preserve"><value>Apri navigazione</value></data>
+  <data name="CloseNavigation" xml:space="preserve"><value>Chiudi navigazione</value></data>
+  <data name="AddTab" xml:space="preserve"><value>Nuova scheda</value></data>
+  <data name="CloseTab" xml:space="preserve"><value>Chiudi scheda</value></data>
+  <data name="Modified" xml:space="preserve"><value>modificato</value></data>
+  <data name="Pinned" xml:space="preserve"><value>fissata</value></data>
+  <data name="Slide" xml:space="preserve"><value>Diapositiva {0} di {1}</value></data>
+  <data name="CommandPalette" xml:space="preserve"><value>Tavolozza dei comandi</value></data>
+  <data name="PressKeys" xml:space="preserve"><value>Premi una combinazione di tasti</value></data>
+  <data name="Unread" xml:space="preserve"><value>non letto</value></data>
+  <data name="Online" xml:space="preserve"><value>in linea</value></data>
+  <data name="Away" xml:space="preserve"><value>assente</value></data>
+  <data name="Busy" xml:space="preserve"><value>occupato</value></data>
+  <data name="Offline" xml:space="preserve"><value>non in linea</value></data>
+  <data name="AndMore" xml:space="preserve"><value>+{0}</value></data>
+  <data name="Error" xml:space="preserve"><value>Errore</value></data>
+  <data name="Warning" xml:space="preserve"><value>Avviso</value></data>
+  <data name="Success" xml:space="preserve"><value>Operazione riuscita</value></data>
+  <data name="Information" xml:space="preserve"><value>Informazione</value></data>
+  <!-- Group: text-layout -->
+  <data name="Quote" xml:space="preserve"><value>citazione</value></data>
+  <data name="Code" xml:space="preserve"><value>codice</value></data>
+  <data name="Figure" xml:space="preserve"><value>figura</value></data>
+  <data name="ResizePane" xml:space="preserve"><value>Ridimensiona il riquadro</value></data>
+  <data name="StatusBar" xml:space="preserve"><value>Barra di stato</value></data>
+  <data name="ClosePane" xml:space="preserve"><value>Chiudi il riquadro</value></data>
+  <!-- End of group: text-layout -->
+  <!-- Group: feedback -->
+  <data name="InProgress" xml:space="preserve"><value>in corso</value></data>
+  <data name="NewActivity" xml:space="preserve"><value>Nuova attività</value></data>
+  <data name="BadgeCount" xml:space="preserve"><value>{0} nuovi</value></data>
+  <data name="PeopleCount" xml:space="preserve"><value>{0} persone</value></data>
+  <data name="MoreCount" xml:space="preserve"><value>altri {0}</value></data>
+  <data name="Retry" xml:space="preserve"><value>Riprova</value></data>
+  <!-- End of group: feedback -->
+  <!-- Group: actions-frame -->
+  <data name="WindowControls" xml:space="preserve"><value>Controlli della finestra</value></data>
+  <data name="OpensExternally" xml:space="preserve"><value>Si apre fuori dall'applicazione</value></data>
+  <!-- End of group: actions-frame -->
+  <!-- Group: overlays -->
+  <data name="ShowDetails" xml:space="preserve"><value>Mostra dettagli</value></data>
+  <data name="HideDetails" xml:space="preserve"><value>Nascondi dettagli</value></data>
+  <data name="DontAskAgain" xml:space="preserve"><value>Non chiedere più</value></data>
+  <data name="SearchCommands" xml:space="preserve"><value>Digita un comando o cerca</value></data>
+  <data name="Commands" xml:space="preserve"><value>Comandi</value></data>
+  <!-- End of group: overlays -->
+  <!-- Group: selection -->
+  <data name="RangeLower" xml:space="preserve"><value>Minimo</value></data>
+  <data name="RangeUpper" xml:space="preserve"><value>Massimo</value></data>
+  <data name="RemoveItem" xml:space="preserve"><value>Rimuovi {0}</value></data>
+  <data name="MoreItems" xml:space="preserve"><value>Mostra altri {0}</value></data>
+  <data name="ShowFewer" xml:space="preserve"><value>Mostra meno</value></data>
+  <data name="Rating" xml:space="preserve"><value>valutazione</value></data>
+  <data name="Dial" xml:space="preserve"><value>manopola</value></data>
+  <!-- End of group: selection -->
+  <!-- Group: fields -->
+  <data name="PasswordStrength" xml:space="preserve"><value>Robustezza della password</value></data>
+  <data name="StrengthWeak" xml:space="preserve"><value>Debole</value></data>
+  <data name="StrengthFair" xml:space="preserve"><value>Discreta</value></data>
+  <data name="StrengthGood" xml:space="preserve"><value>Buona</value></data>
+  <data name="StrengthStrong" xml:space="preserve"><value>Forte</value></data>
+  <data name="SearchScope" xml:space="preserve"><value>Ambito di ricerca</value></data>
+  <data name="ShowSuggestions" xml:space="preserve"><value>Mostra suggerimenti</value></data>
+  <data name="SelectedItems" xml:space="preserve"><value>Elementi selezionati</value></data>
+  <data name="PinCharacter" xml:space="preserve"><value>Carattere {0} di {1}</value></data>
+  <data name="NoShortcut" xml:space="preserve"><value>Nessuna</value></data>
+  <data name="RecordingShortcut" xml:space="preserve"><value>Registrazione: premi una combinazione di tasti, Esc per annullare</value></data>
+  <data name="FileCount" xml:space="preserve"><value>{0} file</value></data>
+  <data name="FixErrors" xml:space="preserve"><value>Correggi quanto segue:</value></data>
+
+
+
+  <!-- End of group: fields -->
+  <!-- Group: pickers -->
+  <data name="ChooseDate" xml:space="preserve"><value>Scegli la data</value></data>
+  <data name="ChooseDates" xml:space="preserve"><value>Scegli le date</value></data>
+  <data name="Day" xml:space="preserve"><value>Giorno</value></data>
+  <data name="Month" xml:space="preserve"><value>Mese</value></data>
+  <data name="Year" xml:space="preserve"><value>Anno</value></data>
+  <data name="ChooseTime" xml:space="preserve"><value>Scegli l'ora</value></data>
+  <data name="ChooseColor" xml:space="preserve"><value>Scegli il colore</value></data>
+  <data name="StartDate" xml:space="preserve"><value>Data di inizio</value></data>
+  <data name="EndDate" xml:space="preserve"><value>Data di fine</value></data>
+  <data name="Date" xml:space="preserve"><value>Data</value></data>
+  <data name="Time" xml:space="preserve"><value>Ora</value></data>
+  <data name="Unavailable" xml:space="preserve"><value>non disponibile</value></data>
+  <data name="WeekNumber" xml:space="preserve"><value>Settimana {0}</value></data>
+  <data name="Week" xml:space="preserve"><value>Sett.</value></data>
+  <data name="ChangeView" xml:space="preserve"><value>Cambia vista</value></data>
+  <data name="PreviousDecade" xml:space="preserve"><value>Decennio precedente</value></data>
+  <data name="NextDecade" xml:space="preserve"><value>Decennio successivo</value></data>
+  <data name="Presets" xml:space="preserve"><value>Intervalli predefiniti</value></data>
+  <data name="Swatches" xml:space="preserve"><value>Campioni</value></data>
+  <data name="RecentColors" xml:space="preserve"><value>Colori recenti</value></data>
+  <data name="OriginalColor" xml:space="preserve"><value>Colore originale</value></data>
+  <data name="NewColor" xml:space="preserve"><value>Nuovo colore</value></data>
+  <data name="ColorFormat" xml:space="preserve"><value>Formato del colore</value></data>
+  <data name="Lightness" xml:space="preserve"><value>Chiarezza</value></data>
+  <data name="ColorAreaValue" xml:space="preserve"><value>Saturazione {0}%, luminosità {1}%</value></data>
+  <data name="FontFamilies" xml:space="preserve"><value>Famiglie di caratteri</value></data>
+  <data name="SearchFonts" xml:space="preserve"><value>Cerca caratteri</value></data>
+  <data name="FontRegular" xml:space="preserve"><value>Normale</value></data>
+  <data name="FontItalic" xml:space="preserve"><value>Corsivo</value></data>
+  <data name="FontBold" xml:space="preserve"><value>Grassetto</value></data>
+  <data name="FontBoldItalic" xml:space="preserve"><value>Grassetto corsivo</value></data>
+  <data name="FontPreviewText" xml:space="preserve"><value>Ma la volpe col suo balzo ha raggiunto il quieto Fido</value></data>
+  <data name="InvalidDate" xml:space="preserve"><value>Inserisci una data valida</value></data>
+  <data name="InvalidTime" xml:space="preserve"><value>Inserisci un'ora valida</value></data>
+  <!-- End of group: pickers -->
+  <!-- Group: collections -->
+  <data name="ItemsPerPage" xml:space="preserve"><value>Elementi per pagina</value></data>
+
+
+
+  <!-- End of group: collections -->
+  <!-- Group: data -->
+  <data name="SelectRow" xml:space="preserve"><value>Seleziona riga</value></data>
+  <data name="RowDetails" xml:space="preserve"><value>Dettagli</value></data>
+  <data name="ItemCount" xml:space="preserve"><value>{0} elementi</value></data>
+  <data name="Categorized" xml:space="preserve"><value>Per categoria</value></data>
+  <data name="Alphabetical" xml:space="preserve"><value>Alfabetico</value></data>
+  <data name="Miscellaneous" xml:space="preserve"><value>Varie</value></data>
+  <data name="SearchProperties" xml:space="preserve"><value>Cerca proprietà</value></data>
+  <data name="Properties" xml:space="preserve"><value>Proprietà</value></data>
+  <data name="CarouselRole" xml:space="preserve"><value>carosello</value></data>
+  <data name="SlideRole" xml:space="preserve"><value>diapositiva</value></data>
+  <data name="Slides" xml:space="preserve"><value>Diapositive</value></data>
+  <data name="PauseSlides" xml:space="preserve"><value>Pausa</value></data>
+  <data name="PlaySlides" xml:space="preserve"><value>Riproduci</value></data>
+  <data name="EmptyFolder" xml:space="preserve"><value>Vuota</value></data>
+  <!-- End of group: data -->
+  <!-- Group: navigation -->
+
+
+
+  <data name="CurrentLocation" xml:space="preserve"><value>Posizione corrente</value></data>
+  <!-- End of group: navigation -->
+  <data name="ToggleNavigationPane" xml:space="preserve"><value>Mostra o nascondi il riquadro di navigazione</value></data>
+  <data name="ColorAreaAxesValue" xml:space="preserve"><value>{0} {1}, {2} {3}</value></data>
+</root>

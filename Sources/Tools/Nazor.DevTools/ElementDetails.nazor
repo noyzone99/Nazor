@@ -1,0 +1,112 @@
+@using Nazor.DevTools.Protocol
+
+@if (Element is not { } element)
+{
+    <Container Class="details">
+        <EmptyState Title="Nothing selected" TitleLevel="3" Class="placeholder">
+            <Illustration><Icon Source="InspectorIcons.Elements" Class="placeholder-icon" /></Illustration>
+            <Description>Choose an element in the tree to see its styles, box model and properties.</Description>
+        </EmptyState>
+    </Container>
+}
+else
+{
+    <Container Class="details">
+        <Container Class="details-header">
+            <Container Class="header-title">
+                <Icon Source="InspectorIcons.Elements" Class="header-icon" />
+                <Container Class="tokens title-tokens">
+                    @foreach (var token in NodeSyntax.Element(element, withAttributes: false))
+                    {
+                        <TextBlock Class="@token.Class">@token.Text</TextBlock>
+                    }
+                    @if (element.Kind != "text" && NodeSyntax.Selector(element)[element.Name.Length..] is { Length: > 0 } hint)
+                    {
+                        <TextBlock Class="selector-hint">@hint</TextBlock>
+                    }
+                </Container>
+            </Container>
+            <Container Class="links">
+                @if (element.ProducingComponentId is { } owner)
+                {
+                    <TextBlock Class="link-label">Rendered by</TextBlock>
+                    <Button Id="show-producing-component" Class="node-link inline" OnClick="@(() => OnNavigate.InvokeAsync(new("component", owner)))" Tooltip="Inspect the component that produced this element">
+                        @ComponentTokens(owner)
+                    </Button>
+                }
+                @if (element.DeclaringComponentId is { } declaring && declaring != element.ProducingComponentId)
+                {
+                    <TextBlock Class="link-label">Declared in</TextBlock>
+                    <Button Id="show-declaring-component" Class="node-link inline" OnClick="@(() => OnNavigate.InvokeAsync(new("component", declaring)))" Tooltip="Inspect the component whose markup declares this element">
+                        @ComponentTokens(declaring)
+                    </Button>
+                }
+            </Container>
+            <Container Class="header-actions">
+                <Button Id="highlight-selection" Appearance="ControlAppearance.Tonal" Size="ControlSize.Small" OnClick="OnShowInApp" Disabled="@(!CanShowInApp)" Tooltip="Highlight this element in the app">
+                    <Leading><Icon Source="InspectorIcons.Eye" /></Leading>
+                    <ChildContent>Show in app</ChildContent>
+                </Button>
+                <Button Id="hide-highlight" Size="ControlSize.Small" OnClick="OnHideInApp" Disabled="@(!CanShowInApp)" AccessibleName="Hide highlight" Tooltip="Remove the highlight from the app">
+                    <Leading><Icon Source="InspectorIcons.EyeOff" /></Leading>
+                </Button>
+            </Container>
+        </Container>
+        <Tabs Class="sidebar-tabs" Size="ControlSize.Small" SelectedIndex="Tab" SelectedIndexChanged="TabChanged">
+            <Tab Label="Styles">
+                @PaneToolbar(Styles?.Capture)
+                <InspectorStyles Capture="Styles" IsText="@(element.Kind == "text")" />
+            </Tab>
+            <Tab Label="Computed">
+                @PaneToolbar(Geometry?.Capture ?? Styles?.Capture)
+                <InspectorComputed Styles="Styles" Geometry="Geometry" IsText="@(element.Kind == "text")" />
+            </Tab>
+            <Tab Label="Properties">
+                <ElementProperties Element="element" Components="Components" OnNavigate="OnNavigate" />
+            </Tab>
+        </Tabs>
+    </Container>
+}
+
+@code {
+    [Parameter] public ElementInfo? Element { get; set; }
+    [Parameter] public IReadOnlyDictionary<string, ComponentInfo> Components { get; set; } = new Dictionary<string, ComponentInfo>();
+    [Parameter] public IReadOnlyDictionary<string, ElementInfo> Elements { get; set; } = new Dictionary<string, ElementInfo>();
+    [Parameter] public StyleDetails? Styles { get; set; }
+    [Parameter] public GeometryDetails? Geometry { get; set; }
+    [Parameter] public TargetState? Target { get; set; }
+    [Parameter] public InspectorConnectionStatus Connection { get; set; }
+    [Parameter] public int Tab { get; set; }
+    [Parameter] public EventCallback<int> TabChanged { get; set; }
+    [Parameter] public bool CanRefresh { get; set; }
+    [Parameter] public bool Refreshing { get; set; }
+    [Parameter] public EventCallback OnRefresh { get; set; }
+    [Parameter] public bool CanShowInApp { get; set; }
+    [Parameter] public EventCallback OnShowInApp { get; set; }
+    [Parameter] public EventCallback OnHideInApp { get; set; }
+    [Parameter] public EventCallback<NodeLink> OnNavigate { get; set; }
+
+    private RenderFragment ComponentTokens(string id) => __builder =>
+    {
+        @if (Components.TryGetValue(id, out var component))
+        {
+            @foreach (var token in NodeSyntax.Component(component))
+            {
+                <TextBlock Class="@token.Class">@token.Text</TextBlock>
+            }
+        }
+        else { <TextBlock>@("#" + id)</TextBlock> }
+    };
+
+    private RenderFragment PaneToolbar(CaptureStamp? capture) => __builder =>
+    {
+        <Container Class="pane-toolbar">
+            <TextBlock Class="provenance" Tooltip="@(capture is null ? null : DetailFormatting.CapturedAt(capture))">
+                @(Refreshing ? "Reading from the app…" : capture is null ? "Not captured yet" : DetailFormatting.Capture(capture, Target, Connection))
+            </TextBlock>
+            <Button Id="refresh-details" Size="ControlSize.Small" OnClick="OnRefresh" Disabled="@(!CanRefresh || Refreshing)" AccessibleName="Refresh panel" Tooltip="Read this panel again from the app">
+                <Leading><Icon Source="InspectorIcons.Refresh" /></Leading>
+            </Button>
+        </Container>
+    };
+}

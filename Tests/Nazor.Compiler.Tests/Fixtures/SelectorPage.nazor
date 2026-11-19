@@ -1,0 +1,8 @@
+<Container Class="page">
+    <TextBlock Class="own">App</TextBlock>
+    <SelectorClock Value="@("first")" Depth="1">
+        <TextBlock Class="projected">Projected</TextBlock>
+    </SelectorClock>
+    <SelectorClock Value="@("second")" />
+    <SelectorShell />
+</Container>

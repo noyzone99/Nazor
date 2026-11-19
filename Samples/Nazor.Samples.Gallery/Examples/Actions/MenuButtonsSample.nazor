@@ -1,0 +1,22 @@
+<MenuButton>
+    <Menu><MenuItem OnClick='() => action = "Sort by name"'>By name</MenuItem></Menu>
+    <ChildContent>Sort</ChildContent>
+</MenuButton>
+<SplitButton OnClick='() => action = "Export CSV"'>
+    <Menu><MenuItem OnClick='() => action = "Export PDF"'>Export PDF</MenuItem></Menu>
+    <ChildContent>Export CSV</ChildContent>
+</SplitButton>
+<SplitButton Id="sample-toggle-split" IsToggle="true" @bind-IsPressed="highlight" TriggerLabel="Highlight colors">
+    <Menu>
+        <MenuItem OnClick='() => color = "Yellow"'>Yellow</MenuItem>
+        <MenuItem OnClick='() => color = "Green"'>Green</MenuItem>
+    </Menu>
+    <ChildContent>Highlight</ChildContent>
+</SplitButton>
+<SplitButton Disabled="true"><Menu><MenuItem>Unavailable</MenuItem></Menu><ChildContent>Disabled split action</ChildContent></SplitButton>
+<TextBlock>@action</TextBlock>
+<TextBlock Id="sample-highlight-status">@($"Highlight: {(highlight ? "on" : "off")}; color: {color}")</TextBlock>
+@code {
+    private string action = "Choose an action", color = "Yellow";
+    private bool highlight;
+}

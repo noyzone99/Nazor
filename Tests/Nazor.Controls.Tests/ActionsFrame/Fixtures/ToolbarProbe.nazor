@@ -1,0 +1,51 @@
+@implements IRefreshable
+@using Nazor.Controls.Primitives
+<Container Class="page">
+    <Toolbar Class="editor" AccessibleName="Formatting" LabelPosition="Position">
+        <ToolbarGroup Class="history" Label="History">
+            <Button Class="undo" OnClick="@(() => Log.Add("undo"))"><Leading><Icon Glyph="U" /></Leading><ChildContent>Undo</ChildContent></Button>
+            <Button Class="redo" Disabled="true">Redo</Button>
+        </ToolbarGroup>
+        <ToolbarSeparator Class="sep" />
+        <ToggleButton Class="bold" @bind-IsPressed="Bold">Bold</ToggleButton>
+        <ToolbarSpacer Class="spacer" />
+        <Button Class="share">Share</Button>
+    </Toolbar>
+    <Container Class="narrow">
+        <Toolbar Class="commands" AccessibleName="Commands" Commands="Commands" CommandPriority="Priority" Size="ControlSize.Small" />
+    </Container>
+    <Toolbar Class="vertical" Orientation="Orientation.Vertical" AccessibleName="Tools" Commands="Few">
+        <ToolbarSeparator Class="vsep" />
+        <ToolbarGroup Class="vgroup" Label="More tools"><Button Class="vbutton">Pen</Button></ToolbarGroup>
+    </Toolbar>
+    <Toolbar Class="icons" AccessibleName="Icons" Commands="Few" LabelPosition="ToolbarLabelPosition.None">
+        <CommandIcon Context="command"><Icon Glyph="@command.Text.Substring(0, 1)" /></CommandIcon>
+    </Toolbar>
+</Container>
+
+@code {
+    public void Refresh() => StateHasChanged();
+    public bool Bold { get; set; }
+    public ToolbarLabelPosition Position { get; set; }
+    public List<string> Log { get; } = [];
+    public List<Command> Commands { get; } = [];
+    public List<Command> Few { get; } = [];
+    public Command Wrap { get; private set; } = null!;
+
+    protected override void OnInitialized()
+    {
+        foreach (var name in new[] { "New", "Open", "Save", "Print", "Export", "Archive", "Delete" })
+            Commands.Add(new Command(name, () => Log.Add(name)));
+        Wrap = new Command("Wrap", () => Log.Add($"wrap {Wrap.IsChecked}")) { IsChecked = false };
+        Commands.Add(Wrap);
+        Few.Add(new Command("Cut", () => Log.Add("cut"), KeyGesture.Parse("Ctrl+X")));
+        Few.Add(new Command("Copy", () => Log.Add("copy")));
+    }
+
+    private int Priority(Command command) => command.Text == "New" ? 10 : 0;
+}
+
+@style {
+    .narrow { width: 220px; }
+    .commands { width: 220px; }
+}

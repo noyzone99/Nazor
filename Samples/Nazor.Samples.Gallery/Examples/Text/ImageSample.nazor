@@ -1,0 +1,15 @@
+<Container Class="row">
+    <Image Source="@logo" Alt="Nazor logo" Class="logo" />
+    <Image Source="@logo" Class="logo cover" />
+</Container>
+<TextBlock>The first image has alternative text; the second is decorative and hidden from assistive technologies.</TextBlock>
+
+@code {
+    private readonly string logo = "Assets/nazor.png";
+}
+
+@style {
+    .row { display: flex; gap: 16px; align-items: center; }
+    .logo { width: 96px; height: 96px; object-fit: contain; border: 1px solid GrayText; }
+    .cover { object-fit: cover; width: 160px; }
+}

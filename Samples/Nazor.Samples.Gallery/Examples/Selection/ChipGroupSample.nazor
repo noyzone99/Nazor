@@ -1,0 +1,8 @@
+@using Nazor.Controls.Primitives
+<Chip ShowDot="true" Intent="Intent.Success">Available</Chip>
+<ChipGroup TValue="string" SelectionMode="SelectionMode.Single" @bind-Value="filter" AccessibleName="Filter">
+    <Chip Value="@("all")">All</Chip>
+    <Chip Value="@("open")">Open</Chip>
+</ChipGroup>
+<TextBlock>@($"Filter: {filter}")</TextBlock>
+@code { private string? filter = "all"; }

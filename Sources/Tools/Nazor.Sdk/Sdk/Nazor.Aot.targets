@@ -1,0 +1,41 @@
+<Project>
+  <PropertyGroup Condition="'$(PublishAot)' == 'true' or '$(PublishTrimmed)' == 'true'">
+    <!-- Window parameter validation reads the same nullability metadata as ordinary publication. -->
+    <NullabilityInfoContextSupport>true</NullabilityInfoContextSupport>
+  </PropertyGroup>
+  <PropertyGroup>
+    <_NazorWinRTTrimAttributes>$(MSBuildThisFileDirectory)Nazor.WinRT.TrimAttributes.xml</_NazorWinRTTrimAttributes>
+  </PropertyGroup>
+  <Target Name="NazorPreserveJitWinRTProjections" BeforeTargets="_ComputeManagedAssemblyToLink"
+          Condition="'$(PublishTrimmed)' == 'true' and '$(PublishAot)' != 'true'">
+    <!-- CsWinRT's JIT fallback builds ABI types with reflection; keep those two projection assemblies intact. -->
+    <ItemGroup>
+      <_NazorJitWinRTProjection Include="@(ResolvedFileToPublish)"
+          Condition="'%(Filename)' == 'Microsoft.Windows.SDK.NET' or '%(Filename)' == 'WinRT.Runtime'" />
+      <ResolvedFileToPublish Update="@(ResolvedFileToPublish)"
+          Condition="'%(Filename)' == 'Microsoft.Windows.SDK.NET' or '%(Filename)' == 'WinRT.Runtime'">
+        <TrimMode>copy</TrimMode>
+      </ResolvedFileToPublish>
+    </ItemGroup>
+    <PropertyGroup Condition="'@(_NazorJitWinRTProjection)' != ''">
+      <_ExtraTrimmerArgs>$(_ExtraTrimmerArgs) --link-attributes &quot;$(_NazorWinRTTrimAttributes)&quot;</_ExtraTrimmerArgs>
+    </PropertyGroup>
+  </Target>
+  <Target Name="NazorGenerateComponentMetadata" BeforeTargets="PrepareForILLink;ComputeIlcCompileInputs"
+          DependsOnTargets="NazorPrepareGeneration"
+          Condition="('$(PublishAot)' == 'true' or '$(PublishTrimmed)' == 'true') and ('$(OutputType)' == 'Exe' or '$(OutputType)' == 'WinExe')">
+    <PropertyGroup>
+      <_NazorComponentMetadata>$(IntermediateOutputPath)Nazor/components.xml</_NazorComponentMetadata>
+      <_NazorComponentMetadataInputs>$(IntermediateOutputPath)Nazor/components-inputs.txt</_NazorComponentMetadataInputs>
+    </PropertyGroup>
+    <MakeDir Directories="$(IntermediateOutputPath)Nazor" />
+    <WriteLinesToFile File="$(_NazorComponentMetadataInputs)" Overwrite="true" WriteOnlyWhenDifferent="true"
+                      Lines="@(ReferenceCopyLocalPaths->'%(FullPath)');@(ReferencePath->'%(FullPath)');@(IntermediateAssembly->'%(FullPath)')" />
+    <Exec Command="dotnet &quot;$(NazorCompilerPath)&quot; component-metadata &quot;$(_NazorComponentMetadata)&quot; &quot;$(_NazorComponentMetadataInputs)&quot;"
+          EnvironmentVariables="$(_NazorCompilerEnvironment)" />
+    <ItemGroup>
+      <TrimmerRootDescriptor Include="$(_NazorComponentMetadata)" />
+      <FileWrites Include="$(_NazorComponentMetadata);$(_NazorComponentMetadataInputs)" />
+    </ItemGroup>
+  </Target>
+</Project>

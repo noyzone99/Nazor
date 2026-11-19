@@ -1,0 +1,219 @@
+@using Nazor.Controls.Primitives
+@using Nazor.Themes.NazorLeaf
+@implements IDisposable
+
+<Container Class="demo-section">
+    <Heading Level="3">Feedback</Heading>
+    <Paragraph Class="demo-lead">Avvisi in linea per gli stati che restano, notifiche brevi con il tempo che scorre, dialoghi solo per le decisioni. Il caricamento usa i quattro colori del marchio.</Paragraph>
+    <Container>
+        <InlineMessage Title="Aggiornamento disponibile." IsClosable="true">Nazor 1.0.1 corregge il rendering dei font variabili. <Link OnClick="Notify">Mostra dettagli</Link>.</InlineMessage>
+        <InlineMessage Title="Tema esportato." Severity="Severity.Success" IsClosable="true">Il file è nella cartella Risorse.</InlineMessage>
+        <InlineMessage Title="Contrasto basso." Severity="Severity.Warning" IsClosable="true">Il testo secondario sul giallo è a 3,8:1. Usa la variante scura del seme.</InlineMessage>
+        <InlineMessage Title="Build Android non riuscita." Severity="Severity.Error" IsClosable="true">Il certificato di firma è scaduto il 2 novembre. Caricane uno nuovo dalle impostazioni.</InlineMessage>
+    </Container>
+    <Container Class="demo-grid demo-gap-14">
+        <Container Class="demo-card">
+            <Heading Level="4">Avanzamento</Heading>
+            <Container Class="demo-stack">
+                <ProgressBar Id="showcase-download-progress" Value="progress" Label="Download dei simboli" ShowValue="true" />
+                <ProgressBar Label="Compilazione degli shader" ShowValue="true" ValueText="in corso" />
+                <Container Class="demo-row"><LeafMark IsLoading="@(progress < 100)" Size="28" /><Button Id="showcase-restart-download" Appearance="ControlAppearance.Outline" OnClick="Restart">Riavvia download</Button></Container>
+            </Container>
+        </Container>
+        <Container Class="demo-card">
+            <Heading Level="4">Dialoghi, notifiche e stati</Heading>
+            <Container Class="demo-row">
+                <Button Id="showcase-delete-dialog" Appearance="ControlAppearance.Outline" Disabled="themeDeleted" OnClick="OpenDeleteDialog">Apri il dialogo</Button>
+                <Button Id="showcase-show-notification" Appearance="ControlAppearance.Tonal" OnClick="Notify">Mostra notifica</Button>
+            </Container>
+            @if (themeDeleted)
+            {
+                <Container Class="demo-row demo-gap-12"><TextBlock Id="showcase-theme-status">Tema nel cestino</TextBlock><Button Id="showcase-restore-theme" Appearance="ControlAppearance.Subtle" OnClick="RestoreTheme">Ripristina tema</Button></Container>
+            }
+            @if (skipConfirmation)
+            {
+                <Button Id="showcase-reset-confirmation" Appearance="ControlAppearance.Subtle" OnClick="() => skipConfirmation = false">Riattiva conferma</Button>
+            }
+            <Container Class="demo-row demo-gap-14">
+                <Tag Intent="Intent.Success" Dot="true">Completata</Tag>
+                <Tag Intent="Intent.Warning" Dot="true">In revisione</Tag>
+                <Tag Intent="Intent.Danger" Dot="true">Fallita</Tag>
+                <Tag Intent="Intent.Accent" Dot="true" IsLive="true">In coda</Tag>
+            </Container>
+        </Container>
+    </Container>
+    <Container Class="demo-card demo-gap-14">
+        <Heading Level="4">Anello proporzionale</Heading>
+        <Container Class="demo-rings">
+            <Container Class="demo-rcell"><Spinner Value="ring" Size="ControlSize.Large" AccessibleName="Cerchio" /><TextBlock>Cerchio</TextBlock></Container>
+            <Container Class="demo-rcell"><Spinner Value="ring" Size="ControlSize.Large" Class="leaf-ring" AccessibleName="Foglia" /><TextBlock>Foglia</TextBlock></Container>
+            <Container Class="demo-rcell"><Spinner Value="ring" Size="ControlSize.Small" AccessibleName="Compatto" /><TextBlock>Compatto</TextBlock></Container>
+            <Container Class="demo-rcell"><Spinner Value="ring" Size="ControlSize.Small" Class="leaf-ring" AccessibleName="Compatto a foglia" /><TextBlock>Compatto a foglia</TextBlock></Container>
+            <Container Class="demo-rcell">
+                <Button Id="showcase-ring-action" Appearance="ControlAppearance.Tonal" OnClick="SimulateRing"><Leading><Spinner Value="ring" AccessibleName="Esportazione" /></Leading><ChildContent>@ringText</ChildContent></Button>
+                <TextBlock>Dentro un pulsante</TextBlock>
+            </Container>
+        </Container>
+        <Container Class="demo-slider-row demo-gap-18">
+            <TextBlock>Avanzamento</TextBlock>
+            <Slider Value="ring" ValueChanged="SetRing" AccessibleName="Avanzamento" />
+            <TextBlock Class="demo-output">@($"{ring:0}%")</TextBlock>
+        </Container>
+        <Container Class="demo-row demo-gap-12">
+            <Button Id="showcase-simulate-ring" Appearance="ControlAppearance.Outline" OnClick="SimulateRing">Simula un caricamento</Button>
+            <TextBlock Class="demo-hint">Niente maniglia, perché non si trascina: il valore è un tratto pieno, separato da uno stacco dal binario più sottile.</TextBlock>
+        </Container>
+    </Container>
+    <AlertDialog @bind-IsOpen="dialog" Class="demo-delete-dialog" AccessibleName="@DeleteTitle" AccessibleDescription="@DeleteMessage"
+                 PreferCancel="true" @bind-IsSuppressed="dontAsk" SuppressText="Non chiedere di nuovo" OnAction="CompleteDialog">
+        <ChildContent>
+            <Container Class="demo-delete-mark" @attributes="Decorative"><Icon Symbol="@LeafSymbol.Trash" /></Container>
+            <Heading Level="2" Class="demo-delete-title">@DeleteTitle</Heading>
+            <Paragraph Class="demo-delete-message">@DeleteMessage</Paragraph>
+        </ChildContent>
+        <Actions><DialogButton Role="DialogButtonRole.Cancel">Annulla</DialogButton><DialogButton Role="DialogButtonRole.Destructive">Elimina tema</DialogButton></Actions>
+    </AlertDialog>
+</Container>
+
+@code {
+    private static readonly IReadOnlyDictionary<string, object?> Decorative = new Dictionary<string, object?> { ["semantic-hidden"] = true };
+    [CascadingParameter] public ToastQueue Notifications { get; set; } = null!;
+    [Parameter] public TimeProvider? Time { get; set; }
+    private const string DeleteTitle = "Eliminare il tema “Vassoio scuro”?";
+    private const string DeleteMessage = "Le app che lo usano torneranno al tema di sistema. Potrai recuperarlo dal cestino per 30 giorni.";
+    private bool dialog;
+    private double progress = 64;
+    private double ring = 42;
+    private string ringText = "Esportazione";
+    private ITimer? downloadTimer, ringTimer;
+    private int downloadRun, ringRun;
+    private TimeProvider? observedClock;
+    private volatile bool disposed;
+    private bool dontAsk, skipConfirmation, themeDeleted;
+    private TimeProvider Clock => Time ?? TimeProvider.System;
+
+    protected override void OnParametersSet()
+    {
+        if (ReferenceEquals(observedClock, Clock)) return;
+        StopDownload();
+        StopRing();
+        observedClock = Clock;
+    }
+
+    private void Restart()
+    {
+        StopDownload();
+        var run = downloadRun;
+        progress = 0;
+        downloadTimer = Clock.CreateTimer(_ => QueueTick(() => DownloadStep(run)), null, TimeSpan.FromMilliseconds(260), TimeSpan.FromMilliseconds(260));
+    }
+
+    private void DownloadStep(int run)
+    {
+        if (run != downloadRun) return;
+        progress = Math.Min(100, progress + 10);
+        if (progress >= 100)
+        {
+            StopDownload();
+            ShowNotice("Simboli scaricati");
+        }
+        StateHasChanged();
+    }
+
+    private void SimulateRing()
+    {
+        StopRing();
+        var run = ringRun;
+        ring = 0;
+        ringText = "Esportazione 0%";
+        ringTimer = Clock.CreateTimer(_ => QueueTick(() => RingStep(run)), null, TimeSpan.FromMilliseconds(320), TimeSpan.FromMilliseconds(320));
+    }
+
+    private void RingStep(int run)
+    {
+        if (run != ringRun) return;
+        ring = Math.Min(100, ring + 12);
+        ringText = ring < 100 ? $"Esportazione {ring:0}%" : "Esportato";
+        if (ring >= 100) StopRing();
+        StateHasChanged();
+    }
+
+    private void SetRing(double value)
+    {
+        StopRing();
+        ring = value;
+        ringText = ring >= 100 ? "Esportato" : $"Esportazione {ring:0}%";
+    }
+
+    private void QueueTick(Action step)
+    {
+        if (disposed) return;
+        _ = InvokeAsync(() => { if (!disposed) step(); });
+    }
+
+    private void StopDownload() { downloadRun++; downloadTimer?.Dispose(); downloadTimer = null; }
+    private void StopRing() { ringRun++; ringTimer?.Dispose(); ringTimer = null; }
+
+    private void Notify() => ShowNotice("Modifiche salvate", () => InvokeAsync(() => { if (!disposed) ShowNotice("Modifiche annullate"); }));
+
+    private void ShowNotice(string message, Func<Task>? undo = null)
+    {
+        if (!disposed) Notifications.Show(new ToastOptions { Message = message, Duration = TimeSpan.FromMilliseconds(4200), ActionText = undo is null ? null : "Annulla", Action = undo });
+    }
+
+    private void OpenDeleteDialog()
+    {
+        if (themeDeleted) return;
+        if (skipConfirmation) DeleteTheme();
+        else { dontAsk = false; dialog = true; }
+    }
+
+    private void CompleteDialog(DialogButtonRole role)
+    {
+        if (role != DialogButtonRole.Destructive) return;
+        skipConfirmation = dontAsk;
+        DeleteTheme();
+    }
+
+    private void DeleteTheme()
+    {
+        if (themeDeleted) return;
+        themeDeleted = true;
+        ShowNotice("Tema eliminato", () => InvokeAsync(RestoreTheme));
+        StateHasChanged();
+    }
+
+    private void RestoreTheme()
+    {
+        if (disposed || !themeDeleted) return;
+        themeDeleted = false;
+        ShowNotice("Tema ripristinato");
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        disposed = true;
+        StopDownload();
+        StopRing();
+    }
+}
+@style {
+    .demo-gap-14 { margin-top: 14px; }
+    .demo-row.demo-gap-14 { margin-top: 14px; }
+    .demo-gap-12 { margin-top: 12px; }
+    .demo-gap-18 { margin-top: 18px; }
+    /* The rings of the prototype: .rings and .rcell. */
+    .demo-rings { display: flex; flex-direction: row; flex-wrap: wrap; align-items: flex-end; row-gap: 22px; column-gap: 28px; }
+    .demo-rcell { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    .demo-rcell > TextBlock { color: var(--leaf-text-3); font-size: 12px; }
+    .demo-slider-row { display: flex; flex-direction: row; align-items: center; gap: 14px; }
+    .demo-slider-row > TextBlock:first-child { min-width: 160px; font-size: 13.5px; }
+    .demo-slider-row > Slider { flex: 1; }
+    .demo-output { min-width: 46px; text-align: right; font-family: var(--leaf-font-mono); font-size: 12.5px; font-weight: 500; color: var(--leaf-text-2); }
+    .demo-delete-dialog AlertDialogMessage { gap: 0; }
+    .demo-delete-mark { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; margin-bottom: 16px; border-radius: 17px 5px 17px 5px; background: var(--leaf-err-c); color: var(--leaf-err); }
+    .demo-delete-mark Icon { width: 22px; height: 22px; font-size: 22px; }
+    .demo-delete-title { margin: 0 0 8px; font-family: var(--leaf-font-display); font-size: 22px; line-height: 1.2; font-weight: 750; letter-spacing: -0.02em; color: var(--leaf-text); }
+    .demo-delete-message { margin: 0 0 16px; }
+}

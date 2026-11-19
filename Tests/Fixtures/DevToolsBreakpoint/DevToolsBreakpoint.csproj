@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <Optimize>false</Optimize>
+    <RootNamespace>Nazor.DevTools.BreakpointFixture</RootNamespace>
+    <TargetFramework Condition="'$(NazorBreakpointTargetFramework)' != ''">$(NazorBreakpointTargetFramework)</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../../Sources/Tools/Nazor.DevTools.Agent/Nazor.DevTools.Agent.csproj" />
+    <ProjectReference Include="../../../Sources/Hosts/Nazor.Hosting.Desktop/Nazor.Hosting.Desktop.csproj" />
+    <ProjectReference Include="../../../Sources/Core/Nazor.Renderer.Skia/Nazor.Renderer.Skia.csproj" />
+    <Compile Include="../../Nazor.Testing/TestHost.cs" Link="Testing/TestHost.cs" />
+    <Compile Include="../../Nazor.Testing/TestWindow.cs" Link="Testing/TestWindow.cs" />
+  </ItemGroup>
+</Project>

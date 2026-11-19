@@ -1,0 +1,13 @@
+<Project>
+  <PropertyGroup>
+    <NazorWindowingVersion>2.6.5</NazorWindowingVersion>
+    <NazorWindowsLatestProjectionVersion>10.0.28000.87</NazorWindowsLatestProjectionVersion>
+    <NazorWindowsNet8ProjectionVersion>10.0.26100.86</NazorWindowsNet8ProjectionVersion>
+    <NazorWindowsProjectionVersion>$(NazorWindowsLatestProjectionVersion)</NazorWindowsProjectionVersion>
+    <NazorWindowsProjectionFramework>net9.0</NazorWindowsProjectionFramework>
+    <NazorWindowsProjectionVersion Condition="'$(TargetFramework)' == 'net8.0'">$(NazorWindowsNet8ProjectionVersion)</NazorWindowsProjectionVersion>
+    <NazorWindowsProjectionFramework Condition="'$(TargetFramework)' == 'net8.0'">net8.0</NazorWindowsProjectionFramework>
+    <NazorWindowsProjectionAssemblies>Microsoft.Windows.SDK.NET.dll;WinRT.Runtime.dll</NazorWindowsProjectionAssemblies>
+    <NazorWindowingProjectionAssembly>Microsoft.InteractiveExperiences.Projection.dll</NazorWindowingProjectionAssembly>
+  </PropertyGroup>
+</Project>

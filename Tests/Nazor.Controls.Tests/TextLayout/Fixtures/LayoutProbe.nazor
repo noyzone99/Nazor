@@ -1,0 +1,72 @@
+@implements IRefreshable
+@using Nazor.Controls.Primitives
+<Container Class="page">
+    <ScrollView @ref="Scroller" Class="scroller" AccessibleName="Log" IsFocusable="Focusable" OnScroll="e => Scrolls++">
+        @for (var i = 0; i < Lines; i++)
+        {
+            <TextBlock Class="@($"line line{i}")">@($"Line {i}")</TextBlock>
+        }
+    </ScrollView>
+    <ScrollView Class="wide" Orientation="ScrollOrientation.Horizontal">
+        <Container Class="strip">Wide content</Container>
+    </ScrollView>
+    <Card Class="card" Title="Report" Subtitle="Updated today" Appearance="CardAppearance" IsSelected="Selected" Disabled="CardDisabled" OnClick="() => CardClicks++">
+        <Media><Container Class="avatar">R</Container></Media>
+        <Actions><Button Class="card-action" OnClick="() => ActionClicks++">More</Button></Actions>
+        <Footer><Button Class="card-open">Open</Button></Footer>
+        <ChildContent><TextBlock Class="card-text">Quarterly numbers.</TextBlock></ChildContent>
+    </Card>
+    <Card Class="plain-card"><TextBlock>Just a body.</TextBlock></Card>
+    <GroupBox Class="group" Header="Proxy" Disabled="GroupDisabled">
+        <Button Class="group-button" OnClick="() => GroupClicks++">Test</Button>
+    </GroupBox>
+    <GroupBox Class="checkable" Header="Use a proxy" IsCheckable="true" @bind-IsChecked="ProxyOn">
+        <Button Class="proxy-button" OnClick="() => ProxyClicks++">Configure</Button>
+    </GroupBox>
+    <GroupBox Class="collapsible" Header="Advanced" IsCollapsible="true" @bind-IsExpanded="AdvancedOpen">
+        <TextBlock Class="advanced-text">Hidden options</TextBlock>
+    </GroupBox>
+    <GroupBox Class="both" Header="Both" IsCheckable="true" IsCollapsible="true">
+        <TextBlock>Body</TextBlock>
+    </GroupBox>
+    <Expander Class="expander" Header="Details" Subtitle="More information" @bind-IsExpanded="Expanded" Disabled="ExpanderDisabled">
+        <Leading><Container Class="lead">i</Container></Leading>
+        <Trailing><Button Class="trail" OnClick="() => TrailClicks++">Act</Button></Trailing>
+        <ChildContent><TextBlock Class="details">Inside</TextBlock></ChildContent>
+    </Expander>
+    <StatusBar Class="status" ShowSizeGrip="true" Live="Live">
+        <StatusBarSection Class="s-ready" IsFlexible="true">Ready</StatusBarSection>
+        <StatusBarSection Class="s-pos" Width="120" Alignment="StatusBarSectionAlignment.End">Ln 1, Col 1</StatusBarSection>
+        <StatusBarSection Class="s-named" AccessibleName="Encoding"><Button>UTF-8</Button></StatusBarSection>
+    </StatusBar>
+</Container>
+
+@code {
+    public void Refresh() => StateHasChanged();
+    public ScrollView Scroller { get; set; } = null!;
+    public int Lines { get; set; } = 30;
+    public bool Focusable { get; set; }
+    public int Scrolls { get; set; }
+    public CardAppearance CardAppearance { get; set; }
+    public bool Selected { get; set; }
+    public bool CardDisabled { get; set; }
+    public int CardClicks { get; set; }
+    public int ActionClicks { get; set; }
+    public bool GroupDisabled { get; set; }
+    public int GroupClicks { get; set; }
+    public bool ProxyOn { get; set; }
+    public int ProxyClicks { get; set; }
+    public bool AdvancedOpen { get; set; }
+    public bool Expanded { get; set; }
+    public bool ExpanderDisabled { get; set; }
+    public int TrailClicks { get; set; }
+    public LivePoliteness? Live { get; set; }
+}
+
+@style {
+    .page { display: flex; flex-direction: column; gap: 4px; width: 600px; }
+    .scroller { height: 100px; }
+    .line { height: 20px; }
+    .wide { width: 200px; }
+    .strip { width: 500px; height: 20px; }
+}

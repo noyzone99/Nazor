@@ -1,0 +1,39 @@
+@using Nazor.Controls.Primitives
+
+<ShortcutScope Commands="commands">
+    <Container Class="row">
+        <Button Command="copy" />
+        <Button Command="paste" />
+        <ToggleButton Command="lockCommand" IsPressed="locked" IsPressedChanged="Lock">Lock</ToggleButton>
+    </Container>
+</ShortcutScope>
+<Shortcut Gesture="search" OnInvoke="SearchInvoked" />
+<TextBlock>@($"Last action: {log}. Try Ctrl+Shift+C, Ctrl+Shift+V and Ctrl+K; locking disables Paste.")</TextBlock>
+
+@code {
+    private Command copy = null!, paste = null!, lockCommand = null!;
+    private Command[] commands = [];
+    private readonly KeyGesture search = KeyGesture.Parse("Mod+K");
+    private string log = "none";
+    private bool locked;
+
+    protected override void OnInitialized()
+    {
+        copy = new Command("Copy", () => log = "Copy", KeyGesture.Parse("Mod+Shift+C"));
+        paste = new Command("Paste", () => log = "Paste", KeyGesture.Parse("Mod+Shift+V"));
+        lockCommand = new Command("Lock", () => { });
+        commands = [copy, paste];
+    }
+
+    private void SearchInvoked() => log = "Search shortcut";
+
+    private void Lock(bool value)
+    {
+        locked = value;
+        paste.IsEnabled = !value;
+    }
+}
+
+@style {
+    .row { display: flex; gap: 8px; }
+}

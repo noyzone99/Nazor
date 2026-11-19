@@ -1,0 +1,10 @@
+{
+  "dashboard.startup": { "totalMs": 600, "stylesRecomputed": 1502, "layoutComputations": 9909, "commands": 388, "allocatedKB": 50000, "pixels": 1024000 },
+  "dashboard.idle": { "totalMs": 60, "stylesRecomputed": 0, "layoutComputations": 0, "commands": 388, "allocatedKB": 400, "pixels": 0 },
+  "dashboard.hover": { "totalMs": 60, "stylesRecomputed": 4, "layoutComputations": 0, "commands": 388, "allocatedKB": 610, "pixels": 37370 },
+  "dashboard.text": { "totalMs": 60, "stylesRecomputed": 0, "layoutComputations": 21, "commands": 388, "allocatedKB": 2050, "pixels": 9000 },
+  "list.jump": { "totalMs": 15, "stylesRecomputed": 70, "layoutComputations": 254, "commands": 64, "allocatedKB": 850, "pixels": 235200 },
+  "article.resize": { "totalMs": 25, "stylesRecomputed": 0, "layoutComputations": 325, "commands": 22, "allocatedKB": 720, "pixels": 630000 },
+  "list.scroll": { "totalMs": 15, "stylesRecomputed": 86, "layoutComputations": 34, "commands": 65, "allocatedKB": 400, "pixels": 240000 },
+  "motion.transition": { "totalMs": 10, "stylesRecomputed": 0, "layoutComputations": 0, "commands": 181, "allocatedKB": 125, "pixels": 178540 }
+}

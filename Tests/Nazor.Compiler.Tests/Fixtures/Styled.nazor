@@ -1,0 +1,12 @@
+<TextBlock>Styled</TextBlock>
+@style {
+    .card {
+        /* A closing brace inside a comment must not end the style: } */
+        --label: "a } b";
+        Button { &:hover { background: #0078d4; } }
+        @media (max-width: 720px) { padding: 8px; }
+    }
+}
+@code {
+    private string Literal => "global::Microsoft.AspNetCore.Components";
+}

@@ -1,0 +1,57 @@
+@using Nazor.Controls.Primitives
+@using Nazor.Themes.Fluent
+
+<Container Class="row">
+    @foreach (var size in sizes)
+    {
+        <Button OnClick="() => Open(size)">@($"{size} dialog")</Button>
+    }
+    <Select TValue="DialogPlacement" @bind-Value="placement" Items="placements" AccessibleName="Placement" />
+    <Select TValue="string" @bind-Value="defaultAction" Items="defaultActions" AccessibleName="Default action" />
+    <CheckBox @bind-IsChecked="modal">Modal</CheckBox>
+</Container>
+
+@* Themes order footer actions by role. Select the Enter/accent action explicitly; None leaves it unset.
+   Escape and the close button run the Cancel action. *@
+<Dialog @bind-IsOpen="open" Title="Export report" Subtitle="Choose the format and the pages to export." Size="size"
+        Placement="placement" Modal="modal" DefaultButton="DefaultAction" OnAction="Finished" OnDismiss="@(() => result = "dismissed")">
+    <Leading><Icon Symbol="@FluentSymbol.ArrowDownload20Regular" /></Leading>
+    <ChildContent>
+        <Field LabelText="File name">
+            <TextField @bind-Value="fileName" />
+        </Field>
+        <Field LabelText="Format">
+            <Select TValue="string" @bind-Value="format" Items="formats" />
+        </Field>
+        <CheckBox @bind-IsChecked="includeCharts">Include charts</CheckBox>
+    </ChildContent>
+    <Footer>
+        <DialogButton Role="DialogButtonRole.Primary" OnClick="Export">Export</DialogButton>
+        <DialogButton Role="DialogButtonRole.Cancel" />
+        <DialogButton Role="DialogButtonRole.Help" OnClick="@(() => result = "help requested")" />
+        <DialogButton Role="DialogButtonRole.Secondary">Save settings</DialogButton>
+    </Footer>
+</Dialog>
+<TextBlock>@($"Result: {result}; exported: {exported}")</TextBlock>
+
+@code {
+    private bool open, modal = true, includeCharts = true;
+    private DialogSize size = DialogSize.Auto;
+    private DialogPlacement placement;
+    private string defaultAction = "Primary";
+    private string fileName = "Quarterly report", result = "none", exported = "nothing";
+    private string? format = "PDF";
+    private readonly string[] formats = ["PDF", "Word", "Excel"];
+    private readonly DialogSize[] sizes = [DialogSize.Auto, DialogSize.Small, DialogSize.Medium, DialogSize.Large, DialogSize.FullScreen];
+    private readonly DialogPlacement[] placements = Enum.GetValues<DialogPlacement>();
+    private readonly string[] defaultActions = ["None", "Primary", "Secondary", "Cancel"];
+    private DialogButtonRole? DefaultAction => Enum.TryParse<DialogButtonRole>(defaultAction, out var role) ? role : null;
+
+    private void Open(DialogSize value) => (size, open) = (value, true);
+    private void Export() => exported = $"{fileName}.{format?.ToLowerInvariant()}{(includeCharts ? " with charts" : "")}";
+    private void Finished(DialogButtonRole role) => result = role.ToString();
+}
+
+@style {
+    .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+}

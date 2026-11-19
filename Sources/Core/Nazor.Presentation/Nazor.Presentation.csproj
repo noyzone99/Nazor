@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Nazor.Application" />
+    <InternalsVisibleTo Include="Nazor.Accessibility" />
+    <InternalsVisibleTo Include="Nazor.Linux.Tests" />
+    <InternalsVisibleTo Include="Nazor.Rendering.Tests" />
+    <ProjectReference Include="../Nazor.Core/Nazor.Core.csproj" />
+    <ProjectReference Include="../Nazor.Style/Nazor.Style.csproj" />
+    <ProjectReference Include="../Nazor.Layout/Nazor.Layout.csproj" />
+    <ProjectReference Include="../Nazor.Graphics/Nazor.Graphics.csproj" />
+    <ProjectReference Include="../Nazor.Animation/Nazor.Animation.csproj" />
+  </ItemGroup>
+</Project>

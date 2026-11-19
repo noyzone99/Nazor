@@ -1,0 +1,7 @@
+<Button OnClick="() => paneOpen = !paneOpen">Toggle navigation</Button>
+<SplitView Class="split" @bind-PaneSize="paneSize" @bind-IsPaneOpen="paneOpen" MinPaneSize="100" MaxPaneSize="260" PaneAccessibleName="Navigation">
+    <Pane><TextBlock>Project files</TextBlock></Pane>
+    <ChildContent><TextBlock>@($"Pane width: {paneSize:0}")</TextBlock></ChildContent>
+</SplitView>
+@code { private double paneSize = 150; private bool paneOpen = true; }
+@style { .split { align-self: stretch; height: 150px; } }

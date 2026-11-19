@@ -1,0 +1,34 @@
+@implements IRefreshable
+@using Nazor.Controls.Primitives
+<Container Class="page">
+    <ListView TItem="string" Class="fruits" Items="Fruits" ItemHeight="20" @bind-SelectedItem="Selected" ItemDisabled="@(s => s == "Date")"
+              OnItemActivated="s => Activated = s" AccessibleName="Fruits" />
+    <ListView TItem="int" Class="numbers" Items="Numbers" ItemHeight="20" SelectionMode="SelectionMode.Multiple" @bind-SelectedItems="Picked"
+              ShowCheckBoxes="Checks" ItemText="n => Name(n)" />
+    <ListView TItem="Person" Class="people" Items="People" ItemHeight="20" GroupBy="p => p.Team" ItemText="p => p.Name" ItemKey="p => p.Id"
+              @bind-SelectedItem="Chosen">
+        <ItemTemplate Context="p"><TextBlock>@p.Name</TextBlock></ItemTemplate>
+    </ListView>
+</Container>
+
+@code {
+    public void Refresh() => StateHasChanged();
+    public sealed record Person(int Id, string Name, string Team);
+    public IReadOnlyList<string> Fruits { get; set; } = ["Apple", "Apricot", "Banana", "Cherry", "Date", "Elderberry"];
+    public string? Selected { get; set; }
+    public string? Activated { get; set; }
+    public IReadOnlyList<int> Numbers { get; } = Enumerable.Range(0, 10_000).ToArray();
+    public IReadOnlyCollection<int> Picked { get; set; } = [];
+    public bool Checks { get; set; }
+    public IReadOnlyList<Person> People { get; } =
+    [
+        new(1, "Ada", "Design"), new(2, "Bruno", "Engineering"), new(3, "Carla", "Design"), new(4, "Dario", "Engineering"), new(5, "Elena", "Sales"),
+    ];
+    public Person? Chosen { get; set; }
+    private static string Name(int n) => "Item " + n;
+}
+
+@style {
+    .page { display: flex; flex-direction: row; flex-wrap: wrap; gap: 4px; }
+    .fruits, .numbers, .people { width: 200px; height: 130px; }
+}

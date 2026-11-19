@@ -1,0 +1,29 @@
+@using Nazor.Themes.Fluent
+@using Nazor.Themes.NazorLeaf
+
+<Container Class="row">
+    <Icon Symbol="@FluentSymbol.Add20Regular" />
+    <Icon Symbol="@FluentSymbol.Delete32Regular" Class="big" />
+    <Icon Symbol="@FluentSymbol.Star20Filled" AccessibleName="Favorite" Class="accent" />
+    <Icon Glyph="&#xF109;" Class="raw" />
+</Container>
+<Container Class="row">
+    <Icon Symbol="@LeafSymbol.Plus" />
+    <Icon Symbol="@LeafSymbol.Search" Class="big" />
+    <Icon Symbol="@LeafSymbol.Leaf" Class="accent" />
+</Container>
+<Container Class="row">
+    <Icon Symbol="@WinUISymbol.Search" />
+    <Icon Symbol="@WinUISymbol.Calendar" />
+    <Icon Symbol="@WinUISymbol.RevealPassword" />
+    <Icon Symbol="@WinUISymbol.Information" Class="accent" />
+</Container>
+<TextBlock>WinUI symbols prefer available Segoe icon fonts and use packaged Fluent System Icons when those fonts or glyphs are unavailable. The portable artwork differs from the native artwork.</TextBlock>
+<TextBlock>Portable typed symbols select their packaged font with any theme. Raw glyphs use the font from NSS. Icons take the current color and are one em square. Name the action that contains an icon rather than the icon itself.</TextBlock>
+
+@style {
+    .row { display: flex; gap: 16px; align-items: center; }
+    .big { font-size: 32px; }
+    .accent { color: AccentColor; }
+    .raw { font-family: "FluentSystemIcons-Regular"; }
+}

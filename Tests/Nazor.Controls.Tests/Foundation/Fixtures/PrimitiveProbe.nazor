@@ -1,0 +1,44 @@
+@implements IRefreshable
+@using Nazor.Controls.Primitives
+<Collapsible Class="region" @bind-IsOpen="Expanded"><TextBlock>Body</TextBlock></Collapsible>
+<Presence Present="Shown" Context="state"><TextBlock Class="@(state.IsExiting ? "present exiting" : "present")">Here</TextBlock></Presence>
+<RovingFocusGroup Class="group" Role="toolbar" AccessibleName="Group">
+    <RovingFocusItem Class="r1" Role="button">One</RovingFocusItem>
+    <RovingFocusItem Class="r2" Role="button" Disabled="true">Two</RovingFocusItem>
+    <RovingFocusItem Class="r3" Role="button">Three</RovingFocusItem>
+</RovingFocusGroup>
+<Listbox TValue="string" Class="list" SelectionMode="SelectionMode.Multiple" @bind-Values="Picked" AccessibleName="Letters">
+    <ListboxOption TValue="string" Class="a" Value="@("a")">Alpha</ListboxOption>
+    <ListboxOption TValue="string" Class="b" Value="@("b")">Beta</ListboxOption>
+    <ListboxOption TValue="string" Class="c" Value="@("c")">Gamma</ListboxOption>
+</Listbox>
+<Combobox TItem="string" Class="combo" @bind-Text="Query" Items="Matches" ItemText="s => s" OnSelect="s => Chosen = s" AccessibleName="Fruit" />
+<Pressable Class="press" OnPress="() => Presses++">Press</Pressable>
+<Virtualizer TItem="int" Class="virtual" Items="Numbers" ItemSize="20"><ItemTemplate Context="item"><TextBlock>@item.Item</TextBlock></ItemTemplate></Virtualizer>
+<Container Class="overflow-frame">
+    <OverflowContainer TItem="string" Class="overflow" Items="Actions">
+        <ItemTemplate Context="a"><Button>@a</Button></ItemTemplate>
+        <OverflowTemplate Context="hidden"><Button Class="more">@($"+{hidden.Count}")</Button></OverflowTemplate>
+    </OverflowContainer>
+</Container>
+<ResizeHandle Class="handle" Edge="ResizeEdge.Right" Width="Width" MinSize="50" MaxSize="300" OnResize="v => Width = v.Width" />
+
+@code {
+    public void Refresh() => StateHasChanged();
+    public bool Expanded { get; set; }
+    public bool Shown { get; set; } = true;
+    public IReadOnlyCollection<string> Picked { get; set; } = [];
+    public string Query { get; set; } = "";
+    public string Chosen { get; set; } = "";
+    public int Presses { get; set; }
+    public double Width { get; set; } = 100;
+    public IReadOnlyList<int> Numbers { get; } = Enumerable.Range(0, 10_000).ToArray();
+    public IReadOnlyList<string> Actions { get; } = ["Alpha", "Bravo", "Charlie", "Delta", "Echo", "Foxtrot", "Golf"];
+    private readonly string[] fruits = ["Apple", "Apricot", "Banana", "Cherry"];
+    public IReadOnlyList<string> Matches => [.. fruits.Where(f => f.StartsWith(Query, StringComparison.OrdinalIgnoreCase))];
+}
+
+@style {
+    .virtual { height: 100px; width: 200px; }
+    .overflow-frame { width: 260px; }
+}

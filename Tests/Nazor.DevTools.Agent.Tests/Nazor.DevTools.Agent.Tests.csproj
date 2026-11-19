@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>Exe</OutputType></PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../Sources/Tools/Nazor.DevTools.Agent/Nazor.DevTools.Agent.csproj" />
+    <ProjectReference Include="../Nazor.Testing/Nazor.Testing.csproj" />
+    <ProjectReference Include="../../Sources/Core/Nazor.Renderer.Skia/Nazor.Renderer.Skia.csproj" />
+    <ProjectReference Include="../Fixtures/DevToolsAgent/DevToolsAgent.csproj" ReferenceOutputAssembly="false" />
+    <PackageReference Include="xunit.v3" />
+    <Using Include="Xunit" />
+    <Compile Include="../Fixtures/DevToolsTrees/TreePage.cs" Link="Fixtures/TreePage.cs" />
+    <Compile Include="../Fixtures/DevToolsTrees/InspectionStyles.cs" Link="Fixtures/InspectionStyles.cs" />
+  </ItemGroup>
+</Project>

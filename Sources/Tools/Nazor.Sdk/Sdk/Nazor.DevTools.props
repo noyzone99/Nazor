@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup>
+    <NazorEnableDevTools Condition="'$(NazorEnableDevTools)' == ''">false</NazorEnableDevTools>
+    <PublishProfileFullPath Condition="'$(PublishProfile)' == 'NazorProduction' and '$(PublishProfileFullPath)' == ''">$(MSBuildThisFileDirectory)Nazor.Production.pubxml</PublishProfileFullPath>
+  </PropertyGroup>
+</Project>

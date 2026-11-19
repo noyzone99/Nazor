@@ -1,0 +1,13 @@
+<List Ordered="true">
+    <ListItem>Plan the work</ListItem>
+    <ListItem>
+        Review the result
+        <List><ListItem>Check keyboard navigation</ListItem><ListItem>Check contrast</ListItem></List>
+    </ListItem>
+</List>
+<DefinitionList>
+    <DefinitionTerm>NSS</DefinitionTerm>
+    <DefinitionDescription>The Nazor style language.</DefinitionDescription>
+    <DefinitionTerm>Gallery</DefinitionTerm>
+    <DefinitionDescription>Live examples and their source.</DefinitionDescription>
+</DefinitionList>

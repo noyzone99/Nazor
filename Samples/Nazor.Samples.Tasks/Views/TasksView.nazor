@@ -1,0 +1,42 @@
+@inject ITaskStore Store
+@inject KeyBindings Shortcuts
+
+@* This view coordinates data and interactions. Presentation components below receive values and callbacks,
+   rather than resolving the store themselves, so they can be reused with a different data source. *@
+<Container Class="page workspace column" @onkeydown="WorkspaceKeyDown">
+    <SectionHeader Title="Your tasks" Description="Add, find, and complete your tasks.">
+        <TextBlock Class="summary">@Store.Items.Count(item => !item.IsCompleted) remaining</TextBlock>
+    </SectionHeader>
+    <Container Class="panel column">
+        <TextBlock Class="label">New task</TextBlock>
+        <Container Class="row">
+            @* @ref is assigned after rendering. Stop bubbling so Delete in this input edits text instead of removing a task. *@
+            <TextField @ref="newTaskBox" Class="spacer" @bind-Value="newTitle" @onkeydown="NewTaskKeyDown"
+                     @onkeydown:stopPropagation AccessibleName="New task title" />
+            <Button IsDefault="true" Disabled="@string.IsNullOrWhiteSpace(newTitle)" @onclick="AddTask">Add</Button>
+        </Container>
+    </Container>
+    <Container Class="row filters" AccessibleName="Filters">
+        <TextBlock Class="label">Search</TextBlock>
+        <TextField @ref="searchBox" Class="search" @bind-Value="search" AccessibleName="Search tasks" />
+        <CheckBox @bind-IsChecked="onlyOpen">Incomplete only</CheckBox>
+        <Container Class="spacer" />
+        <TextBlock Class="muted">Ctrl+N new · Ctrl+F search · Delete remove</TextBlock>
+    </Container>
+    @* The generic list owns row identity; the template chooses how each item looks and reports user intent upward. *@
+    <ItemList Items="VisibleTasks" ItemKey="item => item.Id" Class="scroll-fill" AccessibleName="Task list">
+        <ItemTemplate Context="item">
+            <TaskCard Item="item" IsSelected="@(selectedId == item.Id)" Selected="SelectTask"
+                      CompletedChanged="completed => CompleteTask(item.Id, completed)" Removed="RemoveTask" />
+        </ItemTemplate>
+        @* Named fragments let the caller customize empty-state content without adding task-specific logic to ItemList. *@
+        <EmptyContent>
+            <TextBlock Class="empty muted">No tasks to display.</TextBlock>
+        </EmptyContent>
+    </ItemList>
+    <Container Class="row status">
+        <TextBlock Class="muted">@status</TextBlock>
+        <Container Class="spacer" />
+        <TextBlock Class="muted">@Store.Items.Count tasks in this session</TextBlock>
+    </Container>
+</Container>

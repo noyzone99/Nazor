@@ -1,0 +1,17 @@
+@implements IRefreshable
+<Container @ref="Scroller" Class="scroller" Style="height: 120px; width: 360px; overflow-y: auto; overflow-x: hidden">
+    <Container Style="height: 180px" />
+    <Container Style="@($"width: 240px; height: 100px; transform: {Transform}; transform-origin: 0 0; {(Hidden ? "display: none" : "")}")">
+        <Button @ref="Button" Class="press" Style="width: 160px; height: 60px" OnClick="() => Clicks++">Press</Button>
+    </Container>
+</Container>
+<Button Class="disabled" Disabled="true">Disabled</Button>
+<Button Class="busy" IsBusy="true">Busy</Button>
+@code {
+    public Container Scroller { get; set; } = null!;
+    public Button Button { get; set; } = null!;
+    public string Transform { get; set; } = "translate(12px, 8px) rotate(12deg) scale(1.2)";
+    public bool Hidden { get; set; }
+    public int Clicks { get; set; }
+    public void Refresh() => StateHasChanged();
+}

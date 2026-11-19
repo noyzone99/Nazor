@@ -1,0 +1,12 @@
+@using Nazor.Controls.Primitives
+<Button @ref="anchor" OnClick="() => open = true">Open</Button>
+<Menu IsOpen="open" Anchor="anchor?.Element">
+    @for (var index = 0; index < 5; index++)
+    {
+        <MenuItem Style="height: 32px;">Command @index</MenuItem>
+    }
+</Menu>
+@code {
+    private Button? anchor;
+    private bool open;
+}

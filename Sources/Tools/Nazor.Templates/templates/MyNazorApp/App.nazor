@@ -1,0 +1,33 @@
+@window
+@inject Greeter Greeter
+
+<Container Class="page">
+    <TextBlock Class="title">@Greeter.Greet(Name)</TextBlock>
+    <TextField @bind-Value="name" AccessibleName="Your name" />
+    <Button @onclick="Increment">Clicked @count times</Button>
+</Container>
+
+@style {
+    .page {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding: 24px;
+    }
+
+    .title {
+        font-size: 22px;
+        font-weight: bold;
+        color: var(--accent);
+    }
+}
+
+@code {
+
+    protected override void OnInitialized()
+    {
+        Window.Title = "MyNazorApp";
+        Window.Width = 480;
+        Window.Height = 320;
+    }
+}

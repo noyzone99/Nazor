@@ -1,0 +1,136 @@
+@window
+@inject IApplicationAppearance Appearance
+@using Nazor.Style
+
+@* Swap stylesheet references, not the component tree. Input values and focus can therefore survive theme changes.
+   The application theme is None so exactly one control theme participates in the comparison. *@
+
+<UserTitleBar><TextBlock Class="caption-title">Nazor / Theme studio</TextBlock></UserTitleBar>
+<Container Class="scroll-fill">
+	<Container Class="page">
+		<TextBlock Class="title">One theme, many combinations</TextBlock>
+		<TextBlock Class="muted">Compare the same controls with different themes, color schemes, and window materials.</TextBlock>
+		<Container Class="settings">
+			<Container Class="section">
+				<TextBlock Class="heading">Control theme</TextBlock>
+				<RadioGroup @bind-Value="Theme" AccessibleName="Control theme">
+					<RadioButton Value="@("basic")">Basic</RadioButton>
+					<RadioButton Value="@("fluent")">Fluent</RadioButton>
+					<RadioButton Value="@("none")">None</RadioButton>
+				</RadioGroup>
+				<CheckBox @bind-IsChecked="CustomAccent">Custom accent</CheckBox>
+				<TextBlock Class="muted">Basic uses system colors. Fluent adds WinUI colors and motion. None leaves styling to the application.</TextBlock>
+			</Container>
+			<Container Class="section">
+				<TextBlock Class="heading">Color scheme</TextBlock>
+				<RadioGroup @bind-Value="Scheme" AccessibleName="Color scheme">
+					<RadioButton Value="@("system")">System</RadioButton>
+					<RadioButton Value="@("light")">Light</RadioButton>
+					<RadioButton Value="@("dark")">Dark</RadioButton>
+				</RadioGroup>
+				<TextBlock Class="muted">System follows platform preferences, including changes made while the app is running.</TextBlock>
+			</Container>
+			<Container Class="section">
+				<TextBlock Class="heading">Backdrop</TextBlock>
+				<Select @bind-Value="BackdropChoice" AccessibleName="Window material">
+					<SelectItem Value="@("none")">None</SelectItem>
+					<SelectItem Value="@("blur")">Blur</SelectItem>
+					<SelectItem Value="@("solid")">Solid</SelectItem>
+					<SelectItem Value="@("mica")">Mica (Windows)</SelectItem>
+					<SelectItem Value="@("mica-alt")">Mica Alt (Windows)</SelectItem>
+					<SelectItem Value="@("acrylic")">Acrylic (Windows)</SelectItem>
+					<SelectItem Value="@("linux-blur")">Blur (Linux)</SelectItem>
+				</Select>
+				<TextBlock Class="muted">Blur maps to Acrylic on Windows and blur on Linux. Solid maps to Mica on Windows and no effect on Linux; unsupported materials use the theme background.</TextBlock>
+			</Container>
+		</Container>
+		<Container Class="panels">
+			<Container Class="panel">
+				<TextBlock Class="heading">Control preview</TextBlock>
+				<Container Class="row">
+					<Button IsDefault="true" OnClick="Save">Save</Button>
+					<Button OnClick="Reset">Reset</Button>
+					<Button Disabled="true">Disabled</Button>
+				</Container>
+				<TextField Class="project-name" @bind-Value="name" Placeholder="Project name" AccessibleName="Project name" />
+				<TextBlock Class="generated-preview">Decorative NSS content</TextBlock>
+				<CheckBox @bind-IsChecked="notifications">Receive updates</CheckBox>
+				<Switch @bind-IsOn="synchronization">Synchronization</Switch>
+				<Slider @bind-Value="progress" AccessibleName="Progress" />
+				<ProgressBar Value="@progress" AccessibleName="Progress preview" />
+				<TextBlock Class="muted" @attributes="statusAttributes">@status</TextBlock>
+			</Container>
+			<Container Class="panel">
+				<TextBlock Class="heading">System colors</TextBlock>
+				<TextBlock>NSS color names read the resolved platform palette for the current appearance. High-contrast themes use the system's chosen colors.</TextBlock>
+				<TextBlock Class="swatch canvas">Canvas / CanvasText</TextBlock>
+				<TextBlock Class="swatch field">Field / FieldText</TextBlock>
+				<TextBlock Class="swatch highlight">Highlight / HighlightText</TextBlock>
+				<TextBlock Class="swatch accent">AccentColor / AccentColorText</TextBlock>
+				<TextBlock Class="muted">Try hover, pressed states, Tab, and disabled controls. The backdrop remains visible between panels.</TextBlock>
+			</Container>
+		</Container>
+	</Container>
+</Container>
+
+@code {
+	protected override void OnInitialized()
+	{
+		Window.Title = "Nazor — Theming";
+		Window.Width = 1080;
+		Window.Height = 820;
+		Window.Decorations = WindowDecorationPolicy.Prefer(WindowDecorations.Native(WindowTitleBarContent.User, WindowCaptionButtons.Native), WindowDecorations.Nazor(WindowTitleBarContent.User));
+		Window.StyleSheet = SelectedTheme;
+		Window.Backdrop = SelectedBackdrop;
+	}
+
+	private string theme = "basic";
+	private bool customAccent;
+	private string? backdrop = "none";
+	private string Theme { get => theme; set { theme = value; Window.StyleSheet = SelectedTheme; } }
+	private StyleSheet SelectedTheme => theme switch
+	{
+		"fluent" => Nazor.Themes.Fluent.Themes.Fluent,
+		"none" => Nazor.Themes.Themes.None,
+		_ => Nazor.Themes.Themes.Basic,
+	};
+	private string? BackdropChoice { get => backdrop; set { backdrop = value; Window.Backdrop = SelectedBackdrop; } }
+	private bool CustomAccent { get => customAccent; set { customAccent = value; Window.Class = value ? "custom-accent" : ""; } }
+	private string name = "Nazor project";
+	private bool notifications = true;
+	private bool synchronization = true;
+	private double progress = 60;
+	private string status = "Edit the controls to compare the themes.";
+	private readonly Dictionary<string, object?> statusAttributes = new() { ["live"] = "polite" };
+
+	// Bind through the application-wide service rather than a local flag: existing windows share the preference.
+	private string Scheme
+	{
+		get => Appearance.ColorScheme switch { ColorScheme.Light => "light", ColorScheme.Dark => "dark", _ => "system" };
+		set => Appearance.ColorScheme = value switch { "light" => ColorScheme.Light, "dark" => ColorScheme.Dark, _ => ColorScheme.System };
+	}
+
+	// UI strings are local to the picker; the public request uses typed portable presets or native material choices.
+	// Unsupported materials retain an opaque theme background instead of making an unusable transparent window.
+	private BackdropSelection SelectedBackdrop => backdrop switch
+	{
+		"blur" => CommonBackdrop.Blur,
+		"solid" => CommonBackdrop.Solid,
+		"mica" => WindowsBackdrop.Mica,
+		"mica-alt" => WindowsBackdrop.MicaAlt,
+		"acrylic" => WindowsBackdrop.Acrylic,
+		"linux-blur" => LinuxBackdrop.Blur,
+		_ => CommonBackdrop.None,
+	};
+
+	private void Save() => status = $"Saved: {name}";
+	// Reset only the preview values; the independently selected theme, scheme, and backdrop remain in place.
+	private void Reset()
+	{
+		name = "Nazor project";
+		notifications = synchronization = true;
+		progress = 60;
+		status = "Controls reset.";
+	}
+
+}

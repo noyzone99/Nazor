@@ -1,0 +1,32 @@
+@implements IRefreshable
+@using Nazor.Controls.Primitives
+<Container Class="pane">
+    <ActionBar Class="bar" AccessibleName="Selection">
+        <Start><TextBlock Class="count">3 selected</TextBlock></Start>
+        <Center><Button Class="select-all">Select all</Button></Center>
+        <End><Button Class="cancel">Cancel</Button></End>
+        <ChildContent><Button Class="apply" Appearance="ControlAppearance.Accent">Apply</Button></ChildContent>
+    </ActionBar>
+    <ActionBar Class="loose"><Button Class="only">Only</Button></ActionBar>
+    <FloatingActionButton Class="compose" AccessibleName="Compose" OnClick="() => Clicks++"><Leading><Icon Glyph="+" /></Leading></FloatingActionButton>
+    <FloatingActionButton Class="extended" Placement="FloatingActionButtonPlacement.TopStart" Size="ControlSize.Large" OnClick="() => Clicks += 10">
+        <Leading><Icon Glyph="+" /></Leading>
+        <ChildContent>New message</ChildContent>
+    </FloatingActionButton>
+    <FloatingActionButton Class="command" Placement="FloatingActionButtonPlacement.BottomStart" Command="AddCommand"><Leading><Icon Glyph="+" /></Leading></FloatingActionButton>
+    <FloatingActionButton Class="text-command" Placement="FloatingActionButtonPlacement.TopEnd" Command="AddCommand" />
+    <FloatingActionButton Class="off" Disabled="true" OnClick="() => Clicks += 100"><Leading><Icon Glyph="x" /></Leading></FloatingActionButton>
+</Container>
+
+@code {
+    public void Refresh() => StateHasChanged();
+    public int Clicks { get; set; }
+    public int Added { get; set; }
+    public Command AddCommand { get; private set; } = null!;
+    protected override void OnInitialized() => AddCommand = new Command("Add item", () => Added++);
+}
+
+@style {
+    .pane { position: relative; width: 600px; height: 400px; }
+    .off { right: 90px; }
+}

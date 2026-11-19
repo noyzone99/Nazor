@@ -1,0 +1,38 @@
+@using Nazor.Controls.Primitives
+
+<Container Style="display: flex; flex-direction: column; gap: 12px">
+    <Paragraph>The application owns the target; NumberPresenter supplies the displayed sample. Change the target again during motion to retarget from the current sample. Reduced motion applies the target immediately.</Paragraph>
+    <Container Style="display: flex; gap: 8px">
+        <Button OnClick="() => target = 0">Target zero</Button>
+        <Button OnClick="() => target = 0.25">Target quarter</Button>
+        <Button OnClick="() => target = 0.75">Target three quarters</Button>
+        <Button OnClick="() => target = 1">Target complete</Button>
+    </Container>
+    <Container Style="display: flex; gap: 8px">
+        <Button OnClick="Linear">Linear motion</Button>
+        <Button OnClick="Exponential">Exponential motion</Button>
+        <Button OnClick="Immediate">Immediate</Button>
+    </Container>
+    <TextBlock Id="number-presenter-target">@FormattableString.Invariant($"Application target: {target:F3}")</TextBlock>
+    <NumberPresenter Value="target" Class="@motionClass">
+        <ChildContent Context="sample">
+            <TextBlock Id="number-presenter-value">@FormattableString.Invariant($"Displayed: {sample.Value:F3}; start: {sample.AtStart}; end: {sample.AtEnd}")</TextBlock>
+            <TextField @key="nameof(NumberPresenter)" Id="number-presenter-editor" AccessibleName="State preserved between samples" Placeholder="Text stays mounted while numbers animate" />
+        </ChildContent>
+    </NumberPresenter>
+</Container>
+
+@code {
+    private double target = 0.25;
+    private string motionClass = "linear";
+    private void Linear() => motionClass = "linear";
+    private void Exponential() => motionClass = "exponential";
+    private void Immediate() => motionClass = "immediate";
+}
+
+@style {
+    NumberPresenter { display: flex; flex-direction: column; gap: 8px; }
+    NumberPresenter.linear { number-motion: linear; number-motion-duration: 2s; }
+    NumberPresenter.exponential { number-motion: exponential; number-motion-decay: 0.14; number-motion-tolerance: 0.0005; }
+    NumberPresenter.immediate { number-motion: none; }
+}

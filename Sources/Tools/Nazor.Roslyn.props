@@ -1,0 +1,24 @@
+<Project>
+  <PropertyGroup>
+    <NazorLanguageServicesSdkDirectory>$([MSBuild]::EnsureTrailingSlash('$(NetCoreRoot)'))sdk/$(NazorLanguageServicesSdkVersion)/</NazorLanguageServicesSdkDirectory>
+    <NazorRoslynDirectory>$(NazorLanguageServicesSdkDirectory)DotnetTools/dotnet-format/</NazorRoslynDirectory>
+    <NazorToolSupportDirectory>$([MSBuild]::EnsureTrailingSlash('$(NetCoreRoot)'))sdk/$(NazorToolchainSdkVersion)/DotnetTools/dotnet-format/</NazorToolSupportDirectory>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.CodeAnalysis" HintPath="$(NazorRoslynDirectory)Microsoft.CodeAnalysis.dll" />
+    <Reference Include="Microsoft.CodeAnalysis.CSharp" HintPath="$(NazorRoslynDirectory)Microsoft.CodeAnalysis.CSharp.dll" />
+    <Reference Include="Microsoft.CodeAnalysis.ExternalAccess.RazorCompiler" HintPath="$(NazorRoslynDirectory)Microsoft.CodeAnalysis.ExternalAccess.RazorCompiler.dll" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(NazorRoslynFeatures)' == 'true'">
+    <_NazorRoslynFeature Include="$(NazorRoslynDirectory)Microsoft.CodeAnalysis.*.dll"
+                        Exclude="$(NazorRoslynDirectory)Microsoft.CodeAnalysis.CSharp.dll;$(NazorRoslynDirectory)Microsoft.CodeAnalysis.ExternalAccess.RazorCompiler.dll;$(NazorRoslynDirectory)Microsoft.CodeAnalysis.VisualBasic*.dll;$(NazorRoslynDirectory)Microsoft.CodeAnalysis.Workspaces.MSBuild.dll" />
+    <_NazorRoslynFeature Include="$(NazorToolSupportDirectory)System.Composition.*.dll;$(NazorToolSupportDirectory)Microsoft.DiaSymReader.dll;$(NazorToolSupportDirectory)Humanizer.dll;$(NazorToolSupportDirectory)System.Configuration.ConfigurationManager.dll;$(NazorToolSupportDirectory)System.Security.Cryptography.ProtectedData.dll;$(NazorToolSupportDirectory)System.Diagnostics.EventLog.dll" />
+    <Reference Include="@(_NazorRoslynFeature)" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)ThirdPartyNotices.md;$(NetCoreRoot)ThirdPartyNotices.txt" Link="ThirdParty/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+  <Target Name="NazorValidateRoslynSdk" BeforeTargets="ResolveAssemblyReferences">
+    <Error Condition="!Exists('$(NazorRoslynDirectory)Microsoft.CodeAnalysis.CSharp.dll')" Text="Install SDK $(NazorLanguageServicesSdkVersion) to supply Nazor's pinned Roslyn/Razor language services. The build SDK and tool runtime remain on .NET 10 LTS. Expected Roslyn assemblies under '$(NazorRoslynDirectory)'." />
+  </Target>
+</Project>

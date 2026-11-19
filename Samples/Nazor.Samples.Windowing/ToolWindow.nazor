@@ -1,0 +1,35 @@
+@window
+@inject IWindow CurrentWindow
+
+@* This owned window is modeless. Its local notes survive Hide/Show because those operations keep its component tree alive. *@
+
+<UserTitleBar Style="height: max(var(--nz-window-controls-height, 32px), 32px)"><WindowTitleBar /></UserTitleBar>
+<UserCaptionButtons><CaptionButtons Buttons="closeButtons" /></UserCaptionButtons>
+<Container Class="tool-content">
+    <TextBlock Class="heading">Session notes</TextBlock>
+    <TextBlock>This window stays above its owner while the owner remains interactive.</TextBlock>
+    <TextBlock>Hide it and reopen it from the main window: your notes are preserved.</TextBlock>
+    <TextArea @bind-Value="notes" AccessibleName="Notes" />
+    <Button OnClick="() => CurrentWindow.Close()">Close the tool window</Button>
+</Container>
+
+@style {
+    :root { font-family: "Fira Sans", sans-serif; -window-resize-grip: auto; }
+    .tool-content { display: flex; flex-direction: column; gap: 12px; padding: 24px; }
+    .heading { font-size: 20px; font-weight: bold; }
+    TextBox { width: 100%; height: 120px; }
+}
+
+@code {
+    private static readonly CaptionButton[] closeButtons = [CaptionButton.Close];
+    protected override void OnInitialized()
+    {
+        Window.Title = "Tools — modeless window";
+        Window.Icon = "Assets/tools.svg";
+        Window.Decorations = WindowDecorationPolicy.Require(WindowDecorations.Nazor(WindowTitleBarContent.User, WindowCaptionButtons.User));
+        Window.IsMinimizable = false;
+        Window.IsMaximizable = false;
+        Window.FullScreenEnabled = false;
+    }
+    private string notes = "";
+}

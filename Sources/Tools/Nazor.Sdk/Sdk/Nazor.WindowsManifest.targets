@@ -1,0 +1,20 @@
+<Project>
+  <PropertyGroup>
+    <ApplicationManifest Condition="'$(ApplicationManifest)' == '' and '$(NazorWindowsAppManifest)' != '' and ('$(OutputType)' == 'Exe' or '$(OutputType)' == 'WinExe')">$(NazorWindowsAppManifest)</ApplicationManifest>
+    <ApplicationManifest Condition="'$(ApplicationManifest)' == '' and '$(NoWin32Manifest)' != 'true' and '$(Win32Resource)' == '' and ('$(OutputType)' == 'Exe' or '$(OutputType)' == 'WinExe')">$(MSBuildThisFileDirectory)Nazor.Windows.manifest</ApplicationManifest>
+  </PropertyGroup>
+  <Target Name="NazorValidateWindowsManifest" BeforeTargets="PrepareForBuild;CoreCompile;ComputeFilesToPublish"
+          Condition="'$(TargetFramework)' != '' and ('$(OutputType)' == 'Exe' or '$(OutputType)' == 'WinExe')">
+    <PropertyGroup>
+      <_NazorWindowsManifestPath Condition="'$(NazorWindowsAppManifest)' != ''">$([System.IO.Path]::GetFullPath($([System.IO.Path]::Combine('$(MSBuildProjectDirectory)', '$(NazorWindowsAppManifest)'))))</_NazorWindowsManifestPath>
+      <_NazorApplicationManifestPath Condition="'$(ApplicationManifest)' != ''">$([System.IO.Path]::GetFullPath($([System.IO.Path]::Combine('$(MSBuildProjectDirectory)', '$(ApplicationManifest)'))))</_NazorApplicationManifestPath>
+      <_NazorWindowsManifestPath Condition="$([MSBuild]::IsOSPlatform('Windows'))">$(_NazorWindowsManifestPath.ToUpperInvariant())</_NazorWindowsManifestPath>
+      <_NazorApplicationManifestPath Condition="$([MSBuild]::IsOSPlatform('Windows'))">$(_NazorApplicationManifestPath.ToUpperInvariant())</_NazorApplicationManifestPath>
+      <_NazorManifestPathsMatch>$([System.String]::Equals('$(_NazorWindowsManifestPath)', '$(_NazorApplicationManifestPath)'))</_NazorManifestPathsMatch>
+    </PropertyGroup>
+    <Error Condition="'$(NazorWindowsAppManifest)' != '' and '$(ApplicationManifest)' != '' and '$(_NazorManifestPathsMatch)' != 'true'" Code="NZB015"
+           Text="NazorWindowsAppManifest and ApplicationManifest must select the same file. Specify only one property or use matching paths." />
+    <Error Condition="'$(ApplicationManifest)' != '' and ('$(NoWin32Manifest)' == 'true' or '$(Win32Resource)' != '')" Code="NZB015"
+           Text="An explicit Windows application manifest cannot be combined with NoWin32Manifest=true or Win32Resource. Remove the conflicting setting." />
+  </Target>
+</Project>

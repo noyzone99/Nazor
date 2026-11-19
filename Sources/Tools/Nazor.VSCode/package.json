@@ -1,0 +1,84 @@
+{
+  "name": "nazor",
+  "displayName": "Nazor",
+  "description": "Editor support for Nazor 0.1.0-alpha. Syntax highlighting, diagnostics, completion, hover, formatting, go to definition, rename and color previews for .nazor and .nss files.",
+  "version": "0.1.0",
+  "publisher": "nazor",
+  "license": "MIT",
+  "icon": "nazor.png",
+  "engines": {
+    "vscode": "^1.82.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "main": "./extension.js",
+  "activationEvents": [
+    "onLanguage:nazor",
+    "onLanguage:nss",
+    "onDebugResolve:coreclr",
+    "onCommand:nazor.openDevTools"
+  ],
+  "contributes": {
+    "commands": [{ "command": "nazor.openDevTools", "title": "Nazor: Open DevTools" }],
+    "languages": [
+      {
+        "id": "nazor",
+        "aliases": [
+          "Nazor"
+        ],
+        "extensions": [
+          ".nazor"
+        ],
+        "configuration": "./syntaxes/nazor.language-configuration.json",
+        "icon": {
+          "light": "./icons/component-light.svg",
+          "dark": "./icons/component-dark.svg"
+        }
+      },
+      {
+        "id": "nss",
+        "aliases": [
+          "NSS"
+        ],
+        "extensions": [
+          ".nss"
+        ],
+        "configuration": "./syntaxes/nss.language-configuration.json",
+        "icon": {
+          "light": "./icons/stylesheet-light.svg",
+          "dark": "./icons/stylesheet-dark.svg"
+        }
+      }
+    ],
+    "grammars": [
+      {
+        "language": "nazor",
+        "scopeName": "text.nazor",
+        "path": "./syntaxes/nazor.tmLanguage.json",
+        "embeddedLanguages": {
+          "source.cs": "csharp",
+          "source.nss": "nss"
+        }
+      },
+      {
+        "language": "nss",
+        "scopeName": "source.nss",
+        "path": "./syntaxes/nss.tmLanguage.json"
+      }
+    ],
+    "configuration": {
+      "title": "Nazor",
+      "properties": {
+        "nazor.dotnetPath": {
+          "type": "string",
+          "default": "",
+          "description": "The dotnet executable with the .NET 10 runtime that runs the Nazor language server. Empty: dotnet on the PATH."
+        }
+      }
+    }
+  },
+  "dependencies": {
+    "vscode-languageclient": "9.0.1"
+  }
+}

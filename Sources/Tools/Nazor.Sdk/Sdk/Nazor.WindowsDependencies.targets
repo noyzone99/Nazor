@@ -1,0 +1,66 @@
+<Project>
+  <Import Project="Nazor.WindowsDependencies.props" Condition="'$(NazorWindowingVersion)' == ''" />
+  <PropertyGroup>
+    <NazorWindowsProjectionVersion Condition="'$(_NazorTargetFramework)' == 'net8.0' or '$(TargetFramework)' == 'net8.0'">$(NazorWindowsNet8ProjectionVersion)</NazorWindowsProjectionVersion>
+    <NazorWindowsProjectionFramework Condition="'$(_NazorTargetFramework)' == 'net8.0' or '$(TargetFramework)' == 'net8.0'">net8.0</NazorWindowsProjectionFramework>
+    <_NazorResolveWindowsDependencies>true</_NazorResolveWindowsDependencies>
+    <_NazorWindowsInspector Condition="'$(NazorEnableDevTools)' == 'true' and ('$(RuntimeIdentifier)' == 'win-x64' or ('$(RuntimeIdentifier)' == '' and '$(NETCoreSdkPortableRuntimeIdentifier)' == 'win-x64'))">true</_NazorWindowsInspector>
+    <_NazorWindowsProjectionDownload>[$(NazorWindowsProjectionVersion)]</_NazorWindowsProjectionDownload>
+    <_NazorWindowsProjectionDownload Condition="'$(_NazorWindowsInspector)' == 'true' and '$(NazorWindowsProjectionVersion)' != '$(NazorWindowsLatestProjectionVersion)'">[$(NazorWindowsProjectionVersion)];[$(NazorWindowsLatestProjectionVersion)]</_NazorWindowsProjectionDownload>
+    <_NazorWinX64NativePath Condition="'$(RuntimeIdentifier)' == ''">runtimes/win-x64/native/</_NazorWinX64NativePath>
+    <_NazorWinX86NativePath Condition="'$(RuntimeIdentifier)' == ''">runtimes/win-x86/native/</_NazorWinX86NativePath>
+    <_NazorWinArm64NativePath Condition="'$(RuntimeIdentifier)' == ''">runtimes/win-arm64/native/</_NazorWinArm64NativePath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageDownload Include="Microsoft.WindowsAppSDK.InteractiveExperiences" Version="[$(NazorWindowingVersion)]" />
+    <PackageDownload Include="Microsoft.Windows.SDK.NET.Ref" Version="$(_NazorWindowsProjectionDownload)" />
+  </ItemGroup>
+
+  <Target Name="NazorResolveWindowsDependencies" BeforeTargets="AssignTargetPaths;ResolveAssemblyReferences">
+    <ItemGroup>
+      <_NazorPackageFolder Include="$(NuGetPackageFolders);$(NuGetPackageRoot)" />
+      <_NazorWindowingPackage Include="@(_NazorPackageFolder->'%(FullPath)/microsoft.windowsappsdk.interactiveexperiences/$(NazorWindowingVersion)')" />
+      <_NazorProjectionPackage Include="@(_NazorPackageFolder->'%(FullPath)/microsoft.windows.sdk.net.ref/$(NazorWindowsProjectionVersion)')" />
+      <_NazorInspectorProjectionPackage Include="@(_NazorPackageFolder->'%(FullPath)/microsoft.windows.sdk.net.ref/$(NazorWindowsLatestProjectionVersion)')" Condition="'$(_NazorWindowsInspector)' == 'true'" />
+    </ItemGroup>
+    <PropertyGroup>
+      <_NazorWindowingDirectory>@(_NazorWindowingPackage->Exists())</_NazorWindowingDirectory>
+      <_NazorProjectionDirectory>@(_NazorProjectionPackage->Exists())</_NazorProjectionDirectory>
+      <_NazorInspectorProjectionDirectory>@(_NazorInspectorProjectionPackage->Exists())</_NazorInspectorProjectionDirectory>
+      <_NazorWindowingDirectory>$([System.Text.RegularExpressions.Regex]::Match('$(_NazorWindowingDirectory)', '^[^;]+').Value)</_NazorWindowingDirectory>
+      <_NazorProjectionDirectory>$([System.Text.RegularExpressions.Regex]::Match('$(_NazorProjectionDirectory)', '^[^;]+').Value)</_NazorProjectionDirectory>
+      <_NazorInspectorProjectionDirectory>$([System.Text.RegularExpressions.Regex]::Match('$(_NazorInspectorProjectionDirectory)', '^[^;]+').Value)</_NazorInspectorProjectionDirectory>
+    </PropertyGroup>
+    <Error Condition="'$(DesignTimeBuild)' != 'true' and ('$(_NazorWindowingDirectory)' == '' or '$(_NazorProjectionDirectory)' == '')"
+           Text="Restore the application to download the Windows App SDK and Windows SDK projections from NuGet.org." />
+    <ItemGroup Condition="'$(_NazorWindowingDirectory)' != '' and '$(_NazorProjectionDirectory)' != ''">
+      <_NazorInteropProjection Include="$(_NazorWindowingDirectory)/lib/net6.0-windows10.0.18362.0/$(NazorWindowingProjectionAssembly)" />
+      <_NazorWindowsProjection Include="$(NazorWindowsProjectionAssemblies)" />
+      <Reference Include="@(_NazorInteropProjection);@(_NazorWindowsProjection->'$(_NazorProjectionDirectory)/lib/$(NazorWindowsProjectionFramework)/%(Identity)')" />
+      <_NazorWindowsNativeFile Include="$(_NazorWindowingDirectory)/runtimes-framework/win-x64/native/*" OutputDirectory="$(_NazorWinX64NativePath)"
+                              Condition="'$(RuntimeIdentifier)' == '' or '$(RuntimeIdentifier)' == 'win-x64'" />
+      <_NazorWindowsNativeFile Include="$(_NazorWindowingDirectory)/runtimes-framework/win-x86/native/*" OutputDirectory="$(_NazorWinX86NativePath)"
+                              Condition="'$(RuntimeIdentifier)' == '' or '$(RuntimeIdentifier)' == 'win-x86'" />
+      <_NazorWindowsNativeFile Include="$(_NazorWindowingDirectory)/runtimes-framework/win-arm64/native/*" OutputDirectory="$(_NazorWinArm64NativePath)"
+                              Condition="'$(RuntimeIdentifier)' == '' or '$(RuntimeIdentifier)' == 'win-arm64'" />
+      <None Include="@(_NazorWindowsNativeFile)" Link="%(_NazorWindowsNativeFile.OutputDirectory)%(_NazorWindowsNativeFile.Filename)%(_NazorWindowsNativeFile.Extension)"
+            CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+      <None Include="$(_NazorWindowingDirectory)/license.txt" Link="WindowsAppSDK.LICENSE.txt" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    </ItemGroup>
+  </Target>
+
+  <Target Name="NazorCollectInspectorWindowsDependencies" BeforeTargets="NazorCollectInspectorAssets"
+          DependsOnTargets="NazorResolveWindowsDependencies"
+          Condition="'$(_NazorWindowsInspector)' == 'true' and '$(NazorInspectorAssetsDirectory)' == '' and '$(DesignTimeBuild)' != 'true'">
+    <Error Condition="'$(_NazorWindowingDirectory)' == '' or '$(_NazorInspectorProjectionDirectory)' == ''"
+           Text="Restore the application to download the Windows dependencies for Nazor DevTools." />
+    <ItemGroup>
+      <_NazorInspectorWindowsFile Include="@(_NazorInteropProjection);@(_NazorWindowsProjection->'$(_NazorInspectorProjectionDirectory)/lib/net9.0/%(Identity)');$(_NazorWindowingDirectory)/runtimes-framework/win-x64/native/*" />
+      <Content Include="@(_NazorInspectorWindowsFile)" TargetPath="Nazor.DevTools/%(_NazorInspectorWindowsFile.Filename)%(_NazorInspectorWindowsFile.Extension)"
+               CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" Visible="false" />
+      <Content Include="$(_NazorWindowingDirectory)/license.txt" TargetPath="Nazor.DevTools/WindowsAppSDK.LICENSE.txt"
+               CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" Visible="false" />
+    </ItemGroup>
+  </Target>
+</Project>

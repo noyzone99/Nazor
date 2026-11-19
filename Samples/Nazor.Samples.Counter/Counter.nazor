@@ -1,0 +1,32 @@
+@* Start here: markup reads component state, and an event handler changes that state.
+   ComponentBase schedules the next render after the handler; no manual repaint is needed. *@
+<Container Class="counter">
+	<TextBlock>Count: @count</TextBlock>
+	<Button @onclick="Increment">Increment</Button>
+</Container>
+
+@* Inline NSS belongs to this component. Nesting the Button rule keeps the relationship visible beside the markup. *@
+@style {
+	.counter {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+		padding: 16px;
+
+		Button {
+			background: #303030;
+			color: white;
+			transition: background 200ms ease-out;
+
+			&:hover {
+				background: #0078d4;
+			}
+		}
+	}
+}
+
+@code {
+	// A field is enough for state used by a single component; a shared service is unnecessary here.
+	private int count;
+	private void Increment() => count++;
+}

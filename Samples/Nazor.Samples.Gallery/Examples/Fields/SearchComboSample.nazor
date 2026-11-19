@@ -1,0 +1,20 @@
+<Field LabelText="Search cities">
+    <SearchField TItem="string" Suggestions="cities" OnSearch="value => search = value"
+                 Placeholder="Search cities" EmptyText="No matching cities" />
+</Field>
+<Field LabelText="Search icon at the start">
+    <SearchField TItem="string" Placeholder="Search cities" IconPlacement="SearchIconPlacement.Start" />
+</Field>
+<Field LabelText="Search icon at the end">
+    <SearchField TItem="string" Placeholder="Search cities" IconPlacement="SearchIconPlacement.End" />
+</Field>
+<Field LabelText="Destination">
+    <ComboBox TItem="string" Items="cities" @bind-Value="destination" Placeholder="Type a city"
+              DropDownPlacement="DropDownPlacement.Center" PreferredMinVisibleItems="2" PreferredMaxVisibleItems="4" />
+</Field>
+<TextBlock>@($"Search: {search}; destination: {destination}")</TextBlock>
+@code {
+    private readonly string[] cities = ["Milan", "Paris", "Rome", "Vienna"];
+    private string search = "";
+    private string? destination = "Rome";
+}

@@ -1,0 +1,20 @@
+@* The card reports selection, completion, and removal through typed callbacks; the parent owns the state.
+   Stop click bubbling on nested action buttons so one interaction does not also select the card. *@
+<Container Class="@(IsSelected ? "task-card selected row" : "task-card row")" @onclick="Select"
+	@oncontextmenu="Select" AccessibleName="@Item.Title">
+	<CheckBox IsChecked="@Item.IsCompleted" IsCheckedChanged="CompletedChanged" AccessibleName="@($"Complete {Item.Title}")" />
+	<Button Class="task-title spacer" @onclick="Select" @onclick:stopPropagation AccessibleName="@($"Select {Item.Title}")">@Item.Title</Button>
+	<TextBlock Class="muted">@(Item.IsCompleted ? "Completed" : "To do")</TextBlock>
+	<Button @onclick="Remove" @onclick:stopPropagation AccessibleName="@($"Delete {Item.Title}")">Delete</Button>
+</Container>
+
+@code {
+	[Parameter] public TaskItem Item { get; set; } = null!;
+	[Parameter] public bool IsSelected { get; set; }
+	// EventCallback retains the receiving component, so an update made by the parent also schedules its render.
+	[Parameter] public EventCallback<Guid> Selected { get; set; }
+	[Parameter] public EventCallback<bool> CompletedChanged { get; set; }
+	[Parameter] public EventCallback<Guid> Removed { get; set; }
+	private Task Select(EventArgs e) => Selected.InvokeAsync(Item.Id);
+	private Task Remove() => Removed.InvokeAsync(Item.Id);
+}

@@ -1,0 +1,60 @@
+@using Nazor.Controls.Primitives
+
+<Container Class="row">
+    <Button OnClick="() => open = true">Open the command palette</Button>
+    <ShortcutLabel Gesture="gesture" />
+</Container>
+
+@* Commands are grouped by GroupBy and by CommandPaletteGroup children. Type to filter ("nf" finds New file),
+   Up and Down move, Enter runs the command and closes the palette, Escape closes it. *@
+<CommandPalette @bind-IsOpen="open" Commands="commands" GroupBy="GroupOf" Gesture="gesture" OnExecute="c => log.Insert(0, c.Text)">
+    <CommandPaletteGroup Name="Theme" Commands="themeCommands" />
+</CommandPalette>
+<TextBlock>@($"Ran: {(log.Count == 0 ? "nothing" : string.Join(", ", log.Take(5)))}; theme: {theme}")</TextBlock>
+
+@code {
+    private readonly KeyGesture gesture = KeyGesture.Parse("Mod+Shift+P");
+    private bool open;
+    private string theme = "Light";
+    private readonly List<string> log = [];
+    private readonly Dictionary<Command, string> groups = [];
+    private Command[] commands = [], themeCommands = [];
+
+    protected override void OnInitialized()
+    {
+        Command Add(string group, string text, string? description = null, string? keys = null)
+        {
+            var command = new Command(text, () => { }, keys is null ? null : KeyGesture.Parse(keys)) { Description = description };
+            groups[command] = group;
+            return command;
+        }
+        commands =
+        [
+            Add("File", "New file", "Create an empty document", "Mod+N"),
+            Add("File", "Open file…", "Open a document from disk", "Mod+O"),
+            Add("File", "Save", null, "Mod+S"),
+            Add("File", "Save all", "Save every open document"),
+            Add("Edit", "Find", "Search in the current document", "Mod+F"),
+            Add("Edit", "Replace", "Search and replace", "Mod+H"),
+            Add("Edit", "Format document", null, "Shift+Alt+F"),
+            Add("View", "Toggle sidebar", "Show or hide the sidebar", "Mod+B"),
+            Add("View", "Zoom in", null, "Mod+="),
+            Add("View", "Zoom out", null, "Mod+-"),
+        ];
+        var disabled = Add("File", "Revert file", "Unavailable: nothing to revert");
+        disabled.IsEnabled = false;
+        commands = [.. commands, disabled];
+        themeCommands =
+        [
+            new Command("Light theme", () => theme = "Light") { Description = "Use light colors" },
+            new Command("Dark theme", () => theme = "Dark") { Description = "Use dark colors" },
+            new Command("High contrast theme", () => theme = "High contrast"),
+        ];
+    }
+
+    private string? GroupOf(Command command) => groups.GetValueOrDefault(command);
+}
+
+@style {
+    .row { display: flex; gap: 8px; align-items: center; }
+}

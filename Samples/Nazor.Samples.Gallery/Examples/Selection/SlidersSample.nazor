@@ -1,0 +1,37 @@
+<Container Class="options">
+    <Field LabelText="Orientation">
+        <Select TValue="Orientation" Id="slider-orientation" @bind-Value="orientation" Items="orientations" />
+    </Field>
+    <Field LabelText="Snap to">
+        <Select TValue="string" Id="slider-snapping" @bind-Value="snapping" Items="snapModes" />
+    </Field>
+    <CheckBox @bind-IsChecked="labels">Tick labels</CheckBox>
+    <CheckBox @bind-IsChecked="reversed">Reverse direction</CheckBox>
+</Container>
+<TextBlock>Ticks mark intervals of 20. Choose continuous values, steps of 5, or snapping to the ticks.</TextBlock>
+<Container Class="sliders">
+    <Slider Id="volume-slider" @bind-Value="volume" Minimum="-20" Maximum="100" Step="Step" TickFrequency="20"
+            ShowTickLabels="labels" ValueLabel="ValueLabelMode.OnFocus" Orientation="orientation"
+            IsDirectionReversed="reversed" AccessibleName="Volume" Style="@SliderStyle" />
+    <RangeSlider Id="price-slider" @bind-LowerValue="low" @bind-UpperValue="high" Minimum="-20" Maximum="100"
+                 MinimumRange="10" Step="Step" TickFrequency="20" ShowTickLabels="labels"
+                 ValueLabel="ValueLabelMode.OnFocus" Orientation="orientation" IsDirectionReversed="reversed"
+                 AccessibleName="Price range" Style="@SliderStyle" />
+</Container>
+<TextBlock Id="slider-values">@($"Volume {volume:0.##}, range {low:0.##}–{high:0.##}")</TextBlock>
+
+@code {
+    private double volume = 40, low = 20, high = 80;
+    private Orientation orientation;
+    private bool labels = true, reversed;
+    private string? snapping = "Steps of 5";
+    private readonly Orientation[] orientations = [Orientation.Horizontal, Orientation.Vertical];
+    private readonly string[] snapModes = ["Continuous", "Steps of 5", "Ticks"];
+    private double Step => snapping switch { "Continuous" => 0, "Ticks" => 20, _ => 5 };
+    private string SliderStyle => orientation == Orientation.Vertical ? "height: 220px" : "width: 260px";
+}
+
+@style {
+    .options { display: flex; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 16px; }
+    .sliders { display: flex; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 52px; padding: 28px; }
+}

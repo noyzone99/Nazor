@@ -1,0 +1,19 @@
+@implements IRefreshable
+<Container Class="page">
+    <ProgressBar Class="bar" Value="Value" Label="Uploading" ShowValue="true" />
+    <ProgressBar Class="busy" Value="null" Label="Preparing" ShowValue="true" Intent="Intent.Warning" />
+    <ProgressBar Class="buffered" Value="30" BufferValue="60" AccessibleName="Video" Size="ControlSize.Large" />
+    <ProgressBar Class="blocks" Value="Value" Segments="5" Label="Steps" />
+    <ProgressBar Class="blocks-busy" Value="null" Segments="4" Label="Waiting" />
+    <ProgressBar Class="custom" Value="3" Maximum="7" ShowValue="true" ValueText="3 of 7 files" Intent="Intent.Danger" />
+    <Spinner Class="spin" />
+    <Spinner Class="spin-value" Value="75" Label="Syncing" Size="ControlSize.Large" />
+    <Meter Class="disk" Value="Disk" Label="Disk" ShowValue="true" Low="0.6" High="0.85" Optimum="0.2" />
+    <Meter Class="signal" Value="3" Maximum="5" Segments="5" Orientation="Orientation.Vertical" AccessibleName="Signal" />
+</Container>
+
+@code {
+    public void Refresh() => StateHasChanged();
+    public double? Value { get; set; } = 40;
+    public double Disk { get; set; } = 0.5;
+}

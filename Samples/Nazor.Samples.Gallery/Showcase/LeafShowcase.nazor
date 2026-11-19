@@ -1,0 +1,254 @@
+@using Nazor.Themes.NazorLeaf
+@using Nazor.Controls.Primitives
+@inject IApplicationAppearance Appearance
+
+<ToastHost Class="demo-root" Placement="ToastPlacement.BottomCenter">
+	<Shortcut Gesture="searchGesture" OnInvoke="FocusSearch"/>
+	<Container Class="demo-options">
+		<Button Appearance="ControlAppearance.Subtle" OnClick="OnClose">Back to catalog</Button>
+		<Container Class="demo-tsearch">
+			<SearchField TItem="string" @ref="sectionSearch" Placeholder="Cerca una sezione" Suggestions="labels" SuggestionChosen="FindSection" QuerySubmitted="FindQuery"/>
+			<Kbd>Ctrl K</Kbd>
+		</Container>
+		<Container Class="demo-seeds" AccessibleName="Seme dell’app">
+			@foreach (var seed in seeds)
+			{
+				<ToggleButton @key="seed.Name" Class="demo-seed" IsPressed="@(seed == selectedSeed)"
+					IsPressedChanged="_ => SetSeed(seed)" AccessibleName="@seed.Name" Tooltip="@seed.Name" Style="@($"--demo-seed: {seed.Color}")"/>
+			}
+		</Container>
+		<SegmentedControl TValue="ColorScheme" Value="Appearance.ColorScheme" ValueChanged="ChangeScheme" AccessibleName="Tema">
+			<Segment Value="ColorScheme.System">Sistema</Segment>
+			<Segment Value="ColorScheme.Light">Chiaro</Segment>
+			<Segment Value="ColorScheme.Dark">Scuro</Segment>
+		</SegmentedControl>
+		<SegmentedControl TValue="ControlDensity" Value="Appearance.ControlDensity" ValueChanged="SetDensity" AccessibleName="Densità">
+			<Segment Value="ControlDensity.Automatic">Automatico</Segment>
+			<Segment Value="ControlDensity.Compact">Desktop</Segment>
+			<Segment Value="ControlDensity.Touch">Tocco</Segment>
+		</SegmentedControl>
+	</Container>
+	<Container Class="demo-shell">
+		<Container @ref="rail" Class="demo-rail" AccessibleName="Sezioni" @onscroll="RailScrolled" @onresize="LayoutChanged">
+			<Indicator As="ShowcaseRailIndicator" Class="@RailIndicatorClass" Target="railIndicator.BoxOf(selected)" />
+			@for (var i = 0; i < labels.Length; i++)
+			{
+				var section = i;
+				<Button @key="section" @ref="railButtons[section]" Id="@($"leaf-nav-{section}")" Class="@(selected == section ? "demo-nav current" : "demo-nav")"
+				        TabIndex="@(selected == section ? 0 : -1)" OnClick="() => Show(section)" @onkeydown="(KeyboardEventArgs e) => Navigate(e, section, false)">
+					<Container @ref="slots[section]" Class="demo-slot" @onresize="LayoutChanged"><Icon Symbol="@glyphs[section]"/></Container>
+					<TextBlock>@labels[section]</TextBlock>
+				</Button>
+			}
+			<Container Class="demo-rail-space"/>
+			<Avatar Name="Giulia Ferri" Class="demo-rail-avatar"/>
+		</Container>
+		<Container Class="demo-pane">
+			<Container @ref="strip" Class="demo-mnav" AccessibleName="Sezioni" @attributes="navigationAttributes" @onscroll="StripScrolled" @onresize="LayoutChanged">
+				@for (var i = 0; i < labels.Length; i++)
+				{
+					var section = i;
+					<Button @key="section" @ref="stripButtons[section]" Id="@($"leaf-strip-{section}")" Class="@(selected == section ? "demo-mnav-item current" : "demo-mnav-item")"
+					        TabIndex="@(selected == section ? 0 : -1)" OnClick="() => Show(section)" @onresize="LayoutChanged"
+					        @onkeydown="(KeyboardEventArgs e) => Navigate(e, section, true)">
+						<Icon Symbol="@glyphs[section]"/><TextBlock>@labels[section]</TextBlock>
+					</Button>
+				}
+			</Container>
+			<Container Class="@(compact ? "demo-page-head compact" : "demo-page-head")">
+				<Container>
+					<TextBlock Class="demo-page-sub">Tutti i controlli di base</TextBlock>
+					<Heading Level="2" Class="demo-page-title">@titles[selected]</Heading>
+				</Container>
+				<ExportAction/>
+			</Container>
+			<ScrollView @ref="scroll" Id="leaf-sections" Class="demo-scroll" AccessibleName="Esempi" OnScroll="Scrolled"
+			            @onwheel="CancelNavigation" @onpointerdown="CancelNavigation" @onkeydown="CancelNavigation">
+				<Container Class="demo-page">
+					<Container @ref="sections[0]" Id="leaf-section-0" @onresize="LayoutChanged"><ActionsSection/></Container>
+					<Container @ref="sections[1]" Id="leaf-section-1" @onresize="LayoutChanged"><SelectionSection Grain="Grain" GrainChanged="GrainChanged" Radius="Radius" RadiusChanged="RadiusChanged"/></Container>
+					<Container @ref="sections[2]" Id="leaf-section-2" @onresize="LayoutChanged"><FieldsSection/></Container>
+					<Container @ref="sections[3]" Id="leaf-section-3" @onresize="LayoutChanged"><MenusSection/></Container>
+					<Container @ref="sections[4]" Id="leaf-section-4" @onresize="LayoutChanged"><WindowsSection/></Container>
+					<Container @ref="sections[5]" Id="leaf-section-5" @onresize="LayoutChanged"><BadgeSection/></Container>
+					<Container @ref="sections[6]" Id="leaf-section-6" @onresize="LayoutChanged">
+						<DataSection Motion="@(Appearance.ReducedMotion != true)" MotionChanged="SetMotion" SeedName="@selectedSeed.Name"/>
+					</Container>
+					<Container @ref="sections[7]" Id="leaf-section-7" @onresize="LayoutChanged"><NavigationSection/></Container>
+					<Container @ref="sections[8]" Id="leaf-section-8" @onresize="LayoutChanged"><FeedbackSection/></Container>
+					<Container @ref="sections[9]" Id="leaf-section-9" @onresize="LayoutChanged"><TextSection/></Container>
+					<Container @ref="sections[10]" Id="leaf-section-10" @onresize="LayoutChanged"><BrandSection/></Container>
+				</Container>
+			</ScrollView>
+		</Container>
+	</Container>
+</ToastHost>
+
+@code {
+	[Parameter] public double Grain { get; set; }
+	[Parameter] public EventCallback<double> GrainChanged { get; set; }
+	[Parameter] public double Radius { get; set; }
+	[Parameter] public EventCallback<double> RadiusChanged { get; set; }
+	[Parameter] public string SeedClass { get; set; } = "seed-blue";
+	[Parameter] public EventCallback<string> SeedChanged { get; set; }
+	[Parameter] public EventCallback OnClose { get; set; }
+
+	private sealed record Seed(string Name, string Color, string Class);
+	private static readonly Seed[] seeds =
+	[
+		new("Blu", "#4285f4", "seed-blue"),
+		new("Rosso", "#ea4335", "seed-red"),
+		new("Giallo", "#fbbc04", "seed-yellow"),
+		new("Verde", "#34a853", "seed-green"),
+	];
+	private readonly string[] labels = ["Pulsanti", "Selezione", "Campi", "Menu", "Finestre", "Badge", "Dati", "Schede", "Feedback", "Testo", "Marchio"];
+	private readonly string[] titles = ["Pulsanti", "Selezione", "Campi di testo", "Menu", "Barra del titolo", "Badge sulle icone", "Tabelle e liste", "Schede", "Feedback", "Tipografia", "Marchio"];
+	private readonly LeafSymbol[] glyphs = [LeafSymbol.Cursor, LeafSymbol.Toggle, LeafSymbol.TextBox, LeafSymbol.List, LeafSymbol.Window, LeafSymbol.Dock, LeafSymbol.Table, LeafSymbol.Tabs, LeafSymbol.Bell, LeafSymbol.Typography, LeafSymbol.Leaf];
+	private readonly Container[] sections = new Container[11];
+	private readonly IReadOnlyDictionary<string, object?> navigationAttributes = new Dictionary<string, object?> { ["role"] = "navigation" };
+	private readonly Container[] slots = new Container[11];
+	private readonly Button[] railButtons = new Button[11];
+	private readonly Button[] stripButtons = new Button[11];
+	private IndicatorTracker<int> railIndicator = null!;
+	private Container? rail;
+	private Container? strip;
+	private double railScrollTop;
+	private double stripScrollLeft;
+	private bool revealStrip = true;
+	private double? navigationTarget;
+	private bool compact;
+	private int railRun;
+	private string RailIndicatorClass => "demo-rail-ind" + (railRun == 0 ? "" : railRun % 2 == 0 ? " pop-a" : " pop-b");
+	private readonly KeyGesture searchGesture = KeyGesture.Parse("Mod+K");
+	private SearchField<string>? sectionSearch;
+	private ScrollView? scroll;
+	private Seed selectedSeed => seeds.First(seed => seed.Class == SeedClass);
+	private int selected;
+
+	protected override void OnInitialized() => railIndicator = new(StateHasChanged);
+
+	private async Task Show(int section)
+	{
+		SelectSection(section);
+		revealStrip = true;
+		if (scroll is not null && scroll.Element.GetBounds() is { } viewport &&
+			sections[section].Element.GetBounds() is { } target)
+		{
+			navigationTarget = Math.Clamp(scroll.ScrollTop + target.Y - viewport.Y - 10, 0, Math.Max(0, scroll.ContentHeight - scroll.ViewportHeight));
+			await scroll.ScrollToAsync(null, navigationTarget);
+		}
+		UpdateRailIndicator();
+		RevealStrip();
+	}
+
+	private void SelectSection(int section)
+	{
+		if (selected == section) return;
+		selected = section;
+		railRun++;
+		revealStrip = true;
+	}
+
+	private async Task Navigate(KeyboardEventArgs e, int section, bool horizontal)
+	{
+		if (e.Handled || e.Modifiers != KeyModifiers.None) return;
+		var target = e.Key switch
+		{
+			"ArrowLeft" when horizontal => Math.Max(0, section - 1),
+			"ArrowRight" when horizontal => Math.Min(labels.Length - 1, section + 1),
+			"ArrowUp" when !horizontal => Math.Max(0, section - 1),
+			"ArrowDown" when !horizontal => Math.Min(labels.Length - 1, section + 1),
+			"Home" => 0,
+			"End" => labels.Length - 1,
+			_ => (int?)null,
+		};
+		if (target is not { } index) return;
+		e.Handled = true;
+		await Show(index);
+		await (horizontal ? stripButtons[index] : railButtons[index]).FocusAsync(preventScroll: true);
+	}
+
+	private void CancelNavigation() => navigationTarget = null;
+
+	private void Scrolled(ScrollEventArgs e)
+	{
+		compact = e.ScrollTop > 30;
+		if (navigationTarget is { } target)
+		{
+			if (Math.Abs(e.ScrollTop - target) < .75) navigationTarget = null;
+		}
+		else TrackSection();
+		UpdateRailIndicator();
+		RevealStrip();
+	}
+
+	private void LayoutChanged(ResizeEventArgs e)
+	{
+		if (navigationTarget is null) TrackSection();
+		revealStrip = true;
+		UpdateRailIndicator();
+		RevealStrip();
+	}
+
+	private void TrackSection()
+	{
+		if (scroll?.Element.GetBounds() is not { Height: > 0 } viewport) return;
+		if (scroll.ScrollTop + scroll.ViewportHeight >= scroll.ContentHeight - 1 && scroll.ScrollTop > 0)
+		{
+			SelectSection(sections.Length - 1);
+			return;
+		}
+		var probe = viewport.Y + viewport.Height * .35;
+		var current = 0;
+		for (var i = 0; i < sections.Length; i++)
+			if (sections[i]?.Element.GetBounds() is { } bounds && bounds.Y <= probe) current = i;
+		SelectSection(current);
+	}
+
+	private void RailScrolled(ScrollEventArgs e)
+	{
+		railScrollTop = e.ScrollTop;
+		UpdateRailIndicator();
+	}
+
+	private void StripScrolled(ScrollEventArgs e) => stripScrollLeft = e.ScrollLeft;
+
+	private void RevealStrip()
+	{
+		if (!revealStrip || strip?.Element.GetBounds() is not { Width: > 0 } parent ||
+			stripButtons[selected]?.Element.GetBounds() is not { } target) return;
+		revealStrip = false;
+		strip.Element.ScrollTo(stripScrollLeft + target.X - parent.X - 12, null);
+	}
+
+	private void UpdateRailIndicator()
+	{
+		if (rail?.Element.GetBounds() is not { } parent || slots[selected]?.Element.GetBounds() is not { } slot) return;
+		railIndicator.Report(selected, new ResizeEventArgs
+		{
+			OffsetLeft = slot.X - parent.X,
+			OffsetTop = slot.Y - parent.Y + railScrollTop,
+			Width = slot.Width,
+			Height = slot.Height,
+		});
+	}
+
+	private Task FindSection(string text)
+	{
+		if (string.IsNullOrWhiteSpace(text)) return Task.CompletedTask;
+		var index = Array.FindIndex(labels, label => label.Contains(text.Trim(), StringComparison.CurrentCultureIgnoreCase));
+		return index >= 0 ? Show(index) : Task.CompletedTask;
+	}
+
+	private Task FindQuery(SearchQuery<string> query) => query.HasChosenSuggestion ? Task.CompletedTask : FindSection(query.Text);
+
+	private Task FocusSearch() => sectionSearch?.FocusAsync() ?? Task.CompletedTask;
+
+	private void SetMotion(bool value) => Appearance.ReducedMotion = value ? null : true;
+
+	private void SetDensity(ControlDensity value) => Appearance.ControlDensity = value;
+
+	private Task SetSeed(Seed seed) => SeedChanged.InvokeAsync(seed.Class);
+
+	private void ChangeScheme(ColorScheme scheme) => Appearance.ColorScheme = scheme;
+}

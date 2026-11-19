@@ -1,0 +1,19 @@
+@using Nazor.Controls.Primitives
+
+<Container Class="row">
+    <Container Class="pane" Style="@($"width: {width}px")">Pane</Container>
+    <ResizeHandle Edge="ResizeEdge.Right" Width="width" MinSize="80" MaxSize="400" AccessibleName="Resize pane"
+                  OnResize="v => width = v.Width" />
+    <Container Class="content">Content</Container>
+</Container>
+<TextBlock>@($"Width: {width:0} px. Drag the handle or focus it and use the arrows.")</TextBlock>
+
+@code {
+    private double width = 180;
+}
+
+@style {
+    .row { display: flex; height: 120px; width: 600px; border: 1px solid GrayText; }
+    .pane { padding: 8px; background: ButtonFace; }
+    .content { flex: 1; padding: 8px; }
+}

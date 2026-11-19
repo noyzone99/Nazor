@@ -1,0 +1,28 @@
+// Registers the Nazor TextMate grammars with the Visual Studio editor.
+[$RootKey$\TextMate\Repositories]
+"Nazor"="$PackageFolder$\Grammars"
+
+// Language configuration (comments, brackets, auto-closing pairs) by grammar scope name.
+[$RootKey$\TextMate\LanguageConfiguration\GrammarMapping]
+"text.nazor"="$PackageFolder$\Grammars\nazor.language-configuration.json"
+"source.nss"="$PackageFolder$\Grammars\nss.language-configuration.json"
+
+// The language configuration of the content types, where no grammar scope gives one.
+[$RootKey$\TextMate\LanguageConfiguration\ContentTypeMapping]
+"Nazor"="$PackageFolder$\Grammars\nazor.language-configuration.json"
+"NazorStyleSheet"="$PackageFolder$\Grammars\nss.language-configuration.json"
+
+// .nazor and .nss open in Visual Studio's code editor, where the content types of the extension
+// bring the language client and the grammars. Without this Visual Studio opens an unknown file that
+// starts with '<' (a component starting with <Container>) in the XML editor, whose chooser claims
+// every extension with a lower priority (0x21). The TextMate editor cannot be used: it opens only
+// files of its own content types.
+[$RootKey$\Editors\{8B382828-6202-11D1-8870-0000F87579D2}\Extensions]
+"nazor"=dword:00000064
+"nss"=dword:00000064
+
+// Solution Explorer icons from the packaged Nazor catalog.
+[$RootKey$\ShellFileAssociations\.nazor]
+"DefaultIconMoniker"="df813fe5-43b7-40ab-9ba5-4ac6892fdbb6:2"
+[$RootKey$\ShellFileAssociations\.nss]
+"DefaultIconMoniker"="df813fe5-43b7-40ab-9ba5-4ac6892fdbb6:3"

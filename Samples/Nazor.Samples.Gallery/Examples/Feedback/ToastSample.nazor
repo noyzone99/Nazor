@@ -1,0 +1,9 @@
+@using Nazor.Controls.Primitives
+<ToastHost Queue="queue">
+    <Button OnClick='() => queue.Show("Report saved")'>Show a toast</Button>
+</ToastHost>
+@if (preview)
+{
+    <Toast Title="Preview" Message="A toast can also be composed directly." OnClose="() => preview = false" />
+}
+@code { private readonly ToastQueue queue = new(); private bool preview = true; }

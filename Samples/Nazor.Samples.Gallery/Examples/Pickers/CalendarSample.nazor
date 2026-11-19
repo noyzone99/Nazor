@@ -1,0 +1,6 @@
+<Calendar @bind-Value="date" Today="today" AccessibleName="Reservation date" />
+<TextBlock>@($"Selected date: {date:d}")</TextBlock>
+@code {
+    private readonly DateOnly today = new(2026, 10, 15);
+    private DateOnly? date = new DateOnly(2026, 10, 15);
+}

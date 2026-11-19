@@ -1,0 +1,27 @@
+@using Nazor.Input
+
+<Container @onkeydown="Key" @onfocusin="Focus" @onclick="ParentClick">
+    <TextField @ref="box" @bind-Value="text" @oninput="Input" @onchange="Change"
+             @onkeydown="Key" @onkeyup="Key" @onkeydown:preventDefault="true" @onkeydown:stopPropagation
+             @onfocus="Focus" @onblur="Focus" @onfocusout="Focus" TabIndex="-1" />
+    <Button @onclick="Click" @onclick:stopPropagation @onpointerdown="Pointer" @onpointerup="Pointer"
+            @onpointermove="Pointer" @onpointerenter="Pointer" @onpointerleave="Pointer" @onlostpointercapture="Pointer"
+            @ondblclick="Pointer" @oncontextmenu="Pointer" @onwheel="Wheel" @attributes="extra">Events</Button>
+    <CheckBox @bind-IsChecked="check" @oninput="Input" @onchange="Change">Check</CheckBox>
+</Container>
+
+@code {
+    private global::Nazor.Controls.TextField box = null!;
+    private string text = "";
+    private bool check;
+    private readonly Dictionary<string, object?> extra = new() { ["data-example"] = "splat" };
+    public List<string> Log { get; } = [];
+    private void Key(KeyboardEventArgs e) => Log.Add("key:" + e.Key);
+    private void Focus(FocusEventArgs e) => Log.Add("focus");
+    private void Pointer(PointerEventArgs e) => Log.Add("pointer");
+    private void Wheel(WheelEventArgs e) => Log.Add("wheel:" + e.DeltaY);
+    private void Input(ChangeEventArgs e) => Log.Add("input:" + e.Value + ":" + text + ":" + check);
+    private void Change(ChangeEventArgs e) => Log.Add("change:" + e.Value);
+    private void Click() => Log.Add("click");
+    private void ParentClick() => Log.Add("parent");
+}

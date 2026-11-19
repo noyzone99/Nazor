@@ -1,0 +1,44 @@
+@implements IRefreshable
+@using System.Globalization
+<Field LabelText="Date">
+    <SegmentedDatePicker @ref="DateControl" Class="seg-date" Value="Date" ValueChanged="DateChanged" @bind-IsOpen="DateOpen"
+                         Culture="Culture" Today="Today" Minimum="MinimumDate" Maximum="MaximumDate"
+                         YearVisible="YearVisible" MonthVisible="MonthVisible" DayVisible="DayVisible" DayFormat="@DayFormat"
+                         Disabled="Disabled" ReadOnly="ReadOnly" />
+</Field>
+<Field LabelText="Time">
+    <SegmentedTimePicker @ref="TimeControl" Class="seg-time" Value="Time" ValueChanged="TimeChanged" @bind-IsOpen="TimeOpen"
+                         Culture="Culture" Use24Hour="Use24" MinuteIncrement="MinuteIncrement" ShowSeconds="ShowSeconds"
+                         Minimum="MinimumTime" Maximum="MaximumTime" Disabled="Disabled" ReadOnly="ReadOnly" />
+</Field>
+<Button Class="outside">Outside</Button>
+
+@code {
+    public void Refresh() => StateHasChanged();
+    public SegmentedDatePicker DateControl { get; set; } = null!;
+    public SegmentedTimePicker TimeControl { get; set; } = null!;
+    public DateOnly? Date { get; set; } = new DateOnly(2024, 1, 31);
+    public TimeOnly? Time { get; set; } = new TimeOnly(9, 30);
+    public bool DateOpen { get; set; }
+    public bool TimeOpen { get; set; }
+    public bool Disabled { get; set; }
+    public bool ReadOnly { get; set; }
+    public bool YearVisible { get; set; } = true;
+    public bool MonthVisible { get; set; } = true;
+    public bool DayVisible { get; set; } = true;
+    public string DayFormat { get; set; } = "dd";
+    public CultureInfo Culture { get; set; } = CultureInfo.GetCultureInfo("en-US");
+    public DateOnly Today { get; set; } = new DateOnly(2026, 11, 12);
+    public DateOnly? MinimumDate { get; set; }
+    public DateOnly? MaximumDate { get; set; }
+    public TimeOnly? MinimumTime { get; set; }
+    public TimeOnly? MaximumTime { get; set; }
+    public bool? Use24 { get; set; } = true;
+    public bool ShowSeconds { get; set; }
+    public int MinuteIncrement { get; set; } = 15;
+    public List<DateOnly?> DateChanges { get; } = [];
+    public List<TimeOnly?> TimeChanges { get; } = [];
+
+    private void DateChanged(DateOnly? value) { Date = value; DateChanges.Add(value); }
+    private void TimeChanged(TimeOnly? value) { Time = value; TimeChanges.Add(value); }
+}

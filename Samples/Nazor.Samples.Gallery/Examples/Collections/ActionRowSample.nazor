@@ -1,0 +1,7 @@
+<RowGroup Title="Network" Description="Connections and sharing">
+    <ActionRow Title="Wi-Fi" Subtitle="@status" Chevron="true" OnClick='() => status = "Network details requested"' />
+    <ActionRow Title="Share connection" ActivatesTrailing="true">
+        <Trailing><CheckBox @bind-IsChecked="sharing" AccessibleName="Share connection" /></Trailing>
+    </ActionRow>
+</RowGroup>
+@code { private string status = "Home network"; private bool sharing; }

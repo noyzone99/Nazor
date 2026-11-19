@@ -1,0 +1,19 @@
+<Project>
+  <PropertyGroup><_NazorInspectorPackageRoot>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)../tools/'))</_NazorInspectorPackageRoot></PropertyGroup>
+  <Target Name="NazorCollectInspectorAssets" BeforeTargets="AssignTargetPaths;GetCopyToOutputDirectoryItems;ComputeFilesToPublish"
+          DependsOnTargets="$(NazorBuildInspectorTarget)" Condition="'$(NazorEnableDevTools)' == 'true' and ('$(OutputType)' == 'Exe' or '$(OutputType)' == 'WinExe') and '$(DesignTimeBuild)' != 'true'">
+    <PropertyGroup>
+      <_NazorInspectorRid>$(RuntimeIdentifier)</_NazorInspectorRid>
+      <_NazorInspectorRid Condition="'$(_NazorInspectorRid)' == ''">$(NETCoreSdkPortableRuntimeIdentifier)</_NazorInspectorRid>
+      <NazorInspectorAssetsDirectory Condition="'$(NazorInspectorAssetsDirectory)' == ''">$(_NazorInspectorPackageRoot)$(_NazorInspectorRid)/</NazorInspectorAssetsDirectory>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(NazorInspectorAssetsDirectory)Nazor.DevTools.bundle.json') or !Exists('$(NazorInspectorAssetsDirectory)Nazor.DevTools.dll')"
+           Code="NZB009" Text="Nazor DevTools inspector assets for '$(_NazorInspectorRid)' are missing. Restore matching Nazor.DevTools.Agent packages. Supported bundled platforms: win-x64 and linux-x64." />
+    <ItemGroup>
+      <_NazorInspectorAsset Include="$(NazorInspectorAssetsDirectory)**/*" Exclude="$(NazorInspectorAssetsDirectory)**/*.pdb;$(NazorInspectorAssetsDirectory)**/*.xml" />
+      <Content Include="@(_NazorInspectorAsset)"
+               Link="Nazor.DevTools/%(_NazorInspectorAsset.RecursiveDir)%(_NazorInspectorAsset.Filename)%(_NazorInspectorAsset.Extension)" TargetPath="Nazor.DevTools/%(_NazorInspectorAsset.RecursiveDir)%(_NazorInspectorAsset.Filename)%(_NazorInspectorAsset.Extension)"
+               CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" Visible="false" />
+    </ItemGroup>
+  </Target>
+</Project>

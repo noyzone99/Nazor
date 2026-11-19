@@ -1,0 +1,11 @@
+@using Nazor.Sample.Components
+
+<DeviceCard Name="Sensore laboratorio" Active="true" OnSelect="Select">
+    <TextBlock>Contenuto del chiamante</TextBlock>
+</DeviceCard>
+<TextBlock>Selezioni: @selections</TextBlock>
+
+@code {
+    private int selections;
+    private void Select() => selections++;
+}

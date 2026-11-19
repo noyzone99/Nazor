@@ -1,0 +1,23 @@
+@using System.Globalization
+<Field LabelText="A known date, with localized segments">
+    <SegmentedDatePicker @bind-Value="date" Culture="english" />
+</Field>
+<Field LabelText="Day first, formatted day, year hidden">
+    <SegmentedDatePicker @bind-Value="formattedDate" Culture="italian" YearVisible="false" DayFormat="dd (ddd)" />
+</Field>
+<Field LabelText="12-hour clock, fifteen-minute choices">
+    <SegmentedTimePicker @bind-Value="time12" Use24Hour="false" MinuteIncrement="15" />
+</Field>
+<Field LabelText="24-hour clock with seconds and bounds">
+    <SegmentedTimePicker @bind-Value="time24" Use24Hour="true" ShowSeconds="true" Minimum="@(new TimeOnly(8, 0))" Maximum="@(new TimeOnly(18, 0))" />
+</Field>
+<Paragraph>Open a segment, move between columns with Left/Right, and change its draft with Up/Down, Page Up/Down, Home/End, the wheel or a vertical drag. Confirm with Enter or the check; Cancel, Escape and outside dismissal keep the previous value.</Paragraph>
+<TextBlock>@($"Date: {date}; formatted date: {formattedDate}; time: {time12}; bounded time: {time24}")</TextBlock>
+
+@code {
+    private readonly CultureInfo english = CultureInfo.GetCultureInfo("en-US"), italian = CultureInfo.GetCultureInfo("it-IT");
+    private DateOnly? date;
+    private DateOnly? formattedDate = new DateOnly(2026, 11, 12);
+    private TimeOnly? time12 = new TimeOnly(19, 0);
+    private TimeOnly? time24 = new TimeOnly(9, 30, 15);
+}

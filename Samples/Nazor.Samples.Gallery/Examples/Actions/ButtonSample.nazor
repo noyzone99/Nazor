@@ -1,0 +1,48 @@
+@using Nazor.Controls.Primitives
+
+<Container Class="row">
+    <Button OnClick="Save" IsDefault="true">Save</Button>
+    <Button OnClick="Save">Standard</Button>
+    <Button Appearance="ControlAppearance.Accent" OnClick="Save">Accent</Button>
+    <Button Appearance="ControlAppearance.Tonal" OnClick="Save">Tonal</Button>
+    <Button Appearance="ControlAppearance.Outline" OnClick="Save">Outline</Button>
+    <Button Appearance="ControlAppearance.Subtle" OnClick="Save">Subtle</Button>
+    <Button Appearance="ControlAppearance.Link" OnClick="Save">Link</Button>
+</Container>
+<Container Class="row">
+    <Button Intent="Intent.Danger">Delete</Button>
+    <Button Intent="Intent.Danger" Appearance="ControlAppearance.Accent">Delete forever</Button>
+    <Button Size="ControlSize.Small">Small</Button>
+    <Button Size="ControlSize.Large">Large</Button>
+    <Button Shape="Shape.Pill">Pill</Button>
+    <Button Shape="Shape.Circle" AccessibleName="Add"><Leading><Icon Glyph="&#xE710;" /></Leading></Button>
+</Container>
+<Container Class="row">
+    <Button IsBusy="busy" OnClick="Work">@(busy ? "Working" : "Start work")</Button>
+    <Button Disabled="true">Unavailable</Button>
+    <Button RepeatInterval="TimeSpan.FromMilliseconds(100)" RepeatDelay="TimeSpan.FromMilliseconds(400)" OnClick="() => repeats++">Hold pointer, Enter or Space to repeat</Button>
+    <Button Command="refresh" />
+</Container>
+<TextBlock>@($"Saved: {saved}; repeats: {repeats}; refreshed: {refreshed}")</TextBlock>
+
+@code {
+    private int saved, repeats, refreshed;
+    private bool busy;
+    private Command refresh = null!;
+
+    protected override void OnInitialized() =>
+        refresh = new Command("Refresh", () => refreshed++, KeyGesture.Parse("F5")) { Description = "Reload the data" };
+
+    private void Save() => saved++;
+
+    private async Task Work()
+    {
+        busy = true;
+        await Task.Delay(1500);
+        busy = false;
+    }
+}
+
+@style {
+    .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+}

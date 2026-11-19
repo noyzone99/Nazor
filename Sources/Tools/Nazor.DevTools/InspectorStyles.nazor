@@ -1,0 +1,74 @@
+@using Nazor.DevTools.Protocol
+<Container Class="panel-scroll">
+    <Container Class="style-content">
+        @if (Capture is null)
+        {
+            <Container Class="empty">
+                <TextBlock Class="empty-title">No styles captured</TextBlock>
+                <TextBlock Class="muted small">@(IsText ? "Text nodes have no style rules of their own; select their parent element." : "Styles are read from the app while it is running. Use refresh to capture this element's cascade.")</TextBlock>
+            </Container>
+        }
+        else
+        {
+            @if (Capture.Rules.Length == 0) { <TextBlock Class="muted small">No matching or inline declarations in this capture.</TextBlock> }
+            @foreach (var rule in Capture.Rules.Reverse())
+            {
+                <Container Class="@("rule" + (rule.MediaMatches == false ? " inactive" : ""))">
+                    @if (rule.Media is not null)
+                    {
+                        <TextBlock Class="media">@("@media " + rule.Media + (rule.MediaMatches == false ? " · inactive" : ""))</TextBlock>
+                    }
+                    <Container Class="rule-header">
+                        <TextBlock Class="selector" IsTextSelectionEnabled="true">@(rule.Level == "inline" ? "element.style" : rule.Selector)</TextBlock>
+                        <TextBlock Class="brace"> {</TextBlock>
+                        <Container Class="spacer" />
+                        <TextBlock Class="source" Tooltip="@Meta(rule)">@Source(rule)</TextBlock>
+                    </Container>
+                    @foreach (var declaration in rule.Declarations)
+                    {
+                        <Container Class="@("declaration" + (declaration.Winning is { Length: 0 } ? " overridden" : ""))">
+                            <TextBlock Class="property-name" IsTextSelectionEnabled="true">@declaration.Name</TextBlock>
+                            <TextBlock Class="colon sep">:</TextBlock>
+                            @if (Swatch(declaration.Value) is { } color)
+                            {
+                                <Container Class="swatch" Style="@("background-color: " + color)" />
+                            }
+                            <TextBlock Class="property-value" IsTextSelectionEnabled="true">@declaration.Value</TextBlock>
+                            <TextBlock Class="colon">;</TextBlock>
+                            @if (declaration.Winning is { Length: 0 })
+                            {
+                                <TextBlock Class="tag">overridden</TextBlock>
+                            }
+                            else if (declaration.Winning is { } winning && declaration.Longhands is { } longhands && winning.Length < longhands.Length)
+                            {
+                                <TextBlock Class="tag" Tooltip="Only these longhands win the cascade">@("wins " + string.Join(", ", winning))</TextBlock>
+                            }
+                        </Container>
+                    }
+                    <TextBlock Class="brace">}</TextBlock>
+                    <TextBlock Class="rule-meta">@Meta(rule)</TextBlock>
+                </Container>
+            }
+        }
+    </Container>
+</Container>
+@code {
+    [Parameter] public StyleDetails? Capture { get; set; }
+    [Parameter] public bool IsText { get; set; }
+
+    private static string Source(StyleRule rule) => rule.Level == "inline" ? "inline" :
+        rule.Source is { } source ? Path.GetFileName(source) + (rule.Line is { } line ? ":" + line : "") : "unknown source";
+    private static string Meta(StyleRule rule) => (rule.Level ?? "Unavailable level") + " · specificity " + (rule.Specificity ?? "unavailable") +
+        " · source order " + (rule.Order?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "unavailable") +
+        (rule.Source is { } source ? " · " + source : "");
+
+    // A literal color gets a small swatch, as in browser tools; computed and variable values are left as text.
+    private static string? Swatch(string value)
+    {
+        var text = value.Trim();
+        if (text.StartsWith('#') && text.Length is 4 or 5 or 7 or 9 && text[1..].All(Uri.IsHexDigit)) return text;
+        if ((text.StartsWith("rgb(", StringComparison.OrdinalIgnoreCase) || text.StartsWith("rgba(", StringComparison.OrdinalIgnoreCase)) && text.EndsWith(')')
+            && text.All(c => char.IsDigit(c) || c is '.' or ',' or ' ' or '%' or '(' or ')' or '/' || char.IsAsciiLetter(c))) return text;
+        return text.ToLowerInvariant() is "red" or "green" or "blue" or "white" or "black" or "orange" or "yellow" or "purple" or "gray" or "grey" ? text : null;
+    }
+}

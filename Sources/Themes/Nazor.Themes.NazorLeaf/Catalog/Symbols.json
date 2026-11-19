@@ -1,0 +1,277 @@
+[
+  {
+    "name": "ArrowDown",
+    "file": "arrow.svg",
+    "codepoint": 57344
+  },
+  {
+    "name": "Back",
+    "file": "back.svg",
+    "codepoint": 57345
+  },
+  {
+    "name": "Bell",
+    "file": "bell.svg",
+    "codepoint": 57346
+  },
+  {
+    "name": "ChevronLeft",
+    "file": "bk.svg",
+    "codepoint": 57347
+  },
+  {
+    "name": "Check",
+    "file": "check.svg",
+    "codepoint": 57348
+  },
+  {
+    "name": "Close",
+    "file": "close.svg",
+    "codepoint": 57349
+  },
+  {
+    "name": "Copy",
+    "file": "copy.svg",
+    "codepoint": 57350
+  },
+  {
+    "name": "Cursor",
+    "file": "cursor.svg",
+    "codepoint": 57351
+  },
+  {
+    "name": "Cut",
+    "file": "cut.svg",
+    "codepoint": 57352
+  },
+  {
+    "name": "ChevronDown",
+    "file": "down.svg",
+    "codepoint": 57353
+  },
+  {
+    "name": "Download",
+    "file": "download.svg",
+    "codepoint": 57354
+  },
+  {
+    "name": "Error",
+    "file": "err.svg",
+    "codepoint": 57355
+  },
+  {
+    "name": "Eye",
+    "file": "eye.svg",
+    "codepoint": 57356
+  },
+  {
+    "name": "File",
+    "file": "file.svg",
+    "codepoint": 57357
+  },
+  {
+    "name": "Folder",
+    "file": "folder.svg",
+    "codepoint": 57358
+  },
+  {
+    "name": "Forward",
+    "file": "fwd.svg",
+    "codepoint": 57359
+  },
+  {
+    "name": "Globe",
+    "file": "globe.svg",
+    "codepoint": 57360
+  },
+  {
+    "name": "Home",
+    "file": "home.svg",
+    "codepoint": 57361
+  },
+  {
+    "name": "Image",
+    "file": "image.svg",
+    "codepoint": 57362
+  },
+  {
+    "name": "Info",
+    "file": "info.svg",
+    "codepoint": 57363
+  },
+  {
+    "name": "Layers",
+    "file": "layers.svg",
+    "codepoint": 57364
+  },
+  {
+    "name": "Leaf",
+    "file": "leaf.svg",
+    "codepoint": 57365
+  },
+  {
+    "name": "List",
+    "file": "list.svg",
+    "codepoint": 57366
+  },
+  {
+    "name": "Maximize",
+    "file": "max.svg",
+    "codepoint": 57367
+  },
+  {
+    "name": "Minimize",
+    "file": "min.svg",
+    "codepoint": 57368
+  },
+  {
+    "name": "More",
+    "file": "more.svg",
+    "codepoint": 57369
+  },
+  {
+    "name": "Motion",
+    "file": "motion.svg",
+    "codepoint": 57370
+  },
+  {
+    "name": "Palette",
+    "file": "palette.svg",
+    "codepoint": 57371
+  },
+  {
+    "name": "Paste",
+    "file": "paste.svg",
+    "codepoint": 57372
+  },
+  {
+    "name": "Pen",
+    "file": "pen.svg",
+    "codepoint": 57373
+  },
+  {
+    "name": "Pin",
+    "file": "pin.svg",
+    "codepoint": 57374
+  },
+  {
+    "name": "Plus",
+    "file": "plus.svg",
+    "codepoint": 57375
+  },
+  {
+    "name": "Redo",
+    "file": "redo.svg",
+    "codepoint": 57376
+  },
+  {
+    "name": "ChevronRight",
+    "file": "right.svg",
+    "codepoint": 57377
+  },
+  {
+    "name": "Search",
+    "file": "search.svg",
+    "codepoint": 57378
+  },
+  {
+    "name": "Share",
+    "file": "share.svg",
+    "codepoint": 57379
+  },
+  {
+    "name": "Sidebar",
+    "file": "sidebar.svg",
+    "codepoint": 57380
+  },
+  {
+    "name": "Sliders",
+    "file": "sliders.svg",
+    "codepoint": 57381
+  },
+  {
+    "name": "Star",
+    "file": "star.svg",
+    "codepoint": 57382
+  },
+  {
+    "name": "Table",
+    "file": "table.svg",
+    "codepoint": 57383
+  },
+  {
+    "name": "Tabs",
+    "file": "tabs.svg",
+    "codepoint": 57384
+  },
+  {
+    "name": "TextBox",
+    "file": "textbox.svg",
+    "codepoint": 57385
+  },
+  {
+    "name": "Toggle",
+    "file": "toggle.svg",
+    "codepoint": 57386
+  },
+  {
+    "name": "Trash",
+    "file": "trash.svg",
+    "codepoint": 57387
+  },
+  {
+    "name": "Typography",
+    "file": "type.svg",
+    "codepoint": 57388
+  },
+  {
+    "name": "Undo",
+    "file": "undo.svg",
+    "codepoint": 57389
+  },
+  {
+    "name": "Warning",
+    "file": "warn.svg",
+    "codepoint": 57390
+  },
+  {
+    "name": "Window",
+    "file": "window.svg",
+    "codepoint": 57391
+  },
+  {
+    "name": "StarFilled",
+    "file": "starfilled.svg",
+    "codepoint": 57392
+  },
+  {
+    "name": "Mail",
+    "file": "mail.svg",
+    "codepoint": 57393
+  },
+  {
+    "name": "Chat",
+    "file": "chat.svg",
+    "codepoint": 57394
+  },
+  {
+    "name": "At",
+    "file": "at.svg",
+    "codepoint": 57395
+  },
+  {
+    "name": "Pause",
+    "file": "pause.svg",
+    "codepoint": 57396
+  },
+  {
+    "name": "Dot",
+    "file": "dot.svg",
+    "codepoint": 57397
+  },
+  {
+    "name": "Dock",
+    "file": "dock.svg",
+    "codepoint": 57398
+  }
+]

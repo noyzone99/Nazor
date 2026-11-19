@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CommandTable xmlns="http://schemas.microsoft.com/VisualStudio/2005-10-18/CommandTable">
+  <Extern href="stdidcmd.h" />
+  <Extern href="vsshlids.h" />
+  <Commands package="guidPackage">
+    <Groups><Group guid="guidCommands" id="DevToolsGroup" priority="0x0700"><Parent guid="guidSHLMainMenu" id="IDM_VS_MENU_TOOLS" /></Group></Groups>
+    <Buttons><Button guid="guidCommands" id="OpenDevTools" priority="0x0100" type="Button">
+      <Parent guid="guidCommands" id="DevToolsGroup" />
+      <Strings><ButtonText>Nazor DevTools</ButtonText><CommandName>Nazor.OpenDevTools</CommandName></Strings>
+    </Button></Buttons>
+  </Commands>
+  <Symbols>
+    <GuidSymbol name="guidPackage" value="{44C56C55-B3EB-48EF-B102-F37FD96E434D}" />
+    <GuidSymbol name="guidCommands" value="{66C1A152-62A2-4CF1-A6F5-A8A67A8F0610}"><IDSymbol name="DevToolsGroup" value="0x1020" /><IDSymbol name="OpenDevTools" value="0x0100" /></GuidSymbol>
+  </Symbols>
+</CommandTable>

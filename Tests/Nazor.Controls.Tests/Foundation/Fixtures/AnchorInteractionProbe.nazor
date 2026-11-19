@@ -1,0 +1,19 @@
+@implements IRefreshable
+<SearchField TItem="string" @ref="Search" Suggestions="Cities" @bind-Value="Query" OnSearch="Queries.Add" />
+<ComboBox TItem="string" @ref="Combo" Items="Cities" @bind-Value="Choice" />
+<Select TValue="string" @ref="Select" Items="Cities" @bind-IsOpen="SelectOpen" />
+<Button Class="outside" OnClick="() => OutsideClicks++">Outside</Button>
+<Dialog @bind-IsOpen="Modal" Title="Guard" CloseOnOutside="false"><ChildContent><Button>Inside</Button></ChildContent></Dialog>
+@code {
+    public SearchField<string> Search { get; set; } = null!;
+    public ComboBox<string> Combo { get; set; } = null!;
+    public Select<string> Select { get; set; } = null!;
+    public string[] Cities { get; } = ["Rome", "Milan", "Paris"];
+    public string? Query { get; set; }
+    public string? Choice { get; set; }
+    public bool SelectOpen { get; set; }
+    public bool Modal { get; set; }
+    public int OutsideClicks { get; set; }
+    public List<string> Queries { get; } = [];
+    public void Refresh() => StateHasChanged();
+}

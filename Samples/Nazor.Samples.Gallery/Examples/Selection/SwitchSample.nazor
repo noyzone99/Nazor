@@ -1,0 +1,6 @@
+<Switch @bind-IsOn="enabled">Notifications</Switch>
+<TextBlock>@(enabled ? "Notifications on" : "Notifications off")</TextBlock>
+
+@code {
+    private bool enabled = true;
+}

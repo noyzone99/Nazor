@@ -1,0 +1,21 @@
+<Container Style="display: flex; flex-direction: column; gap: 12px; max-width: 460px">
+    <FlipView TItem="string" Items="pages" @bind-SelectedIndex="selected" AccessibleName="Feature pages" Style="height: 150px">
+        <ItemTemplate Context="page">
+            <Container Style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; padding: 28px">
+            <Heading Level="3">@(page)</Heading>
+            </Container>
+        </ItemTemplate>
+    </FlipView>
+    <PipsPager Count="pages.Length" @bind-SelectedIndex="selected" AccessibleName="Choose a feature page" />
+    <TextBlock>@($"Selected page: {selected + 1} of {pages.Length}")</TextBlock>
+    <Field LabelText="Independent vertical pager">
+        <PipsPager Count="24" MaxVisiblePips="5" Orientation="Orientation.Vertical" @bind-SelectedIndex="vertical" />
+    </Field>
+    <Paragraph>Tab reaches the selected dot. Use arrows along its axis, Home or End. The pager and FlipView share application state; neither requires the other control.</Paragraph>
+</Container>
+
+@code {
+    private readonly string[] pages = ["Binding", "Layouts", "Themes", "Commands", "Templates", "Portability", "Accessibility"];
+    private int selected;
+    private int vertical;
+}

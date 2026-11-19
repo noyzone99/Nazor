@@ -1,0 +1,9 @@
+<PageHeader Title="Projects" Subtitle="Recently opened">
+    <Actions><Button OnClick="Create">New project</Button></Actions>
+</PageHeader>
+<TextBlock>@status</TextBlock>
+
+@code {
+    private string status = "";
+    private void Create() => status = "New project requested.";
+}

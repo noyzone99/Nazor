@@ -1,0 +1,27 @@
+@using Nazor.Controls.Primitives
+
+<Container Class="row">
+    <Button @ref="anchor" OnClick="() => open = !open">Toggle a popover</Button>
+    <Select TValue="OverlayPlacement" @bind-Value="placement" Items="placements" AccessibleName="Placement" />
+    <Select TValue="OverlayAlignment" @bind-Value="alignment" Items="alignments" AccessibleName="Alignment" />
+</Container>
+<PopoverContainer @bind-IsOpen="open" Anchor="anchor?.Element" Placement="placement" Alignment="alignment" Offset="4" ShowArrow="true" AccessibleName="Details">
+    <Container Class="panel">
+        <TextBlock>Anchored content without a predefined look.</TextBlock>
+        <Button OnClick="() => open = false">Close</Button>
+    </Container>
+</PopoverContainer>
+
+@code {
+    private Button? anchor;
+    private bool open;
+    private OverlayPlacement placement;
+    private OverlayAlignment alignment;
+    private readonly OverlayPlacement[] placements = Enum.GetValues<OverlayPlacement>();
+    private readonly OverlayAlignment[] alignments = Enum.GetValues<OverlayAlignment>();
+}
+
+@style {
+    .row { display: flex; gap: 8px; align-items: center; }
+    .panel { display: flex; flex-direction: column; gap: 8px; width: 220px; }
+}

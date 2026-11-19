@@ -1,0 +1,5 @@
+@page "/gallery/{Section}"
+
+<Heading Level="2">@Section</Heading>
+<TextBlock>This component is rendered inside Frame.</TextBlock>
+@code { [Parameter] public string Section { get; set; } = ""; }

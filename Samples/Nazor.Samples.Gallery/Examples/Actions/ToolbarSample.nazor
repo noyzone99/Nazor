@@ -1,0 +1,45 @@
+@using Nazor.Controls.Primitives
+<Toolbar Class="tools" AccessibleName="Editor tools">
+    <ToolbarGroup Label="History">
+        <Button OnClick="() => edits--">Undo</Button>
+        <Button OnClick="() => edits++">Redo</Button>
+    </ToolbarGroup>
+    <ToolbarSeparator />
+    <ToggleButton @bind-IsPressed="bold">Bold</ToggleButton>
+    <ToolbarSpacer />
+    <Button OnClick="() => edits = 0">Reset</Button>
+</Toolbar>
+<TextBlock>@($"Edit count: {edits}")</TextBlock>
+<Field LabelText="Command bar width"><Slider Id="sample-toolbar-width" Minimum="140" Maximum="640" Step="20" @bind-Value="width" /></Field>
+<Field LabelText="Command labels"><Select Id="sample-toolbar-labels" TValue="ToolbarLabelPosition" Items="positions" @bind-Value="position" /></Field>
+<CheckBox Id="sample-toolbar-delete-enabled" @bind-IsChecked="deleteEnabled">Enable Delete command</CheckBox>
+<Container Style="@($"width: {width:0}px; max-width: 100%")">
+    <Toolbar Id="sample-command-toolbar" Commands="commands" CommandPriority="Priority" LabelPosition="position" AccessibleName="Responsive document commands">
+        <CommandIcon Context="command"><Icon Glyph="@command.Text.Substring(0, 1)" /></CommandIcon>
+    </Toolbar>
+</Container>
+<TextBlock Id="sample-toolbar-result">@status</TextBlock>
+<TextBlock>Save has the highest priority. Resize to move other commands into More options; Wrap retains its checked state in either presentation.</TextBlock>
+@code {
+    private int edits;
+    private bool bold;
+    private double width = 240;
+    private ToolbarLabelPosition position;
+    private readonly ToolbarLabelPosition[] positions = Enum.GetValues<ToolbarLabelPosition>();
+    private readonly List<Command> commands = [];
+    private Command delete = null!, wrap = null!;
+    private string status = "Choose a command, including from the overflow menu.";
+    private bool deleteEnabled { get => delete.IsEnabled; set => delete.IsEnabled = value; }
+
+    protected override void OnInitialized()
+    {
+        foreach (var name in new[] { "New", "Open", "Save", "Print", "Export" })
+            commands.Add(new Command(name, () => Report("Executed " + name)));
+        wrap = new Command("Wrap", () => Report("Wrap: " + (wrap.IsChecked == true ? "on" : "off"))) { IsChecked = false };
+        delete = new Command("Delete", () => Report("Executed Delete")) { IsEnabled = false };
+        commands.Add(wrap); commands.Add(delete);
+    }
+    private static int Priority(Command command) => command.Text == "Save" ? 10 : command.Text == "Delete" ? 0 : 1;
+    private void Report(string value) { status = value; StateHasChanged(); }
+}
+@style { .tools { align-self: stretch; } }

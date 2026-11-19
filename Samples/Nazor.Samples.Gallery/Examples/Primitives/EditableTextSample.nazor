@@ -1,0 +1,5 @@
+@using Nazor.Controls.Primitives
+<EditableText Class="editor" @bind-Value="text" AccessibleName="Draft" />
+<TextBlock>@($"{text.Length} characters")</TextBlock>
+@code { private string text = "Editable text"; }
+@style { .editor { display: block; min-width: 200px; border: 1px solid GrayText; padding: 6px; } }

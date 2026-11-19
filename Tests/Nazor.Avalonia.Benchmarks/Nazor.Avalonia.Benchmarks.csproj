@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <TieredCompilation>false</TieredCompilation>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../RendererComparison/ComparisonSession.cs" Link="Comparison/ComparisonSession.cs" />
+    <PackageReference Include="Avalonia.Desktop" />
+  </ItemGroup>
+  <ItemGroup>
+    <AvaloniaResource Include="../Assets/Fonts/FiraSans-Regular.ttf" Link="Fonts/FiraSans-Regular.ttf" />
+    <None Include="../Assets/Fonts/FiraSans-Regular.ttf" Link="Fonts/FiraSans-Regular.ttf" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

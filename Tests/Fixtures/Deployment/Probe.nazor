@@ -1,0 +1,13 @@
+@namespace Deployment
+<Container>
+    <TextBlock>Deployment @count</TextBlock>
+    <Button Id="increment" @onclick="Increment">Increment</Button>
+</Container>
+@style {
+    Container { padding: 16px; gap: 8px; }
+    TextBlock { color: #123456; }
+}
+@code {
+    private int count;
+    private void Increment() => count++;
+}

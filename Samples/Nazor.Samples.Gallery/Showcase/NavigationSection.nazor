@@ -1,0 +1,158 @@
+@using Nazor.Themes.NazorLeaf
+@using Nazor.Presentation
+@using Nazor.Style
+@implements IDisposable
+<Container Class="demo-section">
+    <Heading Level="3">Schede, percorsi ed espansori</Heading>
+    <Paragraph Class="demo-lead">La scheda attiva è una foglia sollevata con un seme sotto. Le schede qui sotto mostrano i token reali del seme che hai scelto.</Paragraph>
+    <Container Class="demo-crumbs">
+        <Button Appearance="ControlAppearance.Subtle" AccessibleName="Home"><Leading><Icon Symbol="@LeafSymbol.Home" /></Leading></Button>
+        <Container Class="demo-sepc" />
+        <Button Appearance="ControlAppearance.Subtle">Progetti</Button>
+        <Container Class="demo-sepc" />
+        <Button Appearance="ControlAppearance.Subtle">Nazor</Button>
+        <Container Class="demo-sepc" />
+        <TextBlock Class="demo-crumb-current">Temi</TextBlock>
+    </Container>
+    <Tabs>
+        <Tab Label="Colori">
+            <Container Class="demo-swatches">
+                @foreach (var (name, token) in tokens)
+                {
+                    <Container Class="demo-swatch">
+                        <Container @ref="swatches[token]" Class="demo-swatch-color" Style="@($"background: var(--leaf-{token})")" />
+                        <Container Class="demo-swatch-text"><TextBlock>@name</TextBlock><TextBlock Id="@($"token-{token}")" Class="demo-code">@tokenValues.GetValueOrDefault(token, $"var(--leaf-{token})")</TextBlock></Container>
+                    </Container>
+                }
+            </Container>
+        </Tab>
+        <Tab Label="Forme">
+            <Container Class="demo-shapes">
+                @foreach (var (name, radius, width, height) in shapes)
+                {
+                    <Container Class="demo-shape">
+                        <Container @ref="shapeViews[radius]" Class="demo-shape-leaf" Style="@($"width: {width}px; height: {height}px; border-radius: var(--leaf-r-{radius})")" />
+                        <TextBlock>@name</TextBlock><TextBlock Id="@($"radius-{radius}")" Class="demo-code">@shapeValues.GetValueOrDefault(radius, $"var(--leaf-r-{radius})")</TextBlock>
+                    </Container>
+                }
+            </Container>
+        </Tab>
+        <Tab Label="Movimento">
+            <Container @key="motionRun" Class="@(motionRun > 0 ? "demo-motion run" : "demo-motion")">
+                @foreach (var (name, hint, duration, curve) in motions)
+                {
+                    <Container Class="demo-motion-row">
+                        <Container Class="demo-motion-label"><TextBlock>@name</TextBlock><TextBlock Class="demo-code">@hint</TextBlock></Container>
+                        <Container Class="demo-motion-lane"><Container Class="demo-motion-seed" Style="@($"--demo-duration: {duration}ms; --demo-curve: {curve}")" /></Container>
+                    </Container>
+                }
+            </Container>
+            <Container Class="demo-row"><Button Id="replay-motion" Appearance="ControlAppearance.Tonal" OnClick="() => motionRun++">Riproduci le curve</Button></Container>
+        </Tab>
+    </Tabs>
+    <Accordion Class="demo-gap-22">
+        <AccordionItem Value="shape" Header="Perché la foglia" Subtitle="Angoli piccoli dove serve precisione, ampi dove serve morbidezza">
+            <Leading><Container Class="demo-licon" Style="--demo-c: var(--leaf-g1)"><Icon Symbol="@LeafSymbol.Leaf" /></Container></Leading>
+            <ChildContent><Paragraph>Gli angoli quasi vivi tengono allineati i controlli nelle interfacce dense. I due angoli ampi in diagonale danno una sagoma che non appartiene a nessun altro sistema: la riconosci anche in una miniatura sfocata.</Paragraph></ChildContent>
+        </AccordionItem>
+        <AccordionItem Value="color" Header="Come nasce la tinta" Subtitle="Un seme genera tutte le superfici">
+            <Leading><Container Class="demo-licon" Style="--demo-c: var(--leaf-g4)"><Icon Symbol="@LeafSymbol.Layers" /></Container></Leading>
+            <ChildContent><Paragraph>Ogni app sceglie un seme tra i quattro colori Google o uno proprio. Le superfici neutre ricevono dal 2 al 12 per cento del seme.</Paragraph></ChildContent>
+        </AccordionItem>
+        <AccordionItem Value="access" Header="Accessibilità" Subtitle="Contrasto, focus e movimento ridotto">
+            <Leading><Container Class="demo-licon" Style="--demo-c: var(--leaf-g2)"><Icon Symbol="@LeafSymbol.Eye" /></Container></Leading>
+            <ChildContent><Paragraph>Il focus da tastiera segue la sagoma della foglia. Con il movimento ridotto, foglie e semi cambiano stato senza animazione.</Paragraph></ChildContent>
+        </AccordionItem>
+    </Accordion>
+</Container>
+
+@code {
+    [CascadingParameter(Name = "gallery-scene")] public Scene? Scene { get; set; }
+    private Scene? observed;
+    private readonly Dictionary<string, Container> swatches = [], shapeViews = [];
+    private readonly Dictionary<string, Nazor.Style.Color> colors = [];
+    private readonly Dictionary<string, string> tokenValues = [], shapeValues = [];
+
+    protected override void OnParametersSet()
+    {
+        if (ReferenceEquals(observed, Scene)) return;
+        if (observed is not null) observed.Updated -= ReadValues;
+        observed = Scene;
+        if (observed is not null) observed.Updated += ReadValues;
+    }
+
+    private void ReadValues()
+    {
+        if (observed is null) return;
+        var changed = false;
+        foreach (var (key, view) in swatches)
+        {
+            if (view.Element.Element is not { IsRemoved: false } element) continue;
+            var color = observed.GetEffectiveValue(element, StyleProperties.BackgroundColor);
+            if (colors.TryGetValue(key, out var previous) && previous == color) continue;
+            colors[key] = color;
+            tokenValues[key] = color.ToString().ToUpperInvariant();
+            changed = true;
+        }
+        foreach (var (key, view) in shapeViews)
+        {
+            if (view.Element.Element is not { IsRemoved: false } element) continue;
+            var style = observed.GetStyle(element);
+            var text = $"{style.Get(StyleProperties.BorderTopLeftRadius).X} / {style.Get(StyleProperties.BorderTopRightRadius).X}";
+            if (shapeValues.GetValueOrDefault(key) == text) continue;
+            shapeValues[key] = text;
+            changed = true;
+        }
+        if (changed) StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        if (observed is not null) observed.Updated -= ReadValues;
+        observed = null;
+    }
+
+    private int motionRun;
+    private readonly (string, string, int, string)[] motions =
+    [
+        ("Tocco, 120 ms", "Pressione e rilascio", 120, "cubic-bezier(.2,0,0,1)"),
+        ("Apertura, 500 ms", "Menu che si srotolano", 500, "cubic-bezier(.16,1,.3,1)"),
+        ("Seme, 550 ms", "Indicatori che viaggiano", 550, "cubic-bezier(.34,1.5,.64,1)"),
+        ("Finestra, 900 ms", "Comparsa delle finestre", 900, "cubic-bezier(.16,1,.3,1)"),
+    ];
+    private readonly (string, string)[] tokens =
+    [
+        ("Seme", "primary"), ("Su seme", "on-primary"), ("Contenitore", "pc"), ("Su contenitore", "on-pc"),
+        ("Testo d’accento", "ink"), ("Vassoio", "tray"), ("Riquadro", "pane"), ("Superficie 1", "s1"),
+        ("Superficie 3", "s3"), ("Successo", "ok"), ("Attenzione", "warn"), ("Errore", "err"),
+    ];
+    private readonly (string, string, int, int)[] shapes =
+        [("Controlli", "ctl", 72, 34), ("Menu e schede", "ovl", 104, 72), ("Riquadri", "pane", 128, 92), ("Finestre", "win", 150, 104)];
+}
+@style {
+    .demo-crumbs { display: flex; flex-direction: row; align-items: center; flex-wrap: wrap; gap: 2px; margin-bottom: 16px; font-size: 14px; }
+    .demo-crumbs > Button { min-height: 0; padding: 4px 7px; color: var(--leaf-text-2); font-weight: 400; }
+    .demo-crumbs > Button:hover { color: var(--leaf-text); }
+    .demo-crumbs Icon { width: 16px; height: 16px; font-size: 16px; }
+    .demo-sepc { width: 5px; height: 9px; margin: 0 3px; border-radius: 4px 1px 4px 1px; background: var(--leaf-s3); }
+    .demo-crumb-current { padding: 4px 7px; font-weight: 650; }
+    .demo-swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
+    .demo-swatch { display: flex; flex-direction: column; border-radius: var(--leaf-r-ovl); background: var(--leaf-s1); box-shadow: inset 0 0 0 1px var(--leaf-stroke); overflow-x: hidden; overflow-y: hidden; }
+    .demo-swatch-color { height: 58px; border-radius: 16px 4px 0 0; }
+    .demo-swatch-text { display: block; padding: 8px 11px 10px; font-size: 12.5px; }
+    .demo-swatch-text > .demo-code { line-height: 18.75px; }
+    .demo-code { font-family: var(--leaf-font-mono); font-size: 11.5px; color: var(--leaf-text-3); }
+    .demo-shapes { display: flex; flex-direction: row; flex-wrap: wrap; gap: 16px; align-items: flex-end; }
+    .demo-shape { display: flex; flex-direction: column; gap: 8px; align-items: center; font-size: 12.5px; color: var(--leaf-text-2); }
+    .demo-shape-leaf { background: var(--leaf-pc); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--leaf-primary) 40%, transparent); }
+    .demo-gap-22 { margin-top: 22px; }
+    .demo-motion { display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; }
+    .demo-motion-row { display: flex; flex-direction: row; align-items: center; gap: 14px; }
+    .demo-motion-label { width: 200px; flex-shrink: 0; display: flex; flex-direction: column; font-size: 13px; }
+    .demo-motion-lane { flex: 1; min-width: 80px; height: 30px; border-radius: 15px 4px 15px 4px; background: var(--leaf-s2); position: relative; }
+    .demo-motion-seed { position: absolute; top: 5px; left: 5px; width: 20px; height: 20px; border-radius: 11px 3px 11px 3px; background: var(--leaf-primary); }
+    .run .demo-motion-seed { animation: demo-slide var(--demo-duration) var(--demo-curve) forwards; }
+    @keyframes demo-slide { from { left: 5px; transform: rotate(0deg); } to { left: calc(100% - 25px); transform: rotate(180deg); } }
+    @media (prefers-reduced-motion: reduce) { .run .demo-motion-seed { animation: none; left: calc(100% - 25px); transform: rotate(180deg); } }
+    @media (max-width: 600px) { .demo-motion-row { flex-direction: column; align-items: stretch; gap: 4px; } .demo-motion-label { width: auto; } .demo-motion-lane { flex: none; } }
+}

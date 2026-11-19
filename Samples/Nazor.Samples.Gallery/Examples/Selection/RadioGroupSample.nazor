@@ -1,0 +1,6 @@
+<RadioGroup TValue="string" @bind-Value="delivery" AccessibleName="Delivery">
+    <RadioButton Value="@("standard")">Standard</RadioButton>
+    <RadioButton Value="@("express")">Express</RadioButton>
+</RadioGroup>
+<TextBlock>@($"Delivery: {delivery}")</TextBlock>
+@code { private string delivery = "standard"; }

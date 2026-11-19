@@ -1,0 +1,18 @@
+<Container Id="@Id" Class="@(Selected ? "device-card selected" : "device-card")" AccessibleName="@Name">
+    <Container Class="heading">
+        <TextBlock Class="name">@Name</TextBlock>
+        <TextBlock Class="@(Active ? "state active" : "state")">@(Active ? "Attivo" : "Non attivo")</TextBlock>
+    </Container>
+    @ChildContent
+    <Button Class="select" @onclick="OnSelect" AccessibleName="@($"Seleziona {Name}")">@(Selected ? "Selezionato" : "Seleziona")</Button>
+</Container>
+
+@code {
+    [Parameter] public string? Id { get; set; }
+    [Parameter] public string Name { get; set; } = "";
+    [Parameter] public bool Active { get; set; }
+    [Parameter] public bool Selected { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    [Parameter] public EventCallback OnSelect { get; set; }
+}

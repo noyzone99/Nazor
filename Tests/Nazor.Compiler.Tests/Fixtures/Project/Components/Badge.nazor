@@ -1,0 +1,5 @@
+<TextBlock Class="badge">@Label (@Count)</TextBlock>
+
+@style {
+    .badge { padding: 4px; }
+}

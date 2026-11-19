@@ -1,0 +1,5 @@
+<Card Title="Quarterly report" Subtitle="Updated today">
+    <Footer><Button OnClick="() => saved = true">Save report</Button></Footer>
+    <ChildContent><Paragraph>@(saved ? "Report saved." : "Review the results before sharing.")</Paragraph></ChildContent>
+</Card>
+@code { private bool saved; }

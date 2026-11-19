@@ -1,0 +1,69 @@
+<Project>
+  <PropertyGroup>
+    <_NazorRuntimePlatform>portable</_NazorRuntimePlatform>
+    <_NazorRuntimePlatform Condition="'$(RuntimeIdentifier)' != ''">unsupported</_NazorRuntimePlatform>
+    <_NazorRuntimePlatform Condition="$([System.String]::Copy('$(RuntimeIdentifier)').StartsWith('win-'))">windows</_NazorRuntimePlatform>
+    <_NazorRuntimePlatform Condition="$([System.String]::Copy('$(RuntimeIdentifier)').StartsWith('linux-'))">linux</_NazorRuntimePlatform>
+    <NazorLinuxNativeLibraries Condition="'$(NazorLinuxNativeLibraries)' == ''">All</NazorLinuxNativeLibraries>
+    <_NazorLinuxNativeLibraries>All</_NazorLinuxNativeLibraries>
+    <_NazorLinuxNativeLibraries Condition="'$(_NazorRuntimePlatform)' == 'linux' or '$(_NazorRuntimePlatform)' == 'portable'">$(NazorLinuxNativeLibraries)</_NazorLinuxNativeLibraries>
+    <_NazorNativeLibrariesToBuild Condition="'$(_NazorNativeLibrariesToBuild)' == ''">$(_NazorLinuxNativeLibraries)</_NazorNativeLibrariesToBuild>
+    <_NazorRuntimeReferenceProperties Condition="'$(NazorRuntimeIdentifier)' != ''">NazorRuntimeIdentifier=$(NazorRuntimeIdentifier)</_NazorRuntimeReferenceProperties>
+    <_NazorRuntimeReferenceProperties Condition="'$(NazorRuntimeIdentifier)' == '' and '$(RuntimeIdentifier)' != ''">NazorRuntimeIdentifier=$(RuntimeIdentifier)</_NazorRuntimeReferenceProperties>
+    <_NazorNativeReferenceProperties>$(_NazorRuntimeReferenceProperties)</_NazorNativeReferenceProperties>
+    <!-- Omit defaults: an extra global property creates another MSBuild project instance. -->
+    <_NazorNativeReferenceProperties Condition="'$(_NazorNativeLibrariesToBuild)' != '' and '$(_NazorNativeLibrariesToBuild)' != 'All'">$(_NazorNativeReferenceProperties);_NazorNativeLibrariesToBuild=$(_NazorNativeLibrariesToBuild)</_NazorNativeReferenceProperties>
+    <_NazorDesktopPackage>Nazor.Hosting.Desktop</_NazorDesktopPackage>
+    <_NazorDevToolsPackage Condition="'$(NazorEnableDevTools)' == 'true'">Nazor.DevTools.Agent</_NazorDevToolsPackage>
+    <_NazorDesktopPackage Condition="'$(_NazorRuntimePlatform)' == 'windows'">Nazor.Hosting.Desktop.Windows</_NazorDesktopPackage>
+    <_NazorDesktopPackage Condition="'$(_NazorRuntimePlatform)' == 'linux'">Nazor.Hosting.Desktop.Linux</_NazorDesktopPackage>
+  </PropertyGroup>
+  <Target Name="NazorValidateLinuxNativeLibrariesSettings" BeforeTargets="CollectPackageReferences;PrepareForBuild;ComputeFilesToPublish"
+          Condition="('$(_NazorRuntimePlatform)' == 'linux' or '$(_NazorRuntimePlatform)' == 'portable') and ('$(OutputType)' == 'Exe' or '$(OutputType)' == 'WinExe')">
+    <Error Condition="'$(_NazorLinuxNativeLibraries)' != 'All' and '$(_NazorLinuxNativeLibraries)' != 'Wayland' and '$(_NazorLinuxNativeLibraries)' != 'None' and '$(_NazorLinuxNativeLibraries)' != 'X11'" Code="NZB011"
+           Text="Invalid NazorLinuxNativeLibraries '$(NazorLinuxNativeLibraries)'. Use All (default), Wayland, X11 or None." />
+  </Target>
+  <Target Name="NazorFilterLinuxNativeLibrariesContent" AfterTargets="ComputeResolvedFilesToPublishList"
+          Condition="'$(_NazorRuntimePlatform)' == 'linux' or '$(_NazorRuntimePlatform)' == 'portable'">
+    <ItemGroup>
+      <ResolvedFileToPublish Remove="@(ResolvedFileToPublish->WithMetadataValue('Filename', 'libnazor-wayland'))" Condition="'$(_NazorLinuxNativeLibraries)' == 'None' or '$(_NazorLinuxNativeLibraries)' == 'X11'" />
+      <ResolvedFileToPublish Remove="@(ResolvedFileToPublish->WithMetadataValue('Filename', 'libnazor-x11'))" Condition="'$(_NazorLinuxNativeLibraries)' == 'None' or '$(_NazorLinuxNativeLibraries)' == 'Wayland'" />
+    </ItemGroup>
+  </Target>
+  <!-- Explicit CopyToPublishDirectory content is not filtered by the .NET native-asset resolver. -->
+  <Target Name="NazorFilterRuntimeContent" AfterTargets="ComputeResolvedFilesToPublishList" Condition="'$(RuntimeIdentifier)' != ''">
+    <ItemGroup>
+      <ResolvedFileToPublish Remove="@(ResolvedFileToPublish)"
+          Condition="$([System.String]::Copy('%(ResolvedFileToPublish.RelativePath)').Replace('\', '/').StartsWith('runtimes/')) and !$([System.String]::Copy('%(ResolvedFileToPublish.RelativePath)').Replace('\', '/').StartsWith('runtimes/$(RuntimeIdentifier)/'))" />
+      <!-- Preserve every Windows native asset, but use the same flat RID layout as NuGet native assets. -->
+      <ResolvedFileToPublish Condition="'$(_NazorRuntimePlatform)' == 'windows' and $([System.String]::Copy('%(ResolvedFileToPublish.RelativePath)').Replace('\', '/').StartsWith('runtimes/$(RuntimeIdentifier)/native/'))">
+        <RelativePath>%(Filename)%(Extension)</RelativePath>
+      </ResolvedFileToPublish>
+    </ItemGroup>
+  </Target>
+  <Target Name="NazorValidateNativePublication" BeforeTargets="_ComputeFilesToBundle" AfterTargets="ComputeFilesToPublish" DependsOnTargets="NazorValidateLinuxNativeLibrariesSettings"
+          Condition="'$(_NazorRuntimePlatform)' == 'linux' and '$(_NazorLinuxNativeLibraries)' != 'None' and '$(NazorImplicitRuntimeReference)' != 'false' and ('$(OutputType)' == 'Exe' or '$(OutputType)' == 'WinExe')">
+    <ItemGroup>
+      <_NazorPublishedNativeLibrary Include="@(ResolvedFileToPublish->WithMetadataValue('Filename', 'libnazor-wayland'))"
+          Condition="$([System.String]::Copy('%(ResolvedFileToPublish.Identity)').Replace('\', '/').EndsWith('/runtimes/$(RuntimeIdentifier)/native/libnazor-wayland.so')) or $([System.String]::Copy('%(ResolvedFileToPublish.Identity)').Replace('\', '/').EndsWith('/artifacts/native/$(RuntimeIdentifier)/libnazor-wayland.so'))" />
+      <_NazorPublishedX11Library Include="@(ResolvedFileToPublish->WithMetadataValue('Filename', 'libnazor-x11'))"
+          Condition="$([System.String]::Copy('%(ResolvedFileToPublish.Identity)').Replace('\', '/').EndsWith('/runtimes/$(RuntimeIdentifier)/native/libnazor-x11.so')) or $([System.String]::Copy('%(ResolvedFileToPublish.Identity)').Replace('\', '/').EndsWith('/artifacts/native/$(RuntimeIdentifier)/libnazor-x11.so'))" />
+    </ItemGroup>
+    <Error Condition="('$(NazorLinuxNativeLibraries)' == 'All' or '$(NazorLinuxNativeLibraries)' == 'Wayland') and '@(_NazorPublishedNativeLibrary)' == ''" Code="NZB004"
+           Text="The Nazor Wayland native library for the exact RID '$(RuntimeIdentifier)' is missing. Build or install native assets matching its architecture and libc before publishing; a different RID's native library cannot be substituted." />
+    <Error Condition="('$(NazorLinuxNativeLibraries)' == 'All' or '$(NazorLinuxNativeLibraries)' == 'X11') and '@(_NazorPublishedX11Library)' == ''" Code="NZB004"
+           Text="The Nazor X11 native library for the exact RID '$(RuntimeIdentifier)' is missing. Build or install libnazor-x11.so matching its architecture and libc before publishing." />
+  </Target>
+  <Target Name="NazorValidatePortableNativePublication" BeforeTargets="_ComputeFilesToBundle" AfterTargets="ComputeFilesToPublish" DependsOnTargets="NazorValidateLinuxNativeLibrariesSettings"
+          Condition="'$(_NazorRuntimePlatform)' == 'portable' and '$(_NazorLinuxNativeLibraries)' != 'None' and '$(NazorImplicitRuntimeReference)' != 'false' and ('$(OutputType)' == 'Exe' or '$(OutputType)' == 'WinExe')">
+    <ItemGroup>
+      <_NazorPortableNativeRid Include="linux-x64;linux-arm64;linux-musl-x64;linux-musl-arm64" />
+      <_NazorMissingPortableNative Include="@(_NazorPortableNativeRid->'runtimes/%(Identity)/native/libnazor-wayland.so')" Condition="'$(_NazorLinuxNativeLibraries)' != 'X11'" />
+      <_NazorMissingPortableNative Include="@(_NazorPortableNativeRid->'runtimes/%(Identity)/native/libnazor-x11.so')" Condition="'$(_NazorLinuxNativeLibraries)' != 'Wayland'" />
+      <_NazorPortablePublishedPath Include="@(ResolvedFileToPublish->'%(RelativePath)')" />
+      <_NazorMissingPortableNative Remove="@(_NazorPortablePublishedPath->Replace('\', '/'))" />
+    </ItemGroup>
+    <Error Condition="'@(_NazorMissingPortableNative)' != ''" Code="NZB004"
+           Text="The portable Nazor publication is missing native Linux assets: @(_NazorMissingPortableNative, ', '). Build or install all selected architecture/libc variants before publishing, or use a specific RuntimeIdentifier." />
+  </Target>
+</Project>

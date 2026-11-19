@@ -1,0 +1,9 @@
+<Container Class="outer">
+    <DeepChild />
+</Container>
+
+@style {
+    @media (platform: windows) {
+        .outer ::deep .inside { padding: 17px; }
+    }
+}

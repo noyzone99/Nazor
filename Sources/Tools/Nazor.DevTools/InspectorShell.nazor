@@ -1,0 +1,349 @@
+@implements IDisposable
+@using Nazor.Themes.NazorLeaf
+
+<Container Class="shell">
+    <Tabs Class="panels" SelectedIndex="panel" SelectedIndexChanged="ChangePanel">
+        <Tab Label="Components">
+            <Leading><Icon Source="InspectorIcons.Components" Class="tab-icon" /></Leading>
+            <ChildContent>
+                @Banner
+                @if (data.Tree is null) { @Welcome }
+                else
+                {
+                    <SplitView Class="panel-split" PanePlacement="SplitViewPanePlacement.End" PaneSize="sidebarWidth" PaneSizeChanged="ResizeSidebar"
+                               MinPaneSize="280" MaxPaneSize="760" ResizeHandleAccessibleName="Resize details sidebar">
+                        <Pane>
+                            <ComponentDetails Component="SelectedComponent" Components="components" Elements="elements" Debugger="data.Debugger" Fields="data.DebuggerFields"
+                                              CanShowInApp="@(CanUseSelection && !busy)" OnShowInApp="HighlightAsync" OnHideInApp="HideHighlightAsync" OnNavigate="NavigateTo" />
+                        </Pane>
+                        <ChildContent>
+                            <Container Class="tree-area">
+                                @TreeToolbar("Filter components, keys or instance IDs")
+                                <TreeView @ref="componentTree" @key="data.Target?.Identity.SessionId" TItem="string" Roots="navigation.ComponentRoots" Children="ComponentChildren"
+                                          ItemText="ComponentText" ItemTemplate="ComponentRow" ItemHeight="26" Indent="14" IndentGuides="true"
+                                          SelectedItem="@(data.Selection?.Kind == "component" ? data.Selection.NodeId : null)"
+                                          SelectedItemChanged="SelectComponent" AccessibleName="Captured components" Class="node-tree" />
+                                @TreeFooter
+                            </Container>
+                        </ChildContent>
+                    </SplitView>
+                }
+            </ChildContent>
+        </Tab>
+        <Tab Label="Elements">
+            <Leading><Icon Source="InspectorIcons.Elements" Class="tab-icon" /></Leading>
+            <ChildContent>
+                @Banner
+                @if (data.Tree is null) { @Welcome }
+                else
+                {
+                    <SplitView Class="panel-split" PanePlacement="SplitViewPanePlacement.End" PaneSize="sidebarWidth" PaneSizeChanged="ResizeSidebar"
+                               MinPaneSize="280" MaxPaneSize="760" ResizeHandleAccessibleName="Resize details sidebar">
+                        <Pane>
+                            <ElementDetails Element="SelectedElement" Components="components" Elements="elements" Styles="SelectedStyles" Geometry="SelectedGeometry"
+                                            Target="data.Target" Connection="data.Connection" Tab="elementTab" TabChanged="ChangeElementTab"
+                                            CanRefresh="CanRefreshPanel" Refreshing="detailBusy" OnRefresh="ReadPanelAsync"
+                                            CanShowInApp="@(CanUseSelection && !busy)" OnShowInApp="HighlightAsync" OnHideInApp="HideHighlightAsync" OnNavigate="NavigateTo" />
+                        </Pane>
+                        <ChildContent>
+                            <Container Class="tree-area">
+                                @TreeToolbar("Filter elements, IDs, classes or text")
+                                <TreeView @ref="elementTree" @key="data.Target?.Identity.SessionId" TItem="string" Roots="navigation.ElementRoots" Children="ElementChildren"
+                                          ItemText="ElementText" ItemTemplate="ElementRow" ItemHeight="26" Indent="14" IndentGuides="true"
+                                          SelectedItem="@(data.Selection?.Kind == "element" ? data.Selection.NodeId : null)"
+                                          SelectedItemChanged="SelectElement" AccessibleName="Captured elements" Class="node-tree" />
+                                @TreeFooter
+                            </Container>
+                        </ChildContent>
+                    </SplitView>
+                }
+            </ChildContent>
+        </Tab>
+        <Tab Label="Performance">
+            <Leading><Icon Source="InspectorIcons.Performance" Class="tab-icon" /></Leading>
+            <ChildContent>
+                @Banner
+                <InspectorFrames Capture="data.Frames" Target="data.Target" Connection="data.Connection"
+                                 CanRefresh="CanRefreshPanel" Refreshing="detailBusy" OnRefresh="ReadPanelAsync" />
+            </ChildContent>
+        </Tab>
+    </Tabs>
+
+    @* Chrome and Firefox put the picker before their panel tabs; the connection and global actions close the strip. *@
+    <Container Class="toolbar-start">
+        <Button @ref="pickButton" Id="pick-control" Class="@("picker" + (data.IsInspecting ? " active" : ""))" OnClick="PickAsync" Disabled="@(busy || !CanUseInspection)"
+                AccessibleName="@(data.IsInspecting ? "Cancel picking" : "Pick control")"
+                Tooltip="@(data.IsInspecting ? "Cancel picking (Ctrl+Shift+C)" : "Select a control in the app to inspect it (Ctrl+Shift+C)")">
+            <Leading><Icon Source="InspectorIcons.Pick" /></Leading>
+        </Button>
+    </Container>
+
+    <Container Class="toolbar-end">
+        <Button @ref="connectionAnchor" Id="connection-menu" Class="target-button" OnClick="ToggleConnection" AccessibleName="@("Connection: " + Status)" Tooltip="Connection and app window">
+            <Leading><Container Class="@("status-dot " + StatusTone)" /></Leading>
+            <ChildContent><TextBlock Class="target-name">@TargetName</TextBlock></ChildContent>
+            <Trailing><Icon Source="InspectorIcons.ChevronDown" Class="chevron" /></Trailing>
+        </Button>
+        <Button Id="refresh-capture" OnClick="RefreshAsync" AccessibleName="Refresh capture" Tooltip="Refresh the captured tree (F5)"
+                Disabled="@(Client is null || busy || data.Connection is InspectorConnectionStatus.Disconnected or InspectorConnectionStatus.Connecting)">
+            <Leading><Icon Source="InspectorIcons.Refresh" /></Leading>
+        </Button>
+        <Button @ref="settingsAnchor" Id="settings" OnClick="ToggleSettings" AccessibleName="Settings" Tooltip="Settings">
+            <Leading><Icon Source="InspectorIcons.Settings" /></Leading>
+        </Button>
+    </Container>
+
+    <StatusBar Class="status-bar">
+        <StatusBarSection Class="status-state">
+            <Container Class="@("status-dot " + StatusTone)" />
+            <TextBlock Id="connection-state" Class="status-strong" @attributes="statusAttributes">@Status</TextBlock>
+        </StatusBarSection>
+        <StatusBarSection>
+            <TextBlock Id="capture-provenance" Tooltip="@CaptureDetails">@CaptureLabel</TextBlock>
+        </StatusBarSection>
+        <StatusBarSection IsFlexible="true" />
+        @if (data.Tree is { } counted)
+        {
+            <StatusBarSection>
+                <TextBlock>@(counted.Components.Length + " components · " + counted.Elements.Length + " elements")</TextBlock>
+            </StatusBarSection>
+        }
+        <StatusBarSection Class="status-target">
+            <TextBlock>@TargetLabel</TextBlock>
+        </StatusBarSection>
+    </StatusBar>
+
+    <Popover IsOpen="connectionOpen" IsOpenChanged="@(value => connectionOpen = value)" Anchor="connectionAnchor?.Element"
+             Placement="Nazor.Controls.Primitives.OverlayPlacement.Bottom" Alignment="Nazor.Controls.Primitives.OverlayAlignment.End" Class="connection-flyout">
+        <Container Class="flyout-heading">
+            <Container Class="@("status-dot large " + StatusTone)" />
+            <Container Class="flyout-heading-copy">
+                <TextBlock Class="flyout-title">@Status</TextBlock>
+                <TextBlock Class="muted small">@TargetLabel</TextBlock>
+            </Container>
+        </Container>
+        @if (data.Tree is { } captured)
+        {
+            <Container Class="section compact">
+                <TextBlock Class="section-title">Capture</TextBlock>
+                <Container Class="facts">
+                    <TextBlock Class="fact-label">Captured</TextBlock><TextBlock Class="fact-value" IsTextSelectionEnabled="true">@(captured.Capture.CapturedAtUtc + " (UTC)")</TextBlock>
+                    <TextBlock Class="fact-label">Source</TextBlock><TextBlock Class="fact-value">@(captured.Capture.Source + (data.IsRetained ? " · retained" : ""))</TextBlock>
+                    <TextBlock Class="fact-label">Generation</TextBlock><TextBlock Class="fact-value">@(captured.Capture.Generation + " · revision " + captured.Revision)</TextBlock>
+                    @if (captured.Capture.StopId is { } stop)
+                    {
+                        <TextBlock Class="fact-label">Debugger stop</TextBlock><TextBlock Class="fact-value">@stop</TextBlock>
+                    }
+                </Container>
+            </Container>
+        }
+        <TextBlock Class="field-label">App window</TextBlock>
+        <Container Class="flyout-row">
+            <Select TValue="string" Items="@(targets.Select(t => t.Identity.SessionId).ToArray())" @bind-Value="selectedTarget"
+                    ItemText="TargetText" Placeholder="Choose an app window" AccessibleName="Target window" Disabled="busy" Class="target-choice" />
+            <Button Id="switch-discover" OnClick="DiscoverAsync" Disabled="@(Client is null || busy)" AccessibleName="Find app windows" Tooltip="Find app windows">
+                <Leading><Icon Source="InspectorIcons.Refresh" /></Leading>
+            </Button>
+        </Container>
+        <Container Class="flyout-actions">
+            <Button Id="switch-connect" Appearance="ControlAppearance.Accent" OnClick="ConnectAsync" Disabled="@(Client is null || busy || selectedTarget is null)">
+                <Leading><Icon Source="InspectorIcons.Plug" /></Leading>
+                <ChildContent>Connect</ChildContent>
+            </Button>
+            <Button Id="disconnect-target" OnClick="Disconnect" Disabled="@(Client is null || data.Connection == InspectorConnectionStatus.Disconnected)">
+                <Leading><Icon Source="InspectorIcons.Unplug" /></Leading>
+                <ChildContent>Disconnect</ChildContent>
+            </Button>
+            <Button Id="clear-capture" Appearance="ControlAppearance.Subtle" Intent="Intent.Danger" OnClick="Clear" Tooltip="Disconnect and remove the retained capture">
+                <Leading><Icon Source="InspectorIcons.Clear" /></Leading>
+                <ChildContent>Clear</ChildContent>
+            </Button>
+        </Container>
+    </Popover>
+
+    <Popover IsOpen="settingsOpen" IsOpenChanged="@(value => settingsOpen = value)" Anchor="settingsAnchor?.Element"
+             Placement="Nazor.Controls.Primitives.OverlayPlacement.Bottom" Alignment="Nazor.Controls.Primitives.OverlayAlignment.End" Title="Settings" Class="settings-flyout">
+        <TextBlock Class="field-label">Appearance</TextBlock>
+        <SegmentedControl TValue="Nazor.Style.ColorScheme" Value="Scheme" ValueChanged="SchemeChanged" EqualWidth="true" AccessibleName="Color scheme" Class="scheme-choice">
+            <Segment Id="scheme-system" Value="Nazor.Style.ColorScheme.System">System</Segment>
+            <Segment Id="scheme-light" Value="Nazor.Style.ColorScheme.Light">Light</Segment>
+            <Segment Id="scheme-dark" Value="Nazor.Style.ColorScheme.Dark">Dark</Segment>
+        </SegmentedControl>
+        <TextBlock Class="field-label">Inspection</TextBlock>
+        <Switch Id="settings-follow-selection" IsOn="follow" IsOnChanged="FollowChanged" Size="ControlSize.Small" LabelPosition="SwitchLabelPosition.Before" Class="setting">
+            <ChildContent>Highlight the selected node in the app</ChildContent>
+        </Switch>
+        <Switch Id="settings-framework" IsOn="showFramework" IsOnChanged="FrameworkChanged" Size="ControlSize.Small" LabelPosition="SwitchLabelPosition.Before" Class="setting">
+            <ChildContent>Show framework components</ChildContent>
+        </Switch>
+        <TextBlock Class="field-label">Keyboard shortcuts</TextBlock>
+        <Container Class="shortcuts">
+            <Container Class="keys"><Kbd>Ctrl</Kbd><Kbd>Shift</Kbd><Kbd>C</Kbd></Container><TextBlock>Pick a control in the app</TextBlock>
+            <Container Class="keys"><Kbd>Ctrl</Kbd><Kbd>F</Kbd></Container><TextBlock>Filter the tree</TextBlock>
+            <Container Class="keys"><Kbd>F5</Kbd></Container><TextBlock>Refresh the capture</TextBlock>
+            <Container Class="keys"><Kbd>Ctrl</Kbd><Kbd>Tab</Kbd></Container><TextBlock>Next tab</TextBlock>
+        </Container>
+    </Popover>
+</Container>
+
+@code {
+    private RenderFragment Banner => __builder =>
+    {
+        if (BannerText is not { } banner) return;
+        <Banner @key="banner.Text" Id="connection-message" Class="@("banner " + banner.Tone)" Severity="@(banner.Tone == "info" ? Severity.Info : Severity.Warning)"
+                ActionText="@(CanReconnect ? "Reconnect" : null)" OnAction="ReconnectAsync" Dismissible="@(notice is not null)" OnClose="@(() => notice = null)">
+            @banner.Text
+        </Banner>
+    };
+
+    private RenderFragment TreeToolbar(string hint) => __builder =>
+    {
+        <Container Class="tree-toolbar">
+            <SearchField TItem="string" @ref="filterBox" Id="tree-search" Value="@search" ValueChanged="SearchChanged" Placeholder="@hint" Size="ControlSize.Small"
+                         AccessibleName="Search captured trees" Class="filter" />
+            <Button Id="expand-tree" Size="ControlSize.Small" OnClick="@(() => ActiveTree?.ExpandAll())" AccessibleName="Expand all" Tooltip="Expand all">
+                <Leading><Icon Source="InspectorIcons.ExpandAll" /></Leading>
+            </Button>
+            <Button Id="collapse-tree" Size="ControlSize.Small" OnClick="@(() => ActiveTree?.CollapseAll())" AccessibleName="Collapse all" Tooltip="Collapse all">
+                <Leading><Icon Source="InspectorIcons.CollapseAll" /></Leading>
+            </Button>
+            <Button Id="reveal-selection" Size="ControlSize.Small" OnClick="RevealSelection" Disabled="@(data.Selection is null)" AccessibleName="Reveal selection" Tooltip="Reveal the selection in the tree">
+                <Leading><Icon Source="InspectorIcons.Reveal" /></Leading>
+            </Button>
+        </Container>
+        <Container Class="tree-options">
+            <Switch Id="follow-selection" IsOn="follow" IsOnChanged="FollowChanged" Size="ControlSize.Small" Class="option"
+                    Tooltip="When on, choosing a node here highlights it in the app">Highlight in app</Switch>
+            @if (panel == 0)
+            {
+                <Switch Id="framework-detail" IsOn="showFramework" IsOnChanged="FrameworkChanged" Size="ControlSize.Small" Class="option"
+                        Tooltip="Show Nazor's own components, such as Container and Button">Framework components</Switch>
+            }
+        </Container>
+    };
+
+    private RenderFragment TreeFooter => __builder =>
+    {
+        @if (SelectionHidden)
+        {
+            <Container Class="tree-note">
+                <TextBlock>The selection is retained outside this filter.</TextBlock>
+                <Button Appearance="ControlAppearance.Subtle" Size="ControlSize.Small" OnClick="RevealSelection">Show it</Button>
+            </Container>
+        }
+        <Container Class="breadcrumbs">
+            @if (data.Selection is { } selected && (panel == 0 ? selected.Kind == "component" : selected.Kind == "element"))
+            {
+                var path = navigation.Breadcrumbs(selected.Kind, selected.NodeId);
+                var start = Math.Max(0, path.Length - MaxCrumbs);
+                @if (start > 0) { <TextBlock Class="crumb-separator" Tooltip="@(start + " more ancestors")">…</TextBlock> }
+                @for (var i = start; i < path.Length; i++)
+                {
+                    var id = path[i];
+                    @if (i > 0) { <TextBlock Class="crumb-separator">›</TextBlock> }
+                    <Button Class="@("crumb" + (i == path.Length - 1 ? " current" : ""))" Size="ControlSize.Small" OnClick="@(() => Navigate(selected.Kind, id))"
+                            AccessibleName="@(selected.Kind == "component" ? ComponentText(id) : ElementText(id))">@Crumb(selected.Kind, id)</Button>
+                }
+            }
+            else
+            {
+                <TextBlock Class="muted small">@(panel == 0 ? "Choose a component to inspect it." : "Choose an element to inspect it.")</TextBlock>
+            }
+        </Container>
+    };
+
+    private RenderFragment<string> ComponentRow => id => __builder =>
+    {
+        @if (components.TryGetValue(id, out var component))
+        {
+            <Container Class="@("row" + (component.OutputElements.Length == 0 ? " dim" : ""))">
+                @foreach (var token in NodeSyntax.Component(component))
+                {
+                    <TextBlock Class="@token.Class">@token.Text</TextBlock>
+                }
+                @if (component.OutputElements.Length != 1)
+                {
+                    <TextBlock Class="badge">@(component.OutputElements.Length == 0 ? "no output" : component.OutputElements.Length + " outputs")</TextBlock>
+                }
+            </Container>
+        }
+        else { <TextBlock>@id</TextBlock> }
+    };
+
+    private RenderFragment<string> ElementRow => id => __builder =>
+    {
+        @if (elements.TryGetValue(id, out var element))
+        {
+            <Container Class="@("row" + (element.IsRendered == false ? " dim" : ""))">
+                @foreach (var token in NodeSyntax.Element(element))
+                {
+                    <TextBlock Class="@token.Class">@token.Text</TextBlock>
+                }
+                @if (element.IsRendered == false) { <TextBlock Class="badge">hidden</TextBlock> }
+            </Container>
+        }
+        else { <TextBlock>@id</TextBlock> }
+    };
+
+    private RenderFragment Welcome => __builder =>
+    {
+        <Container Class="welcome-scroll">
+            <Container Class="welcome">
+                @if (data.Connection != InspectorConnectionStatus.Disconnected)
+                {
+                    <Container Class="hero">
+                        <LeafMark Size="56" IsLoading="true" />
+                        <TextBlock Class="welcome-title">@(data.Connection == InspectorConnectionStatus.Connecting ? "Connecting to " + TargetName + "…" : "Waiting for the first capture…")</TextBlock>
+                        <TextBlock Class="welcome-lead">The tree appears as soon as the app answers. A paused or busy app keeps you waiting until it responds.</TextBlock>
+                    </Container>
+                }
+                else
+                {
+                    <Container Class="hero">
+                        <LeafMark Size="56" />
+                        <TextBlock Class="welcome-title">Inspect a running Nazor app</TextBlock>
+                        <TextBlock Class="welcome-lead">No captured data yet. Connect to an app window to browse its components, elements, styles and frames.</TextBlock>
+                    </Container>
+                    <Container Class="card">
+                        <Container Class="card-heading">
+                            <TextBlock Class="card-title">App windows</TextBlock>
+                            <Button Id="discover-targets" Size="ControlSize.Small" OnClick="DiscoverAsync" Disabled="@(Client is null || busy)" AccessibleName="Discover" Tooltip="Find app windows again">
+                                <Leading><Icon Source="InspectorIcons.Refresh" /></Leading>
+                            </Button>
+                        </Container>
+                        @if (targets.Count == 0)
+                        {
+                            <TextBlock Class="muted small">No app windows found. Start your app with DevTools enabled, then refresh this list.</TextBlock>
+                        }
+                        @foreach (var target in targets)
+                        {
+                            var session = target.Identity.SessionId;
+                            <Button Class="@("target-row" + (session == selectedTarget ? " selected" : ""))" OnClick="@(() => selectedTarget = session)" AccessibleName="@TargetText(session)">
+                                <Leading><Icon Source="InspectorIcons.Window" Class="target-icon" /></Leading>
+                                <ChildContent>
+                                    <Container Class="target-copy">
+                                        <TextBlock Class="target-title">@(target.ApplicationName ?? "Process " + target.Identity.ProcessId)</TextBlock>
+                                        <TextBlock Class="muted small">@("Process " + target.Identity.ProcessId + " · window " + Short(target.Identity.WindowId, 8))</TextBlock>
+                                    </Container>
+                                </ChildContent>
+                            </Button>
+                        }
+                        <Container Class="card-actions">
+                            <Button Id="connect-target" Appearance="ControlAppearance.Accent" OnClick="ConnectAsync" Disabled="@(Client is null || busy || selectedTarget is null)">
+                                <Leading><Icon Source="InspectorIcons.Plug" /></Leading>
+                                <ChildContent>Connect</ChildContent>
+                            </Button>
+                        </Container>
+                    </Container>
+                    <Container Class="card">
+                        <TextBlock Class="card-title">Start from your app</TextBlock>
+                        <Container Class="step"><TextBlock Class="step-number">1</TextBlock><TextBlock>Enable DevTools in Program.cs for Debug builds:</TextBlock></Container>
+                        <TextBlock Class="code" IsTextSelectionEnabled="true">builder.UseDevTools();</TextBlock>
+                        <Container Class="step"><TextBlock Class="step-number">2</TextBlock><TextBlock>Run the app and press F12 in its window, or choose Nazor DevTools from the window menu.</TextBlock></Container>
+                        <Container Class="step"><TextBlock Class="step-number">3</TextBlock><TextBlock>Use the picker at the top left to select any control in the app.</TextBlock></Container>
+                    </Container>
+                }
+            </Container>
+        </Container>
+    };
+}

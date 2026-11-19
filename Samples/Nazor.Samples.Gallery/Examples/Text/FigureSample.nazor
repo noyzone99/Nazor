@@ -1,0 +1,5 @@
+<Figure>
+    <Container Class="diagram"><TextBlock>Draft → Review → Publish</TextBlock></Container>
+    <FigureCaption>Figure 1. A three-step publishing workflow.</FigureCaption>
+</Figure>
+@style { .diagram { padding: 16px; border: 1px solid GrayText; } }

@@ -1,0 +1,4 @@
+<Tooltip Delay="TimeSpan.Zero" Class="help">
+    <Trigger><Button Id="save">Save</Button></Trigger>
+    <ChildContent><TextBlock>Save the current document.</TextBlock></ChildContent>
+</Tooltip>

@@ -1,0 +1,34 @@
+@inject IApplicationLifetime lifetime
+
+<Container Class="panel">
+	<TextBlock>Nazor single view</TextBlock>
+	<TextBlock>The same content runs in a desktop window or directly on DRM/KMS.</TextBlock>
+	<TextBlock>Count: @count</TextBlock>
+	<Button @onclick="Increment">Increment</Button>
+	<TextBlock Id="input-label">Keyboard and clipboard test</TextBlock>
+	<TextField @bind-Value="text" LabeledBy="input-label"/>
+	<TextBlock>@text</TextBlock>
+	<Button @onclick="Exit">Exit</Button>
+	<CheckBox>Prova check</CheckBox>
+</Container>
+
+@style {
+	.panel {
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+		padding: 24px;
+		width: 100%;
+		height: 100%;
+		background: #202830;
+		color: white;
+	}
+}
+
+@code {
+	private int count;
+	private string text = "Type here";
+	private void Increment() => count++;
+	// A single-view app exits through application lifetime rather than opening another window.
+	private void Exit() => lifetime.Shutdown();
+}

@@ -1,0 +1,7 @@
+<Button @onclick="Change">Update</Button>
+
+@code {
+    [Parameter] public string Value { get; set; } = "";
+    [Parameter] public EventCallback<string> ValueChanged { get; set; }
+    private Task Change() => ValueChanged.InvokeAsync(Value + "!");
+}

@@ -1,0 +1,12 @@
+<Container Class="surface">
+    <ActionBar AccessibleName="Notes">
+        <Start><TextBlock>@($"{notes} notes")</TextBlock></Start>
+        <End><Button OnClick="() => notes = 0">Clear</Button></End>
+    </ActionBar>
+    <FloatingActionButton AccessibleName="Add note" OnClick="() => notes++">
+        <Leading><Icon Glyph="+" /></Leading>
+        <ChildContent>Add note</ChildContent>
+    </FloatingActionButton>
+</Container>
+@code { private int notes; }
+@style { .surface { position: relative; align-self: stretch; min-height: 130px; } }

@@ -1,0 +1,22 @@
+<Project>
+  <ItemGroup Condition="('$(ImplicitUsings)' == 'enable' or '$(ImplicitUsings)' == 'true') and '$(NazorImplicitRuntimeReference)' != 'false'">
+    <Using Include="Nazor" />
+    <Using Include="Nazor.Controls" />
+    <Using Include="Nazor.Input" />
+    <Using Include="Nazor.Style" />
+    <Using Include="Nazor.Graphics" />
+    <Using Include="Nazor.Accessibility" />
+    <Using Include="Nazor.Themes" />
+    <Using Include="Nazor.Style.Color" Alias="Color" />
+    <Using Include="Microsoft.Extensions.Configuration" />
+    <Using Include="Microsoft.Extensions.DependencyInjection" />
+    <Using Include="Microsoft.Extensions.Hosting" />
+    <Using Include="Microsoft.Extensions.Logging" />
+    <Using Include="Microsoft.Extensions.Options" />
+    <Using Include="Microsoft.Extensions.Localization" />
+    <Using Include="System.Globalization" />
+    <Using Include="System.Text.Json" />
+    <Using Include="System.Text.Json.Serialization" />
+    <Using Include="System.Net.Http.Json" />
+  </ItemGroup>
+</Project>

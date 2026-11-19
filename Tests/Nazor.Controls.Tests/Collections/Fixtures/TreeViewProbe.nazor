@@ -1,0 +1,54 @@
+@implements IRefreshable
+@using Nazor.Controls.Primitives
+<Container Class="page">
+    <TreeView TItem="Node" Class="files" Roots="Roots" Children="n => n.Kids" ItemText="n => n.Name" ItemHeight="20" AccessibleName="Files"
+              SelectionMode="Mode" @bind-SelectedItem="Selected" @bind-SelectedItems="Picked" ShowCheckBoxes="Checks" @bind-CheckedItems="Checked"
+              IndentGuides="true" ItemDisabled="n => n.Name == Locked" OnItemActivated="Activate" />
+    <TreeView TItem="string" Class="lazy" Roots="Drives" HasChildren="s => s.Length < 6" LoadChildren="Load" ItemHeight="20"
+              ShowCheckBoxes="true" @bind-CheckedItems="LazyChecked" Indent="20" />
+</Container>
+
+@code {
+    public void Refresh() => StateHasChanged();
+    public sealed class Node(string name, params Node[] kids)
+    {
+        public string Name { get; } = name;
+        public IReadOnlyList<Node> Kids { get; } = kids;
+        public override string ToString() => Name;
+    }
+
+    public static readonly Node Readme = new("readme.md");
+    public static readonly Node Main = new("main.cs");
+    public static readonly Node Util = new("util.cs");
+    public static readonly Node Src = new("src", Main, Util);
+    public static readonly Node Logo = new("logo.png");
+    public static readonly Node Assets = new("assets", Logo);
+    public static readonly Node Project = new("project", Src, Assets, Readme);
+    public static readonly Node Notes = new("notes.txt");
+
+    public IReadOnlyList<Node> Roots { get; } = [Project, Notes];
+    public SelectionMode Mode { get; set; } = SelectionMode.Single;
+    public Node? Selected { get; set; }
+    public IReadOnlyCollection<Node> Picked { get; set; } = [];
+    public bool Checks { get; set; }
+    public IReadOnlyCollection<Node> Checked { get; set; } = [];
+    public string? Locked { get; set; }
+    public List<Node> Activated { get; } = [];
+    private void Activate(Node node) => Activated.Add(node);
+
+    public IReadOnlyList<string> Drives { get; } = ["C:", "D:"];
+    public Dictionary<string, TaskCompletionSource<IReadOnlyList<string>>> Pending { get; } = [];
+    public IReadOnlyCollection<string> LazyChecked { get; set; } = [];
+
+    private Task<IReadOnlyList<string>> Load(string parent)
+    {
+        var source = new TaskCompletionSource<IReadOnlyList<string>>();
+        Pending[parent] = source;
+        return source.Task;
+    }
+}
+
+@style {
+    .page { display: flex; flex-direction: row; gap: 4px; }
+    .files, .lazy { width: 240px; height: 200px; }
+}

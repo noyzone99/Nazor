@@ -1,0 +1,22 @@
+@using Nazor.Controls.Primitives
+@using Nazor.Controls.Tests.Feedback
+@implements IRefreshable
+<CascadingValue TValue="TimeProvider" Value="Clock">
+    <Menu IsOpen="Open" AnchorPoint="@((20d, 20d))">
+        @if (Show)
+        {
+            <Submenu @ref="Submenu" Disabled="Disabled">
+                <ChildContent>More</ChildContent>
+                <Content><MenuItem>Child</MenuItem></Content>
+            </Submenu>
+        }
+    </Menu>
+</CascadingValue>
+@code {
+    public FeedbackClock Clock { get; } = new();
+    public Submenu Submenu { get; set; } = null!;
+    public bool Open { get; set; } = true;
+    public bool Show { get; set; } = true;
+    public bool Disabled { get; set; }
+    public void Refresh() => StateHasChanged();
+}

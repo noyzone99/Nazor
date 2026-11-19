@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <RootNamespace>Nazor.Themes.Fluent</RootNamespace>
+    <NazorUseCore>false</NazorUseCore>
+    <Description>Optional Fluent theme for Nazor with private Fluent System Icons fonts and a typed symbol catalog.</Description>
+    <EnableDefaultNazorAssets>false</EnableDefaultNazorAssets>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../Core/Nazor.Graphics/Nazor.Graphics.csproj" />
+    <None Remove="Fonts/**" />
+    <None Include="Fonts/*.ttf;Fonts/*.txt" Link="Themes/Fluent/%(Filename)%(Extension)"
+          CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest"
+          Pack="true" PackagePath="contentFiles/any/any/Themes/Fluent/" PackageCopyToOutput="true" />
+  </ItemGroup>
+  <Import Project="../../Tools/Nazor.Sdk/build/Nazor.targets" />
+</Project>

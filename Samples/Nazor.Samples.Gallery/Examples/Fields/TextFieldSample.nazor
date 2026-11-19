@@ -1,0 +1,19 @@
+<Container Class="stack">
+    <TextField @bind-Value="name" Placeholder="Project name" AccessibleName="Project name" Clearable="true" />
+    <TextField @bind-Value="price" Prefix="EUR" Suffix="per month" AccessibleName="Price" />
+    <TextField @bind-Value="code" MaxLength="12" ShowCount="true" AccessibleName="Code" />
+    <TextField Value="Read only text" ReadOnly="true" AccessibleName="Read only" />
+    <TextField Value="Disabled" Disabled="true" AccessibleName="Disabled" />
+    <TextField Appearance="FieldAppearance.Filled" Placeholder="Filled" AccessibleName="Filled" />
+    <TextField Appearance="FieldAppearance.Underline" Placeholder="Underline" AccessibleName="Underline" />
+    <TextField Size="ControlSize.Small" Placeholder="Small" AccessibleName="Small" />
+    <TextBlock>@($"Name: {name}; price: {price}; code: {code}")</TextBlock>
+</Container>
+
+@code {
+    private string name = "Atelier", price = "12", code = "";
+}
+
+@style {
+    .stack { display: flex; flex-direction: column; gap: 8px; width: 320px; }
+}

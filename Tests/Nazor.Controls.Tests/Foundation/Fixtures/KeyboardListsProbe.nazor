@@ -1,0 +1,23 @@
+@using Nazor.Controls.Primitives
+<Container Style="display: flex; flex-direction: row; gap: 4px;">
+    <Listbox TValue="int" Style="width: 100px; height: 80px; overflow-y: auto;">
+        @foreach (var item in items)
+        {
+            <ListboxOption TValue="int" Value="item" Disabled="@(item is 0 or 19)" Style="height: 20px; flex-shrink: 0;">@item</ListboxOption>
+        }
+    </Listbox>
+    <ListView TItem="int" Items="items" ItemHeight="20" ItemDisabled="n => n is 0 or 19" Style="width: 100px; height: 80px;" />
+    <GridView TItem="int" Items="items" ItemWidth="80" ItemHeight="20" ItemDisabled="n => n is 0 or 19" Style="width: 100px; height: 80px;" />
+    <TreeView TItem="int" Roots="items" Children="n => noChildren" ItemHeight="20" ItemDisabled="n => n is 0 or 19" Style="width: 100px; height: 80px;" />
+</Container>
+<Combobox TItem="int" Items="items" Inline="true" As="InlineCombo" PreferredMaxVisibleItems="3" />
+
+@code {
+    private readonly int[] items = Enumerable.Range(0, 20).ToArray();
+    private readonly int[] noChildren = [];
+}
+
+@style {
+    InlineComboPopup { height: 60px; overflow-y: auto; display: flex; flex-direction: column; }
+    InlineComboOption { height: 20px; flex-shrink: 0; }
+}

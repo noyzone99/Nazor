@@ -1,0 +1,35 @@
+<CheckBox @bind-IsChecked="bordered">Show cell borders</CheckBox>
+<Table Class="report" Striped="true" Bordered="bordered">
+    <Caption>Quarterly sales</Caption>
+    <ChildContent>
+        <TableHeader>
+            <TableRow>
+                <TableHeaderCell>Region</TableHeaderCell>
+                <TableHeaderCell>Q1</TableHeaderCell>
+                <TableHeaderCell>Q2</TableHeaderCell>
+            </TableRow>
+        </TableHeader>
+        <TableBody>
+            <TableRow>
+                <TableHeaderCell Scope="TableHeaderScope.Row" RowSpan="2">North</TableHeaderCell>
+                <TableCell>10</TableCell>
+                <TableCell>12</TableCell>
+            </TableRow>
+            <TableRow><TableCell ColumnSpan="2">Audited</TableCell></TableRow>
+            <TableRow>
+                <TableHeaderCell Scope="TableHeaderScope.Row">South</TableHeaderCell>
+                <TableCell>8</TableCell>
+                <TableCell>9</TableCell>
+            </TableRow>
+        </TableBody>
+        <TableFooter>
+            <TableRow>
+                <TableHeaderCell Scope="TableHeaderScope.Row">Total</TableHeaderCell>
+                <TableCell>18</TableCell>
+                <TableCell>21</TableCell>
+            </TableRow>
+        </TableFooter>
+    </ChildContent>
+</Table>
+@code { private bool bordered = true; }
+@style { .report { width: 100%; } }

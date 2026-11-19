@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <PackageId>Nazor.Sdk</PackageId>
+    <TargetFramework>net10.0</TargetFramework>
+    <PackageType>MSBuildSdk</PackageType>
+    <Description>MSBuild project SDK for Nazor applications and component libraries: compiles .nazor components and .nss styles, adds global usings and runtime packages, and bootstraps runtime desktop backend selection.</Description>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+    <EnableDefaultItems>false</EnableDefaultItems>
+    <NoWarn>$(NoWarn);NU5100;NU5128</NoWarn>
+    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);NazorSdkPackageContent</TargetsForTfmSpecificContentInPackage>
+    <NazorCompilerOutput>$(MSBuildThisFileDirectory)../Nazor.Compiler/bin/$(Configuration)/net10.0/</NazorCompilerOutput>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="Sdk/Nazor.ApplicationIdentity.targets;Sdk/Nazor.LinuxDesktopEntry.targets" Pack="true" PackagePath="Sdk/" />
+    <None Include="Sdk/Nazor.Aot.targets" Pack="true" PackagePath="Sdk/" />
+    <None Include="Sdk/Nazor.WindowsDependencies.props;Sdk/Nazor.WindowsDependencies.targets" Pack="true" PackagePath="Sdk/" />
+    <None Include="Sdk/Nazor.WinRT.TrimAttributes.xml" Pack="true" PackagePath="Sdk/" />
+    <ProjectReference Include="../Nazor.Compiler/Nazor.Compiler.csproj" ReferenceOutputAssembly="false" Private="false" />
+    <None Include="Sdk/Sdk.props;Sdk/Sdk.targets;Sdk/Nazor.ImplicitUsings.targets;Sdk/Nazor.Runtime.props;Sdk/Nazor.Generation.targets;Sdk/Nazor.PlatformBootstrap.targets;Sdk/Nazor.PlatformBootstrap.cs.in;Sdk/Nazor.WindowsManifest.targets;Sdk/Nazor.Windows.manifest;Sdk/Nazor.ApplicationIcon.targets" Pack="true" PackagePath="Sdk/" />
+    <None Include="../../../Docs/Assets/nazor.ico" Pack="true" PackagePath="Sdk/Assets/" />
+    <None Include="Sdk/Nazor.DevTools.props;Sdk/Nazor.DevTools.targets;Sdk/Nazor.Production.pubxml" Pack="true" PackagePath="Sdk/" />
+  </ItemGroup>
+
+  <Target Name="NazorSdkPackageContent">
+    <PropertyGroup>
+      <_NazorVersionProps>$(IntermediateOutputPath)Nazor.Sdk.Version.props</_NazorVersionProps>
+    </PropertyGroup>
+    <WriteLinesToFile File="$(_NazorVersionProps)" Overwrite="true" WriteOnlyWhenDifferent="true"
+                      Lines="&lt;Project&gt;&lt;PropertyGroup&gt;&lt;NazorSdkVersion&gt;$(Version)&lt;/NazorSdkVersion&gt;&lt;/PropertyGroup&gt;&lt;/Project&gt;" />
+    <ItemGroup>
+      <_NazorTool Include="$(NazorCompilerOutput)**/*" Exclude="$(NazorCompilerOutput)**/*.pdb;$(NazorCompilerOutput)**/*.xml;$(NazorCompilerOutput)Nazor.Compiler.exe" />
+      <TfmSpecificPackageFile Include="@(_NazorTool)" PackagePath="tools/net10.0/" />
+      <TfmSpecificPackageFile Include="$(_NazorVersionProps)" PackagePath="Sdk/" />
+    </ItemGroup>
+    <Error Condition="'@(_NazorTool)' == ''" Text="The Nazor compiler output was not found in $(NazorCompilerOutput)." />
+  </Target>
+</Project>

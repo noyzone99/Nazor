@@ -1,0 +1,27 @@
+@implements IRefreshable
+@using Nazor.Controls.Primitives
+<Container Class="page">
+    <SplitButton Class="paste" OnClick="@(() => Log.Add("paste"))" @bind-IsOpen="Open">
+        <Leading><Icon Glyph="P" /></Leading>
+        <Menu>
+            <MenuItem Class="keep-text" OnClick="@(() => Log.Add("keep-text"))">Keep text only</MenuItem>
+            <MenuItem Class="merge" OnClick="@(() => Log.Add("merge"))">Merge formatting</MenuItem>
+        </Menu>
+        <ChildContent>Paste</ChildContent>
+    </SplitButton>
+    <SplitButton Class="color" IsToggle="true" @bind-IsPressed="Highlight" Appearance="ControlAppearance.Accent" Intent="Intent.Danger" Size="ControlSize.Large" TriggerLabel="Highlight colors">
+        <Menu><MenuItem Class="yellow" OnClick="@(() => Log.Add("yellow"))">Yellow</MenuItem></Menu>
+        <ChildContent>Highlight</ChildContent>
+    </SplitButton>
+    <SplitButton Class="off" Disabled="true" OnClick="@(() => Log.Add("off"))"><Menu><MenuItem>Never</MenuItem></Menu><ChildContent>Off</ChildContent></SplitButton>
+    <SplitButton Class="command" Command="SaveCommand"><Menu><MenuItem>Save as</MenuItem></Menu></SplitButton>
+</Container>
+
+@code {
+    public void Refresh() => StateHasChanged();
+    public bool Open { get; set; }
+    public bool Highlight { get; set; }
+    public List<string> Log { get; } = [];
+    public Command SaveCommand { get; private set; } = null!;
+    protected override void OnInitialized() => SaveCommand = new Command("Save", () => Log.Add("save"), KeyGesture.Parse("Ctrl+S"));
+}

@@ -1,0 +1,77 @@
+@inject ISystemTray SystemTray
+@inject ISystemNotificationService Notifications
+@inject IWindow CurrentWindow
+@inject IWindowService Windows
+@implements IDisposable
+
+<Container Class="desktop-services">
+    <Container Class="section">
+        <TextBlock Class="heading">System tray</TextBlock>
+        <TextBlock>@($"Tray service supported: {SystemTray.IsSupported}; item supported: {session.IsSupported}; item visible: {session.IsVisible}")</TextBlock>
+        <TextBlock>@($"Tooltip: {session.ToolTip}; item started: {session.IsStarted}")</TextBlock>
+        <TextBlock>@(session.IsVisible ? "The tray menu can reopen the main window after you close it." : "The app needs an open window while the tray is unavailable.")</TextBlock>
+        <Container Class="row">
+            <Button Disabled="@(!session.IsSupported || session.IsVisible)" OnClick="ShowTray">Show tray icon</Button>
+            <Button Disabled="@(!session.IsVisible)" OnClick="HideTray">Hide tray icon</Button>
+            <Button Disabled="@(!session.IsVisible)" OnClick="() => CurrentWindow.Close()">Close window to tray</Button>
+            <Button OnClick="session.Exit">Exit application</Button>
+        </Container>
+    </Container>
+    <Container Class="section">
+        <TextBlock Class="heading">System notifications</TextBlock>
+        <TextBlock>@($"Notification service supported: {Notifications.IsSupported}")</TextBlock>
+        <TextBlock Id="message-label">Notification text</TextBlock>
+        <TextField @bind-Value="session.Message" MaxLength="255" LabeledBy="message-label"/>
+        <CheckBox @bind-IsChecked="session.Paused">Pause notifications</CheckBox>
+        <TextBlock Id="icon-label">Notification icon</TextBlock>
+        <Select TValue="SystemNotificationIcon" @bind-Value="session.NotificationIcon" LabeledBy="icon-label">
+            <SelectItem Value="SystemNotificationIcon.Information">Information</SelectItem>
+            <SelectItem Value="SystemNotificationIcon.Warning">Warning</SelectItem>
+            <SelectItem Value="SystemNotificationIcon.Error">Error</SelectItem>
+        </Select>
+        <Container Class="row">
+            <Button Id="send-notification" Disabled="@(!session.CanNotify)" OnClick="Notify">Send notification</Button>
+            <Button Disabled="@(!Notifications.IsSupported)" OnClick="Withdraw">Withdraw notification</Button>
+        </Container>
+        <TextBlock @attributes="statusAttributes">@status</TextBlock>
+    </Container>
+    <LauncherPanel/>
+    <Button OnClick="() => Windows.Open<LauncherWindow>()">Open launcher example with native badge styles</Button>
+</Container>
+
+@style {
+    .desktop-services { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 24px; padding: 24px; }
+    .section { display: flex; flex-direction: column; gap: 12px; }
+    .heading { font-size: 22px; font-weight: bold; }
+    .row { display: flex; flex-wrap: wrap; gap: 8px; }
+}
+
+@code {
+    private TraySession session = null!;
+    private string status = "";
+    private readonly Dictionary<string, object?> statusAttributes = new() { ["live"] = "polite" };
+
+    protected override void OnInitialized()
+    {
+        session = SystemTray.Get<TraySession>();
+        session.Changed += Refresh;
+    }
+
+    private void Refresh() => StateHasChanged();
+    private void ShowTray()
+    {
+        status = session.Show() ? "Tray icon accepted." : "Tray icon unavailable.";
+    }
+    private void HideTray() => session.Hide();
+    private void Notify() => status = session.Notify() ? "Notification submitted." : "Notification unavailable or rejected.";
+    private void Withdraw()
+    {
+        Notifications.Withdraw();
+        status = "Notification withdrawal requested.";
+    }
+
+    public void Dispose()
+    {
+        if (session is not null) session.Changed -= Refresh;
+    }
+}

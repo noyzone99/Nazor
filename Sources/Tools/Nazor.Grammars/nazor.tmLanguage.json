@@ -1,0 +1,850 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "information_for_contributors": [
+    "Nazor components: Razor syntax with Nazor controls, C# (source.cs) and NSS styles (source.nss) in @style blocks.",
+    "The structure of markup inside code blocks follows the Razor grammar of dotnet/razor (MIT)."
+  ],
+  "name": "Nazor",
+  "scopeName": "text.nazor",
+  "fileTypes": [
+    "nazor"
+  ],
+  "patterns": [
+    {
+      "include": "#markup"
+    }
+  ],
+  "repository": {
+    "markup": {
+      "patterns": [
+        {
+          "include": "#razor-comment"
+        },
+        {
+          "include": "#escaped-transition"
+        },
+        {
+          "include": "#style-block"
+        },
+        {
+          "include": "#code-directive"
+        },
+        {
+          "include": "#razor-code-block"
+        },
+        {
+          "include": "#window-directive"
+        },
+        {
+          "include": "#directive"
+        },
+        {
+          "include": "#transitioned-control"
+        },
+        {
+          "include": "#continuation"
+        },
+        {
+          "include": "#explicit-expression"
+        },
+        {
+          "include": "#implicit-expression"
+        },
+        {
+          "include": "#element"
+        },
+        {
+          "include": "#entity"
+        }
+      ]
+    },
+    "razor-comment": {
+      "name": "comment.block.razor.nazor",
+      "begin": "@\\*",
+      "end": "\\*@",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.definition.comment.begin.nazor"
+        }
+      },
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.definition.comment.end.nazor"
+        }
+      }
+    },
+    "escaped-transition": {
+      "name": "constant.character.escape.transition.nazor",
+      "match": "@@"
+    },
+    "style-block": {
+      "name": "meta.embedded.block.nss",
+      "begin": "(@)(style)\\s*(\\{)",
+      "beginCaptures": {
+        "1": {
+          "name": "keyword.control.nazor.transition"
+        },
+        "2": {
+          "name": "keyword.control.directive.style.nazor"
+        },
+        "3": {
+          "name": "punctuation.section.embedded.begin.nazor"
+        }
+      },
+      "end": "\\}",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.section.embedded.end.nazor"
+        }
+      },
+      "contentName": "source.nss",
+      "patterns": [
+        {
+          "include": "source.nss"
+        }
+      ]
+    },
+    "code-directive": {
+      "name": "meta.embedded.block.cs",
+      "begin": "(@)(code|functions)\\s*(\\{)",
+      "beginCaptures": {
+        "1": {
+          "name": "keyword.control.nazor.transition"
+        },
+        "2": {
+          "name": "keyword.control.directive.code.nazor"
+        },
+        "3": {
+          "name": "punctuation.section.embedded.begin.nazor"
+        }
+      },
+      "end": "\\}",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.section.embedded.end.nazor"
+        }
+      },
+      "contentName": "source.cs",
+      "patterns": [
+        {
+          "include": "source.cs#class-or-struct-members"
+        }
+      ]
+    },
+    "razor-code-block": {
+      "name": "meta.embedded.block.cs",
+      "begin": "(@)(\\{)",
+      "beginCaptures": {
+        "1": {
+          "name": "keyword.control.nazor.transition"
+        },
+        "2": {
+          "name": "punctuation.section.embedded.begin.nazor"
+        }
+      },
+      "end": "\\}",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.section.embedded.end.nazor"
+        }
+      },
+      "contentName": "source.cs",
+      "patterns": [
+        {
+          "include": "#code-block-body"
+        }
+      ]
+    },
+    "directive": {
+      "patterns": [
+        {
+          "name": "meta.directive.nazor",
+          "match": "(@)(using|namespace)\\s+(?!\\()([\\w.]+(?:\\s*=\\s*[\\w.<>, ]+)?)",
+          "captures": {
+            "1": {
+              "name": "keyword.control.nazor.transition"
+            },
+            "2": {
+              "name": "keyword.control.directive.nazor"
+            },
+            "3": {
+              "name": "entity.name.type.namespace.nazor"
+            }
+          }
+        },
+        {
+          "name": "meta.directive.nazor",
+          "match": "(@)(inject)\\s+([\\w.<>,?\\[\\] ]+?)\\s+([A-Za-z_]\\w*)\\s*$",
+          "captures": {
+            "1": {
+              "name": "keyword.control.nazor.transition"
+            },
+            "2": {
+              "name": "keyword.control.directive.nazor"
+            },
+            "3": {
+              "name": "entity.name.type.nazor"
+            },
+            "4": {
+              "name": "variable.other.member.nazor"
+            }
+          }
+        },
+        {
+          "name": "meta.directive.nazor",
+          "match": "(@)(inherits|implements|typeparam|attribute|layout|preservewhitespace|page)\\b(.*)$",
+          "captures": {
+            "1": {
+              "name": "keyword.control.nazor.transition"
+            },
+            "2": {
+              "name": "keyword.control.directive.nazor"
+            },
+            "3": {
+              "patterns": [
+                {
+                  "include": "source.cs#expression"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "transitioned-control": {
+      "name": "meta.statement.control.nazor",
+      "begin": "(@)(?<![\\w.])(if|foreach|for|while|switch|lock|using(?=\\s*\\()|do|try)(?![\\w])",
+      "beginCaptures": {
+        "1": {
+          "name": "keyword.control.nazor.transition"
+        },
+        "2": {
+          "name": "keyword.control.flow.nazor"
+        }
+      },
+      "end": "(?<=\\})|(?<=;)|(?=^\\s*\\})",
+      "patterns": [
+        {
+          "include": "#csharp-condition"
+        },
+        {
+          "include": "#csharp-block"
+        }
+      ]
+    },
+    "continuation": {
+      "name": "meta.statement.control.nazor",
+      "begin": "(?:(?<=\\})|^)\\s*(else(?:\\s+if)?|catch|finally)(?![\\w])",
+      "beginCaptures": {
+        "1": {
+          "name": "keyword.control.flow.nazor"
+        }
+      },
+      "end": "(?<=\\})|(?<=;)|(?=^\\s*\\})",
+      "patterns": [
+        {
+          "include": "#csharp-condition"
+        },
+        {
+          "include": "#csharp-block"
+        }
+      ]
+    },
+    "csharp-condition": {
+      "begin": "\\(",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.parenthesis.open.cs"
+        }
+      },
+      "end": "\\)",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.parenthesis.close.cs"
+        }
+      },
+      "contentName": "source.cs",
+      "patterns": [
+        {
+          "match": "(?:(?<![\\w.])(var)|([A-Za-z_][\\w.]*(?:<[^()]*>)?\\??))\\s+([A-Za-z_]\\w*)\\s+(in)(?![\\w])",
+          "captures": {
+            "1": {
+              "name": "keyword.other.var.cs"
+            },
+            "2": {
+              "name": "entity.name.type.cs"
+            },
+            "3": {
+              "name": "entity.name.variable.local.cs"
+            },
+            "4": {
+              "name": "keyword.control.loop.in.cs"
+            }
+          }
+        },
+        {
+          "include": "source.cs#local-variable-declaration"
+        },
+        {
+          "include": "source.cs#expression"
+        },
+        {
+          "include": "source.cs#punctuation-comma"
+        },
+        {
+          "include": "source.cs#punctuation-semicolon"
+        }
+      ]
+    },
+    "csharp-block": {
+      "name": "meta.structure.code-block.nazor",
+      "begin": "\\{",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.curlybrace.open.cs"
+        }
+      },
+      "end": "\\}",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.curlybrace.close.cs"
+        }
+      },
+      "contentName": "source.cs",
+      "patterns": [
+        {
+          "include": "#code-block-body"
+        }
+      ]
+    },
+    "code-block-body": {
+      "patterns": [
+        {
+          "include": "#razor-comment"
+        },
+        {
+          "include": "#element"
+        },
+        {
+          "include": "#explicit-expression"
+        },
+        {
+          "include": "#implicit-expression"
+        },
+        {
+          "name": "meta.statement.control.nazor",
+          "begin": "(@)?(?<![\\w.])(if|foreach|for|while|switch|lock|using(?=\\s*\\()|do|try)(?![\\w])",
+          "beginCaptures": {
+            "1": {
+              "name": "keyword.control.nazor.transition"
+            },
+            "2": {
+              "name": "keyword.control.flow.nazor"
+            }
+          },
+          "end": "(?<=\\})|(?<=;)|(?=^\\s*\\})",
+          "patterns": [
+            {
+              "include": "#csharp-condition"
+            },
+            {
+              "include": "#csharp-block"
+            }
+          ]
+        },
+        {
+          "include": "#continuation"
+        },
+        {
+          "include": "#csharp-block"
+        },
+        {
+          "include": "source.cs"
+        }
+      ]
+    },
+    "explicit-expression": {
+      "name": "meta.expression.explicit.nazor",
+      "begin": "(@)(\\()",
+      "beginCaptures": {
+        "1": {
+          "name": "keyword.control.nazor.transition"
+        },
+        "2": {
+          "name": "punctuation.parenthesis.open.cs"
+        }
+      },
+      "end": "\\)",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.parenthesis.close.cs"
+        }
+      },
+      "contentName": "source.cs",
+      "patterns": [
+        {
+          "include": "source.cs#expression"
+        }
+      ]
+    },
+    "implicit-expression": {
+      "name": "meta.expression.implicit.nazor",
+      "match": "(?<![\\w@])(@)(?:(await)\\s+)?([A-Za-z_]\\w*(?:\\.[A-Za-z_]\\w*|\\([^()\\r\\n]*(?:\\([^()\\r\\n]*\\)[^()\\r\\n]*)*\\)|\\[[^\\[\\]\\r\\n]*\\])*)",
+      "captures": {
+        "1": {
+          "name": "keyword.control.nazor.transition"
+        },
+        "2": {
+          "name": "keyword.other.await.cs"
+        },
+        "3": {
+          "name": "source.cs",
+          "patterns": [
+            {
+              "include": "source.cs#expression"
+            }
+          ]
+        }
+      }
+    },
+    "element": {
+      "begin": "(?=<([A-Za-z][\\w.]*)(?=[\\s/>]))",
+      "end": "(</)(\\1)\\s*(>)|(/>)",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.begin.nazor"
+        },
+        "2": {
+          "name": "entity.name.tag.nazor"
+        },
+        "3": {
+          "name": "punctuation.definition.tag.end.nazor"
+        },
+        "4": {
+          "name": "punctuation.definition.tag.end.nazor"
+        }
+      },
+      "patterns": [
+        {
+          "name": "meta.tag.start.nazor",
+          "begin": "(<)([A-Za-z][\\w.]*)",
+          "beginCaptures": {
+            "1": {
+              "name": "punctuation.definition.tag.begin.nazor"
+            },
+            "2": {
+              "name": "entity.name.tag.nazor"
+            }
+          },
+          "end": "(?=/?>)",
+          "patterns": [
+            {
+              "include": "#razor-comment"
+            },
+            {
+              "include": "#attribute"
+            }
+          ]
+        },
+        {
+          "name": "meta.tag.content.nazor",
+          "begin": ">",
+          "beginCaptures": {
+            "0": {
+              "name": "punctuation.definition.tag.end.nazor"
+            }
+          },
+          "end": "(?=</)",
+          "patterns": [
+            {
+              "include": "#markup"
+            }
+          ]
+        }
+      ]
+    },
+    "attribute": {
+      "patterns": [
+        {
+          "name": "meta.attribute.directive.nazor",
+          "begin": "(@)(bind-[\\w.]+|bind|on\\w+|key|ref|attributes)(?:(:)([\\w]+))?\\s*(=)\\s*(\")",
+          "beginCaptures": {
+            "1": {
+              "name": "keyword.control.nazor.transition"
+            },
+            "2": {
+              "name": "entity.other.attribute-name.directive.nazor"
+            },
+            "3": {
+              "name": "punctuation.separator.nazor"
+            },
+            "4": {
+              "name": "entity.other.attribute-name.parameter.nazor"
+            },
+            "5": {
+              "name": "punctuation.separator.key-value.nazor"
+            },
+            "6": {
+              "name": "punctuation.definition.string.begin.nazor"
+            }
+          },
+          "end": "\"",
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.definition.string.end.nazor"
+            }
+          },
+          "contentName": "source.cs",
+          "patterns": [
+            {
+              "include": "#explicit-expression"
+            },
+            {
+              "include": "#implicit-expression"
+            },
+            {
+              "include": "#attribute-expression"
+            }
+          ]
+        },
+        {
+          "name": "meta.attribute.nazor",
+          "begin": "([A-Za-z_][\\w.:-]*)\\s*(=)\\s*(\")",
+          "beginCaptures": {
+            "1": {
+              "name": "entity.other.attribute-name.nazor"
+            },
+            "2": {
+              "name": "punctuation.separator.key-value.nazor"
+            },
+            "3": {
+              "name": "punctuation.definition.string.begin.nazor"
+            }
+          },
+          "end": "\"",
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.definition.string.end.nazor"
+            }
+          },
+          "contentName": "string.quoted.double.nazor",
+          "patterns": [
+            {
+              "include": "#escaped-transition"
+            },
+            {
+              "include": "#explicit-expression"
+            },
+            {
+              "include": "#implicit-expression"
+            }
+          ]
+        },
+        {
+          "name": "meta.attribute.directive.nazor",
+          "begin": "(@)(bind-[\\w.]+|bind|on\\w+|key|ref|attributes)(?:(:)([\\w]+))?\\s*(=)\\s*(')",
+          "beginCaptures": {
+            "1": {
+              "name": "keyword.control.nazor.transition"
+            },
+            "2": {
+              "name": "entity.other.attribute-name.directive.nazor"
+            },
+            "3": {
+              "name": "punctuation.separator.nazor"
+            },
+            "4": {
+              "name": "entity.other.attribute-name.parameter.nazor"
+            },
+            "5": {
+              "name": "punctuation.separator.key-value.nazor"
+            },
+            "6": {
+              "name": "punctuation.definition.string.begin.nazor"
+            }
+          },
+          "end": "'",
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.definition.string.end.nazor"
+            }
+          },
+          "contentName": "source.cs",
+          "patterns": [
+            {
+              "include": "#explicit-expression"
+            },
+            {
+              "include": "#implicit-expression"
+            },
+            {
+              "include": "#attribute-expression-single"
+            }
+          ]
+        },
+        {
+          "name": "meta.attribute.nazor",
+          "begin": "([A-Za-z_][\\w.:-]*)\\s*(=)\\s*(')",
+          "beginCaptures": {
+            "1": {
+              "name": "entity.other.attribute-name.nazor"
+            },
+            "2": {
+              "name": "punctuation.separator.key-value.nazor"
+            },
+            "3": {
+              "name": "punctuation.definition.string.begin.nazor"
+            }
+          },
+          "end": "'",
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.definition.string.end.nazor"
+            }
+          },
+          "contentName": "string.quoted.single.nazor",
+          "patterns": [
+            {
+              "include": "#escaped-transition"
+            },
+            {
+              "include": "#explicit-expression"
+            },
+            {
+              "include": "#implicit-expression"
+            }
+          ]
+        },
+        {
+          "name": "entity.other.attribute-name.nazor",
+          "match": "@?[A-Za-z_][\\w.:-]*"
+        }
+      ]
+    },
+    "entity": {
+      "name": "constant.character.entity.nazor",
+      "match": "&(?:[A-Za-z]+|#\\d+|#x[0-9A-Fa-f]+);"
+    },
+    "attribute-expression": {
+      "patterns": [
+        {
+          "comment": "A lambda, as in the C# grammar, whose body ends at the closing quote of the attribute.",
+          "name": "meta.lambda.nazor",
+          "begin": "(?x)\n((?:\\b(?:async|static)\\b\\s*)*)\n(?:\n  (@?[_[:alpha:]][_[:alnum:]]*)\\b|\n  (\\()\n    (?<tuple>(?:[^()]|\\(\\g<tuple>\\))*)\n  (\\))\n)\\s*\n(=>)",
+          "beginCaptures": {
+            "1": {
+              "patterns": [
+                {
+                  "match": "async|static",
+                  "name": "storage.modifier.$0.cs"
+                }
+              ]
+            },
+            "2": {
+              "name": "entity.name.variable.parameter.cs"
+            },
+            "3": {
+              "name": "punctuation.parenthesis.open.cs"
+            },
+            "4": {
+              "patterns": [
+                {
+                  "include": "source.cs#explicit-anonymous-function-parameter"
+                },
+                {
+                  "include": "source.cs#implicit-anonymous-function-parameter"
+                },
+                {
+                  "include": "source.cs#default-argument"
+                },
+                {
+                  "include": "source.cs#punctuation-comma"
+                }
+              ]
+            },
+            "5": {
+              "name": "punctuation.parenthesis.close.cs"
+            },
+            "6": {
+              "name": "keyword.operator.arrow.cs"
+            }
+          },
+          "end": "(?=\")",
+          "patterns": [
+            {
+              "include": "source.cs#block"
+            },
+            {
+              "include": "#attribute-expression"
+            }
+          ]
+        },
+        {
+          "include": "#attribute-expression-body"
+        }
+      ]
+    },
+    "attribute-expression-body": {
+      "patterns": [
+        {
+          "name": "keyword.operator.assignment.compound.cs",
+          "match": "(?:\\*|/|%|\\+|-|\\?\\?|&|\\^|<<|>>>?|\\|)=(?!=|>)"
+        },
+        {
+          "name": "keyword.operator.assignment.cs",
+          "match": "=(?!=|>)"
+        },
+        {
+          "name": "keyword.operator.expression.pattern.is.cs",
+          "match": "(?<!\\.)\\bis\\b"
+        },
+        {
+          "include": "source.cs#expression-operator-expression"
+        },
+        {
+          "include": "source.cs#type-operator-expression"
+        },
+        {
+          "include": "source.cs#default-literal-expression"
+        },
+        {
+          "include": "source.cs#throw-expression"
+        },
+        {
+          "include": "source.cs#type-builtin"
+        },
+        {
+          "include": "source.cs#language-variable"
+        },
+        {
+          "include": "source.cs#switch-statement-or-expression"
+        },
+        {
+          "include": "source.cs#with-expression"
+        },
+        {
+          "include": "source.cs#conditional-operator"
+        },
+        {
+          "include": "source.cs#expression-operators"
+        },
+        {
+          "include": "source.cs#await-expression"
+        },
+        {
+          "include": "source.cs#as-expression"
+        },
+        {
+          "include": "source.cs#object-creation-expression"
+        },
+        {
+          "include": "source.cs#array-creation-expression"
+        },
+        {
+          "include": "source.cs#anonymous-object-creation-expression"
+        },
+        {
+          "include": "source.cs#invocation-expression"
+        },
+        {
+          "include": "source.cs#member-access-expression"
+        },
+        {
+          "include": "source.cs#element-access-expression"
+        },
+        {
+          "include": "source.cs#cast-expression"
+        },
+        {
+          "include": "source.cs#literal"
+        },
+        {
+          "include": "source.cs#parenthesized-expression"
+        },
+        {
+          "include": "source.cs#initializer-expression"
+        },
+        {
+          "include": "source.cs#identifier"
+        }
+      ]
+    },
+    "attribute-expression-single": {
+      "patterns": [
+        {
+          "name": "meta.lambda.nazor",
+          "begin": "(?x)\n((?:\\b(?:async|static)\\b\\s*)*)\n(?:\n  (@?[_[:alpha:]][_[:alnum:]]*)\\b|\n  (\\()\n    (?<tuple>(?:[^()]|\\(\\g<tuple>\\))*)\n  (\\))\n)\\s*\n(=>)",
+          "beginCaptures": {
+            "1": {
+              "patterns": [
+                {
+                  "match": "async|static",
+                  "name": "storage.modifier.$0.cs"
+                }
+              ]
+            },
+            "2": {
+              "name": "entity.name.variable.parameter.cs"
+            },
+            "3": {
+              "name": "punctuation.parenthesis.open.cs"
+            },
+            "4": {
+              "patterns": [
+                {
+                  "include": "source.cs#explicit-anonymous-function-parameter"
+                },
+                {
+                  "include": "source.cs#implicit-anonymous-function-parameter"
+                },
+                {
+                  "include": "source.cs#default-argument"
+                },
+                {
+                  "include": "source.cs#punctuation-comma"
+                }
+              ]
+            },
+            "5": {
+              "name": "punctuation.parenthesis.close.cs"
+            },
+            "6": {
+              "name": "keyword.operator.arrow.cs"
+            }
+          },
+          "end": "(?=')",
+          "patterns": [
+            {
+              "include": "source.cs#block"
+            },
+            {
+              "include": "#attribute-expression-single"
+            }
+          ]
+        },
+        {
+          "include": "#attribute-expression-body"
+        }
+      ]
+    },
+    "window-directive": {
+      "name": "meta.directive.window.nazor",
+      "begin": "(^\\s*)(@)(window)\\b",
+      "end": "$",
+      "contentName": "source.cs",
+      "beginCaptures": {
+        "2": {
+          "name": "keyword.control.nazor.transition"
+        },
+        "3": {
+          "name": "keyword.control.directive.nazor"
+        }
+      },
+      "patterns": [
+        {
+          "include": "source.cs"
+        }
+      ]
+    }
+  }
+}

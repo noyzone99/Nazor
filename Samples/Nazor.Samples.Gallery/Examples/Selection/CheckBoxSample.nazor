@@ -1,0 +1,27 @@
+<Container Class="stack">
+    <CheckBox IsChecked="AllChecked" IsIndeterminate="SomeChecked" IsCheckedChanged="SetAll">Include all components</CheckBox>
+    @for (var i = 0; i < parts.Length; i++)
+    {
+        var index = i;
+        <CheckBox Class="child" IsChecked="parts[index]" IsCheckedChanged="value => parts[index] = value">@names[index]</CheckBox>
+    }
+    <CheckBox IsChecked="true" Disabled="true">Rendering engine (required)</CheckBox>
+    <CheckBox @bind-IsChecked="updates">
+        <ChildContent>Automatic updates</ChildContent>
+        <Description>Download new versions in the background.</Description>
+    </CheckBox>
+</Container>
+
+@code {
+    private readonly string[] names = ["Base controls", "Charts", "Text editor"];
+    private readonly bool[] parts = [true, false, true];
+    private bool updates = true;
+    private bool AllChecked => parts.All(p => p);
+    private bool SomeChecked => parts.Any(p => p) && !AllChecked;
+    private void SetAll(bool value) { for (var i = 0; i < parts.Length; i++) parts[i] = value; }
+}
+
+@style {
+    .stack { display: flex; flex-direction: column; gap: 6px; }
+    .child { margin-left: 22px; }
+}

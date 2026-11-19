@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <RootNamespace>Nazor.Controls</RootNamespace>
+
+    <NazorUseControls>false</NazorUseControls>
+  </PropertyGroup>
+
+  <Import Project="../../Tools/Nazor.Sdk/build/Nazor.targets" />
+</Project>

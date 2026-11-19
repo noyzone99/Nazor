@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup><Compile Include="../RepositoryPaths.cs" Link="Infrastructure/RepositoryPaths.cs" /></ItemGroup>
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="xunit.v3" />
+    <PackageReference Include="TextMateSharp" />
+    <PackageReference Include="TextMateSharp.Grammars" />
+    <ProjectReference Include="../../Sources/Core/Nazor.Style/Nazor.Style.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="Xunit" />
+    <Compile Include="../../Sources/Core/Nazor.Style/Engine/SpanSplitExtensions.cs" Link="Compatibility/SpanSplitExtensions.cs" />
+    <Compile Include="../../Sources/Tools/Nazor.VisualStudio/SnippetConversion.cs" Link="VisualStudio/SnippetConversion.cs" />
+    <Compile Include="../../Sources/Tools/Nazor.VisualStudio/NazorComments.cs" Link="VisualStudio/NazorComments.cs" />
+    <Compile Include="../../Sources/Shared/Authoring/CodeIndentation.cs" Link="VisualStudio/CodeIndentation.cs" />
+    <Compile Include="../../Sources/Tools/Nazor.LanguageServer/Features/CSharpLexer.cs" Link="VisualStudio/CSharpLexer.cs" />
+    <Compile Include="../../Sources/Tools/Nazor.VisualStudio/HotReloadFiles.cs" Link="VisualStudio/HotReloadFiles.cs" />
+    <Compile Include="../../Sources/Tools/Nazor.VisualStudio/QuickAddMappings.cs" Link="VisualStudio/QuickAddMappings.cs" />
+    <None Include="../../Sources/Tools/Nazor.Grammars/*.json;../../Sources/Tools/Nazor.Grammars/*.tmTheme" Link="Grammars/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

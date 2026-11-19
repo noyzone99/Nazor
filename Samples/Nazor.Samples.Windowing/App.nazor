@@ -1,0 +1,264 @@
+@window
+@inject IApplicationAppearance Appearance
+@using Nazor.Style
+@implements IDisposable
+@inject IWindowService Windows
+@inject IWindow CurrentWindow
+
+@* IWindow is scoped to this window; IWindowService opens other windows and owns the application-wide color scheme.
+   Keep the full-screen command in the content because a custom title bar disappears in full-screen mode. *@
+
+<UserTitleBar Class="@(tallControls ? "tall" : "")"><WindowTitleBar Title="@CurrentWindow.Title"/></UserTitleBar>
+<Tabs Class="workspace-tabs" @bind-SelectedKey="selectedTab" KeepMounted="true">
+<Tab Key="windows" Label="Windows">
+<Container Class="scroll-fill">
+	<Container Class="page">
+		<Container Class="section">
+			<TextBlock Class="heading">Title bar and window operations</TextBlock>
+			<Button Disabled="@(Window.Capabilities.Decorations.FrameChanges == WindowSupportStatus.Unsupported)" OnClick="ToggleTitlebar">System / custom title bar</Button>
+			<TextBlock>App buttons follow the system's placement and order.</TextBlock>
+			<Button Disabled="@(!customTitlebar || CurrentWindow.Capabilities.Decorations.IntegratedNativeCaptionButtons == WindowSupportStatus.Unsupported)" OnClick="ToggleSystemButtons">Native controls / app buttons</Button>
+			<Button Disabled="@(!customTitlebar)" OnClick="ToggleControlsHeight">Standard / Tall height</Button>
+			<CheckBox Disabled="@(!Window.Capabilities.Minimize.IsSupported)" @bind-IsChecked="Window.IsMinimizable">Allow minimize</CheckBox>
+			<CheckBox Disabled="@(!Window.Capabilities.Maximize.IsSupported)" @bind-IsChecked="Window.IsMaximizable">Allow maximize</CheckBox>
+			<CheckBox Disabled="@(!Window.Capabilities.InteractiveResize.IsSupported)" @bind-IsChecked="Window.IsResizable">Allow resize</CheckBox>
+			<CheckBox Disabled="@(!Window.Capabilities.FullScreen.IsSupported)" @bind-IsChecked="Window.FullScreenEnabled">Allow full screen</CheckBox>
+			<CheckBox Disabled="@(!Window.Capabilities.CanResize)" @bind-IsChecked="ResizeGrip">Resize grip</CheckBox>
+			<CheckBox Disabled="@(!Window.Capabilities.CanShowPopupsOutsideWindow)" @bind-IsChecked="Window.AllowPopupsOutsideWindow">Allow popups outside this window</CheckBox>
+			<Container Class="row">
+				<Button Disabled="@(!Window.CanExecute(WindowCommand.Minimize))" OnClick="() => Request(WindowCommand.Minimize)">Minimize</Button>
+				<Button Disabled="@(!Window.CanExecute(WindowCommand.Maximize))" OnClick="() => Request(WindowCommand.Maximize)">Maximize</Button>
+				<Button Disabled="@(!Window.CanExecute(WindowCommand.Restore))" OnClick="() => Request(WindowCommand.Restore)">Restore</Button>
+				<Button Disabled="@(!Window.CanExecute(FullScreenCommand))" OnClick="() => Request(FullScreenCommand)">Enter / exit full screen</Button>
+			</Container>
+			<Button OnClick="CycleTitleBarMenu">@($"Title bar menu request: {Window.TitleBarMenuMode}")</Button>
+			<TextBlock>@($"Frame: {Window.Chrome.Frame}; caption buttons: {Window.Chrome.CaptionButtons}; title bar menu: {Window.Chrome.TitleBarMenu}")</TextBlock>
+			<TextBlock>@($"Reported state: {Window.State}. Last request: {lastWindowCommand ?? "none"}.")</TextBlock>
+			<TextBlock Class="heading">Window backdrop</TextBlock>
+			<Container Class="row">
+				<Button OnClick="() => SetBackdrop(CommonBackdrop.None)">None</Button>
+				<Button OnClick="() => SetBackdrop(CommonBackdrop.Blur)">Blur</Button>
+				<Button OnClick="() => SetBackdrop(CommonBackdrop.Solid)">Solid</Button>
+			</Container>
+			<TextBlock>@($"Requested: {Window.Backdrop.Preset}; applied: {Window.AppliedBackdrop.Material ?? "None"}")</TextBlock>
+		</Container>
+		<Container Class="section">
+			<TextBlock Class="heading">Windows and dialogs</TextBlock>
+			<Button OnClick="OpenWindow">Open an independent window</Button>
+			<Button Disabled="@(!(Window.Capabilities.Decorations.NazorFrame != WindowSupportStatus.Unsupported))" OnClick="() => OpenSplash(false)">Preview a borderless splash window</Button>
+			<Button Disabled="@(!(Window.Capabilities.Decorations.NazorFrame != WindowSupportStatus.Unsupported) || !Window.Capabilities.CanUseTransparentBackground)" OnClick="() => OpenSplash(true)">Preview a transparent splash window</Button>
+			<CheckBox Disabled="@(!Window.Capabilities.CanSetAlwaysOnTop)" @bind-IsChecked="Window.IsAlwaysOnTop">Always on top</CheckBox>
+			<CheckBox Disabled="@(!Window.Capabilities.CanSetTaskbarVisibility)" @bind-IsChecked="Window.IsVisibleInTaskbar">Visible in taskbar</CheckBox>
+			<Button Disabled="@(!OperatingSystem.IsWindows())" OnClick="() => Windows.Open<AppearanceWindow>()">Native title bar colors and size limits</Button>
+			<Button OnClick="OpenToolWindow">Open / activate the custom tool window</Button>
+			<Button Disabled="@(toolWindow is null)" OnClick="ToggleToolVisibility">Hide / show the tool window</Button>
+			<Button Disabled="@(toolWindow is null)" OnClick="CloseToolWindow">Close the tool window from the main window</Button>
+			<Button OnClick="() => OpenNameDialog(false)">Dialog with a system title bar</Button>
+			<Button OnClick="() => OpenNameDialog(true)">Dialog with a custom title bar and buttons</Button>
+			<Button OnClick="ShowMessage">Confirmation message</Button>
+			<TextBlock>@($"Current name: {windowName}")</TextBlock>
+			<TextBlock Class="result" @attributes="resultAttributes">@lastResult</TextBlock>
+			<TextBlock Class="heading">Application color scheme</TextBlock>
+			<Container Class="row">
+				<Button OnClick="() => Appearance.ColorScheme = ColorScheme.Light">Light</Button>
+				<Button OnClick="() => Appearance.ColorScheme = ColorScheme.Dark">Dark</Button>
+				<Button OnClick="() => Appearance.ColorScheme = ColorScheme.System">System</Button>
+			</Container>
+			<TextBlock>The color scheme also changes in windows and dialogs that are already open.</TextBlock>
+		</Container>
+	</Container>
+</Container>
+</Tab>
+<Tab Key="capabilities" Label="Capabilities"><CapabilityPanel/></Tab>
+<Tab Key="desktop" Label="Desktop services"><DesktopPanel/></Tab>
+</Tabs>
+
+@style {
+	:root {
+		display: flex;
+		flex-direction: column;
+		font-family: "Fira Sans", sans-serif;
+		-windows-badge-background-color: var(--nz-accent, currentColor);
+		-windows-badge-size: 22px;
+	}
+	TitleBar {
+		height: max(var(--nz-window-controls-height, 32px), 32px);
+	}
+	TitleBar.tall {
+		height: 48px;
+	}
+	.workspace-tabs { flex: 1; min-height: 0; }
+	.workspace-tabs > TabsPanel { display: flex; flex-direction: column; padding: 0; }
+	:root.tall { -windows-title-bar-height: tall; }
+	:root.with-grip {
+		-window-resize-grip: auto;
+		-window-resize-grip-color: var(--nz-accent, currentColor);
+	}
+	/* Keep the content scrollable when a smaller window constrains the grid. */
+	.scroll-fill {
+		flex: 1;
+		min-height: 0;
+		overflow-y: auto;
+	}
+	.page {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0px, 1fr));
+		gap: 32px;
+		padding: 24px;
+	}
+	.section {
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+	}
+	.heading {
+		font-size: 22px;
+		font-weight: bold;
+	}
+	.row {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px;
+	}
+	.result {
+		min-height: 40px;
+	}
+	@media (max-width: 700px) {
+		.page {
+			grid-template-columns: 1fr;
+		}
+	}
+}
+
+@code {
+	[Parameter] public string? InitialTab { get; set; }
+	private string? selectedTab = "windows";
+	private bool customTitlebar = !Environment.GetCommandLineArgs().Contains("--system-titlebar");
+	private bool nativeControls = true;
+	private bool tallControls, showResizeGrip = true;
+	private string? lastWindowCommand;
+	private WindowCommand FullScreenCommand => Window.State == WindowState.FullScreen
+		? WindowCommand.ExitFullScreen : WindowCommand.EnterFullScreen;
+	private bool ResizeGrip { get => showResizeGrip; set { showResizeGrip = value; UpdateWindowClass(); } }
+	private string windowName = "Nazor example";
+	private string lastResult = "Open a dialog, then confirm, cancel, or press Esc.";
+	private readonly Dictionary<string, object?> resultAttributes = new() { ["live"] = "polite" };
+	private IWindow? toolWindow;
+	private bool toolHidden;
+
+	// Native actions can change window state without a component event, so subscribe and explicitly request a render.
+	protected override void OnInitialized()
+	{
+		selectedTab = InitialTab ?? "windows";
+		Window.Title = "Nazor — Windowing";
+		Window.Decorations = DecorationPolicy();
+		Window.Operations = WindowOperations.Default;
+		Window.Backdrop = CommonBackdrop.None;
+		UpdateWindowClass();
+		CurrentWindow.ChromeChanged += RefreshWindow;
+		CurrentWindow.StateChanged += RefreshWindow;
+		CurrentWindow.CapabilitiesChanged += RefreshWindow;
+		CurrentWindow.SystemButtonsChanged += RefreshWindow;
+	}
+
+	private void RefreshWindow() => StateHasChanged();
+
+	// Detach callbacks when the component closes; otherwise the window service would retain the old component.
+	public void Dispose()
+	{
+		CurrentWindow.ChromeChanged -= RefreshWindow;
+		CurrentWindow.StateChanged -= RefreshWindow;
+		CurrentWindow.CapabilitiesChanged -= RefreshWindow;
+		CurrentWindow.SystemButtonsChanged -= RefreshWindow;
+		if (toolWindow is not null) toolWindow.Closed -= ToolClosed;
+	}
+
+	private void UpdateWindowClass() => Window.Class = $"{(showResizeGrip ? "with-grip" : "")} {(tallControls ? "tall" : "")}";
+	public void ToggleControlsHeight() { tallControls = !tallControls; UpdateWindowClass(); StateHasChanged(); }
+	public async Task ToggleSystemButtons() { nativeControls = !nativeControls; await Window.SetDecorationsAsync(DecorationPolicy()); }
+	private async Task ToggleTitlebar() { customTitlebar = !customTitlebar; await Window.SetDecorationsAsync(DecorationPolicy()); }
+	private WindowDecorationPolicy DecorationPolicy() => !customTitlebar
+		? WindowDecorationPolicy.Require(WindowDecorations.Native())
+		: nativeControls
+			? WindowDecorationPolicy.Prefer(WindowDecorations.Native(WindowTitleBarContent.User, WindowCaptionButtons.Native), WindowDecorations.Nazor(WindowTitleBarContent.User))
+			: WindowDecorationPolicy.Require(WindowDecorations.Nazor(WindowTitleBarContent.User));
+
+	// Omitting Owner creates an independent top-level window with its own component tree and DI scope.
+	private void OpenWindow() => Windows.Open<App>(options: new WindowOpenOptions
+	{
+		StartupLocation = WindowStartupLocation.CenterScreen,
+	});
+
+	private void OpenSplash(bool transparent) => Windows.Open<SplashWindow>(
+		new Dictionary<string, object?> { [nameof(SplashWindow.Transparent)] = transparent },
+		new WindowOpenOptions { Activate = false, StartupLocation = WindowStartupLocation.CenterScreen });
+
+	private void OpenToolWindow()
+	{
+		if (toolWindow is null || toolWindow.IsClosed)
+		{
+			// Ownership keeps the tool above this window but does not make it modal; both remain interactive.
+			toolWindow = Windows.Open<ToolWindow>(options: new WindowOpenOptions
+			{
+				Owner = CurrentWindow,
+				StartupLocation = WindowStartupLocation.CenterOwner,
+			});
+			toolWindow.Closed += ToolClosed;
+		}
+		toolWindow.Show();
+		toolWindow.Activate();
+		toolHidden = false;
+	}
+
+	// Hide preserves the component tree and its notes. Close disposes it, so reopening creates new state.
+	private void ToggleToolVisibility()
+	{
+		if (toolWindow is null) return;
+		if (toolHidden) toolWindow.Show();
+		else toolWindow.Hide();
+		toolHidden = !toolHidden;
+	}
+
+	private void CloseToolWindow() => toolWindow?.Close();
+	private void ToolClosed()
+	{
+		if (toolWindow is not null) toolWindow.Closed -= ToolClosed;
+		toolWindow = null;
+		toolHidden = false;
+		StateHasChanged();
+	}
+
+	private async Task OpenNameDialog(bool custom)
+	{
+		// ShowDialogAsync disables its owner while awaiting Close(result). Escape or Close() returns no value.
+		// nameof links parameter keys to the component contract so renaming a parameter remains compiler-checked.
+		var result = await Windows.ShowDialogAsync<NameDialog, string>(new Dictionary<string, object?>
+		{
+			[nameof(NameDialog.CustomTitlebar)] = custom,
+			[nameof(NameDialog.Name)] = windowName,
+		}, new WindowOpenOptions { SizeToContent = true });
+		// Commit only a confirmed value; cancellation leaves both the current name and window title unchanged.
+		if (result is not null)
+		{
+			windowName = result;
+			CurrentWindow.Title = result;
+		}
+		lastResult = result is null ? "Dialog canceled: the name is unchanged." : $"Dialog confirmed: {result}";
+	}
+
+	private async Task ShowMessage()
+	{
+		var result = await Windows.ShowMessageAsync("Would you like to continue with this example?", "Confirm", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+		lastResult = $"Message result: {result}";
+	}
+
+	private void Request(WindowCommand command) => lastWindowCommand = $"{command}: {Window.Request(command)}";
+	private void SetBackdrop(CommonBackdrop backdrop) => Window.Backdrop = backdrop;
+
+	private void CycleTitleBarMenu() => Window.TitleBarMenuMode = Window.TitleBarMenuMode switch
+	{
+		WindowTitleBarMenuMode.System => WindowTitleBarMenuMode.Nazor,
+		WindowTitleBarMenuMode.Nazor => WindowTitleBarMenuMode.None,
+		_ => WindowTitleBarMenuMode.System,
+	};
+}

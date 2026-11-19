@@ -1,0 +1,65 @@
+<Project>
+  <!-- Publish profiles must be imported before choosing the configuration default. -->
+  <PropertyGroup>
+    <NazorEnablePublishValidation Condition="'$(NazorEnablePublishValidation)' == '' and '$(Configuration)' == 'Release'">true</NazorEnablePublishValidation>
+    <NazorEnablePublishValidation Condition="'$(NazorEnablePublishValidation)' == ''">false</NazorEnablePublishValidation>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(NazorEnableDevTools)' == 'true'">
+    <DefineConstants>$(DefineConstants);NAZOR_DEVTOOLS</DefineConstants>
+  </PropertyGroup>
+
+  <Target Name="NazorValidateDevToolsSettings" BeforeTargets="CollectPackageReferences;PrepareForBuild">
+    <Error Condition="'$(PublishAot)' == 'true' and '$(NazorEnableDevTools)' == 'true'" Code="NZB005"
+           Text="Native AOT publication requires NazorEnableDevTools=false. Use an ordinary build for DevTools and Hot Reload." />
+    <Error Condition="'$(NazorEnableDevTools)' != 'true' and '$(NazorEnableDevTools)' != 'false'" Code="NZB008"
+           Text="NazorEnableDevTools must be true or false." />
+    <Error Condition="'$(NazorEnablePublishValidation)' != 'true' and '$(NazorEnablePublishValidation)' != 'false'" Code="NZB008"
+           Text="NazorEnablePublishValidation must be true or false." />
+  </Target>
+
+  <Target Name="NazorValidateDevToolsInclusion" BeforeTargets="CoreCompile" DependsOnTargets="ResolveReferences"
+          Condition="'$(NazorEnableDevTools)' != 'true' and '$(DesignTimeBuild)' != 'true'">
+    <Error Condition="'@(ReferencePath->WithMetadataValue('Filename', 'Nazor.DevTools.Agent'))' != ''" Code="NZB005"
+           Text="Nazor.DevTools.Agent requires NazorEnableDevTools=true. Guard application attachment code with #if NAZOR_DEVTOOLS, or remove the direct/transitive Agent reference." />
+  </Target>
+
+  <Target Name="NazorValidateProductionSettings" BeforeTargets="PrepareForPublish" DependsOnTargets="NazorValidateDevToolsSettings"
+          Condition="'$(NazorEnablePublishValidation)' == 'true' and '$(TargetFramework)' != ''">
+    <Error Condition="'$(NazorEnableDevTools)' == 'true'" Code="NZB005"
+           Text="NazorEnablePublishValidation=true requires NazorEnableDevTools=false. For a development publication with DevTools, explicitly set NazorEnablePublishValidation=false and rebuild." />
+  </Target>
+
+  <Target Name="NazorValidateProductionInputs" BeforeTargets="PrepareForILLink;_ComputeFilesToBundle;ComputeIlcCompileInputs" AfterTargets="ComputeFilesToPublish"
+          DependsOnTargets="NazorValidateProductionSettings;_ComputeResolvedCopyLocalPublishAssets;_ComputeCopyToPublishDirectoryItems"
+          Condition="'$(NazorEnablePublishValidation)' == 'true' and '$(TargetFramework)' != ''">
+    <PropertyGroup>
+      <_NazorPublishInputs>$(IntermediateOutputPath)Nazor/production-inputs.txt</_NazorPublishInputs>
+    </PropertyGroup>
+    <MakeDir Directories="$(IntermediateOutputPath)Nazor" />
+    <!-- Native AOT consumes managed inputs before ResolvedFileToPublish is populated, then replaces them with native output. -->
+    <ItemGroup Condition="'$(PublishAot)' == 'true'">
+      <_NazorNativePublishInput Include="@(IntermediateAssembly)">
+        <RelativePath>%(IntermediateAssembly.Filename)%(IntermediateAssembly.Extension)</RelativePath>
+      </_NazorNativePublishInput>
+      <_NazorNativePublishInput Include="@(_ResolvedCopyLocalPublishAssets)">
+        <RelativePath>%(_ResolvedCopyLocalPublishAssets.DestinationSubDirectory)%(_ResolvedCopyLocalPublishAssets.Filename)%(_ResolvedCopyLocalPublishAssets.Extension)</RelativePath>
+      </_NazorNativePublishInput>
+    </ItemGroup>
+    <ItemGroup>
+      <_NazorProductionInput Include="@(_NazorNativePublishInput);@(ResolvedFileToPublish)" />
+      <_NazorProductionInput Update="@(_NazorProductionInput)" Condition="'%(_NazorProductionInput.RelativePath)' == ''">
+        <RelativePath>%(_NazorProductionInput.Filename)%(_NazorProductionInput.Extension)</RelativePath>
+      </_NazorProductionInput>
+    </ItemGroup>
+    <WriteLinesToFile File="$(_NazorPublishInputs)" Overwrite="true" WriteOnlyWhenDifferent="true" Encoding="UTF-8"
+                      Lines="@(_NazorProductionInput->'%(FullPath)|%(RelativePath)')" />
+    <Exec Command="dotnet &quot;$(NazorCompilerPath)&quot; verify-production &quot;$(ProjectAssetsFile)&quot; &quot;$(_NazorPublishInputs)&quot;"
+          EnvironmentVariables="$(_NazorCompilerEnvironment)" />
+  </Target>
+
+  <Target Name="NazorValidateProductionOutput" AfterTargets="Publish" DependsOnTargets="NazorValidateProductionSettings"
+          Condition="'$(NazorEnablePublishValidation)' == 'true' and '$(TargetFramework)' != ''">
+    <Exec Command="dotnet &quot;$(NazorCompilerPath)&quot; verify-production &quot;$(ProjectAssetsFile)&quot; &quot;$(_NazorPublishInputs)&quot; &quot;$(PublishDir).&quot;"
+          EnvironmentVariables="$(_NazorCompilerEnvironment)" />
+  </Target>
+</Project>

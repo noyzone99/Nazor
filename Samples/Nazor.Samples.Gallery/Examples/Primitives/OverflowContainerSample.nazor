@@ -1,0 +1,33 @@
+@using Nazor.Controls.Primitives
+
+<Container Class="frame" Style="@($"width: {width}px")">
+    <OverflowContainer TItem="string" Items="actions" Gap="4" Class="bar">
+        <ItemTemplate Context="action"><Button Appearance="ControlAppearance.Subtle">@action</Button></ItemTemplate>
+        <OverflowTemplate Context="hidden">
+            <Button @ref="more" OnClick="() => menu = !menu">More</Button>
+            <Menu @bind-IsOpen="menu" Anchor="more?.Element">
+                @foreach (var action in hidden)
+                {
+                    <MenuItem>@action</MenuItem>
+                }
+            </Menu>
+        </OverflowTemplate>
+    </OverflowContainer>
+</Container>
+<Container Class="row">
+    <Button OnClick="() => width = Math.Max(160, width - 60)">Narrower</Button>
+    <Button OnClick="() => width += 60">Wider</Button>
+</Container>
+
+@code {
+    private readonly string[] actions = ["New", "Open", "Save", "Print", "Share", "Export", "Settings"];
+    private Button? more;
+    private bool menu;
+    private double width = 420;
+}
+
+@style {
+    .frame { border: 1px solid GrayText; padding: 4px; }
+    .bar { gap: 4px; }
+    .row { display: flex; gap: 8px; }
+}

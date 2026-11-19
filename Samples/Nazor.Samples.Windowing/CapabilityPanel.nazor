@@ -1,0 +1,91 @@
+@inject IWindow CurrentWindow
+@inject IServiceProvider Services
+@using Microsoft.Extensions.DependencyInjection
+@implements IDisposable
+
+<Container Class="capabilities">
+    <Container Class="section">
+        <TextBlock Class="heading">Desktop and renderer</TextBlock>
+        <TextBlock>@($"Backend: {Services.GetService<SampleBackend>()?.Name ?? "Unavailable"}")</TextBlock>
+        <TextBlock>@($"OS: {System.Runtime.InteropServices.RuntimeInformation.OSDescription}")</TextBlock>
+        @if (OperatingSystem.IsLinux())
+        {
+            <TextBlock>@($"Desktop: {Environment.GetEnvironmentVariable("XDG_CURRENT_DESKTOP") ?? "Unknown"}")</TextBlock>
+            <TextBlock>@($"Session: {Environment.GetEnvironmentVariable("XDG_SESSION_TYPE") ?? "Unknown"}")</TextBlock>
+        }
+        @if (CurrentWindow is NazorWindow native)
+        {
+            var renderer = native.Rendering;
+            <TextBlock>@($"Renderer: {renderer.Actual} ({renderer.Backend}), requested: {renderer.Requested}")</TextBlock>
+            @if (renderer.Device is { } device) { <TextBlock>@($"Graphics device: {device}")</TextBlock> }
+            @if (renderer.FallbackReason is { } reason) { <TextBlock>@($"Renderer fallback: {reason}")</TextBlock> }
+            <TextBlock>@($"Client: {native.Scene.Viewport.Width:0.##} × {native.Scene.Viewport.Height:0.##} logical units at {native.Scene.Scale:0.##}×")</TextBlock>
+        }
+        <Button OnClick="Refresh">Refresh values</Button>
+    </Container>
+    <Container Class="section">
+        <TextBlock Class="heading">Window properties</TextBlock>
+        <TextBlock>@($"Title: {CurrentWindow.Title}; state: {CurrentWindow.State}")</TextBlock>
+        <TextBlock>@($"Normal client size: {CurrentWindow.Width:0.##} × {CurrentWindow.Height:0.##}")</TextBlock>
+        <TextBlock>@($"Minimum: {Value(CurrentWindow.MinWidth)} × {Value(CurrentWindow.MinHeight)}; maximum: {Value(CurrentWindow.MaxWidth)} × {Value(CurrentWindow.MaxHeight)}")</TextBlock>
+        <TextBlock>@($"Screen position: {Value(CurrentWindow.X)}, {Value(CurrentWindow.Y)} (pixels)")</TextBlock>
+        <TextBlock>@($"Requested: {CurrentWindow.Decorations.Primary}; applied: {CurrentWindow.AppliedDecorations?.Configuration}")</TextBlock>
+        <TextBlock>@($"Frame: {CurrentWindow.Chrome.Frame}; caption buttons: {CurrentWindow.Chrome.CaptionButtons}")</TextBlock>
+        <TextBlock>@($"Title bar menu requested: {CurrentWindow.TitleBarMenuMode}; owner: {CurrentWindow.Chrome.TitleBarMenu}")</TextBlock>
+        <TextBlock>@($"Caption buttons left: {Buttons(CurrentWindow.SystemButtonsLayout.Left)}; right: {Buttons(CurrentWindow.SystemButtonsLayout.Right)}")</TextBlock>
+        <TextBlock>@($"Caption insets: {CurrentWindow.SystemButtonsMetrics.LeftInset:0.##} left, {CurrentWindow.SystemButtonsMetrics.RightInset:0.##} right; height: {CurrentWindow.SystemButtonsMetrics.Height:0.##}")</TextBlock>
+        <TextBlock>@($"Always on top: {CurrentWindow.IsAlwaysOnTop}; visible in taskbar: {CurrentWindow.IsVisibleInTaskbar}; frame owner: {CurrentWindow.AppliedDecorations?.Configuration.Frame}")</TextBlock>
+        <TextBlock>@($"Background: {CurrentWindow.BackgroundMode}; backdrop: {CurrentWindow.AppliedBackdrop.Material ?? "None"} (active: {CurrentWindow.AppliedBackdrop.IsActive})")</TextBlock>
+        <TextBlock>@($"Backdrop requested: {CurrentWindow.Backdrop.Preset?.ToString() ?? CurrentWindow.Backdrop.Windows?.ToString() ?? CurrentWindow.Backdrop.Linux?.ToString() ?? "Default"}; fallback: {CurrentWindow.Backdrop.Default}")</TextBlock>
+        <TextBlock>@($"Window icon set: {CurrentWindow.Icon is not null}; effective icon available: {CurrentWindow.EffectiveIcon is not null}")</TextBlock>
+        <TextBlock>@($"Placement key: {CurrentWindow.PlacementKey ?? "None"}; root class: {CurrentWindow.Class ?? "None"}")</TextBlock>
+        <TextBlock>@($"Inline style: {CurrentWindow.Style ?? "None"}; window stylesheet set: {CurrentWindow.StyleSheet is not null}")</TextBlock>
+        <TextBlock>@($"Safe insets (L/T/R/B): {CurrentWindow.Environment.SafeLeft}, {CurrentWindow.Environment.SafeTop}, {CurrentWindow.Environment.SafeRight}, {CurrentWindow.Environment.SafeBottom}")</TextBlock>
+        <TextBlock>@($"Keyboard occlusion: {CurrentWindow.Environment.KeyboardOcclusion?.ToString() ?? "None"}")</TextBlock>
+        @if (CurrentWindow is NazorWindow { FrameCount: > 0, IsClosed: false } current)
+        {
+            var placement = current.PlatformWindow.PlacementCapabilities;
+            <TextBlock>@($"Placement: restore size {placement.CanRestoreSize}; restore position {placement.CanRestorePosition}; select screen {placement.CanSelectScreen}; center {placement.CanCenter}")</TextBlock>
+        }
+    </Container>
+    <Container Class="section">
+        <TextBlock Class="heading">Operation support</TextBlock>
+        <TextBlock>Backend support, app policy and the native restriction are independent.</TextBlock>
+        @{
+            var capabilities = CurrentWindow.Capabilities;
+            var policy = CurrentWindow.Operations;
+        }
+        <TextBlock>@($"Minimize: {Operation(capabilities.Minimize, policy.IsMinimizable, capabilities.CanMinimize)}")</TextBlock>
+        <TextBlock>@($"Maximize: {Operation(capabilities.Maximize, policy.IsMaximizable, capabilities.CanMaximize)}")</TextBlock>
+        <TextBlock>@($"Interactive resize: {Operation(capabilities.InteractiveResize, policy.IsResizable, capabilities.CanResize)}")</TextBlock>
+        <TextBlock>@($"Full screen: {Operation(capabilities.FullScreen, policy.FullScreenEnabled, capabilities.CanEnterFullScreen)}")</TextBlock>
+        <TextBlock>@($"Can request now: {string.Join(", ", Enum.GetValues<WindowCommand>().Where(CurrentWindow.CanExecute).Select(command => command.ToString()).DefaultIfEmpty("None"))}")</TextBlock>
+    </Container>
+    <Container Class="section">
+        <TextBlock Class="heading">Decoration support</TextBlock>
+        @{
+            var decorations = CurrentWindow.Capabilities.Decorations;
+        }
+        <TextBlock>@($"Native frame: {decorations.NativeFrame}; Nazor frame: {decorations.NazorFrame}")</TextBlock>
+        <TextBlock>@($"Native title bar: {decorations.NativeTitleBar}; client content on native frame: {decorations.ClientTitleBarOnNativeFrame}")</TextBlock>
+        <TextBlock>@($"Integrated native controls: {decorations.IntegratedNativeCaptionButtons}; native controls on Nazor frame: {decorations.NativeCaptionButtonsOnNazorFrame}")</TextBlock>
+        <TextBlock>@($"Runtime frame changes: {decorations.FrameChanges}; caption changes: {decorations.CaptionChanges}")</TextBlock>
+        @foreach (var configuration in CurrentWindow.Decorations.Options)
+        {
+            <TextBlock>@($"Option: {configuration}; complete support: {decorations.GetSupport(configuration)}")</TextBlock>
+        }
+    </Container>
+    <Container Class="section">
+        <TextBlock Class="heading">Window capabilities</TextBlock>
+        @foreach (var (name, value) in OtherCapabilities(CurrentWindow.Capabilities))
+        {
+            <TextBlock>@($"{name}: {(value ? "Yes" : "No")}")</TextBlock>
+        }
+    </Container>
+</Container>
+
+@style {
+    .capabilities { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 24px; padding: 24px; }
+    .section { display: flex; flex-direction: column; gap: 8px; }
+    .heading { font-size: 22px; font-weight: bold; }
+}

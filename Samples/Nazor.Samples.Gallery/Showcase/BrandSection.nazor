@@ -1,0 +1,27 @@
+@using Nazor.Themes.NazorLeaf
+
+<Container Class="demo-section">
+    <Heading Level="3">Marchio</Heading>
+    <Paragraph Class="demo-lead">Il quadrifoglio tonale: quattro petali a foglia in due toni del seme, con le punte rivolte verso il centro e verso gli angoli. Cambia colore con l’app, e girando diventa l’indicatore di caricamento.</Paragraph>
+    <Container Class="demo-brandrow">
+        <Container Class="demo-bcell"><Container Class="demo-bx"><LeafMark Size="52" /><TextBlock Class="demo-bwm">nazor</TextBlock></Container><TextBlock Class="demo-bcap">Logotipo</TextBlock></Container>
+        <Container Class="demo-bcell"><Container Class="demo-bx mono"><LeafMark Size="52" /><TextBlock Class="demo-bwm">nazor</TextBlock></Container><TextBlock Class="demo-bcap">Monocromo</TextBlock></Container>
+        <Container Class="demo-bcell">
+            <Container Class="demo-bx">
+                <Container Class="demo-brand-icon"><LeafMark Size="46" /></Container>
+                <Container Class="demo-brand-icon inverse"><LeafMark Size="46" /></Container>
+            </Container>
+            <TextBlock Class="demo-bcap">Icona dell’app, chiara e scura</TextBlock>
+        </Container>
+        <Container Class="demo-bcell"><Container Class="demo-bx"><LeafMark Size="48" /><LeafMark Size="32" /><LeafMark Size="24" /><LeafMark Size="16" /></Container><TextBlock Class="demo-bcap">48, 32, 24 e 16 px</TextBlock></Container>
+        <Container Class="demo-bcell"><Container Class="demo-bx"><LeafMark Size="40" IsLoading="true" /></Container><TextBlock Class="demo-bcap">Caricamento</TextBlock></Container>
+    </Container>
+</Container>
+@style {
+    .demo-brandrow { display: flex; flex-direction: row; flex-wrap: wrap; gap: 12px; }
+    .demo-bcell { display: flex; flex-direction: column; gap: 8px; }
+    .demo-bcap { font-size: 12px; color: var(--leaf-text-3); }
+    .demo-bx { display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 14px; min-height: 120px; padding: 0 26px; border-radius: var(--leaf-r-ovl); background: var(--leaf-s1); }
+    .demo-bwm { font-variation-settings: "opsz" 96; font-family: var(--leaf-font-display); font-size: 44px; font-weight: 800; line-height: 1; letter-spacing: -0.045em; transform: translateY(-3px); }
+    .demo-bx.mono LeafMark { --leaf-mk1: var(--leaf-text); --leaf-mk2: color-mix(in oklab, var(--leaf-text) 38%, var(--leaf-s1)); }
+}

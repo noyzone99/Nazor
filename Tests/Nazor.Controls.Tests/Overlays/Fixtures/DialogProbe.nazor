@@ -1,0 +1,48 @@
+@implements IRefreshable
+@using Nazor.Controls.Primitives
+<Button Class="opener" OnClick="() => DialogOpen = true">Open</Button>
+<Dialog @bind-IsOpen="DialogOpen" Title="Export" Subtitle="Choose a format" Size="Size" Placement="Placement" Modal="Modal"
+        DefaultButton="DialogButtonRole.Primary" OnAction="role => Log.Add(role.ToString())" OnDismiss="@(() => Log.Add("dismiss"))">
+    <ChildContent><TextField Class="name" AccessibleName="Name" /></ChildContent>
+    <Footer>
+        @if (WithButtons)
+        {
+            <DialogButton Class="primary" Role="DialogButtonRole.Primary" OnClick="@(() => Log.Add("export"))">Export</DialogButton>
+            <DialogButton Class="cancel" Role="DialogButtonRole.Cancel" OnClick="@(() => Log.Add("cancel"))" />
+            <DialogButton Class="help" Role="DialogButtonRole.Help" OnClick="@(() => Log.Add("help"))" />
+            <DialogButton Class="secondary" Role="DialogButtonRole.Secondary">Later</DialogButton>
+        }
+    </Footer>
+</Dialog>
+<AlertDialog @bind-IsOpen="AlertOpen" Severity="Severity.Warning" Title="Delete 3 files?" Message="This cannot be undone."
+             Details="Stack trace" @bind-IsSuppressed="Suppressed" PreferCancel="PreferCancel" OnAction="role => Log.Add(role.ToString())">
+    <Actions>
+        <DialogButton Class="delete" Role="DialogButtonRole.Destructive">Delete</DialogButton>
+        <DialogButton Class="alert-cancel" Role="DialogButtonRole.Cancel" />
+    </Actions>
+</AlertDialog>
+<AlertDialog @bind-IsOpen="AckOpen" Title="Done" Message="All files were copied." OnAction="role => Log.Add(role.ToString())">
+    <Actions><DialogButton Class="ok" Role="DialogButtonRole.Primary" /></Actions>
+</AlertDialog>
+<Drawer @bind-IsOpen="DrawerOpen" Placement="DrawerPlacement" Title="Settings" Size="DrawerSize" OnAction="role => Log.Add(role.ToString())" OnDismiss="@(() => Log.Add("drawer-dismiss"))">
+    <ChildContent><CheckBox Class="drawer-check">Email</CheckBox></ChildContent>
+    <Footer><DialogButton Class="drawer-save" Role="DialogButtonRole.Primary">Save</DialogButton></Footer>
+</Drawer>
+<Button Class="outside">Outside</Button>
+
+@code {
+    public void Refresh() => StateHasChanged();
+    public bool DialogOpen { get; set; }
+    public bool AlertOpen { get; set; }
+    public bool AckOpen { get; set; }
+    public bool DrawerOpen { get; set; }
+    public bool Suppressed { get; set; }
+    public bool PreferCancel { get; set; } = true;
+    public bool Modal { get; set; } = true;
+    public bool WithButtons { get; set; } = true;
+    public DialogSize Size { get; set; } = DialogSize.Medium;
+    public DialogPlacement Placement { get; set; }
+    public DrawerPlacement DrawerPlacement { get; set; } = DrawerPlacement.End;
+    public double? DrawerSize { get; set; }
+    public List<string> Log { get; } = [];
+}

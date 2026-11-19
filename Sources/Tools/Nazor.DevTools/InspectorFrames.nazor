@@ -1,0 +1,176 @@
+@using Nazor.DevTools.Protocol
+<Container Class="frames-panel">
+    <Container Class="timeline-pane">
+    <Container Class="perf-toolbar">
+        <TextBlock Class="perf-title">Frames</TextBlock>
+        @if (Capture is { Frames.Length: > 0 } summary)
+        {
+            <TextBlock Class="perf-stat">@(summary.Frames.Length + " frames")</TextBlock>
+            <TextBlock Class="perf-stat">@("avg " + DetailFormatting.Milliseconds(summary.Frames.Average(f => f.Timings.TotalMs)))</TextBlock>
+            <TextBlock Class="perf-stat">@("max " + DetailFormatting.Milliseconds(summary.Frames.Max(f => f.Timings.TotalMs)))</TextBlock>
+            <TextBlock Class="perf-stat">@(summary.Frames.Count(f => f.Timings.TotalMs > Budget) + " over 16.7 ms")</TextBlock>
+        }
+        <Container Class="spacer" />
+        <TextBlock Class="provenance" Tooltip="@(Capture is null ? null : DetailFormatting.CapturedAt(Capture.Capture))">
+            @(Refreshing ? "Reading from the app…" : Capture is null ? "Latest 120 completed target frames" : DetailFormatting.Capture(Capture.Capture, Target, Connection))
+        </TextBlock>
+        <Button Id="refresh-details" Size="ControlSize.Small" OnClick="OnRefresh" Disabled="@(!CanRefresh || Refreshing)" AccessibleName="Refresh panel" Tooltip="Read the frame history again">
+            <Leading><Icon Source="InspectorIcons.Refresh" /></Leading>
+        </Button>
+    </Container>
+    @if (Capture is null || Capture.Frames.Length == 0)
+    {
+        <EmptyState Title="No frames recorded" TitleLevel="3" Class="placeholder">
+            <Illustration><Icon Source="InspectorIcons.Performance" Class="placeholder-icon" /></Illustration>
+            <Description>Frame history is read while the app is running. An idle app draws no frames: interact with it, then refresh. Reading the history never requests a frame.</Description>
+        </EmptyState>
+    }
+    else
+    {
+        <Container Class="chart" AccessibleName="Frame timeline">
+            <Container Class="chart-bars">
+                @foreach (var frame in Capture.Frames)
+                {
+                    var record = frame;
+                    <Container Class="@("bar-slot" + (record.Number == selectedNumber ? " selected" : ""))" @onclick="@(() => Select(record))" Tooltip="@FrameText(record)">
+                        <Container Class="@("bar " + Tone(record.Timings.TotalMs))" Style="@("height: " + Height(record.Timings.TotalMs))" />
+                    </Container>
+                }
+            </Container>
+            <Container Class="budget" Style="@("bottom: " + Height(Budget))"><TextBlock Class="budget-label">16.7 ms · 60 fps</TextBlock></Container>
+            @if (Scale > Budget * 2)
+            {
+                <Container Class="budget slow" Style="@("bottom: " + Height(Budget * 2))"><TextBlock Class="budget-label">33.3 ms · 30 fps</TextBlock></Container>
+            }
+        </Container>
+    }
+    </Container>
+    @if (Capture is { Frames.Length: > 0 })
+    {
+        <SplitView Class="frames-split" PanePlacement="SplitViewPanePlacement.End" PaneSize="detailWidth" PaneSizeChanged="@(value => detailWidth = value)"
+                   MinPaneSize="260" MaxPaneSize="640" ResizeHandleAccessibleName="Resize frame details">
+            <Pane>
+                @if (Selected is { } frame)
+                {
+                    <Container Class="frame-scroll">
+                        <Container Class="frame-details">
+                            <Container Class="frame-heading">
+                                <TextBlock Class="frame-title">@("Frame " + frame.Number)</TextBlock>
+                                <TextBlock Class="@("frame-total " + Tone(frame.Timings.TotalMs))">@DetailFormatting.Milliseconds(frame.Timings.TotalMs)</TextBlock>
+                            </Container>
+                            <TextBlock Class="muted small">@("Frame " + frame.Number + " · causes: " + string.Join(" + ", frame.Causes))</TextBlock>
+                            <Container Class="chips">
+                                @foreach (var cause in frame.Causes) { <TextBlock Class="chip">@cause</TextBlock> }
+                            </Container>
+                            <Container Class="section">
+                                <TextBlock Class="section-title">Phases</TextBlock>
+                                <Container Class="breakdown">
+                                    @foreach (var phase in Phases(frame).Where(p => p.Ms > 0))
+                                    {
+                                        <Container Class="@("segment " + phase.Class)" Style="@("flex-grow: " + DetailFormatting.Number(phase.Ms))" Tooltip="@(phase.Name + " · " + DetailFormatting.Milliseconds(phase.Ms))" />
+                                    }
+                                </Container>
+                                <Container Class="facts">
+                                    @foreach (var phase in Phases(frame))
+                                    {
+                                        <Container Class="legend"><Container Class="@("legend-dot " + phase.Class)" /><TextBlock Class="fact-label">@phase.Name</TextBlock></Container>
+                                        <TextBlock Class="fact-value">@(phase.Available ? DetailFormatting.Milliseconds(phase.Ms) : "Unavailable")</TextBlock>
+                                    }
+                                    <Container Class="legend"><Container Class="legend-dot total" /><TextBlock Class="fact-label">Total target paint</TextBlock></Container>
+                                    <TextBlock Class="fact-value strong">@DetailFormatting.Milliseconds(frame.Timings.TotalMs)</TextBlock>
+                                </Container>
+                            </Container>
+                            <Container Class="section">
+                                <TextBlock Class="section-title">Work</TextBlock>
+                                <Container Class="facts">
+                                    @foreach (var fact in Facts(frame))
+                                    {
+                                        <TextBlock Class="fact-label">@fact.Key</TextBlock><TextBlock Class="fact-value" IsTextSelectionEnabled="true">@fact.Value</TextBlock>
+                                    }
+                                </Container>
+                            </Container>
+                            <Container Class="section">
+                                <TextBlock Class="section-title">Damage</TextBlock>
+                                @if (frame.HasDamage == false) { <TextBlock Class="muted small">Damage rectangle list unavailable; the desktop host uses a full redraw in this case.</TextBlock> }
+                                else
+                                {
+                                    <TextBlock Class="small">@("Damage rectangles (physical pixels): " + frame.Damage.Length)</TextBlock>
+                                    @foreach (var rectangle in frame.Damage) { <TextBlock Class="mono small" IsTextSelectionEnabled="true">@DetailFormatting.Rect(rectangle)</TextBlock> }
+                                }
+                            </Container>
+                            <TextBlock Class="muted small note">Total is UI paint-handler time. GPU recording is separate from the last completed render worker frame; its time includes CPU submission and presentation wait. GPU execution and input-to-screen latency are not measured.</TextBlock>
+                        </Container>
+                    </Container>
+                }
+                else
+                {
+                    <EmptyState Title="No frame selected" TitleLevel="3" Class="placeholder">
+                        <Description>Choose a frame in the timeline or the list.</Description>
+                    </EmptyState>
+                }
+            </Pane>
+            <ChildContent>
+                <ListView TItem="FrameRecord" Items="Capture.Frames" ItemText="FrameText" SelectedItem="Selected" SelectedItemChanged="Select" ItemHeight="26"
+                          AccessibleName="Captured target frames" Class="frame-list" />
+            </ChildContent>
+        </SplitView>
+    }
+</Container>
+@code {
+    [Parameter] public FrameBatch? Capture { get; set; }
+    [Parameter] public TargetState? Target { get; set; }
+    [Parameter] public InspectorConnectionStatus Connection { get; set; }
+    [Parameter] public bool CanRefresh { get; set; }
+    [Parameter] public bool Refreshing { get; set; }
+    [Parameter] public EventCallback OnRefresh { get; set; }
+    private const double Budget = 1000.0 / 60;
+    private double detailWidth = 340;
+    private long? selectedNumber;
+    private long? latest;
+    private string? context;
+    private FrameRecord? Selected => Capture?.Frames.FirstOrDefault(f => f.Number == selectedNumber);
+    private double Scale => Math.Max(Budget * 1.5, Capture is { Frames.Length: > 0 } capture ? capture.Frames.Max(f => f.Timings.TotalMs) * 1.1 : 0);
+    protected override void OnParametersSet()
+    {
+        var nextContext = Capture is null ? null : Capture.Capture.SessionId + ":" + Capture.Capture.Generation + ":" + Capture.Capture.StopId;
+        if (Capture is { Frames.Length: > 0 } frames)
+        {
+            if (context != nextContext || selectedNumber is null || selectedNumber == latest || !frames.Frames.Any(f => f.Number == selectedNumber)) selectedNumber = frames.Frames[^1].Number;
+            latest = frames.Frames[^1].Number;
+        }
+        context = nextContext;
+    }
+    private void Select(FrameRecord? frame) => selectedNumber = frame?.Number;
+    private string Height(double ms) => DetailFormatting.Number(Math.Clamp(ms / Scale * 100, 1.5, 100)) + "%";
+    private static string Tone(double ms) => ms <= Budget ? "good" : ms <= Budget * 2 ? "slow" : "janky";
+    private string FrameText(FrameRecord frame) => "#" + frame.Number + " · " + DetailFormatting.Number(frame.Timings.TotalMs) + " ms · " + string.Join(" + ", frame.Causes);
+    private static IEnumerable<(string Name, string Class, double Ms, bool Available)> Phases(FrameRecord frame)
+    {
+        yield return ("Style", "style", frame.Timings.StyleMs, true);
+        yield return ("Layout", "layout", frame.Timings.LayoutMs, true);
+        yield return ("Display list", "display", frame.Timings.DisplayListMs, true);
+        yield return ("Overlay", "overlay", frame.Timings.OverlayMs ?? 0, frame.Timings.OverlayMs is not null);
+        yield return (frame.Renderer == "GPU" ? "GPU recording / submission" : "Raster", "raster", frame.Timings.PaintMs, true);
+    }
+    private static IEnumerable<KeyValuePair<string, string>> Facts(FrameRecord frame)
+    {
+        if (frame.Renderer is not null)
+        {
+            yield return new("Renderer", (frame.RequestedRenderer ?? "Unknown") + " → " + frame.Renderer);
+            yield return new("Graphics backend", frame.GraphicsBackend ?? "Unavailable");
+            yield return new("Device", frame.GraphicsDevice ?? "Unavailable");
+            if (frame.FallbackReason is { } reason) yield return new("Fallback",reason);
+        }
+        if (frame.RenderWorkerFrame is { } workerFrame)
+        {
+            yield return new("Last completed render worker frame",workerFrame.ToString());
+            yield return new("Worker submission / present",frame.RenderWorkerMs is { } workerMs ? DetailFormatting.Milliseconds(workerMs) : "Unavailable");
+            yield return new("Pending GPU frames replaced",frame.GpuFramesReplaced?.ToString() ?? "Unavailable");
+        }
+        yield return new("Elapsed since attachment", frame.Timings.ElapsedMs is { } elapsed ? DetailFormatting.Milliseconds(elapsed) : "Unavailable");
+        yield return new("Styles recomputed", frame.StylesRecomputed?.ToString() ?? "Unavailable");
+        yield return new("Layout computations", frame.LayoutCount.ToString());
+        yield return new("Total node count", frame.HasNodeCount == true ? frame.NodeCount.ToString() : "Unavailable");
+        yield return new("Painted node count", frame.HasPaintCount == true ? frame.PaintCount.ToString() : "Unavailable");
+    }
+}

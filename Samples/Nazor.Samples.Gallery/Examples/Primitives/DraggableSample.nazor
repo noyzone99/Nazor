@@ -1,0 +1,18 @@
+@using Nazor.Controls.Primitives
+
+<Container Class="board">
+    <Draggable Class="knob" Style="@($"left: {x}px; top: {y}px")" OnDragStart="Start" OnDrag="Move">Drag me</Draggable>
+</Container>
+<TextBlock>@($"Position: {x:0}, {y:0}")</TextBlock>
+
+@code {
+    private double x = 20, y = 20, startX, startY;
+    private void Start(DragEventArgs e) => (startX, startY) = (x, y);
+    private void Move(DragEventArgs e) => (x, y) = (Math.Clamp(startX + e.DeltaX, 0, 300), Math.Clamp(startY + e.DeltaY, 0, 120));
+}
+
+@style {
+    .board { position: relative; width: 400px; height: 160px; border: 1px solid GrayText; }
+    .knob { position: absolute; padding: 8px 12px; border: 1px solid ButtonBorder; background: ButtonFace; }
+    .knob[dragging] { background: Highlight; color: HighlightText; }
+}

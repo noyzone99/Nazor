@@ -1,0 +1,3 @@
+@inject System.Collections.Generic.List<string> Names
+
+<TextBlock>@string.Join(", ", Names)</TextBlock>

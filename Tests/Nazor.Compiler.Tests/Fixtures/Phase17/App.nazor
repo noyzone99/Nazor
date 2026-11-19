@@ -1,0 +1,14 @@
+<CascadingValue Value="value" Name="message">
+    <Receiver Prefix="value:" />
+</CascadingValue>
+<Editor @bind-Value="value" @bind-Value:after="After" />
+<Editor @bind-Value:get="value" @bind-Value:set="Set" />
+<Inherited />
+<TextBlock>@log</TextBlock>
+
+@code {
+    private string value = "initial";
+    private string log = "";
+    private async Task After() { await Task.Yield(); log = "after:" + value; }
+    private Task Set(string next) { value = next.ToUpperInvariant(); log = "set:" + value; return Task.CompletedTask; }
+}

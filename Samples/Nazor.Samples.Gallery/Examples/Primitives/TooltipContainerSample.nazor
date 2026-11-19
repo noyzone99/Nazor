@@ -1,0 +1,14 @@
+@using Nazor.Controls.Primitives
+
+<TooltipContainer Placement="OverlayPlacement.Top">
+    <Trigger><Button>Hover or focus me</Button></Trigger>
+    <ChildContent>
+        <TextBlock Class="title">Rich tooltip</TextBlock>
+        <TextBlock>Tooltips describe; they never contain controls.</TextBlock>
+    </ChildContent>
+</TooltipContainer>
+<Button Tooltip="A plain text tooltip from the Tooltip parameter">Plain tooltip</Button>
+
+@style {
+    .title { font-weight: 700; }
+}

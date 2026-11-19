@@ -1,0 +1,10 @@
+<Container>
+    @if (visible)
+    {
+        @foreach (var value in values)
+        {
+            <TextBlock @key="value">Item: @value</TextBlock>
+        }
+    }
+    <Button @onclick="Toggle">Toggle</Button>
+</Container>

@@ -1,0 +1,8 @@
+<Container>
+    <div>@count</div>
+    <button>Static</button>
+</Container>
+
+@code {
+    private int count;
+}

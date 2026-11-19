@@ -1,0 +1,24 @@
+@* This view has no code-behind because its content is static. Its sidecar demonstrates responsive grid layout
+   and an absolutely positioned badge without mixing presentation rules into the task store. *@
+<Container Class="page column">
+    <SectionHeader Title="A simple workspace" Description="A task list to organize your day." />
+    <Container Class="features">
+        <Container Class="panel feature">
+            <TextBlock Class="label">One session, all your tasks</TextBlock>
+            <TextBlock>Switch between views without losing your tasks. Closing the app clears the session data.</TextBlock>
+        </Container>
+        <Container Class="panel feature">
+            <TextBlock Class="badge">New</TextBlock>
+            <TextBlock Class="label">Keyboard support</TextBlock>
+            <TextBlock>Tab and Shift+Tab move focus. Enter adds a task. Ctrl+N focuses the title; Ctrl+F focuses search.</TextBlock>
+        </Container>
+        <Container Class="panel feature">
+            <TextBlock Class="label">A clear task list</TextBlock>
+            <TextBlock>Select a task, check it when complete, and use the filters to find what you need.</TextBlock>
+        </Container>
+        <Container Class="panel feature">
+            <TextBlock Class="label">A scrollbar playground</TextBlock>
+            <TextBlock>Open Scrollbars to compare overlay and reserved space, fade, buttons and smooth pixel or line scrolling. The preview data is separate from your tasks.</TextBlock>
+        </Container>
+    </Container>
+</Container>

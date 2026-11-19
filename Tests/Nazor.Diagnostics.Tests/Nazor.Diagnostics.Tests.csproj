@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="xunit.v3" />
+    <ProjectReference Include="../../Sources/Core/Nazor.Diagnostics/Nazor.Diagnostics.csproj" />
+    <ProjectReference Include="../../Sources/Core/Nazor.Renderer.Skia/Nazor.Renderer.Skia.csproj" />
+    <ProjectReference Include="../../Sources/Core/Nazor.Controls/Nazor.Controls.csproj" />
+    <ProjectReference Include="../../Samples/Nazor.Samples.Counter/Nazor.Samples.Counter.csproj" />
+    <ProjectReference Include="../Nazor.Testing/Nazor.Testing.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="Xunit" />
+    <Compile Include="../Fixtures/DevToolsTrees/TreePage.cs" Link="Fixtures/TreePage.cs" />
+    <None Include="../Assets/Fonts/*.ttf" Link="Fonts/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

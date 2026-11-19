@@ -1,0 +1,31 @@
+<Container Class="stack">
+    <Field LabelText="City popup placement">
+        <Select TValue="DropDownPlacement" Items="placements" @bind-Value="placement" />
+    </Field>
+    <Select TValue="string" @bind-Value="theme" AccessibleName="Theme">
+        <SelectItem Value="@("system")">System</SelectItem>
+        <SelectItem Value="@("light")">Light</SelectItem>
+        <SelectItem Value="@("dark")">Dark</SelectItem>
+        <SelectItem Value="@("contrast")" Disabled="true">High contrast</SelectItem>
+    </Select>
+    <Select TValue="string" @bind-Value="language" Items="languages" Placeholder="Choose a language" AccessibleName="Language"
+            DropDownPlacement="DropDownPlacement.Bottom" PreferredMinVisibleItems="2" PreferredMaxVisibleItems="4" />
+    <Select TValue="string" @bind-Value="city" AccessibleName="City" DropDownPlacement="placement">
+        <SelectItem Value="@("Rome")" Group="Italy">Rome</SelectItem>
+        <SelectItem Value="@("Milan")" Group="Italy">Milan</SelectItem>
+        <SelectItem Value="@("Paris")" Group="France">Paris</SelectItem>
+        <SelectItem Value="@("Lyon")" Group="France">Lyon</SelectItem>
+    </Select>
+    <TextBlock>@($"Theme: {theme}; language: {language ?? "none"}; city: {city}")</TextBlock>
+</Container>
+
+@code {
+    private string? theme = "system", language, city = "Milan";
+    private readonly string[] languages = ["English", "Italiano", "Deutsch", "Español", "Japanese"];
+    private readonly DropDownPlacement[] placements = Enum.GetValues<DropDownPlacement>();
+    private DropDownPlacement placement = DropDownPlacement.Center;
+}
+
+@style {
+    .stack { display: flex; flex-direction: column; gap: 8px; width: 260px; }
+}

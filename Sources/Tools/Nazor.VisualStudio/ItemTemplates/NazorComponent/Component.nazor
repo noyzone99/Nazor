@@ -1,0 +1,9 @@
+<Container>
+    <TextBlock>$safeitemname$</TextBlock>
+</Container>
+
+@style {
+}
+
+@code {
+}

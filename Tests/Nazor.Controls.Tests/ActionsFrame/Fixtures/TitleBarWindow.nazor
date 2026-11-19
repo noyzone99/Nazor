@@ -1,0 +1,16 @@
+@window
+@implements IRefreshable
+<UserTitleBar Class="bar" Title="@Title" Subtitle="Preview" Height="TitleBarHeight.Tall">
+    <Leading><Button Class="back">Back</Button></Leading>
+    <AppIcon><Icon Glyph="N" /></AppIcon>
+    <Center><TextField Class="search" Placeholder="Search" /></Center>
+    <Trailing><CaptionButtons Class="caption" /></Trailing>
+    <ChildContent><TextBlock Class="extra">Extra</TextBlock></ChildContent>
+</UserTitleBar>
+<Container Class="content"><TextBlock>Content</TextBlock></Container>
+
+@code {
+    public void Refresh() => StateHasChanged();
+    public string Title { get; set; } = "Documents";
+    protected override void OnInitialized() => Window.Decorations = WindowDecorationPolicy.Require(WindowDecorations.Nazor(WindowTitleBarContent.User, WindowCaptionButtons.None));
+}

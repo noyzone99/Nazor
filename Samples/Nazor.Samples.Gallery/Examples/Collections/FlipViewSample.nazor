@@ -1,0 +1,50 @@
+<Field LabelText="Packaged images">
+    <FlipView TItem="ImageSlide" Class="images" Items="images" @bind-SelectedIndex="imageIndex" AccessibleName="Nazor artwork">
+        <ItemTemplate Context="slide">
+            <Container Class="image-slide">
+                <Image Source="@slide.Source" Alt="@slide.Title" />
+                <TextBlock>@slide.Title</TextBlock>
+            </Container>
+        </ItemTemplate>
+    </FlipView>
+</Field>
+<TextBlock>@($"Image {imageIndex + 1} of {images.Length}")</TextBlock>
+
+<Field LabelText="Custom data templates">
+    <FlipView TItem="FeatureCard" Class="features" Items="features" @bind-SelectedIndex="featureIndex" AccessibleName="Framework features">
+        <ItemTemplate Context="card">
+            <Container Class="feature-card">
+                <Heading Level="3">@card.Title</Heading>
+                <Paragraph>@card.Description</Paragraph>
+                <TextField @bind-Value="card.Note" Placeholder="A note kept in the data model" AccessibleName="Feature note" />
+                <Button OnClick="() => chosen = card.Title">Use this feature</Button>
+            </Container>
+        </ItemTemplate>
+    </FlipView>
+</Field>
+<TextBlock>@($"Selected feature: {chosen}")</TextBlock>
+<Paragraph>Use the arrows while the view has focus, its navigation buttons, or swipe its background. Text editing and card actions retain their own input. Only the selected template is mounted; notes survive navigation because they are stored in the data model.</Paragraph>
+
+@code {
+    private int imageIndex, featureIndex;
+    private string chosen = "none";
+    private readonly ImageSlide[] images = [new("Brand artwork", "Assets/nazor.png"), new("Application artwork", "Assets/nazor-app.png")];
+    private readonly FeatureCard[] features = [new("Binding", "Keep component state and values synchronized."), new("Templates", "Compose each item with ordinary controls."), new("Themes", "Share behavior while adapting its appearance.")];
+
+    public sealed record ImageSlide(string Title, string Source);
+    public sealed class FeatureCard(string title, string description)
+    {
+        public string Title { get; } = title;
+        public string Description { get; } = description;
+        public string? Note { get; set; }
+    }
+}
+
+@style {
+    .images, .features { width: 100%; max-width: 480px; }
+    .images { height: 240px; }
+    .features { height: 280px; }
+    .image-slide { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; width: 100%; height: 100%; padding: 24px 36px; }
+    .image-slide Image { width: 100%; height: 160px; object-fit: contain; }
+    .feature-card { display: flex; flex-direction: column; gap: 10px; width: 100%; height: 100%; padding: 24px 36px; }
+}

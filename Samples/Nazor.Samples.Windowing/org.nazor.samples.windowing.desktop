@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Nazor Windowing
+Exec=Nazor.Samples.Windowing
+Icon=org.nazor.samples.windowing
+StartupWMClass=org.nazor.samples.windowing
+Categories=Utility;

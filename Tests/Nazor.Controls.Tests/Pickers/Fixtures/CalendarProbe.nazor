@@ -1,0 +1,21 @@
+@implements IRefreshable
+@using System.Globalization
+<Calendar Class="single" @bind-Value="Value" Today="Today" Culture="Culture" Minimum="Minimum" Maximum="Maximum"
+          IsDateUnavailable="d => d == Holiday" ShowWeekNumbers="WeekNumbers" AccessibleName="Single" />
+<Calendar Class="range" SelectionMode="CalendarSelectionMode.Range" @bind-RangeStart="Start" @bind-RangeEnd="End" MonthCount="2"
+          Today="Today" Culture="Culture" AccessibleName="Range" />
+<Calendar Class="multiple" SelectionMode="CalendarSelectionMode.Multiple" @bind-SelectedDates="Dates" Today="Today" Culture="Culture" AccessibleName="Multiple" />
+
+@code {
+    public void Refresh() => StateHasChanged();
+    public DateOnly? Value { get; set; } = new DateOnly(2026, 3, 18);
+    public DateOnly Today { get; set; } = new DateOnly(2026, 3, 10);
+    public CultureInfo Culture { get; set; } = CultureInfo.GetCultureInfo("it-IT");
+    public DateOnly? Minimum { get; set; }
+    public DateOnly? Maximum { get; set; }
+    public DateOnly Holiday { get; set; } = new DateOnly(2026, 3, 19);
+    public bool WeekNumbers { get; set; }
+    public DateOnly? Start { get; set; }
+    public DateOnly? End { get; set; }
+    public IReadOnlyCollection<DateOnly> Dates { get; set; } = [];
+}

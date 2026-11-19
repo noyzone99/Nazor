@@ -1,0 +1,13 @@
+@using Nazor.Controls.Primitives
+
+<Combobox TItem="string" @bind-Text="text" Items="Matches" ItemText="c => c" OnSelect="c => chosen = c"
+          Placeholder="Type a country" AccessibleName="Country">
+    <EmptyContent>No countries match.</EmptyContent>
+</Combobox>
+<TextBlock>@($"Chosen: {chosen}")</TextBlock>
+
+@code {
+    private readonly string[] countries = ["Austria", "Belgium", "Croatia", "Denmark", "France", "Germany", "Italy", "Portugal", "Spain", "Sweden"];
+    private string text = "", chosen = "none";
+    private IReadOnlyList<string> Matches => [.. countries.Where(c => c.Contains(text, StringComparison.OrdinalIgnoreCase))];
+}

@@ -1,0 +1,11 @@
+<Container Class="app">
+    <Badge Label="@text" Count="@count" />
+    <Editor @bind-Value="text" />
+    <Button @onclick="Increment">Più uno</Button>
+</Container>
+
+@code {
+    private string text = "iniziale";
+    private int count;
+    private void Increment() => count++;
+}

@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <RootNamespace>Nazor</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="Nazor.Core.Tests" />
+    <InternalsVisibleTo Include="Nazor.Application" />
+    <InternalsVisibleTo Include="Nazor.Controls" />
+    <InternalsVisibleTo Include="Nazor.Diagnostics" />
+    <InternalsVisibleTo Include="Nazor.Input" />
+    <InternalsVisibleTo Include="Nazor.Presentation" />
+    <InternalsVisibleTo Include="Nazor.Style" />
+  </ItemGroup>
+</Project>

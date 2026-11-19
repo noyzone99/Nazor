@@ -1,0 +1,53 @@
+@window
+@using DeviceRegistry.Components
+
+@inject IDeviceStore Store
+
+<Container Class="registry">
+	<Container Class="toolbar">
+		<TextField Id="filter" Class="filter" @bind-Value="filter" AccessibleName="Filtra dispositivi" />
+		<CheckBox Id="active-only" @bind-IsChecked="activeOnly">Solo attivi</CheckBox>
+		<Container Class="spacer" />
+		<Button Id="add" @onclick="Add">Aggiungi</Button>
+		<Button Id="reverse" @onclick="Reverse">Inverti ordine</Button>
+		<Button Id="theme" @onclick="ToggleTheme">@(dark ? "Tema chiaro" : "Tema scuro")</Button>
+	</Container>
+	<Container Class="workspace">
+		<Container Id="list" Class="list" AccessibleName="Dispositivi">
+			@foreach (var device in VisibleDevices)
+			{
+				<DeviceCard @key="device.Id" Id="@($"device-{device.Id}")" Name="@device.Name" Active="@device.Active"
+					Selected="@(selected == device)" OnSelect="@(() => Select(device))">
+					<TextBlock Class="code">Codice @device.Code</TextBlock>
+				</DeviceCard>
+			}
+		</Container>
+		<Container Class="detail" AccessibleName="Dettaglio dispositivo">
+			@if (selected is { } current)
+			{
+				<TextBlock Class="title">Dettaglio</TextBlock>
+				<TextField Id="name" @bind-Value="current.Name" AccessibleName="Nome dispositivo" />
+				<CheckBox Id="active" @bind-IsChecked="current.Active">Attivo</CheckBox>
+				<Button Id="remove" @onclick="RemoveSelected">Rimuovi</Button>
+			}
+			else
+			{
+				<TextBlock Class="hint">Seleziona un dispositivo</TextBlock>
+			}
+		</Container>
+	</Container>
+
+	<TextBlock Id="status" Class="status">@Status</TextBlock>
+
+</Container>
+
+@code {
+
+    protected override void OnInitialized()
+    {
+        Window.Title = "Nazor — Registro dispositivi";
+        Window.Width = 960;
+        Window.Height = 640;
+        Window.StyleSheet = dark ? StyleSheets.Dark : StyleSheets.Light;
+    }
+}

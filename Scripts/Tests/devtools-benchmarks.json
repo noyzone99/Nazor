@@ -1,0 +1,12 @@
+{
+  "devtools.baseline.idle": { "stylesRecomputed": 0, "layoutComputations": 0, "pixels": 0 },
+  "devtools.detached.idle": { "stylesRecomputed": 0, "layoutComputations": 0, "pixels": 0 },
+  "devtools.idle.idle": { "stylesRecomputed": 0, "layoutComputations": 0, "pixels": 0 },
+  "devtools.active.idle": { "stylesRecomputed": 0, "layoutComputations": 0, "pixels": 0 },
+  "devtools.slow.idle": { "stylesRecomputed": 0, "layoutComputations": 0, "pixels": 0 },
+  "devtools.baseline.change": { "stylesRecomputed": 0, "layoutComputations": 13, "pixels": 48000 },
+  "devtools.detached.change": { "stylesRecomputed": 0, "layoutComputations": 13, "pixels": 48000, "allocatedKB": 1600 },
+  "devtools.idle.change": { "stylesRecomputed": 0, "layoutComputations": 13, "pixels": 48000 },
+  "devtools.active.change": { "stylesRecomputed": 0, "layoutComputations": 13, "pixels": 48000 },
+  "devtools.slow.change": { "stylesRecomputed": 0, "layoutComputations": 13, "pixels": 48000, "allocatedKB": 1600 }
+}

@@ -1,0 +1,21 @@
+@using Nazor.Controls.Primitives
+
+<RovingFocusGroup Role="toolbar" Columns="3" Class="grid" AccessibleName="Colors">
+    @foreach (var color in colors)
+    {
+        <RovingFocusItem Role="button" Class="swatch" AccessibleName="@color" Disabled="@(color == "Gray")"
+                         @onclick="() => chosen = color">@color</RovingFocusItem>
+    }
+</RovingFocusGroup>
+<TextBlock>@($"One Tab stop; arrows move in the grid, typing jumps. Chosen: {chosen}")</TextBlock>
+
+@code {
+    private readonly string[] colors = ["Red", "Green", "Blue", "Gray", "Orange", "Purple"];
+    private string chosen = "none";
+}
+
+@style {
+    .grid { display: grid; grid-template-columns: 90px 90px 90px; gap: 6px; }
+    .swatch { padding: 10px; border: 1px solid GrayText; }
+    .swatch:focus-visible { outline: 2px solid AccentColor; }
+}

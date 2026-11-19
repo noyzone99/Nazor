@@ -1,0 +1,52 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Image xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" Width="16" Height="16">
+  <Image.Source>
+    <DrawingImage>
+      <DrawingImage.Drawing>
+        <DrawingGroup>
+          <GeometryDrawing Brush="#00000000" Geometry="M0,0 L16,0 16,16 0,16 Z" />
+          <GeometryDrawing Geometry="F1 M2 11.5V4.5A2 2 0 0 1 4 2.5H12A2 2 0 0 1 14 4.5V11.5A2 2 0 0 1 12 13.5H10.5M2 5.25H14">
+            <GeometryDrawing.Pen>
+              <Pen Brush="#ffffff" Thickness="1" StartLineCap="Round" EndLineCap="Round" LineJoin="Round" />
+            </GeometryDrawing.Pen>
+          </GeometryDrawing>
+          <DrawingGroup>
+            <DrawingGroup.Transform>
+              <TransformGroup>
+                <ScaleTransform ScaleX="0.039252" ScaleY="0.039252" />
+                <TranslateTransform X="1" Y="6.6" />
+              </TransformGroup>
+            </DrawingGroup.Transform>
+            <GeometryDrawing Brush="#ffffff" Geometry="F1 M8 0H35C71 0 100 29 100 65V92Q100 100 92 100H65C29 100 0 71 0 35V8Q0 0 8 0Z" />
+            <DrawingGroup>
+              <DrawingGroup.Transform>
+                <TransformGroup>
+                  <ScaleTransform ScaleX="-1" ScaleY="1" />
+                  <TranslateTransform X="214" Y="0" />
+                </TransformGroup>
+              </DrawingGroup.Transform>
+              <GeometryDrawing Brush="#ffffff" Geometry="F1 M8 0H35C71 0 100 29 100 65V92Q100 100 92 100H65C29 100 0 71 0 35V8Q0 0 8 0Z" />
+            </DrawingGroup>
+            <DrawingGroup>
+              <DrawingGroup.Transform>
+                <TransformGroup>
+                  <ScaleTransform ScaleX="-1" ScaleY="1" />
+                  <TranslateTransform X="100" Y="114" />
+                </TransformGroup>
+              </DrawingGroup.Transform>
+              <GeometryDrawing Brush="#ffffff" Geometry="F1 M8 0H35C71 0 100 29 100 65V92Q100 100 92 100H65C29 100 0 71 0 35V8Q0 0 8 0Z" />
+            </DrawingGroup>
+            <DrawingGroup>
+              <DrawingGroup.Transform>
+                <TransformGroup>
+                  <TranslateTransform X="114" Y="114" />
+                </TransformGroup>
+              </DrawingGroup.Transform>
+              <GeometryDrawing Brush="#ffffff" Geometry="F1 M8 0H35C71 0 100 29 100 65V92Q100 100 92 100H65C29 100 0 71 0 35V8Q0 0 8 0Z" />
+            </DrawingGroup>
+          </DrawingGroup>
+        </DrawingGroup>
+      </DrawingImage.Drawing>
+    </DrawingImage>
+  </Image.Source>
+</Image>

@@ -1,0 +1,91 @@
+@using Nazor.DevTools.Protocol
+<Container Class="panel-scroll">
+    <Container Class="properties">
+        @if (Element.Kind == "text")
+        {
+            <Container Class="section">
+                <TextBlock Class="section-title">Text</TextBlock>
+                <TextBlock Class="text-content" IsTextSelectionEnabled="true">@(Element.Text ?? "")</TextBlock>
+            </Container>
+        }
+        else
+        {
+            <Container Class="section">
+                <TextBlock Class="section-title">Attributes</TextBlock>
+                @if (Element.Attributes is null) { <TextBlock Class="muted small">Attributes are unavailable in this capture.</TextBlock> }
+                else if (Element.Attributes.Length == 0) { <TextBlock Class="muted small">No attributes.</TextBlock> }
+                else
+                {
+                    @foreach (var item in Element.Attributes)
+                    {
+                        <Container Class="property">
+                            <TextBlock Class="syntax-attribute">@item.Name</TextBlock>
+                            <TextBlock Class="syntax-punctuation">=</TextBlock>
+                            <TextBlock Class="syntax-value" IsTextSelectionEnabled="true">@("\"" + item.Value + "\"")</TextBlock>
+                        </Container>
+                    }
+                }
+            </Container>
+            <Container Class="section">
+                <TextBlock Class="section-title">Classes</TextBlock>
+                @if (Element.Classes is null) { <TextBlock Class="muted small">Classes are unavailable in this capture.</TextBlock> }
+                else if (Element.Classes.Length == 0) { <TextBlock Class="muted small">No classes.</TextBlock> }
+                else
+                {
+                    <Container Class="chips">
+                        @foreach (var name in Element.Classes) { <TextBlock Class="chip class-chip" IsTextSelectionEnabled="true">@("." + name)</TextBlock> }
+                    </Container>
+                }
+            </Container>
+            <Container Class="section">
+                <TextBlock Class="section-title">Interaction state</TextBlock>
+                @if (Element.States is null) { <TextBlock Class="muted small">States are unavailable in this capture.</TextBlock> }
+                else if (Element.States.Length == 0) { <TextBlock Class="muted small">None. Hover, focus and pressed states appear here while they apply.</TextBlock> }
+                else
+                {
+                    <Container Class="chips">
+                        @foreach (var state in Element.States) { <TextBlock Class="chip state-chip">@(":" + state)</TextBlock> }
+                    </Container>
+                }
+            </Container>
+            <Container Class="section">
+                <TextBlock Class="section-title">Event listeners</TextBlock>
+                @if (Element.Events is null) { <TextBlock Class="muted small">Event names are unavailable in this capture.</TextBlock> }
+                else if (Element.Events.Length == 0) { <TextBlock Class="muted small">No event handlers.</TextBlock> }
+                else
+                {
+                    <Container Class="chips">
+                        @foreach (var name in Element.Events) { <TextBlock Class="chip event-chip">@name</TextBlock> }
+                    </Container>
+                }
+            </Container>
+        }
+        <Container Class="section">
+            <TextBlock Class="section-title">Node</TextBlock>
+            <Container Class="facts">
+                <TextBlock Class="fact-label">Kind</TextBlock><TextBlock Class="fact-value">@Element.Kind</TextBlock>
+                <TextBlock Class="fact-label">Instance</TextBlock><TextBlock Class="fact-value" IsTextSelectionEnabled="true">@("#" + Element.Id)</TextBlock>
+                @if (Element.Kind != "text")
+                {
+                    <TextBlock Class="fact-label">Markup ID</TextBlock>
+                    <TextBlock Class="fact-value" IsTextSelectionEnabled="true">@(Element.Attributes is null && Element.ElementId is null ? "Unavailable" : Element.ElementId ?? "None")</TextBlock>
+                    <TextBlock Class="fact-label">Key</TextBlock><TextBlock Class="fact-value" IsTextSelectionEnabled="true">@(Element.Key ?? "None")</TextBlock>
+                }
+                <TextBlock Class="fact-label">Visibility</TextBlock>
+                <TextBlock Class="fact-value">@(Element.IsRendered is null ? "Unavailable" : Element.IsRendered.Value ? "Rendered" : "Hidden")</TextBlock>
+                <TextBlock Class="fact-label">Rendered by</TextBlock>
+                @if (Element.ProducingComponentId is { } owner) { <Button Class="node-link inline" OnClick="@(() => OnNavigate.InvokeAsync(new("component", owner)))">@Label(owner)</Button> }
+                else { <TextBlock Class="fact-value">Unavailable</TextBlock> }
+                <TextBlock Class="fact-label">Declared in</TextBlock>
+                @if (Element.DeclaringComponentId is { } declaring) { <Button Class="node-link inline" OnClick="@(() => OnNavigate.InvokeAsync(new("component", declaring)))">@Label(declaring)</Button> }
+                else { <TextBlock Class="fact-value">Unavailable</TextBlock> }
+            </Container>
+        </Container>
+    </Container>
+</Container>
+@code {
+    [Parameter, EditorRequired] public ElementInfo Element { get; set; } = null!;
+    [Parameter] public IReadOnlyDictionary<string, ComponentInfo> Components { get; set; } = new Dictionary<string, ComponentInfo>();
+    [Parameter] public EventCallback<NodeLink> OnNavigate { get; set; }
+    private string Label(string id) => Components.TryGetValue(id, out var component) ? NodeSyntax.ShortName(component.TypeName) + " #" + id : "#" + id;
+}

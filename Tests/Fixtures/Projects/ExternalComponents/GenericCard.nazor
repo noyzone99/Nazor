@@ -1,0 +1,14 @@
+@typeparam TItem where TItem : class
+
+<Container Class="generic-card">
+    @ItemTemplate(Item)
+</Container>
+
+@code {
+    [Parameter] public TItem Item { get; set; } = null!;
+    [Parameter] public RenderFragment<TItem> ItemTemplate { get; set; } = null!;
+}
+
+@style {
+    .generic-card { padding: 9px; }
+}

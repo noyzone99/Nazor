@@ -1,0 +1,6 @@
+<CheckBox @bind-IsChecked="active">Attivo</CheckBox>
+<TextBlock>@(active ? "sì" : "no")</TextBlock>
+
+@code {
+    private bool active;
+}

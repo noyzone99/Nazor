@@ -1,0 +1,93 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path=".gitattributes" />
+    <File Path=".gitignore" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+    <File Path="global.json" />
+    <File Path="nuget.config" />
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/Sources/" />
+  <Folder Name="/Sources/Core/">
+    <Project Path="Sources/Core/Nazor.Accessibility/Nazor.Accessibility.csproj" />
+    <Project Path="Sources/Core/Nazor.Animation/Nazor.Animation.csproj" />
+    <Project Path="Sources/Core/Nazor.Application/Nazor.Application.csproj" />
+    <Project Path="Sources/Core/Nazor.Controls/Nazor.Controls.csproj" />
+    <Project Path="Sources/Core/Nazor.Core/Nazor.Core.csproj" />
+    <Project Path="Sources/Core/Nazor.Diagnostics/Nazor.Diagnostics.csproj" />
+    <Project Path="Sources/Core/Nazor.Graphics/Nazor.Graphics.csproj" />
+    <Project Path="Sources/Core/Nazor.Input/Nazor.Input.csproj" />
+    <Project Path="Sources/Core/Nazor.Layout/Nazor.Layout.csproj" />
+    <Project Path="Sources/Core/Nazor.Presentation/Nazor.Presentation.csproj" />
+    <Project Path="Sources/Core/Nazor.Renderer.Skia/Nazor.Renderer.Skia.csproj" />
+    <Project Path="Sources/Core/Nazor.Style/Nazor.Style.csproj" />
+  </Folder>
+  <Folder Name="/Sources/Themes/">
+    <Project Path="Sources/Themes/Nazor.Themes.Fluent/Nazor.Themes.Fluent.csproj" />
+    <Project Path="Sources/Themes/Nazor.Themes.NazorLeaf/Nazor.Themes.NazorLeaf.csproj" />
+  </Folder>
+  <Folder Name="/Sources/Platforms/">
+    <Project Path="Sources/Hosts/Nazor.Hosting.Desktop.Linux/Nazor.Hosting.Desktop.Linux.csproj" />
+    <Project Path="Sources/Hosts/Nazor.Hosting.Desktop.Windows/Nazor.Hosting.Desktop.Windows.csproj" />
+    <Project Path="Sources/Hosts/Nazor.Hosting.Desktop/Nazor.Hosting.Desktop.csproj" />
+    <Project Path="Sources/Hosts/Nazor.Hosting.Windows/Nazor.Hosting.Windows.csproj" />
+    <Project Path="Sources/Platforms/Nazor.Platform.Linux/Nazor.Platform.Linux.csproj" />
+    <Project Path="Sources/Platforms/Nazor.Platform.Windows/Nazor.Platform.Windows.csproj" />
+    <Project Path="Sources/Platforms/Nazor.Platform/Nazor.Platform.csproj" />
+  </Folder>
+  <Folder Name="/Sources/Tools/">
+    <Project Path="Sources/Tools/Nazor.Compiler/Nazor.Compiler.csproj" />
+    <Project Path="Sources/Tools/Nazor.DevTools.Agent/Nazor.DevTools.Agent.csproj" />
+    <Project Path="Sources/Tools/Nazor.DevTools.Protocol/Nazor.DevTools.Protocol.csproj" />
+    <Project Path="Sources/Tools/Nazor.DevTools/Nazor.DevTools.csproj" />
+    <Project Path="Sources/Tools/Nazor.LanguageServer/Nazor.LanguageServer.csproj" />
+    <Project Path="Sources/Tools/Nazor.Nss.Compiler/Nazor.Nss.Compiler.csproj" />
+    <Project Path="Sources/Tools/Nazor.Sdk/Nazor.Sdk.csproj" />
+    <Project Path="Sources/Tools/Nazor.Templates/Nazor.Templates.csproj" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="Tests/Nazor.Application.Tests/Nazor.Application.Tests.csproj" />
+    <Project Path="Tests/Nazor.Avalonia.Benchmarks/Nazor.Avalonia.Benchmarks.csproj" />
+    <Project Path="Tests/Nazor.Benchmarks/Nazor.Benchmarks.csproj" />
+    <Project Path="Tests/Nazor.Compiler.Tests/Nazor.Compiler.Tests.csproj" />
+    <Project Path="Tests/Nazor.Controls.Tests/Nazor.Controls.Tests.csproj" />
+    <Project Path="Tests/Nazor.Core.Tests/Nazor.Core.Tests.csproj" />
+    <Project Path="Tests/Nazor.DevTools.Agent.Tests/Nazor.DevTools.Agent.Tests.csproj" />
+    <Project Path="Tests/Nazor.DevTools.Protocol.Tests/Nazor.DevTools.Protocol.Tests.csproj" />
+    <Project Path="Tests/Nazor.DevTools.Tests/Nazor.DevTools.Tests.csproj" />
+    <Project Path="Tests/Nazor.Diagnostics.Tests/Nazor.Diagnostics.Tests.csproj" />
+    <Project Path="Tests/Nazor.LanguageServer.Tests/Nazor.LanguageServer.Tests.csproj" />
+    <Project Path="Tests/Nazor.Layout.Tests/Nazor.Layout.Tests.csproj" />
+    <Project Path="Tests/Nazor.Linux.Tests/Nazor.Linux.Tests.csproj" />
+    <Project Path="Tests/Nazor.Rendering.Tests/Nazor.Rendering.Tests.csproj" />
+    <Project Path="Tests/Nazor.Style.Tests/Nazor.Style.Tests.csproj" />
+    <Project Path="Tests/Nazor.Testing/Nazor.Testing.csproj" />
+    <Project Path="Tests/Nazor.Tooling.Tests/Nazor.Tooling.Tests.csproj" />
+  </Folder>
+  <Folder Name="/Tests/Fixtures/" />
+  <Folder Name="/Tests/Fixtures/DevTools/">
+    <Project Path="Tests/Fixtures/DevToolsAgent/DevToolsAgent.csproj" />
+    <Project Path="Tests/Fixtures/DevToolsBreakpoint/DevToolsBreakpoint.csproj" />
+    <Project Path="Tests/Fixtures/DevToolsLaunch/DevToolsLaunch.csproj" />
+    <Project Path="Tests/Fixtures/DevToolsProtocol/DevToolsProtocol.csproj" />
+  </Folder>
+  <Folder Name="/Tests/Fixtures/Projects/">
+    <Project Path="Tests/Fixtures/Projects/DeviceRegistry/Components/DeviceRegistry.Components.csproj" />
+    <Project Path="Tests/Fixtures/Projects/DeviceRegistry/DeviceRegistry.csproj" />
+    <Project Path="Tests/Fixtures/Projects/ExternalComponents/Nazor.Sample.Components.csproj" />
+  </Folder>
+  <Folder Name="/Samples/">
+    <Project Path="Samples/Nazor.Samples.Counter/Nazor.Samples.Counter.csproj" />
+    <Project Path="Samples/Nazor.Samples.Drm/Nazor.Samples.Drm.csproj" />
+    <Project Path="Samples/Nazor.Samples.Gallery/Nazor.Samples.Gallery.csproj" />
+    <Project Path="Samples/Nazor.Samples.Localization/Nazor.Samples.Localization.csproj" />
+    <Project Path="Samples/Nazor.Samples.Tasks/Nazor.Samples.Tasks.csproj" />
+    <Project Path="Samples/Nazor.Samples.Theming/Nazor.Samples.Theming.csproj" />
+    <Project Path="Samples/Nazor.Samples.Windowing/Nazor.Samples.Windowing.csproj" />
+  </Folder>
+  <Folder Name="/Workspace/">
+    <Project Path="Workspace/Nazor.Workspace/Nazor.Workspace.csproj" />
+  </Folder>
+</Solution>

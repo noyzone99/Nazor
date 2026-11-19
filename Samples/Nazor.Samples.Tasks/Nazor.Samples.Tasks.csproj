@@ -1,0 +1,10 @@
+<Project>
+  <Import Project="../../Sources/Tools/Nazor.Sdk/Sdk/Sdk.props" />
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <OutputType>WinExe</OutputType>
+    <NazorApplicationId>org.nazor.samples.tasks</NazorApplicationId>
+    <RootNamespace>Nazor.Samples.Tasks</RootNamespace>
+  </PropertyGroup>
+  <Import Project="../../Sources/Tools/Nazor.Sdk/Sdk/Sdk.targets" />
+</Project>

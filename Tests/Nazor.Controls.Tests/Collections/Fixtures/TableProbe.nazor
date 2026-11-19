@@ -1,0 +1,41 @@
+@implements IRefreshable
+<Table Class="sales" Striped="true" Bordered="Bordered" Dense="Dense">
+    <Caption>Quarterly sales</Caption>
+    <ChildContent>
+        <TableHeader>
+            <TableRow>
+                <TableHeaderCell Class="region-head">Region</TableHeaderCell>
+                <TableHeaderCell>Q1</TableHeaderCell>
+                <TableHeaderCell>Q2</TableHeaderCell>
+            </TableRow>
+        </TableHeader>
+        <TableBody>
+            <TableRow Class="r1">
+                <TableHeaderCell Scope="TableHeaderScope.Row" Class="north" RowSpan="2">North</TableHeaderCell>
+                <TableCell Class="a">10</TableCell>
+                <TableCell>12</TableCell>
+            </TableRow>
+            <TableRow Class="r2">
+                <TableCell Class="wide" ColumnSpan="2">Merged</TableCell>
+            </TableRow>
+            <TableRow Class="r3">
+                <TableHeaderCell Scope="TableHeaderScope.Row">South</TableHeaderCell>
+                <TableCell>8</TableCell>
+                <TableCell>9</TableCell>
+            </TableRow>
+        </TableBody>
+        <TableFooter>
+            <TableRow>
+                <TableHeaderCell Scope="TableHeaderScope.Row">Total</TableHeaderCell>
+                <TableCell>18</TableCell>
+                <TableCell>21</TableCell>
+            </TableRow>
+        </TableFooter>
+    </ChildContent>
+</Table>
+
+@code {
+    public void Refresh() => StateHasChanged();
+    public bool Bordered { get; set; }
+    public bool Dense { get; set; }
+}

@@ -1,0 +1,14 @@
+@using Nazor.Themes.NazorLeaf
+@using Nazor.Controls.Primitives
+<Container Class="demo-row">
+    <Button Appearance="ControlAppearance.Subtle" AccessibleName="Condividi" OnClick="Share"><Icon Symbol="@LeafSymbol.Share" /></Button>
+    <Button Appearance="ControlAppearance.Accent" OnClick="Export">
+        <Leading><Icon Symbol="@LeafSymbol.Download" /></Leading>
+        <ChildContent>Esporta tema</ChildContent>
+    </Button>
+</Container>
+@code {
+    [CascadingParameter] public ToastQueue Notifications { get; set; } = null!;
+    private void Share() => Notifications.Show(new ToastOptions { Message = "Anteprima di condivisione", Duration = TimeSpan.FromMilliseconds(4200) });
+    private void Export() => Notifications.Show(new ToastOptions { Message = "Anteprima di esportazione del tema", Duration = TimeSpan.FromMilliseconds(4200) });
+}

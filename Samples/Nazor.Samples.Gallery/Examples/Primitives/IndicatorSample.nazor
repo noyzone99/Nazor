@@ -1,0 +1,24 @@
+@using Nazor.Controls.Primitives
+
+<Container Class="strip">
+    @foreach (var name in names)
+    {
+        <Pressable Class="@(name == selected ? "item selected" : "item")" OnPress="() => selected = name"
+                   __internal_onresize#indicator="@tracker.Attributes(this, name).Value">@name</Pressable>
+    }
+    <Indicator Class="line" Target="tracker.BoxOf(selected)" />
+</Container>
+
+@code {
+    private readonly string[] names = ["Colors", "Shapes", "Motion", "Accessibility"];
+    private string selected = "Colors";
+    private IndicatorTracker<string> tracker = null!;
+    protected override void OnInitialized() => tracker = new IndicatorTracker<string>(StateHasChanged);
+}
+
+@style {
+    .strip { position: relative; display: flex; gap: 4px; padding-bottom: 4px; }
+    .item { padding: 6px 12px; }
+    .selected { font-weight: 700; }
+    .line { top: auto; bottom: 0; height: 2px; background: AccentColor; }
+}

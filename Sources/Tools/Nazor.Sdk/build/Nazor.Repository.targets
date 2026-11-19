@@ -1,0 +1,67 @@
+<Project>
+  <!-- Read the profile before selecting project references; the .NET SDK otherwise imports it later. -->
+  <Import Project="$(MSBuildSDKsPath)/Microsoft.NET.Sdk/targets/Microsoft.NET.Sdk.ImportPublishProfile.targets"
+          Condition="('$(OutputType)' == 'Exe' or '$(OutputType)' == 'WinExe') and '$(PublishProfileImported)' != 'true' and ('$(PublishProfile)' != '' or '$(WebPublishProfileFile)' != '')" />
+  <PropertyGroup>
+    <NazorRepositoryRoot>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)../../../../'))</NazorRepositoryRoot>
+    <_NazorResolveRepositoryCompiler Condition="'$(NazorCompilerPath)' == ''">true</_NazorResolveRepositoryCompiler>
+    <NazorCompilerPath Condition="'$(NazorCompilerPath)' == ''">$(NazorRepositoryRoot)Sources/Tools/Nazor.Compiler/bin/$(Configuration)/net10.0/Nazor.Compiler.dll</NazorCompilerPath>
+    <_NazorCompilerGlobalPropertiesToRemove>TargetFramework;TargetFrameworks;RuntimeIdentifier;RuntimeIdentifiers;SelfContained;PublishSelfContained;PublishSingleFile;PublishTrimmed;PublishAot;PublishReadyToRun;IncludeAllContentForSelfExtract;IncludeNativeLibrariesForSelfExtract;_NazorNativeLibrariesToBuild</_NazorCompilerGlobalPropertiesToRemove>
+    <NazorDefaultApplicationIcon>$(NazorRepositoryRoot)Docs/Assets/nazor.ico</NazorDefaultApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="$(NazorRepositoryRoot)Sources/Tools/Nazor.Compiler/Nazor.Compiler.csproj"
+                      ReferenceOutputAssembly="false" Private="false" SkipGetTargetFrameworkProperties="true" GlobalPropertiesToRemove="$(_NazorCompilerGlobalPropertiesToRemove)" />
+  </ItemGroup>
+
+  <Target Name="NazorPropagateRepositoryLinuxNativeLibraries" AfterTargets="IncludeTransitiveProjectReferences"
+          Condition="('$(_NazorRuntimePlatform)' == 'linux' or '$(_NazorRuntimePlatform)' == 'portable') and ('$(OutputType)' == 'Exe' or '$(OutputType)' == 'WinExe')">
+    <ItemGroup>
+      <ProjectReference Condition="'%(ProjectReference.Filename)' == 'Nazor.Platform.Linux'">
+        <AdditionalProperties>%(ProjectReference.AdditionalProperties);$(_NazorNativeReferenceProperties)</AdditionalProperties>
+      </ProjectReference>
+    </ItemGroup>
+  </Target>
+
+  <!-- Transitive content collection can lose reference properties; select the bridge for the final RID here. -->
+  <Target Name="NazorSelectRepositoryNativeLibrary" AfterTargets="ComputeResolvedFilesToPublishList"
+          Condition="'$(_NazorRuntimePlatform)' == 'linux' and ('$(OutputType)' == 'Exe' or '$(OutputType)' == 'WinExe')">
+    <PropertyGroup>
+      <_NazorRepositoryNativeLibrary>$(NazorRepositoryRoot)artifacts/native/$(RuntimeIdentifier)/libnazor-wayland.so</_NazorRepositoryNativeLibrary>
+      <_NazorRepositoryX11Library>$(NazorRepositoryRoot)artifacts/native/$(RuntimeIdentifier)/libnazor-x11.so</_NazorRepositoryX11Library>
+    </PropertyGroup>
+    <ItemGroup>
+      <ResolvedFileToPublish Remove="@(ResolvedFileToPublish->WithMetadataValue('Filename', 'libnazor-wayland'))" />
+      <ResolvedFileToPublish Remove="@(ResolvedFileToPublish->WithMetadataValue('Filename', 'libnazor-x11'))" />
+      <ResolvedFileToPublish Include="$(_NazorRepositoryNativeLibrary)" RelativePath="libnazor-wayland.so" CopyToPublishDirectory="PreserveNewest"
+                             Condition="'$(NazorLinuxNativeLibraries)' != 'None' and '$(NazorLinuxNativeLibraries)' != 'X11' and Exists('$(_NazorRepositoryNativeLibrary)')" />
+      <ResolvedFileToPublish Include="$(_NazorRepositoryX11Library)" RelativePath="libnazor-x11.so" CopyToPublishDirectory="PreserveNewest"
+                             Condition="'$(NazorLinuxNativeLibraries)' != 'None' and '$(NazorLinuxNativeLibraries)' != 'Wayland' and Exists('$(_NazorRepositoryX11Library)')" />
+    </ItemGroup>
+  </Target>
+
+  <Target Name="NazorResolveRepositoryCompiler" BeforeTargets="NazorPrepareGeneration;NazorGenerateComponentMetadata;NazorValidateProductionInputs" DependsOnTargets="ResolveProjectReferences"
+          Condition="'$(_NazorResolveRepositoryCompiler)' == 'true'">
+    <MSBuild Projects="$(NazorRepositoryRoot)Sources/Tools/Nazor.Compiler/Nazor.Compiler.csproj" Targets="GetTargetPath"
+             RemoveProperties="$(_NazorCompilerGlobalPropertiesToRemove)" BuildInParallel="false">
+      <Output TaskParameter="TargetOutputs" ItemName="_NazorRepositoryCompilerAssembly" />
+    </MSBuild>
+    <PropertyGroup><NazorCompilerPath>@(_NazorRepositoryCompilerAssembly)</NazorCompilerPath></PropertyGroup>
+  </Target>
+
+  <PropertyGroup Condition="'$(NazorEnableDevTools)' == 'true'">
+    <NazorBuildInspectorTarget>NazorBuildSourceInspector</NazorBuildInspectorTarget>
+  </PropertyGroup>
+  <Target Name="NazorBuildSourceInspector" Condition="'$(NazorEnableDevTools)' == 'true' and ('$(OutputType)' == 'Exe' or '$(OutputType)' == 'WinExe')">
+    <PropertyGroup>
+      <_NazorSourceInspectorRid>$(RuntimeIdentifier)</_NazorSourceInspectorRid>
+      <_NazorSourceInspectorRid Condition="'$(_NazorSourceInspectorRid)' == ''">$(NETCoreSdkPortableRuntimeIdentifier)</_NazorSourceInspectorRid>
+      <NazorInspectorAssetsDirectory>$(NazorRepositoryRoot)artifacts/devtools-source/$(_NazorSourceInspectorRid)/$(Configuration)/</NazorInspectorAssetsDirectory>
+    </PropertyGroup>
+    <MSBuild Projects="$(NazorRepositoryRoot)Sources/Tools/Nazor.DevTools/Nazor.DevTools.csproj" Targets="Restore;Publish" BuildInParallel="false"
+             RemoveProperties="TargetFramework;TargetFrameworks;RuntimeIdentifiers;PublishSelfContained;NazorLinuxNativeLibraries;_NazorNativeLibrariesToBuild"
+             Properties="RuntimeIdentifier=$(_NazorSourceInspectorRid);SelfContained=false;UseAppHost=false;NazorEnableDevTools=false;NazorEnablePublishValidation=false;ArtifactsPath=$(NazorRepositoryRoot)artifacts/devtools-source/build/$(_NazorSourceInspectorRid);UseArtifactsOutput=true;PublishDir=$(NazorInspectorAssetsDirectory)" />
+  </Target>
+  <Import Project="../../Nazor.DevTools.Agent/buildTransitive/Nazor.DevTools.Agent.targets" />
+</Project>

@@ -1,0 +1,26 @@
+@using Nazor.Controls.Primitives
+
+<Container Class="row">
+    <Tooltip Text="Saves the document (Ctrl+S)">
+        <Trigger><Button>Save</Button></Trigger>
+    </Tooltip>
+    <Tooltip Title="Sync" Text="Last synchronized two minutes ago." Placement="OverlayPlacement.Bottom" ShowArrow="true">
+        <Trigger><Button>Sync status</Button></Trigger>
+    </Tooltip>
+    <Tooltip Text="Shown at once" Delay="TimeSpan.Zero" Placement="OverlayPlacement.Right" Alignment="OverlayAlignment.Center" ShowArrow="true">
+        <Trigger><Button>No delay</Button></Trigger>
+    </Tooltip>
+    <Tooltip Text="You will not see this" Disabled="disabled">
+        <Trigger><Button>@(disabled ? "Tooltip disabled" : "Tooltip enabled")</Button></Trigger>
+    </Tooltip>
+    <CheckBox @bind-IsChecked="disabled">Disable the last tooltip</CheckBox>
+</Container>
+<TextBlock>Rest the pointer on a button, or move the focus to it with Tab; Escape hides the tooltip.</TextBlock>
+
+@code {
+    private bool disabled = true;
+}
+
+@style {
+    .row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; padding-top: 40px; }
+}

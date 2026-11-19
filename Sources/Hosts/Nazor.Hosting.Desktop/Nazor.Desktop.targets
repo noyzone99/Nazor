@@ -1,0 +1,31 @@
+<Project>
+  <Import Project="../../Tools/Nazor.Sdk/Sdk/Nazor.Runtime.props" />
+  <PropertyGroup>
+    <IsRidAgnostic Condition="'$(NazorDesktopBackend)' != ''">true</IsRidAgnostic>
+    <IsRidAgnostic Condition="'$(IsRidAgnostic)' == ''">false</IsRidAgnostic>
+    <NazorDesktopBackend Condition="'$(NazorDesktopBackend)' == ''">$(_NazorRuntimePlatform)</NazorDesktopBackend>
+    <NazorRuntimeIdentifier Condition="'$(NazorRuntimeIdentifier)' == ''">$(RuntimeIdentifier)</NazorRuntimeIdentifier>
+    <AssemblyName>Nazor.Hosting.Desktop</AssemblyName>
+    <PackageId>$(MSBuildProjectName)</PackageId>
+    <RootNamespace>Nazor</RootNamespace>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <Description>Nazor desktop hosting with $(NazorDesktopBackend) backends.</Description>
+    <DefineConstants Condition="'$(NazorDesktopBackend)' == 'portable' or '$(NazorDesktopBackend)' == 'windows'">$(DefineConstants);NAZOR_WINDOWS</DefineConstants>
+    <DefineConstants Condition="'$(NazorDesktopBackend)' == 'portable' or '$(NazorDesktopBackend)' == 'linux'">$(DefineConstants);NAZOR_LINUX</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)DesktopPlatformHost.cs" />
+    <ProjectReference Include="$(MSBuildThisFileDirectory)../../Core/Nazor.Application/Nazor.Application.csproj" GlobalPropertiesToRemove="NazorRuntimeIdentifier;_NazorNativeLibrariesToBuild" />
+    <ProjectReference Include="$(MSBuildThisFileDirectory)../Nazor.Hosting.Windows/Nazor.Hosting.Windows.csproj"
+                      AdditionalProperties="$(_NazorRuntimeReferenceProperties)" GlobalPropertiesToRemove="_NazorNativeLibrariesToBuild"
+                      Condition="'$(NazorDesktopBackend)' == 'portable' or '$(NazorDesktopBackend)' == 'windows'" />
+    <ProjectReference Include="$(MSBuildThisFileDirectory)../../Platforms/Nazor.Platform.Linux/Nazor.Platform.Linux.csproj"
+                      AdditionalProperties="$(_NazorNativeReferenceProperties)"
+                      Condition="'$(NazorDesktopBackend)' == 'portable' or '$(NazorDesktopBackend)' == 'linux'" />
+    <InternalsVisibleTo Include="Nazor.Application.Tests" />
+  </ItemGroup>
+  <Target Name="NazorValidateDesktopRuntime" BeforeTargets="PrepareForBuild" Condition="'$(NazorDesktopBackend)' == 'unsupported'">
+    <Error Code="NZB003" Text="Nazor has no desktop backend for RuntimeIdentifier '$(RuntimeIdentifier)'. Use a Windows or Linux RID, or omit the RID for a portable application." />
+  </Target>
+</Project>

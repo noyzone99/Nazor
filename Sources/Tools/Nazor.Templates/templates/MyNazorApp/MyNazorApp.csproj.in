@@ -1,0 +1,7 @@
+<Project Sdk="Nazor.Sdk/NAZOR_SDK_VERSION">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <OutputType>WinExe</OutputType>
+    <NazorApplicationId>org.example.nazorapp</NazorApplicationId>
+  </PropertyGroup>
+</Project>

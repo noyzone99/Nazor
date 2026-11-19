@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><TargetFramework /><TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks><OutputType>Exe</OutputType></PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../../Sources/Tools/Nazor.DevTools.Agent/Nazor.DevTools.Agent.csproj" />
+    <ProjectReference Include="../../../Sources/Core/Nazor.Renderer.Skia/Nazor.Renderer.Skia.csproj" />
+    <ProjectReference Include="../../../Sources/Core/Nazor.Controls/Nazor.Controls.csproj" />
+    <Compile Include="../DevToolsTrees/TreePage.cs" Link="TreePage.cs" />
+    <Compile Include="../DevToolsTrees/InspectionStyles.cs" Link="InspectionStyles.cs" />
+  </ItemGroup>
+</Project>

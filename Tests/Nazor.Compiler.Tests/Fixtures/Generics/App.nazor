@@ -1,0 +1,15 @@
+<ListView Items="numbers" Context="number">
+    <ItemTemplate><TextBlock>@number</TextBlock></ItemTemplate>
+</ListView>
+
+<TypeScope Items="numbers"><TypeName /></TypeScope>
+<ListView TItem="string" Items="names">
+    <ItemTemplate Context="name"><TextBlock>@name</TextBlock></ItemTemplate>
+</ListView>
+
+<ListView Items="names"><ItemTemplate><TextBlock>@context</TextBlock></ItemTemplate></ListView>
+
+@code {
+    private readonly int[] numbers = [1, 2];
+    private readonly string[] names = ["one", "two"];
+}

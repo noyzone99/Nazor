@@ -1,0 +1,30 @@
+@window
+
+<UserTitleBar Title="Project preview" Subtitle="Custom chrome">
+    <AppIcon><Image Source="appMark" Class="app-mark" /></AppIcon>
+    <Center><DragRegion><TextBlock>Drag to move</TextBlock></DragRegion></Center>
+    <Trailing>
+        <WindowCommands Context="window">
+            <SnapLayoutArea><Button OnClick="window.ToggleMaximizeAsync">Maximize or restore</Button></SnapLayoutArea>
+        </WindowCommands>
+    </Trailing>
+</UserTitleBar>
+<UserCaptionButtons><CaptionButtons Buttons="buttons" /></UserCaptionButtons>
+<Container Class="content"><Paragraph>Try dragging, maximizing or closing this preview window.</Paragraph></Container>
+
+@code {
+    private static readonly ImageSource appMark = ImageSource.FromFile("Assets/nazor.png");
+    private readonly CaptionButton[] buttons = [CaptionButton.Minimize, CaptionButton.Close];
+
+    protected override void OnInitialized()
+    {
+        Window.Title = "Project preview";
+        Window.Width = 580;
+        Window.Height = 280;
+        Window.Decorations = WindowDecorationPolicy.Require(WindowDecorations.Nazor(WindowTitleBarContent.User, WindowCaptionButtons.User));
+    }
+}
+@style {
+    .app-mark { width: 20px; height: 20px; }
+    .content { padding: 20px; }
+}

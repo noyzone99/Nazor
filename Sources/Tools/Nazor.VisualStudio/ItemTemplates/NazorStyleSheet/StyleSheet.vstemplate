@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<VSTemplate Version="3.0.0" Type="Item" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005">
+  <TemplateData>
+    <Name>Nazor Style Sheet</Name>
+    <Description>An NSS stylesheet. Use Component.nazor.nss for a scoped sidecar.</Description>
+    <Icon>StyleSheet.png</Icon>
+    <ProjectType>CSharp</ProjectType>
+    <DefaultName>StyleSheet.nss</DefaultName>
+    <TemplateID>Nazor.StyleSheet</TemplateID>
+    <ShowByDefault>true</ShowByDefault>
+    <SortOrder>31</SortOrder>
+  </TemplateData>
+  <TemplateContent>
+    <ProjectItem ReplaceParameters="false" TargetFileName="$fileinputname$.nss">StyleSheet.nss</ProjectItem>
+  </TemplateContent>
+</VSTemplate>

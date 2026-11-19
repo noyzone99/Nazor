@@ -1,0 +1,14 @@
+<Container Class="row">
+    <ToggleButton @bind-IsPressed="bold" AccessibleName="Bold">B</ToggleButton>
+    <ToggleButton @bind-IsPressed="italic" AccessibleName="Italic">I</ToggleButton>
+    <ToggleButton @bind-IsPressed="wrap" Appearance="ControlAppearance.Subtle">Word wrap</ToggleButton>
+</Container>
+<TextBlock>@($"Bold: {bold}; italic: {italic}; wrap: {wrap}")</TextBlock>
+
+@code {
+    private bool bold, italic, wrap = true;
+}
+
+@style {
+    .row { display: flex; gap: 8px; }
+}

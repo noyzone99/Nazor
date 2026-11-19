@@ -1,0 +1,28 @@
+@implements IRefreshable
+@using Nazor.Controls.Primitives
+<DataGrid TItem="int" Class="grid" View="View" ItemsProvider="Load" PageSize="Size" Page="Page" Query="Query"
+          ItemKey="value => value" Striped="true" RowDetailsTemplate="Details">
+    <DataGridColumn TItem="int" Key="value" Header="Value" Field="value => value" Width="200" />
+</DataGrid>
+
+@code {
+    public DataView<int> View { get; } = new();
+    public int Size { get; set; } = 3;
+    public int Page { get; set; } = 1;
+    public object? Query { get; set; }
+    public List<(DataRequest Request, TaskCompletionSource<DataPage<int>> Completion)> Requests { get; } = [];
+    public RenderFragment<int>? Details { get; set; }
+
+    private Task<DataPage<int>> Load(DataRequest request)
+    {
+        var completion = new TaskCompletionSource<DataPage<int>>();
+        Requests.Add((request, completion));
+        return completion.Task;
+    }
+
+    public void Refresh() => StateHasChanged();
+}
+
+@style {
+    .grid { width: 400px; height: 220px; }
+}

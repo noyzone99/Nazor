@@ -1,0 +1,9 @@
+@typeparam TItem
+@attribute [CascadingTypeParameter(nameof(TItem))]
+
+<Container Class="type-scope">@ChildContent</Container>
+
+@code {
+    [Parameter] public IEnumerable<TItem> Items { get; set; } = [];
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+}

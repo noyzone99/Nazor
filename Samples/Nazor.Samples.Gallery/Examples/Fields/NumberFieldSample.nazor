@@ -1,0 +1,16 @@
+<Field LabelText="Step button presentation">
+    <Select TValue="SpinButtonPlacement" @bind-Value="placement" Items="placements" />
+</Field>
+<CheckBox @bind-IsChecked="expressions">Accept arithmetic expressions</CheckBox>
+<Field LabelText="Quantity">
+    <Description>With expressions enabled, enter (2 + 3) * 4 and press Enter or leave the field. The value is displayed with two decimal places.</Description>
+    <ChildContent><NumberField @bind-Value="quantity" Minimum="0" Maximum="100" Format="N2" SpinButtons="placement" AcceptsExpression="expressions" /></ChildContent>
+</Field>
+<TextBlock>@($"Current value: {quantity:N2}")</TextBlock>
+
+@code {
+    private double? quantity = 12.5;
+    private SpinButtonPlacement placement;
+    private bool expressions;
+    private readonly SpinButtonPlacement[] placements = Enum.GetValues<SpinButtonPlacement>();
+}

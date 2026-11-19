@@ -1,0 +1,9 @@
+<Container Class="counter">
+    <TextBlock>Count: @count</TextBlock>
+    <Button @onclick="Increment">Increment</Button>
+</Container>
+
+@code {
+    private int count;
+    private void Increment() => count++;
+}

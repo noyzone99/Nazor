@@ -1,0 +1,13 @@
+@implements IRefreshable
+<Switch @ref="Switch" Class="switch" IsOn="IsOn" IsOnChanged="Changed" Disabled="Disabled"
+        @oninput="() => Inputs++" @onchange="() => Commits++">Wi-Fi</Switch>
+@code {
+    public Switch Switch { get; set; } = null!;
+    public bool IsOn { get; set; }
+    public bool Disabled { get; set; }
+    public List<bool> Changes { get; } = [];
+    public int Inputs { get; set; }
+    public int Commits { get; set; }
+    private void Changed(bool next) { IsOn = next; Changes.Add(next); }
+    public void Refresh() => StateHasChanged();
+}

@@ -1,0 +1,6 @@
+<SegmentedControl TValue="string" @bind-Value="view" AccessibleName="View mode">
+    <Segment Value="@("list")">List</Segment>
+    <Segment Value="@("grid")">Grid</Segment>
+</SegmentedControl>
+<TextBlock>@($"Current view: {view}")</TextBlock>
+@code { private string view = "list"; }

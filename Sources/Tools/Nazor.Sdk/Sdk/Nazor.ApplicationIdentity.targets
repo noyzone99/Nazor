@@ -1,0 +1,35 @@
+<Project>
+  <Target Name="NazorValidateApplicationIdentity" BeforeTargets="PrepareForBuild;CoreCompile;ComputeFilesToPublish"
+          Condition="'$(TargetFramework)' != '' and ('$(OutputType)' == 'Exe' or '$(OutputType)' == 'WinExe')">
+    <Error Condition="'$(NazorApplicationId)' == ''" Code="NZB012"
+           Text="Set NazorApplicationId to a stable reverse-DNS application ID, for example org.example.myapp. AssemblyName does not need to change." />
+    <Error Condition="'$(NazorApplicationId)' != '' and (!$([System.Text.RegularExpressions.Regex]::IsMatch('$(NazorApplicationId)', '\A[a-z][a-z0-9]*(\.[a-z][a-z0-9]*){2,}\z')) or $([System.String]::Copy('$(NazorApplicationId)').Length) &gt; 128)" Code="NZB012"
+           Text="Invalid NazorApplicationId '$(NazorApplicationId)'. Use 3 or more dot-separated segments starting with a lowercase ASCII letter and containing only lowercase ASCII letters and digits, with at most 128 characters in total." />
+  </Target>
+
+  <Target Name="NazorGenerateApplicationIdentity" BeforeTargets="CoreCompile" DependsOnTargets="NazorValidateApplicationIdentity"
+          Condition="'$(TargetFramework)' != '' and ('$(OutputType)' == 'Exe' or '$(OutputType)' == 'WinExe')">
+    <PropertyGroup>
+      <_NazorApplicationIdentityFile>$(IntermediateOutputPath)Nazor/NazorApplicationIdentity.g$(DefaultLanguageSourceExtension)</_NazorApplicationIdentityFile>
+    </PropertyGroup>
+    <ItemGroup>
+      <_NazorApplicationIdentityAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+        <_Parameter1>Nazor.ApplicationId</_Parameter1>
+        <_Parameter2>$(NazorApplicationId)</_Parameter2>
+      </_NazorApplicationIdentityAttribute>
+    </ItemGroup>
+    <WriteCodeFragment Language="$(Language)" AssemblyAttributes="@(_NazorApplicationIdentityAttribute)" OutputFile="$(_NazorApplicationIdentityFile).tmp" />
+    <GetFileHash Files="$(_NazorApplicationIdentityFile).tmp">
+      <Output TaskParameter="Hash" PropertyName="_NazorNewIdentityHash" />
+    </GetFileHash>
+    <GetFileHash Files="$(_NazorApplicationIdentityFile)" Condition="Exists('$(_NazorApplicationIdentityFile)')">
+      <Output TaskParameter="Hash" PropertyName="_NazorExistingIdentityHash" />
+    </GetFileHash>
+    <Copy SourceFiles="$(_NazorApplicationIdentityFile).tmp" DestinationFiles="$(_NazorApplicationIdentityFile)"
+          Condition="'$(_NazorNewIdentityHash)' != '$(_NazorExistingIdentityHash)'" />
+    <ItemGroup>
+      <Compile Include="$(_NazorApplicationIdentityFile)" />
+      <FileWrites Include="$(_NazorApplicationIdentityFile);$(_NazorApplicationIdentityFile).tmp" />
+    </ItemGroup>
+  </Target>
+</Project>

@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <key>name</key>
+    <string>NSS</string>
+    <key>settings</key>
+    <array>
+      <dict>
+        <key>scope</key>
+        <string>comment.block.nss, punctuation.definition.comment.begin.nss, punctuation.definition.comment.end.nss</string>
+        <key>settings</key>
+        <dict><key>vsclassificationtype</key><string>comment</string></dict>
+      </dict>
+      <dict>
+        <key>scope</key>
+        <string>entity.name.tag.nss, entity.name.tag.reference.nss, entity.name.tag.wildcard.nss</string>
+        <key>settings</key>
+        <dict><key>vsclassificationtype</key><string>markup node</string></dict>
+      </dict>
+      <dict>
+        <key>scope</key>
+        <string>entity.other.attribute-name.class.nss, entity.other.attribute-name.id.nss, entity.other.attribute-name.pseudo-class.nss, entity.other.attribute-name.pseudo-element.nss, entity.other.attribute-name.nss, punctuation.definition.entity.nss, keyword.operator.combinator.nss, keyword.operator.pattern.nss, entity.name.function.keyframes.nss, entity.other.keyframe-offset.nss</string>
+        <key>settings</key>
+        <dict><key>vsclassificationtype</key><string>symbol reference</string></dict>
+      </dict>
+      <dict>
+        <key>scope</key>
+        <string>support.type.property-name.nss, support.type.property-name.media.nss, variable.other.custom-property.nss, meta.property-name.unknown.nss</string>
+        <key>settings</key>
+        <dict><key>vsclassificationtype</key><string>type</string></dict>
+      </dict>
+      <dict>
+        <key>scope</key>
+        <string>constant.numeric.nss, keyword.other.unit.nss, constant.other.color.rgb-value.hex.nss, punctuation.definition.constant.nss</string>
+        <key>settings</key>
+        <dict><key>vsclassificationtype</key><string>number</string></dict>
+      </dict>
+      <dict>
+        <key>scope</key>
+        <string>support.constant.property-value.nss, support.constant.property-value.global.nss, support.constant.property-value.property-name.nss, support.constant.color.nss, support.constant.color.system.nss, string.quoted.double.nss, string.quoted.single.nss, string.unquoted.attribute-value.nss</string>
+        <key>settings</key>
+        <dict><key>vsclassificationtype</key><string>string</string></dict>
+      </dict>
+      <dict>
+        <key>scope</key>
+        <string>support.function.misc.nss, keyword.control.at-rule.media.nss, keyword.control.at-rule.keyframes.nss, punctuation.definition.keyword.nss, keyword.operator.logical.nss, keyword.operator.arithmetic.nss</string>
+        <key>settings</key>
+        <dict><key>vsclassificationtype</key><string>keyword</string></dict>
+      </dict>
+      <dict>
+        <key>scope</key>
+        <string>constant.character.escape.nss</string>
+        <key>settings</key>
+        <dict><key>vsclassificationtype</key><string>string - escape character</string></dict>
+      </dict>
+      <dict>
+        <key>scope</key>
+        <string>punctuation.section.property-list.begin.nss, punctuation.section.property-list.end.nss, punctuation.separator.key-value.nss, punctuation.terminator.rule.nss, punctuation.separator.list.comma.nss, punctuation.section.function.begin.nss, punctuation.section.function.end.nss, punctuation.definition.parameters.begin.nss, punctuation.definition.parameters.end.nss</string>
+        <key>settings</key>
+        <dict><key>vsclassificationtype</key><string>punctuation</string></dict>
+      </dict>
+
+      <dict>
+        <key>scope</key>
+        <string>comment.block.nss, punctuation.definition.comment.begin.nss, punctuation.definition.comment.end.nss</string>
+        <key>settings</key>
+        <dict><key>vsclassificationtype</key><string>CSS Comment</string></dict>
+      </dict>
+      <dict>
+        <key>scope</key>
+        <string>entity.name.tag.nss, entity.name.tag.reference.nss, entity.name.tag.wildcard.nss, entity.other.attribute-name.class.nss, entity.other.attribute-name.id.nss, entity.other.attribute-name.pseudo-class.nss, entity.other.attribute-name.nss, punctuation.definition.entity.nss, keyword.operator.combinator.nss, keyword.operator.pattern.nss, entity.name.function.keyframes.nss, entity.other.keyframe-offset.nss</string>
+        <key>settings</key>
+        <dict><key>vsclassificationtype</key><string>CSS Selector</string></dict>
+      </dict>
+      <dict>
+        <key>scope</key>
+        <string>support.type.property-name.nss, support.type.property-name.media.nss, variable.other.custom-property.nss, meta.property-name.unknown.nss</string>
+        <key>settings</key>
+        <dict><key>vsclassificationtype</key><string>CSS Property Name</string></dict>
+      </dict>
+      <dict>
+        <key>scope</key>
+        <string>constant.numeric.nss, keyword.other.unit.nss, constant.other.color.rgb-value.hex.nss, constant.character.escape.nss, punctuation.definition.constant.nss, support.constant.property-value.nss, support.constant.property-value.global.nss, support.constant.property-value.property-name.nss, support.constant.color.nss, support.constant.color.system.nss, string.quoted.double.nss, string.quoted.single.nss, string.unquoted.attribute-value.nss, support.function.misc.nss, keyword.operator.arithmetic.nss</string>
+        <key>settings</key>
+        <dict><key>vsclassificationtype</key><string>CSS Property Value</string></dict>
+      </dict>
+      <dict>
+        <key>scope</key>
+        <string>keyword.control.at-rule.media.nss, keyword.control.at-rule.keyframes.nss, punctuation.definition.keyword.nss, keyword.operator.logical.nss</string>
+        <key>settings</key>
+        <dict><key>vsclassificationtype</key><string>CSS Keyword</string></dict>
+      </dict>
+    </array>
+  </dict>
+</plist>

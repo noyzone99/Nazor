@@ -1,0 +1,42 @@
+@using Nazor.Controls.Primitives
+
+<Container Class="row">
+    <Button @ref="share" OnClick="() => shared++">Share</Button>
+    <Button OnClick="() => open = !open">@(open ? "Hide the tip" : "Show the tip")</Button>
+    <Select TValue="OverlayPlacement" @bind-Value="placement" Items="placements" AccessibleName="Placement" />
+    <CheckBox @bind-IsChecked="hero">Hero image</CheckBox>
+</Container>
+
+@* A non-modal callout: it points at its target and stays until the user closes it. *@
+<TeachingTip @bind-IsOpen="open" Target="share?.Element" Placement="placement" Title="Share your work"
+             Subtitle="New in this version" OnDismiss="@(() => result = "dismissed")">
+    <Hero>
+        @if (hero)
+        {
+            <Container Class="hero" />
+        }
+    </Hero>
+    <ChildContent>
+        <TextBlock>Send a link to this document, or invite people to edit it with you.</TextBlock>
+    </ChildContent>
+    <Actions>
+        <Button OnClick="@(() => Close("later"))">Later</Button>
+        <Button Appearance="ControlAppearance.Accent" OnClick="@(() => Close("try it"))">Try it</Button>
+    </Actions>
+</TeachingTip>
+<TextBlock>@($"Open: {open}; result: {result}; shared: {shared}")</TextBlock>
+
+@code {
+    private Button? share;
+    private bool open, hero = true;
+    private int shared;
+    private string result = "none";
+    private OverlayPlacement placement;
+    private readonly OverlayPlacement[] placements = Enum.GetValues<OverlayPlacement>();
+    private void Close(string answer) => (result, open) = (answer, false);
+}
+
+@style {
+    .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding-left: 120px; }
+    .hero { height: 90px; flex: 1; background: linear-gradient(135deg, var(--nz-accent), var(--nz-selection)); }
+}

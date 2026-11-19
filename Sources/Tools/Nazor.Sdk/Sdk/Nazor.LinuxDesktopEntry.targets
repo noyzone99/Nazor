@@ -1,0 +1,17 @@
+<Project>
+  <ItemGroup Condition="'$(TargetFramework)' != '' and ('$(OutputType)' == 'Exe' or '$(OutputType)' == 'WinExe') and '$(NazorLinuxDesktopEntry)' != '' and ('$(_NazorRuntimePlatform)' == 'linux' or '$(_NazorRuntimePlatform)' == 'portable')">
+    <None Remove="$(NazorLinuxDesktopEntry)" />
+    <None Include="$(NazorLinuxDesktopEntry)" Link="$([System.IO.Path]::GetFileName('$(NazorLinuxDesktopEntry)'))"
+          CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" ExcludeFromSingleFile="true" />
+  </ItemGroup>
+  <Target Name="NazorValidateLinuxDesktopEntry" BeforeTargets="PrepareForBuild;GetCopyToOutputDirectoryItems;ComputeFilesToPublish"
+          Condition="'$(TargetFramework)' != '' and ('$(OutputType)' == 'Exe' or '$(OutputType)' == 'WinExe') and '$(NazorLinuxDesktopEntry)' != '' and ('$(_NazorRuntimePlatform)' == 'linux' or '$(_NazorRuntimePlatform)' == 'portable')">
+    <PropertyGroup>
+      <_NazorDesktopFileName>$([System.IO.Path]::GetFileName('$(NazorLinuxDesktopEntry)'))</_NazorDesktopFileName>
+      <_NazorDesktopFileNameMatches>$([System.String]::Equals('$(_NazorDesktopFileName)', '$(NazorApplicationId).desktop'))</_NazorDesktopFileNameMatches>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(NazorLinuxDesktopEntry)')" Code="NZB013" Text="NazorLinuxDesktopEntry file '$(NazorLinuxDesktopEntry)' does not exist." />
+    <Warning Condition="'$(_NazorDesktopFileNameMatches)' != 'true'" Code="NZB014"
+             Text="NazorLinuxDesktopEntry filename does not match '$(NazorApplicationId).desktop'. The file will be copied unchanged, but desktop window association and launcher badges may not work." />
+  </Target>
+</Project>

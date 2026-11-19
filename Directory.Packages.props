@@ -1,0 +1,28 @@
+<Project>
+  <Import Project="Sources/Tools/Nazor.Sdk/Sdk/Nazor.WindowsDependencies.props" />
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <NazorExtensionsVersion>11.0.0</NazorExtensionsVersion>
+    <NazorExtensionsVersion Condition="'$(TargetFramework)' == 'net8.0' or '$(TargetFramework)' == 'net9.0'">10.0.15</NazorExtensionsVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageVersion Include="Avalonia.Desktop" Version="12.1.6" />
+    <PackageVersion Include="xunit.v3" Version="4.0.3" />
+    <PackageVersion Include="Newtonsoft.Json" Version="13.0.4" />
+    <PackageVersion Include="SkiaSharp" Version="4.156.0" />
+    <PackageVersion Include="SkiaSharp.NativeAssets.Win32" Version="4.156.0" />
+    <PackageVersion Include="SkiaSharp.NativeAssets.Linux" Version="4.156.0" />
+    <PackageVersion Include="HarfBuzzSharp" Version="14.4.0.100" />
+    <PackageVersion Include="HarfBuzzSharp.NativeAssets.Win32" Version="14.4.0.100" />
+    <PackageVersion Include="HarfBuzzSharp.NativeAssets.Linux" Version="14.4.0.100" />
+    <PackageVersion Include="Tmds.DBus.Protocol" Version="0.95.2" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="$(NazorExtensionsVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.Localization" Version="$(NazorExtensionsVersion)" />
+    <PackageVersion Include="TextMateSharp" Version="2.0.5" />
+    <PackageVersion Include="TextMateSharp.Grammars" Version="2.0.5" />
+    <PackageVersion Include="Microsoft.VisualStudio.LanguageServer.Client" Version="17.14.60" />
+    <PackageVersion Include="Microsoft.VisualStudio.SDK" Version="17.14.40265" />
+    <PackageVersion Include="Microsoft.VisualStudio.LanguageServices" Version="4.14.0" />
+    <PackageVersion Include="Microsoft.VisualStudio.ProjectSystem" Version="17.9.380" />
+  </ItemGroup>
+</Project>

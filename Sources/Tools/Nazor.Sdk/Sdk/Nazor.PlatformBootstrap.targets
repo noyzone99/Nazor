@@ -1,0 +1,21 @@
+<Project>
+  <PropertyGroup>
+    <_NazorTargetPlatform Condition="'$(TargetFramework)' != ''">$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)'))</_NazorTargetPlatform>
+  </PropertyGroup>
+
+  <Target Name="NazorGeneratePlatformBootstrap" BeforeTargets="NazorPrepareGeneration;CoreCompile"
+          Condition="'$(NazorImplicitRuntimeReference)' != 'false' and '$(TargetFramework)' != '' and ('$(_NazorTargetPlatform)' == '' or '$(_NazorTargetPlatform)' == 'windows') and ('$(OutputType)' == 'Exe' or '$(OutputType)' == 'WinExe')">
+    <PropertyGroup>
+      <_NazorPlatformBootstrapFile>$(IntermediateOutputPath)Nazor/NazorPlatformBootstrap.g.cs</_NazorPlatformBootstrapFile>
+    </PropertyGroup>
+    <ReadLinesFromFile File="$(MSBuildThisFileDirectory)Nazor.PlatformBootstrap.cs.in">
+      <Output TaskParameter="Lines" ItemName="_NazorPlatformBootstrapLines" />
+    </ReadLinesFromFile>
+    <WriteLinesToFile File="$(_NazorPlatformBootstrapFile)" Overwrite="true" WriteOnlyWhenDifferent="true"
+                      Lines="@(_NazorPlatformBootstrapLines->Replace('__NAZOR_LINUX_NATIVE_LIBRARIES__', '$(_NazorLinuxNativeLibraries)'))" />
+    <ItemGroup>
+      <Compile Include="$(_NazorPlatformBootstrapFile)" />
+      <FileWrites Include="$(_NazorPlatformBootstrapFile)" />
+    </ItemGroup>
+  </Target>
+</Project>

@@ -1,0 +1,76 @@
+@using Nazor.Controls.Primitives
+
+@* The bar is one Tab stop: Left/Right move, Down/Enter/Space open, and with a menu open Left/Right switch menus.
+   F10 or Alt bring the focus to the bar from anywhere in the window. *@
+<MenuBar AccessibleName="Main menu">
+    <MenuBarItem>
+        <ChildContent>File</ChildContent>
+        <Content>
+            <MenuItem Shortcut="newGesture" OnClick="@(() => Run("New"))">New</MenuItem>
+            <MenuItem Shortcut="openGesture" OnClick="@(() => Run("Open"))">Open…</MenuItem>
+            <Submenu>
+                <ChildContent>Open recent</ChildContent>
+                <Content>
+                    <MenuItem OnClick="@(() => Run("report.docx"))">report.docx</MenuItem>
+                    <MenuItem OnClick="@(() => Run("budget.xlsx"))">budget.xlsx</MenuItem>
+                </Content>
+            </Submenu>
+            <MenuSeparator />
+            <MenuItem Shortcut="saveGesture" OnClick="@(() => Run("Save"))">Save</MenuItem>
+            <MenuItem Disabled="true">Save as template</MenuItem>
+            <MenuSeparator />
+            <MenuItem OnClick="@(() => Run("Exit"))">Exit</MenuItem>
+        </Content>
+    </MenuBarItem>
+    <MenuBarItem>
+        <ChildContent>Edit</ChildContent>
+        <Content>
+            <MenuItem Shortcut="undoGesture" OnClick="@(() => Run("Undo"))">Undo</MenuItem>
+            <MenuItem Shortcut="redoGesture" OnClick="@(() => Run("Redo"))">Redo</MenuItem>
+            <MenuSeparator />
+            <MenuItem OnClick="@(() => Run("Cut"))">Cut</MenuItem>
+            <MenuItem OnClick="@(() => Run("Copy"))">Copy</MenuItem>
+            <MenuItem OnClick="@(() => Run("Paste"))">Paste</MenuItem>
+        </Content>
+    </MenuBarItem>
+    <MenuBarItem>
+        <ChildContent>View</ChildContent>
+        <Content>
+            <MenuCheckItem @bind-IsChecked="statusBar">Status bar</MenuCheckItem>
+            <MenuCheckItem @bind-IsChecked="wordWrap">Word wrap</MenuCheckItem>
+            <MenuSeparator />
+            <MenuSection Header="Zoom">
+                <MenuRadioGroup TValue="int" @bind-Value="zoom">
+                    <MenuRadioItem TValue="int" Value="100">100%</MenuRadioItem>
+                    <MenuRadioItem TValue="int" Value="125">125%</MenuRadioItem>
+                    <MenuRadioItem TValue="int" Value="150">150%</MenuRadioItem>
+                </MenuRadioGroup>
+            </MenuSection>
+        </Content>
+    </MenuBarItem>
+    <MenuBarItem Disabled="true">
+        <ChildContent>Tools</ChildContent>
+        <Content><MenuItem>Options</MenuItem></Content>
+    </MenuBarItem>
+    <MenuBarItem>
+        <ChildContent>Help</ChildContent>
+        <Content>
+            <MenuItem OnClick="@(() => Run("Documentation"))">Documentation</MenuItem>
+            <MenuItem OnClick="@(() => Run("About"))">About</MenuItem>
+        </Content>
+    </MenuBarItem>
+</MenuBar>
+<TextBlock>@($"Last command: {last}; status bar: {statusBar}; word wrap: {wordWrap}; zoom: {zoom}%")</TextBlock>
+<TextBlock>Press F10 or Alt to move the focus to the bar.</TextBlock>
+
+@code {
+    private readonly KeyGesture newGesture = KeyGesture.Primary("N");
+    private readonly KeyGesture openGesture = KeyGesture.Primary("O");
+    private readonly KeyGesture saveGesture = KeyGesture.Primary("S");
+    private readonly KeyGesture undoGesture = KeyGesture.Primary("Z");
+    private readonly KeyGesture redoGesture = KeyGesture.Primary("Y");
+    private bool statusBar = true, wordWrap;
+    private int zoom = 100;
+    private string last = "none";
+    private void Run(string name) => last = name;
+}

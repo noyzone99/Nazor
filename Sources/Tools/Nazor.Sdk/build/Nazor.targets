@@ -1,0 +1,31 @@
+<Project>
+  <Import Project="../Sdk/Nazor.DevTools.props" />
+  <Import Project="Nazor.Repository.targets" />
+  <Import Project="../Sdk/Nazor.Runtime.props" />
+  <Import Project="../Sdk/Nazor.ApplicationIdentity.targets" />
+  <Import Project="../Sdk/Nazor.LinuxDesktopEntry.targets" />
+
+  <ItemGroup>
+    <_NazorDesktopReference Include="@(ProjectReference->WithMetadataValue('Filename', 'Nazor.Hosting.Desktop'))" Condition="'$(_NazorDesktopPackage)' != 'Nazor.Hosting.Desktop'" />
+    <ProjectReference Remove="@(_NazorDesktopReference)" />
+    <ProjectReference Include="@(_NazorDesktopReference->'$(NazorRepositoryRoot)Sources/Hosts/$(_NazorDesktopPackage)/$(_NazorDesktopPackage).csproj')"
+                      AdditionalProperties="$(_NazorNativeReferenceProperties)" />
+    <ProjectReference Include="$(NazorRepositoryRoot)Sources/Core/Nazor.Core/Nazor.Core.csproj" Condition="'$(NazorUseCore)' != 'false'" />
+    <ProjectReference Include="$(NazorRepositoryRoot)Sources/Core/Nazor.Controls/Nazor.Controls.csproj" Condition="'$(NazorUseControls)' != 'false'" />
+    <ProjectReference Include="$(NazorRepositoryRoot)Sources/Core/Nazor.Style/Nazor.Style.csproj" />
+    <ProjectReference Include="$(NazorRepositoryRoot)Sources/Tools/Nazor.DevTools.Agent/Nazor.DevTools.Agent.csproj"
+                      Condition="'$(NazorEnableDevTools)' == 'true' and ('$(OutputType)' == 'Exe' or '$(OutputType)' == 'WinExe')" />
+  </ItemGroup>
+
+  <Target Name="NazorValidateRepositoryRuntime" BeforeTargets="CollectPackageReferences;PrepareForBuild"
+          Condition="'$(_NazorRuntimePlatform)' == 'unsupported' and ('$(OutputType)' == 'Exe' or '$(OutputType)' == 'WinExe')">
+    <Error Code="NZB003" Text="Nazor has no desktop backend for RuntimeIdentifier '$(RuntimeIdentifier)'. Use a Windows or Linux RID, or omit the RID for a portable application." />
+  </Target>
+
+  <Import Project="../Sdk/Nazor.Generation.targets" />
+  <Import Project="../Sdk/Nazor.Aot.targets" />
+  <Import Project="../Sdk/Nazor.PlatformBootstrap.targets" />
+  <Import Project="../Sdk/Nazor.WindowsManifest.targets" />
+  <Import Project="../Sdk/Nazor.ApplicationIcon.targets" />
+  <Import Project="../Sdk/Nazor.DevTools.targets" />
+</Project>

@@ -1,0 +1,17 @@
+<Project>
+  <Import Project="../../Sources/Tools/Nazor.Sdk/Sdk/Sdk.props" />
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <NazorApplicationId>org.nazor.samples.windowing</NazorApplicationId>
+    <NazorLinuxDesktopEntry>org.nazor.samples.windowing.desktop</NazorLinuxDesktopEntry>
+    <RootNamespace>Nazor.Samples.Windowing</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- This sample reuses licensed font assets from the repository; copy both the faces and their license for deployment. -->
+    <None Include="../../Tests/Assets/Fonts/*.ttf" Link="Fonts/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <None Include="../../Tests/Assets/Fonts/OFL.txt" Link="Fonts/OFL.txt" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <None Include="../../Docs/Assets/nazor-app.png" Link="Assets/launcher.png" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+  <Import Project="../../Sources/Tools/Nazor.Sdk/Sdk/Sdk.targets" />
+</Project>

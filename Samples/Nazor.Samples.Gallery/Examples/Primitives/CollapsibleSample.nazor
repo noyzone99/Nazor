@@ -1,0 +1,15 @@
+@using Nazor.Controls.Primitives
+
+<Button OnClick="() => open = !open">@(open ? "Collapse" : "Expand")</Button>
+<Collapsible @bind-IsOpen="open" Class="region">
+    <TextBlock>The region publishes its natural height as --nz-collapsible-height for themes that animate it.</TextBlock>
+    <TextBlock>It is the base of expanders, accordions, tree nodes and collapsible groups.</TextBlock>
+</Collapsible>
+
+@code {
+    private bool open = true;
+}
+
+@style {
+    .region { border: 1px solid GrayText; padding: 8px; width: 360px; }
+}

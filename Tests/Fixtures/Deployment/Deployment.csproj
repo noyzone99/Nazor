@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>Exe</OutputType><NazorApplicationId>org.nazor.deployment</NazorApplicationId><RootNamespace>Deployment</RootNamespace></PropertyGroup>
+  <PropertyGroup Condition="'$(NazorDeploymentFramework)' != ''"><TargetFramework>$(NazorDeploymentFramework)</TargetFramework></PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../../Sources/Hosts/Nazor.Hosting.Desktop/Nazor.Hosting.Desktop.csproj" />
+    <ProjectReference Include="../../../Sources/Themes/Nazor.Themes.NazorLeaf/Nazor.Themes.NazorLeaf.csproj" />
+    <None Update="payload.txt" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+  <Import Project="../../../Sources/Tools/Nazor.Sdk/build/Nazor.targets" />
+</Project>

@@ -1,0 +1,44 @@
+@window
+
+<Container Class="page">
+    <TextBlock>Native title bar colors and window bounds</TextBlock>
+    <TextBlock>Resize between 400 × 280 and 900 × 650 logical units. Maximize respects the maximum.</TextBlock>
+    <TextBlock>Title bar colors require Windows 11. Windows retains the red close-button hover.</TextBlock>
+    <Button OnClick="Window.Maximize">Maximize within limits</Button>
+    <Button OnClick="Window.Restore">Restore</Button>
+    <Button OnClick="() => { Window.X = 160; Window.Y = 120; }">Move to screen pixels (160, 120)</Button>
+    <Button OnClick="() => { Window.MaxWidth = null; Window.MaxHeight = null; }">Remove maximum size</Button>
+</Container>
+
+@style {
+    :root {
+        -windows-title-bar-background-color: #eff6fc;
+        -windows-title-bar-foreground-color: #202e38;
+        -windows-title-bar-inactive-background-color: #e2e8f0;
+        -windows-title-bar-inactive-foreground-color: #6b7280;
+        -windows-title-bar-button-background-color: #3981f6;
+        -windows-title-bar-button-foreground-color: white;
+        -windows-title-bar-button-inactive-background-color: #cbd5e1;
+        -windows-title-bar-button-inactive-foreground-color: #475569;
+        -windows-title-bar-button-hover-background-color: #2563eb;
+        -windows-title-bar-button-hover-foreground-color: white;
+        -windows-title-bar-button-pressed-background-color: #1d4ed8;
+        -windows-title-bar-button-pressed-foreground-color: white;
+    }
+    .page { display: flex; flex-direction: column; padding: 24px; gap: 16px; }
+}
+
+@code {
+    protected override void OnInitialized()
+    {
+        Window.Title = "Native appearance and bounds";
+        Window.MinWidth = 400;
+        Window.MinHeight = 280;
+        Window.MaxWidth = 900;
+        Window.MaxHeight = 650;
+        Window.Width = 720;
+        Window.Height = 480;
+        Window.X = 160;
+        Window.Y = 120;
+    }
+}

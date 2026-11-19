@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>Exe</OutputType></PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../Sources/Tools/Nazor.DevTools/Nazor.DevTools.csproj" />
+    <ProjectReference Include="../Nazor.Testing/Nazor.Testing.csproj" />
+    <ProjectReference Include="../Fixtures/DevToolsAgent/DevToolsAgent.csproj" ReferenceOutputAssembly="false" />
+    <PackageReference Include="xunit.v3" />
+    <Using Include="Xunit" />
+    <None Include="../Assets/Fonts/*.ttf" Link="Fonts/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

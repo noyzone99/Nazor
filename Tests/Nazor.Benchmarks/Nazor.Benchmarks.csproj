@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <TieredCompilation>false</TieredCompilation>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../RendererComparison/ComparisonSession.cs" Link="Comparison/ComparisonSession.cs" />
+    <ProjectReference Include="../../Sources/Hosts/Nazor.Hosting.Desktop/Nazor.Hosting.Desktop.csproj" />
+    <ProjectReference Include="../../Sources/Tools/Nazor.DevTools.Agent/Nazor.DevTools.Agent.csproj" />
+    <Compile Include="../../Sources/Shared/DevTools/IdeWire.cs" Link="IdeWire.cs" />
+    <Compile Include="../Fixtures/DevToolsTrees/TreePage.cs" Link="Fixtures/TreePage.cs" />
+    <ProjectReference Include="../../Sources/Core/Nazor.Presentation/Nazor.Presentation.csproj" />
+    <ProjectReference Include="../../Sources/Core/Nazor.Renderer.Skia/Nazor.Renderer.Skia.csproj" />
+    <ProjectReference Include="../../Sources/Core/Nazor.Controls/Nazor.Controls.csproj" />
+    <ProjectReference Include="../../Sources/Core/Nazor.Input/Nazor.Input.csproj" />
+    <ProjectReference Include="../../Sources/Tools/Nazor.Nss.Compiler/Nazor.Nss.Compiler.csproj" />
+    <ProjectReference Include="../Nazor.Testing/Nazor.Testing.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="../Assets/Fonts/*.ttf" Link="Fonts/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

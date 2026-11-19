@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<assembly manifestVersion="1.0" xmlns="urn:schemas-microsoft-com:asm.v1" xmlns:asmv3="urn:schemas-microsoft-com:asm.v3" xmlns:winrt="urn:schemas-microsoft-com:winrt.v1">
+  <asmv3:file name="CoreMessagingXP.dll">
+    <winrt:activatableClass name="Microsoft.UI.Dispatching.DispatcherQueue" threadingModel="both" />
+    <winrt:activatableClass name="Microsoft.UI.Dispatching.DispatcherQueueController" threadingModel="both" />
+    <winrt:activatableClass name="Microsoft.UI.Dispatching.DispatcherExitDeferral" threadingModel="both" />
+  </asmv3:file>
+  <asmv3:file name="Microsoft.UI.Windowing.dll">
+    <winrt:activatableClass name="Microsoft.UI.Windowing.AppWindow" threadingModel="both" />
+    <winrt:activatableClass name="Microsoft.UI.Windowing.OverlappedPresenter" threadingModel="both" />
+    <winrt:activatableClass name="Microsoft.UI.Windowing.FullScreenPresenter" threadingModel="both" />
+    <winrt:activatableClass name="Microsoft.UI.Windowing.CompactOverlayPresenter" threadingModel="both" />
+    <winrt:activatableClass name="Microsoft.UI.Windowing.AppWindowPresenter" threadingModel="both" />
+  </asmv3:file>
+  <asmv3:file name="Microsoft.UI.Windowing.Core.dll">
+    <winrt:activatableClass name="Microsoft.UI.Windowing.AppWindowTitleBar" threadingModel="both" />
+  </asmv3:file>
+  <asmv3:file name="Microsoft.UI.Input.dll">
+    <winrt:activatableClass name="Microsoft.UI.Input.InputNonClientPointerSource" threadingModel="both" />
+  </asmv3:file>
+  <asmv3:file name="dcompi.dll">
+    <winrt:activatableClass name="Microsoft.UI.Composition.Compositor" threadingModel="both" />
+  </asmv3:file>
+</assembly>

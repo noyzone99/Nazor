@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>Nazor.LanguageServer</RootNamespace>
+    <IsPackable>false</IsPackable>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Nazor.Compiler/Nazor.Compiler.csproj" />
+    <ProjectReference Include="../../Core/Nazor.Controls/Nazor.Controls.csproj" />
+    <Compile Include="../../Shared/DevChannel/*.cs" Link="Shared/%(Filename)%(Extension)" />
+    <Compile Include="../../Shared/Authoring/CodeIndentation.cs" Link="Shared/CodeIndentation.cs" />
+    <InternalsVisibleTo Include="Nazor.LanguageServer.Tests" />
+  </ItemGroup>
+  <PropertyGroup><NazorRoslynFeatures>true</NazorRoslynFeatures></PropertyGroup>
+  <Import Project="../Nazor.Roslyn.props" />
+</Project>

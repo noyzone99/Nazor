@@ -1,0 +1,13 @@
+@implements IRefreshable
+@using System.Globalization
+<NumberField @ref="Field" Value="Value" ValueChanged="Changed" AcceptsExpression="Expressions" Culture="CultureInfo.InvariantCulture"
+             Minimum="-100" Maximum="100" Format="0.00" Step="0.5" SpinButtons="SpinButtonPlacement.Hidden" />
+<Button Class="outside">Outside</Button>
+@code {
+    public NumberField Field { get; set; } = null!;
+    public double? Value { get; set; } = 2;
+    public bool Expressions { get; set; } = true;
+    public List<double?> Changes { get; } = [];
+    private void Changed(double? value) { Value = value; Changes.Add(value); }
+    public void Refresh() => StateHasChanged();
+}

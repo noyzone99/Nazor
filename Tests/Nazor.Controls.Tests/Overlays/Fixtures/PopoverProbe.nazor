@@ -1,0 +1,43 @@
+@implements IRefreshable
+@using Nazor.Controls.Primitives
+<Container Class="row">
+    <Popover @bind-IsOpen="ClickOpen" Title="Filters" ShowCloseButton="true" ShowArrow="true" Placement="OverlayPlacement.Bottom"
+             Disabled="Disabled" OnDismiss="() => Dismissed++">
+        <Trigger><Button Class="click-trigger">Filters</Button></Trigger>
+        <ChildContent><CheckBox Class="unread">Only unread</CheckBox></ChildContent>
+        <Footer><Button Class="apply" OnClick="() => ClickOpen = false">Apply</Button></Footer>
+    </Popover>
+    <Popover @bind-IsOpen="HoverOpen" OpenOnHover="true" HoverDelay="TimeSpan.Zero" HoverCloseDelay="TimeSpan.Zero" Placement="OverlayPlacement.Bottom">
+        <Trigger><Button Class="hover-trigger">Ada</Button></Trigger>
+        <ChildContent><TextBlock Class="card-text">Card</TextBlock></ChildContent>
+    </Popover>
+    <Tooltip Text="Saves the file" Title="Save" ShowArrow="true" Disabled="TipDisabled">
+        <Trigger><Button Class="tip-trigger">Save</Button></Trigger>
+    </Tooltip>
+    <Button Class="target" @ref="target">Share</Button>
+</Container>
+<TeachingTip @bind-IsOpen="TipOpen" Target="target?.Element" Title="Share your work" Subtitle="New" OnDismiss="() => TipDismissed++">
+    <Hero><Container Class="hero" /></Hero>
+    <ChildContent><TextBlock>Body</TextBlock></ChildContent>
+    <Actions><Button Class="tip-action" OnClick="() => TipOpen = false">Got it</Button></Actions>
+</TeachingTip>
+<Container Class="far">Far away</Container>
+<Button Class="outside">Outside</Button>
+
+@code {
+    public void Refresh() => StateHasChanged();
+    private Button? target;
+    public bool ClickOpen { get; set; }
+    public bool HoverOpen { get; set; }
+    public bool TipOpen { get; set; }
+    public bool Disabled { get; set; }
+    public bool TipDisabled { get; set; }
+    public int Dismissed { get; set; }
+    public int TipDismissed { get; set; }
+}
+
+@style {
+    .row { display: flex; gap: 40px; align-items: center; padding: 10px; }
+    .far { height: 200px; }
+    .hero { height: 40px; }
+}

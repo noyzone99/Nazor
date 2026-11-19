@@ -1,0 +1,25 @@
+@implements IRefreshable
+<Container Class="page">
+    <Field LabelText="Name" Required="true">
+        <TextField Class="name" @bind-Value="Name" Clearable="true" MaxLength="10" ShowCount="true" />
+    </Field>
+    <TextField Class="price" Prefix="EUR" Suffix="month" @bind-Value="Price" AccessibleName="Price" />
+    <TextArea Class="notes" @bind-Value="Notes" Rows="4" AccessibleName="Notes" />
+    <Select TValue="string" Class="city" @bind-Value="City" AccessibleName="City">
+        <SelectItem Value="@("Rome")">Rome</SelectItem>
+        <SelectItem Value="@("Milan")">Milan</SelectItem>
+        <SelectItem Value="@("Naples")" Disabled="true">Naples</SelectItem>
+        <SelectItem Value="@("Turin")">Turin</SelectItem>
+    </Select>
+    <Label For="@("target")" Class="for-label">Target</Label>
+    <CheckBox Id="target" @bind-IsChecked="Target">Target box</CheckBox>
+</Container>
+
+@code {
+    public void Refresh() => StateHasChanged();
+    public string Name { get; set; } = "";
+    public string Price { get; set; } = "12";
+    public string Notes { get; set; } = "a";
+    public string? City { get; set; } = "Rome";
+    public bool Target { get; set; }
+}

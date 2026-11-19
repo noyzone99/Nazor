@@ -1,0 +1,18 @@
+@using Nazor.Controls.Primitives
+<ColorArea Class="area" @bind-Color="color" AccessibleName="Saturation and brightness" />
+<ColorSlider Class="hue" @bind-Color="color" Channel="ColorChannel.Hue" AccessibleName="Hue" />
+<Container Class="swatch" Style="@SwatchStyle" />
+<TextBlock>@ColorModel.ToHex(ColorModel.FromHsv(color))</TextBlock>
+@code {
+    private HsvColor color = new(210, 0.6, 0.8);
+    private string SwatchStyle => $"background: {ColorModel.ToHex(ColorModel.FromHsv(color))};";
+}
+@style {
+    .area { position: relative; width: 220px; height: 120px; background: linear-gradient(transparent, #000000), linear-gradient(90deg, #ffffff, var(--nz-color-area-hue)); }
+    .hue { width: 220px; height: 18px; }
+    ColorSliderTrack { position: relative; width: 100%; height: 100%; background: var(--nz-color-slider-gradient); }
+    ColorAreaThumb, ColorSliderThumb { position: absolute; width: 12px; height: 12px; border: 2px solid white; border-radius: 50%; pointer-events: none; }
+    ColorAreaThumb { left: calc(var(--nz-color-area-x) - 6px); top: calc(var(--nz-color-area-y) - 6px); background: var(--nz-color-area-color); }
+    ColorSliderThumb { left: calc(var(--nz-color-slider-position) - 6px); top: 3px; background: var(--nz-color-slider-color); }
+    .swatch { width: 40px; height: 24px; border: 1px solid GrayText; }
+}
