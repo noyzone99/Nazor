@@ -12,11 +12,9 @@ if (-not $IsWindows) { throw 'Native sample verification requires Windows.' }
 if (-not $SkipBuild) {
     & dotnet build "$root/Nazor.slnx" -c $Configuration -m:1 -nodeReuse:false -p:UseSharedCompilation=false
     if ($LASTEXITCODE -ne 0) { throw 'Solution build failed.' }
-    & dotnet build "$root/Workspace/Nazor.Workspace/Nazor.Workspace.csproj" -c $Configuration -m:1 -nodeReuse:false -p:UseSharedCompilation=false
-    if ($LASTEXITCODE -ne 0) { throw 'Workspace build failed.' }
 }
 $compiler = Join-Path $root "Sources/Tools/Nazor.Compiler/bin/$Configuration/net10.0/Nazor.Compiler.dll"
-$projects = @(Get-ChildItem "$root/Samples" -Recurse -Filter '*.csproj') + @(Get-Item "$root/Workspace/Nazor.Workspace/Nazor.Workspace.csproj")
+$projects = Get-ChildItem "$root/Samples" -Recurse -Filter '*.csproj'
 $defaultManifest = (Resolve-Path "$root/Sources/Tools/Nazor.Sdk/Sdk/Nazor.Windows.manifest").Path
 foreach ($project in $projects) {
     $manifest = & dotnet msbuild $project.FullName -nologo "-p:Configuration=$Configuration" -getProperty:ApplicationManifest

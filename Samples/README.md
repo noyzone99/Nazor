@@ -25,7 +25,7 @@ Each executable declares a stable `NazorApplicationId`, used by the Linux and un
 The shared SDK targets compile `.nazor` components and `.nss` stylesheets and supply the shared SDK Windows DPI manifest. No sample needs a local manifest or a reference to another sample's manifest; see [manifest customization](../Docs/Guide/03-Projects-and-Builds.md#windows-application-manifest).
 Edit the source files, not the generated C# under `obj/`.
 
-Run `pwsh -NoProfile -File Scripts/Tests/verify-samples.ps1` to build and verify the shared manifest selection and native executable startup of every sample and the workspace through their development channels. The script closes the applications it starts; the tray application is stopped after its UI loop responds. See the [script reference](../Scripts/README.md).
+Run `pwsh -NoProfile -File Scripts/Tests/verify-samples.ps1` to build the samples, verify their shared manifest, and check native startup through the development channel. The script closes the applications it starts; the tray application is stopped after its UI loop responds. See the [script reference](../Scripts/README.md).
 
 The DRM sample uses `CreateMainWindow` for desktop development and explicitly selects `DrmPlatformHost` with `UseMainView` when passed `--drm`. See its [startup and dependency guide](../Docs/Guide/34-Linux-DRM.md).
 

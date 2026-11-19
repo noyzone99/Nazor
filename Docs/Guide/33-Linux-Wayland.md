@@ -74,12 +74,12 @@ Build both native bridges in an x64 glibc WSL distribution with the development 
 
 ```powershell
 wsl -- bash Scripts/Build/build-native.sh Release
-dotnet publish Workspace/Nazor.Workspace -c Release -r linux-x64 --self-contained true -o artifacts/publish/linux-x64
+dotnet publish Samples/Nazor.Samples.Counter -c Release -r linux-x64 --self-contained true -o artifacts/publish/linux-x64
 ```
 
 The compiler used during this build runs on Windows. Runtime identifier and self-contained application settings are removed when building and locating that compiler, so publishing a Linux application does not turn the compiler into a Linux tool.
 
-Copy the entire publication directory to the VM. Run `chmod u+x Nazor.Workspace` followed by `./Nazor.Workspace` from a terminal inside the Wayland session. The self-contained publication includes .NET; Wayland, xkbcommon, fontconfig and fonts are still system dependencies. Copying ordinary Windows `bin` output instead leaves a Windows apphost and an unspecialized native-runtime layout.
+Copy the entire publication directory to the VM. Run `chmod u+x Nazor.Samples.Counter` followed by `./Nazor.Samples.Counter` from a terminal inside the Wayland session. The self-contained publication includes .NET; Wayland, xkbcommon, fontconfig and fonts are still system dependencies. Copying ordinary Windows `bin` output instead leaves a Windows apphost and an unspecialized native-runtime layout.
 
 Run `pwsh -NoProfile -File Scripts/Tests/verify-linux-publish.ps1` on Windows to exercise this publication path and verify the Linux apphost, bridge, rendering libraries, bundled runtime and dependency manifest. It writes a fresh directory under `artifacts/linux-publish` and does not start a GUI.
 

@@ -26,7 +26,7 @@ Keep the SDK, official runtime packages, and optional themes on the same Nazor r
 
 The SDK supplies the `Nazor.Controls` package and imports its component namespace. Add `@using Nazor.Controls.Primitives` in markup that uses lower-level interaction components. See the [control catalog](09-Control-Catalog.md).
 
-Samples and the development workspace import the local SDK directly:
+Samples import the local SDK directly:
 
 ```xml
 <Project>
@@ -112,7 +112,7 @@ For a desktop `Exe` or `WinExe` with automatic runtime references enabled, the S
 
 Libraries do not emit a bootstrap or register a process default. The initializer also checks that its assembly is the process entry assembly: referencing an executable's components does not replace the consuming process's host. `NazorImplicitRuntimeReference=false` disables bootstrap generation; configure the host explicitly when using that opt-out.
 
-Samples and the workspace use the local SDK, which adds the appropriate desktop source project automatically and passes the publication RID to it. They use the same [platform bootstrap generation](../../Sources/Tools/Nazor.Sdk/Sdk/Nazor.PlatformBootstrap.targets) and backend selection as packaged applications. Source references keep development independent of published packages.
+Samples use the local SDK, which adds the appropriate desktop source project automatically and passes the publication RID to it. They use the same [platform bootstrap generation](../../Sources/Tools/Nazor.Sdk/Sdk/Nazor.PlatformBootstrap.targets) and backend selection as packaged applications. Source references keep development independent of published packages.
 
 Use `NazorApplication.CreateBuilder(args)` in desktop applications. Override the host through `builder.Platform.Host` or use `WindowsApplication.CreateBuilder(args)` for explicit Windows startup. See [application hosting](04-Application-Hosting-and-Services.md) for factory lifetime and manual configuration.
 
@@ -164,7 +164,7 @@ This is a Windows executable resource, not a universal packaging format. The SDK
 
 ## Windows application icon
 
-Executable projects (`Exe` or `WinExe`) receive the blue [Nazor application icon](../Assets/README.md) by default. The SDK ships a multiresolution `.ico` and embeds it in the executable; no separate icon file is required when deploying the application. Samples and workspace applications importing `build/Nazor.targets` use the same asset. The Windows backend also uses the executable's icon for native windows.
+Executable projects (`Exe` or `WinExe`) receive the blue [Nazor application icon](../Assets/README.md) by default. The SDK ships a multiresolution `.ico` and embeds it in the executable; no separate icon file is required when deploying the application. Source samples receive the same icon from the local SDK. The Windows backend also uses the executable's icon for native windows.
 
 To replace it, set the standard .NET property to your own `.ico` file:
 

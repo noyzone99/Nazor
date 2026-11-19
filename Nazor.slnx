@@ -87,7 +87,4 @@
     <Project Path="Samples/Nazor.Samples.Theming/Nazor.Samples.Theming.csproj" />
     <Project Path="Samples/Nazor.Samples.Windowing/Nazor.Samples.Windowing.csproj" />
   </Folder>
-  <Folder Name="/Workspace/">
-    <Project Path="Workspace/Nazor.Workspace/Nazor.Workspace.csproj" />
-  </Folder>
 </Solution>

@@ -77,7 +77,7 @@ function Check-SingleFileDefaults([string]$sdkPath) {
     Assert ($selection.Properties.IncludeAllContentForSelfExtract -eq 'true' -and $selection.Properties.IncludeNativeLibrariesForSelfExtract -eq 'true') 'complete extraction remains an explicit application opt-in'
 }
 
-$projects = @(Get-ChildItem "$root/Samples" -Recurse -Filter '*.csproj') + @(Get-Item "$root/Workspace/Nazor.Workspace/Nazor.Workspace.csproj")
+$projects = Get-ChildItem "$root/Samples" -Recurse -Filter '*.csproj'
 foreach ($project in $projects) {
     $selection = Read-Project $project.FullName
     Assert ($selection.Properties.NazorRepositoryRoot -eq "$root$([IO.Path]::DirectorySeparatorChar)") "$($project.BaseName) uses the local SDK"

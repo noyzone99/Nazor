@@ -26,7 +26,7 @@ await using var app = builder.Build();
 return await app.RunAsync();
 ```
 
-The Agent attaches to each main/later window; no App.nazor attachment is required. Enable the property only for intended development configurations, for example `<NazorEnableDevTools Condition="'$(Configuration)' == 'Debug'">true</NazorEnableDevTools>`. Explicit attachment remains required in optimized development builds too. Publishing a Release build with DevTools also requires `NazorEnablePublishValidation=false`; ordinary Release publication validates dependency and payload exclusion by default. The repository workspace already uses this Program.cs setup in Debug. Run the app and press plain F12 in the window to inspect. The inspector opens separately and connects to that exact window.
+The Agent attaches to each main/later window; no App.nazor attachment is required. Enable the property only for intended development configurations, for example `<NazorEnableDevTools Condition="'$(Configuration)' == 'Debug'">true</NazorEnableDevTools>`. Explicit attachment remains required in optimized development builds too. Publishing a Release build with DevTools also requires `NazorEnablePublishValidation=false`; ordinary Release publication validates dependency and payload exclusion by default. Run the app and press plain F12 in the window to inspect. The inspector opens separately and connects to that exact window.
 
 ### Shortcut and system menu
 

@@ -15,8 +15,6 @@ try {
     }
     & dotnet build Nazor.slnx --configuration $Configuration -m:1 -p:UseSharedCompilation=false -nodeReuse:false
     if ($LASTEXITCODE -ne 0) { throw 'Build failed.' }
-    & dotnet build Workspace/Nazor.Workspace --configuration $Configuration -m:1 -p:UseSharedCompilation=false -nodeReuse:false
-    if ($LASTEXITCODE -ne 0) { throw 'Workspace build failed.' }
     $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio/Installer/vswhere.exe'
     $vsMSBuild = if (Test-Path $vswhere) { & $vswhere -latest -prerelease -requires Microsoft.Component.MSBuild -find 'MSBuild/**/Bin/MSBuild.exe' | Select-Object -First 1 }
     if ($vsMSBuild) {
