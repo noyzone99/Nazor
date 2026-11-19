@@ -33,7 +33,7 @@ Examples use English names and UI text. Snippets labeled as a file can be placed
 | [25. Localization](25-Localization.md) | Resources, culture, built-in strings, dates, and numbers |
 | [26. Editors and hot reload](26-Editors-and-Hot-Reload.md) | Visual Studio, VS Code, development channel, and live updates |
 | [27. Testing and diagnostics](27-Testing-and-Diagnostics.md) | Headless rendering, deterministic tests, inspection, and performance |
-| [28. Libraries, packaging, and deployment](28-Libraries-Packaging-and-Deployment.md) | Reusable libraries, resources, packages, and publishing |
+| [28. Libraries, packaging, and deployment](28-Libraries-Packaging-and-Deployment.md) | Reusable libraries, resources, packages, single-file publishing, trimming, and Native AOT |
 | [29. Application design and best practices](29-Application-Design-and-Best-Practices.md) | Maintainable structure, state boundaries, and a practical checklist |
 | [30. Troubleshooting](30-Troubleshooting.md) | Compiler diagnostics and common runtime or tooling problems |
 | [31. Architecture and extension points](31-Architecture-and-Extension-Points.md) | Rendering pipeline, package responsibilities, and custom hosts |

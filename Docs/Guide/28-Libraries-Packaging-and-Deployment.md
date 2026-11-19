@@ -157,6 +157,8 @@ For JIT trimming, the SDK conservatively copies `Microsoft.Windows.SDK.NET` and 
 
 ### Native AOT
 
+Nazor supports .NET Native AOT publishing for desktop apps on Windows x64 and Linux x64 through `Nazor.Sdk`. The app compiles to native code at publish time and can run without a separate .NET runtime installation. [Supported deployment matrix](32-Support-and-Limitations.md#platform-and-distribution) · [Microsoft Native AOT overview](https://learn.microsoft.com/en-us/dotnet/core/deploying/native-aot/)
+
 ```powershell
 dotnet publish HelloNazor/HelloNazor.csproj -c Release -r win-x64 -p:PublishAot=true -o artifacts/aot
 ```
