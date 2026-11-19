@@ -121,6 +121,20 @@ Signing, installer creation and other architectures are not established supporte
 
 When Visual Studio or another build process is restoring the same project in parallel, use `--artifacts-path artifacts/build/my-publish` to isolate publication intermediates. The default `obj/project.assets.json` is shared across configurations; a background development restore can replace the production dependency graph and trigger NZB006 for DevTools even when the publish command disables them. `-o` selects only the final publication directory and does not isolate these intermediates. Use distinct artifact directories for concurrent publications.
 
+### Publish localized resources
+
+The .NET SDK compiles culture-specific `.resx` files into satellite assemblies, one per assembly and culture. A folder publish places each satellite in its culture directory beside the main assemblies, for example `it/Nazor.Controls.resources.dll`. A single-file publish embeds the satellites in the executable under the same culture paths. .NET looks up translations using `CurrentUICulture` in both modes, and neutral resources stay in their main assembly. [Single-file deployment in .NET](https://learn.microsoft.com/en-us/dotnet/core/deploying/single-file/overview)
+
+To keep only selected satellite cultures from NuGet dependencies, set `SatelliteResourceLanguages` in the `PropertyGroup` of the consuming application's project file or publish profile (`.pubxml`).
+
+```xml
+<PropertyGroup>
+  <SatelliteResourceLanguages>it;fr</SatelliteResourceLanguages>
+</PropertyGroup>
+```
+
+Use the exact culture names of the satellites you want to ship. List any regional variants separately. The example keeps Italian and French satellites when the referenced packages supply them. Satellites built from the application's own resources or from source project references can also appear in the output, independently of this NuGet filter. [MSBuild property reference](https://learn.microsoft.com/en-us/dotnet/core/project-sdk/msbuild-props#satelliteresourcelanguages) · [Adding framework translations](25-Localization.md#add-a-framework-translation-from-source)
+
 ### Single-file
 
 ```powershell

@@ -35,9 +35,22 @@ Resource lookup uses the assembly's root namespace. If it differs from the assem
 
 ## Framework text
 
-Built-in message buttons, text-editing menus, calendar navigation, `InlineMessage` close labels, and accessibility strings use .NET resources. English and Italian are supplied; other UI cultures fall back to English. Parameters such as `CloseLabel`, `PreviousLabel`, and `NextLabel` override built-in wording where exposed.
+Nazor ships built-in UI strings in English and Italian. The English text is the neutral resource set in `Strings.resx`, and Italian is in `Strings.it.resx`. If a key is missing for the requested UI culture, .NET checks its parent culture and then falls back to English. When a control exposes a text override, the application can pass its own localized wording.
 
 Native OS dialogs, menus, and caption buttons can use the operating system's language independently of application resources. App-owned title-bar buttons must localize their own visible text and accessible names.
+
+### Add a framework translation from source
+
+Add a culture-specific catalog alongside `Resources/Strings.resx` in each project that owns the text you want to translate. For example, use `Resources/Strings.fr.resx` in `Nazor.Controls` for French control labels. Keep the same resource keys and format placeholders, and translate the values, including tooltips and accessible names.
+
+| Project | Framework text it owns |
+| --- | --- |
+| [`Nazor.Application`](../../Sources/Core/Nazor.Application/Resources/Strings.resx) | Standard message buttons and window menu commands |
+| [`Nazor.Controls`](../../Sources/Core/Nazor.Controls/Resources/Strings.resx) | Control defaults such as calendar navigation, empty states, and accessible names |
+| [`Nazor.Input`](../../Sources/Core/Nazor.Input/Resources/Strings.resx) | Text-editing menu commands such as Copy and Paste |
+| [`Nazor.Themes.NazorLeaf`](../../Sources/Themes/Nazor.Themes.NazorLeaf/Resources/Strings.resx) | Window-control and loading labels specific to the optional NazorLeaf theme |
+
+Rebuild the projects you changed so the .NET SDK generates their satellite assemblies. If the application consumes Nazor through NuGet, repack the affected packages and use those builds in the application. Set the application's UI culture to test the translated controls. See the [deployment guide](28-Libraries-Packaging-and-Deployment.md#publish-localized-resources) for how the satellites are included in the publish output.
 
 ## Testing languages
 
