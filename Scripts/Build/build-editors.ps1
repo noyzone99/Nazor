@@ -61,6 +61,8 @@ else {
     New-Item -ItemType Directory "$Output/visualstudio" | Out-Null
     Copy-Item $vsix "$Output/visualstudio/"
     Add-Type -AssemblyName System.IO.Compression.FileSystem
+    $version = (Select-Xml -LiteralPath "$root/Directory.Build.props" -XPath '//NazorVersion').Node.InnerText
+    $projectTemplatePackage = "ProjectTemplates/Nazor.Templates.$version.nupkg"
     $zip = [IO.Compression.ZipFile]::OpenRead("$Output/visualstudio/Nazor.VisualStudio.vsix")
     try {
         $entries = $zip.Entries.FullName
@@ -71,6 +73,7 @@ else {
             'Grammars/csharp.tmLanguage.json', 'Grammars/csharp.tmLanguage.LICENSE.txt',
             'ItemTemplates/CSharp/Nazor/NazorComponent/Component.vstemplate', 'ItemTemplates/CSharp/Nazor/NazorComponent/Component.nazor', 'ItemTemplates/CSharp/Nazor/NazorComponent/Component.png',
             'ItemTemplates/CSharp/Nazor/NazorStyleSheet/StyleSheet.vstemplate', 'ItemTemplates/CSharp/Nazor/NazorStyleSheet/StyleSheet.nss', 'ItemTemplates/CSharp/Nazor/NazorStyleSheet/StyleSheet.png',
+            $projectTemplatePackage,
             'Server/Nazor.LanguageServer.dll', 'Server/Nazor.LanguageServer.runtimeconfig.json', 'Server/Microsoft.CodeAnalysis.Razor.Compiler.dll', 'Server/Nazor.Controls.dll') {
             Assert ($entries -contains $required) "the VSIX contains $required"
         }
@@ -87,6 +90,23 @@ else {
             $pkgdef -match 'ShellFileAssociations\\\.nss\][\r\n]+"DefaultIconMoniker"="df813fe5-43b7-40ab-9ba5-4ac6892fdbb6:3"') 'component and stylesheet file associations use the packaged Nazor monikers'
         $manifest = [IO.StreamReader]::new($zip.GetEntry('extension.vsixmanifest').Open()).ReadToEnd()
         Assert ($manifest -match 'Microsoft\.VisualStudio\.ItemTemplate') 'the VSIX registers the Nazor component item template'
+        Assert ($manifest -match 'Type="Microsoft\.VisualStudio\.VsPackage"[^>]*Path="Nazor\.pkgdef"' -and
+            $pkgdef -match '\\TemplateEngine\\Templates\\Nazor\.Templates\][\r\n]+"InstalledPath"="\$PackageFolder\$\\ProjectTemplates"') 'the VSIX registers the bundled .NET project template'
+        $projectTemplates = [IO.Compression.ZipArchive]::new($zip.GetEntry($projectTemplatePackage).Open())
+        try {
+            $templateRoot = 'content/MyNazorApp'
+            $template = [IO.StreamReader]::new($projectTemplates.GetEntry("$templateRoot/.template.config/template.json").Open()).ReadToEnd() | ConvertFrom-Json
+            $hostOptions = [IO.StreamReader]::new($projectTemplates.GetEntry("$templateRoot/.template.config/ide.host.json").Open()).ReadToEnd() | ConvertFrom-Json
+            [xml]$templateProject = [IO.StreamReader]::new($projectTemplates.GetEntry("$templateRoot/MyNazorApp.csproj").Open()).ReadToEnd()
+            Assert ($template.shortName -eq 'nazor-app' -and $templateProject.Project.Sdk -eq "Nazor.Sdk/$version") 'the bundled template uses the CLI template and current Nazor SDK'
+            Assert ($template.defaultName -eq 'NazorApp1' -and $template.symbols.Framework.defaultValue -eq 'net10.0') 'the project template suggests NazorApp1 and defaults to .NET 10'
+            Assert ($hostOptions.symbolInfo.id -notcontains 'Framework') 'Visual Studio uses its own framework selector'
+            $visible = @($hostOptions.symbolInfo | Where-Object isVisible | ForEach-Object id)
+            Assert ($visible -contains 'Theme' -and $visible -contains 'ApplicationId' -and $visible -contains 'IncludeSamplePages') 'Visual Studio exposes the template theme, identity and sample-page options'
+            Assert ($hostOptions.icon -eq 'icon.png' -and $projectTemplates.GetEntry("$templateRoot/.template.config/icon.png")) 'the project template includes its Nazor icon'
+            Assert ($null -ne $projectTemplates.GetEntry("$templateRoot/SamplePages/Pages/CounterPage.nazor")) 'the bundled template includes the optional routed pages'
+        }
+        finally { $projectTemplates.Dispose() }
         Assert ($manifest -match 'Microsoft\.VisualStudio\.ImageManifest') 'the VSIX registers the completion color catalog'
         Assert ($manifest -match 'Type="Microsoft.VisualStudio.ImageManifest"[^>]*Path="NazorIcons.imagemanifest"') 'the VSIX registers the Nazor icon catalog'
         [xml]$componentTemplate = [IO.StreamReader]::new($zip.GetEntry('ItemTemplates/CSharp/Nazor/NazorComponent/Component.vstemplate').Open()).ReadToEnd()

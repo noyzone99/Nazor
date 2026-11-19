@@ -26,3 +26,6 @@
 "DefaultIconMoniker"="df813fe5-43b7-40ab-9ba5-4ac6892fdbb6:2"
 [$RootKey$\ShellFileAssociations\.nss]
 "DefaultIconMoniker"="df813fe5-43b7-40ab-9ba5-4ac6892fdbb6:3"
+
+[$RootKey$\TemplateEngine\Templates\Nazor.Templates]
+"InstalledPath"="$PackageFolder$\ProjectTemplates"

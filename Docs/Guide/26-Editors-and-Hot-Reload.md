@@ -20,11 +20,13 @@ Visual Studio shows a window icon for Nazor C# projects, a four-leaf document fo
 
 Visual Studio's Add New Item chooser and Quick Add provide **Nazor Component** and **Nazor Style Sheet** templates. Use `.nazor` for components, `.nss` for standalone stylesheets, and `.nazor.nss` for component sidecars. A standalone stylesheet is not automatically assigned to the application; a sidecar requires an existing component owner.
 
+The full VSIX also makes **Nazor application** available in **Create a new project**. It bundles the same template as `dotnet new nazor-app`, with framework, theme, application ID and sample-page options. [Create a project in Visual Studio](02-Getting-Started.md#create-a-project-in-visual-studio)
+
 Inline C# analysis honors the project's warning/error policy and effective `.editorconfig` settings for the equivalent `.nazor.cs` file, including nested configurations. Diagnostic descriptions retain Roslyn messages, help links and unnecessary-code metadata for clients that support fading. Configuration is projected in memory; no C# sidecar is created.
 
 ## Install editor support
 
-Use the editor artifacts for the same Nazor release as your project's SDK. The extension descriptions identify the `0.1.0-alpha` release, and both manifests use the numeric version `0.1.0` required by the editor distribution formats. If you installed a higher-numbered development build, uninstall it before installing these artifacts. Install the .NET/ASP.NET Core 10 runtimes for the bundled compiler and language server. The source-build steps below produce the editor artifacts locally.
+Use the editor artifacts for the same Nazor release as your project's SDK. The extension descriptions identify the `0.1.0-alpha` release, and both manifests use the numeric version `0.1.0` required by the editor distribution formats. Uninstall a higher-numbered development build or an older copy with the same version before installing a rebuilt extension. Install the .NET/ASP.NET Core 10 runtimes for the bundled compiler and language server. The source-build steps below produce the editor artifacts locally.
 
 | Editor | Installation |
 | --- | --- |

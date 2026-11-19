@@ -1,5 +1,10 @@
 {
   "$schema": "http://json.schemastore.org/vs-2017.3.host",
+  "icon": "icon.png",
   "order": 0,
-  "symbolInfo": []
+  "symbolInfo": [
+    { "id": "ApplicationId", "name": { "text": "Application ID" }, "isVisible": true },
+    { "id": "Theme", "name": { "text": "Theme" }, "isVisible": true },
+    { "id": "IncludeSamplePages", "name": { "text": "Include sample pages" }, "isVisible": true }
+  ]
 }

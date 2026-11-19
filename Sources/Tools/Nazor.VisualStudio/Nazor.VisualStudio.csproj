@@ -139,5 +139,22 @@
     <ZipDirectory SourceDirectory="ItemTemplates\NazorComponent" DestinationFile="obj\$(Configuration)\NazorComponent.zip" Overwrite="true" />
     <ZipDirectory SourceDirectory="ItemTemplates\NazorStyleSheet" DestinationFile="obj\$(Configuration)\NazorStyleSheet.zip" Overwrite="true" />
   </Target>
+  <Target Name="NazorProjectTemplate" BeforeTargets="GetVsixSourceItems" Condition="'$(DesignTimeBuild)' != 'true'">
+    <XmlPeek XmlInputPath="$(MSBuildProjectDirectory)\..\..\..\Directory.Build.props" Query="/Project/PropertyGroup/NazorVersion/text()">
+      <Output TaskParameter="Result" PropertyName="_NazorProjectTemplateVersion" />
+    </XmlPeek>
+    <PropertyGroup>
+      <_NazorProjectTemplateDirectory>$([MSBuild]::NormalizePath('$(MSBuildProjectDirectory)', '$(IntermediateOutputPath)', 'ProjectTemplates'))</_NazorProjectTemplateDirectory>
+      <_NazorProjectTemplatePackage>$(_NazorProjectTemplateDirectory)\Nazor.Templates.$(_NazorProjectTemplateVersion).nupkg</_NazorProjectTemplatePackage>
+    </PropertyGroup>
+    <Exec WorkingDirectory="$(MSBuildProjectDirectory)"
+          Command="dotnet pack &quot;..\Nazor.Templates\Nazor.Templates.csproj&quot; -c &quot;$(Configuration)&quot; -o &quot;$(_NazorProjectTemplateDirectory)&quot; -m:1 -nodeReuse:false -p:UseSharedCompilation=false -p:EnableSourceControlManagerQueries=false -v:quiet" />
+    <Error Condition="!Exists('$(_NazorProjectTemplatePackage)')" Text="The Nazor project template package for $(_NazorProjectTemplateVersion) was not built." />
+    <ItemGroup>
+      <VSIXSourceItem Include="$(_NazorProjectTemplatePackage)">
+        <VSIXSubPath>ProjectTemplates</VSIXSubPath>
+      </VSIXSourceItem>
+    </ItemGroup>
+  </Target>
   <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="'$(VSToolsPath)' != ''" />
 </Project>

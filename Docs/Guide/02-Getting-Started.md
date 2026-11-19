@@ -20,6 +20,12 @@ $feed = (Resolve-Path artifacts/packages).Path
 
 The feed includes the SDK, templates, runtime, optional DevTools packages and both optional themes. Keep NuGet.org enabled for third-party dependencies.
 
+### Create a project in Visual Studio
+
+Install the [Visual Studio VSIX](26-Editors-and-Hot-Reload.md#install-editor-support), then choose **Create a new project** and search for **Nazor application**. Visual Studio suggests `NazorApp1` as the first project name. Choose a location and customize the name as needed. On the additional information page, select the framework and theme, enter the application ID, and choose whether to include the sample pages. The VSIX supplies the same project template as the CLI, with framework choices subject to the installed Visual Studio and .NET SDK versions.
+
+Before creating the project, make the Nazor feed available to Visual Studio for the SDK, runtime, and any theme package. For a local preview, add the package folder under **Tools > Options > NuGet Package Manager > Package Sources**, or put a `nuget.config` in the parent directory of the new solution. [Template defaults and options](#template-options)
+
 ## Create an application
 
 In an empty directory outside the Nazor checkout, register the local package feed and install its prerelease template. Keep `nuget.config` next to the new project directory so the project inherits it. Set `$feed` to the absolute package directory again if you switched terminals.

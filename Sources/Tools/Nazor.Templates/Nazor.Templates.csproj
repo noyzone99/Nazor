@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <None Include="templates/**/*" Exclude="templates/**/*.csproj.in" Pack="true" PackagePath="content/" />
+    <None Include="../../../Docs/Assets/nazor.png" Pack="true" PackagePath="content/MyNazorApp/.template.config/icon.png" />
     <_NazorProjectTemplate Include="templates/**/*.csproj.in" />
   </ItemGroup>
 
