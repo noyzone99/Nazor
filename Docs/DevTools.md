@@ -55,6 +55,8 @@ Open **Settings** (the sliders button at the top right) and choose **System**, *
 
 ### Layout
 
+The NazorLeaf title bar keeps the system window border and caption buttons wherever the desktop supports that combination. On other desktops NazorLeaf draws the frame and buttons. On Windows the title bar is at least 48 device-independent pixels high and requests tall native caption buttons through Windows 11's integrated title bar.
+
 The inspector follows the layout of browser developer tools and draws it with the [NazorLeaf theme](Guide/09-Control-Catalog.md#optional-theme-controls): the window's paper material, leaf-cornered panes, the seed that marks the selected row and NazorLeaf's fonts (Geist, Geist Mono and Bricolage Grotesque).
 
 - One strip at the top holds the **picker** (left), the **Components**, **Elements** and **Performance** panels, and on the right the connection button (status light and app name), **Refresh capture** and **Settings**. The connection button opens the window selector with **Connect**, **Disconnect** and **Clear**.

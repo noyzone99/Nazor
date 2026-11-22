@@ -104,6 +104,8 @@ This example uses `Nazor.DevTools.Protocol`. Choose the desired window rather th
 
 The connection supplies structural trees and explicit style/geometry/frame reads. The [standalone DevTools shell](../DevTools.md) provides F12/IDE launch, automatic targeting and manual connection and cached Components/Elements navigation in a separate process. Linked search, filters, breadcrumbs, component/output navigation and explicit app picking are available. Styles, Computed/box model and Frames are available with original capture provenance; see the [panel guide](../DevTools.md#styles-computed-and-performance). The [Agent API](../ApiReferences/Nazor.DevTools.Agent.md#local-desktop-attachment) and [private discovery/client contract](../DevTools-Protocol.md#local-desktop-connection) describe permissions, limits, ownership and lifecycle. Run `pwsh -NoProfile -File Scripts/Tests/verify-devtools-agent.ps1` for both application framework fixtures.
 
+The inspector uses a custom title bar with the system window border and caption buttons where supported. See [DevTools layout](../DevTools.md#layout) for platform behavior.
+
 ## Contributor checks
 
 ### Repository verification

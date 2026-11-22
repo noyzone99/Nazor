@@ -21,7 +21,9 @@
         store.Changed += UpdateTitle;
         Window.Width = 1180;
         Window.Height = 780;
-        Window.Decorations = WindowDecorationPolicy.Require(WindowDecorations.Nazor());
+        Window.Decorations = WindowDecorationPolicy.Prefer(
+            WindowDecorations.Native(WindowTitleBarContent.Nazor, WindowCaptionButtons.Native),
+            WindowDecorations.Nazor());
         client = new InspectorClient(store, Program.DiscoveryDirectory);
         Program.Activated += OnActivated;
         // Browser developer tools conventions: Ctrl+Shift+C picks, Ctrl+F filters and F5 reloads the inspected tree.

@@ -34,6 +34,11 @@
     --dt-phase-raster: var(--leaf-g4);
 }
 
+@media (platform: windows) {
+    :root { -windows-title-bar-height: tall; }
+    :root > TitleBar { min-height: max(var(--nz-window-controls-height, 48px), 48px); }
+}
+
 @media (prefers-color-scheme: dark) {
     :root {
         --dt-syntax-tag: #d7aefb;
