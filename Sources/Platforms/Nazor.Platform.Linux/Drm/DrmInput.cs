@@ -19,6 +19,7 @@ internal sealed unsafe class DrmInput : IDisposable
     private readonly OpenDevice openDevice;
     private readonly CloseDevice closeDevice;
     private readonly Dictionary<uint, int> pressedKeys = [], pressedButtons = [];
+    private InputInterface* callbacks;
     private nint udev, input, xkb, keymap, state, composeTable, compose;
     private Exception? callbackFailure;
     private double x, y;
@@ -69,8 +70,9 @@ internal sealed unsafe class DrmInput : IDisposable
             if (composeTable != 0) compose = xkb_compose_state_new(composeTable, 0);
             udev = udev_new();
             if (udev == 0) throw new InvalidOperationException("Cannot create the input device monitor.");
-            var callbacks = new InputInterface { Open = Marshal.GetFunctionPointerForDelegate(openDevice), Close = Marshal.GetFunctionPointerForDelegate(closeDevice) };
-            input = libinput_udev_create_context(ref callbacks, 0, udev);
+            callbacks = (InputInterface*)NativeMemory.Alloc((nuint)sizeof(InputInterface));
+            *callbacks = new() { Open = Marshal.GetFunctionPointerForDelegate(openDevice), Close = Marshal.GetFunctionPointerForDelegate(closeDevice) };
+            input = libinput_udev_create_context(callbacks, 0, udev);
             if (input == 0 || libinput_udev_assign_seat(input, session.Name) != 0)
                 throw new InvalidOperationException("Cannot initialize libinput for the active seat.");
             ThrowCallbackFailure();
@@ -263,6 +265,7 @@ internal sealed unsafe class DrmInput : IDisposable
     public void Dispose()
     {
         if (input != 0) { libinput_unref(input); input = 0; }
+        NativeMemory.Free(callbacks); callbacks = null;
         if (udev != 0) { udev_unref(udev); udev = 0; }
         if (compose != 0) { xkb_compose_state_unref(compose); compose = 0; }
         if (composeTable != 0) { xkb_compose_table_unref(composeTable); composeTable = 0; }

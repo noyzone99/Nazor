@@ -5,6 +5,8 @@ using static Nazor.Platform.Linux.DrmNative;
 
 namespace Nazor.Platform.Linux;
 
+internal enum DrmPresentation { Deferred, Queued, Presented }
+
 internal sealed unsafe class DrmDisplay : IDisposable
 {
     private readonly DrmSession session;
@@ -14,8 +16,10 @@ internal sealed unsafe class DrmDisplay : IDisposable
     private readonly Crtc previous;
     private readonly uint[] previousConnectors;
     private readonly FlipHandler flipHandler;
-    private bool modeset, waitingForFlip, disposed;
+    private bool modeset, hasPresented, disposed;
+    private nint nextFlip, pendingFlip;
     private readonly List<DumbBuffer> software = [];
+    private DumbBuffer? queuedSoftware;
     private int nextSoftware;
     internal int Fd { get; }
     internal int Width => mode.HDisplay;
@@ -27,7 +31,7 @@ internal sealed unsafe class DrmDisplay : IDisposable
     internal DrmDisplay(DrmSession session, DrmOptions options)
     {
         this.session = session;
-        flipHandler = (_, _, _, _, _) => waitingForFlip = false;
+        flipHandler = (_, _, _, _, flip) => { if (flip == pendingFlip) pendingFlip = 0; };
         var paths = options.DevicePath is { } path ? [path] : Directory.Exists("/dev/dri")
             ? Directory.GetFiles("/dev/dri", "card*").Order(StringComparer.Ordinal).ToArray() : [];
         foreach (var candidate in paths)
@@ -108,75 +112,158 @@ internal sealed unsafe class DrmDisplay : IDisposable
         return result.ToArray();
     }
 
-    internal void Present(uint framebuffer)
+    internal DrmPresentation Present(uint framebuffer, bool watchSeat = false)
     {
+        if (!session.Active) return DrmPresentation.Deferred;
         if (!modeset)
         {
             var output = connector;
             var selectedMode = mode;
             if (drmModeSetCrtc(Fd, crtc, framebuffer, 0, 0, &output, 1, &selectedMode) != 0)
+            {
+                if (hasPresented && Marshal.GetLastPInvokeError() == AccessDenied) return DrmPresentation.Deferred;
                 throw Error("Cannot configure the DRM output");
-            modeset = true;
-            return;
+            }
+            modeset = hasPresented = true;
+            pendingFlip = 0;
+            return DrmPresentation.Presented;
         }
-        if (waitingForFlip) throw new GraphicsDeviceException("The previous DRM page flip has not completed.");
-        if (drmModePageFlip(Fd, crtc, framebuffer, 1, 0) != 0) throw Error("Cannot queue the DRM page flip");
-        waitingForFlip = true;
-        WaitForFlip();
+        if (pendingFlip != 0) throw new GraphicsDeviceException("The previous DRM page flip has not completed.");
+        nextFlip = nextFlip == nint.MaxValue ? 1 : nextFlip + 1;
+        if (drmModePageFlip(Fd, crtc, framebuffer, 1, nextFlip) != 0)
+        {
+            if (Marshal.GetLastPInvokeError() == AccessDenied) return DrmPresentation.Deferred;
+            throw Error("Cannot queue the DRM page flip");
+        }
+        pendingFlip = nextFlip;
+        return WaitForFlip(watchSeat);
     }
 
-    private void WaitForFlip()
+    internal DrmPresentation ResumePresent(uint framebuffer, bool watchSeat = false) =>
+        pendingFlip != 0 ? WaitForFlip(watchSeat) : Present(framebuffer, watchSeat);
+
+    private DrmPresentation WaitForFlip(bool watchSeat)
     {
         var deadline = Stopwatch.GetTimestamp();
         var context = new EventContext { Version = 2, PageFlipHandler = Marshal.GetFunctionPointerForDelegate(flipHandler) };
-        while (waitingForFlip)
+        PollFd* descriptors = stackalloc PollFd[2]
         {
+            new() { Fd = Fd, Events = 1 },
+            new() { Fd = watchSeat ? session.Fd : -1, Events = 1 }
+        };
+        while (pendingFlip != 0)
+        {
+            if (!session.Active) return DrmPresentation.Queued;
             if (Stopwatch.GetElapsedTime(deadline) > TimeSpan.FromSeconds(2))
                 throw new GraphicsDeviceException("The DRM page flip timed out. Check the display connection and active seat.");
-            var descriptor = new PollFd { Fd = Fd, Events = 1 };
-            var result = poll(&descriptor, 1, 50);
+            var result = poll(descriptors, 2, 50);
             if (result < 0 && Marshal.GetLastPInvokeError() == 4) continue;
-            if (result < 0 || (descriptor.ReturnedEvents & (8 | 16 | 32)) != 0) throw Error("The DRM device is unavailable");
-            if (result > 0 && drmHandleEvent(Fd, ref context) != 0) throw Error("Cannot read the DRM page flip event");
+            if (result < 0 || (descriptors[0].ReturnedEvents & (8 | 16 | 32)) != 0) throw Error("The DRM device is unavailable");
+            if ((descriptors[0].ReturnedEvents & 1) != 0 && drmHandleEvent(Fd, ref context) != 0) throw Error("Cannot read the DRM page flip event");
+            if (pendingFlip != 0 && descriptors[1].ReturnedEvents != 0) return DrmPresentation.Queued;
         }
+        return DrmPresentation.Presented;
     }
 
-    internal uint RegisterBuffer(uint handle, uint pitch, uint format)
+    private uint RegisterBuffer(uint handle, uint pitch, uint format, uint offset = 0)
     {
         uint* handles = stackalloc uint[4] { handle, 0, 0, 0 };
         uint* pitches = stackalloc uint[4] { pitch, 0, 0, 0 };
-        uint* offsets = stackalloc uint[4] { 0, 0, 0, 0 };
+        uint* offsets = stackalloc uint[4] { offset, 0, 0, 0 };
         if (drmModeAddFB2(Fd, (uint)Width, (uint)Height, format, handles, pitches, offsets, out var framebuffer, 0) != 0)
             throw Error("Cannot register a DRM framebuffer");
         return framebuffer;
     }
 
-    internal void PresentSoftware(PaintTarget target)
+    internal uint RegisterGbmBuffer(nint buffer)
     {
+        var format = gbm_bo_get_format(buffer);
+        ulong modifier;
+        int planes;
+        try
+        {
+            modifier = gbm_bo_get_modifier(buffer);
+            planes = gbm_bo_get_plane_count(buffer);
+        }
+        catch (EntryPointNotFoundException)
+        {
+            return RegisterBuffer((uint)gbm_bo_get_handle(buffer), gbm_bo_get_stride(buffer), format);
+        }
+        if (planes is < 1 or > 4 || (planes != 1 && modifier is 0 or NoFormatModifier))
+            throw new GraphicsDeviceException("The GBM scanout buffer has an unsupported plane layout.");
+        if (modifier == NoFormatModifier)
+            return RegisterBuffer((uint)gbm_bo_get_handle(buffer), gbm_bo_get_stride(buffer), format, gbm_bo_get_offset(buffer, 0));
+
+        uint* handles = stackalloc uint[4] { 0, 0, 0, 0 };
+        uint* pitches = stackalloc uint[4] { 0, 0, 0, 0 };
+        uint* offsets = stackalloc uint[4] { 0, 0, 0, 0 };
+        ulong* modifiers = stackalloc ulong[4] { 0, 0, 0, 0 };
+        for (var plane = 0; plane < planes; plane++)
+        {
+            handles[plane] = (uint)(planes == 1 ? gbm_bo_get_handle(buffer) : gbm_bo_get_handle_for_plane(buffer, plane));
+            pitches[plane] = planes == 1 ? gbm_bo_get_stride(buffer) : gbm_bo_get_stride_for_plane(buffer, plane);
+            offsets[plane] = gbm_bo_get_offset(buffer, plane);
+            modifiers[plane] = modifier;
+            if (handles[plane] is 0 or uint.MaxValue || pitches[plane] == 0)
+                throw new GraphicsDeviceException("Cannot read the GBM scanout buffer plane.");
+        }
+
+        try
+        {
+            if (drmModeAddFB2WithModifiers(Fd, (uint)Width, (uint)Height, format, handles, pitches, offsets, modifiers, out var framebuffer, FramebufferModifiers) == 0)
+                return framebuffer;
+            if (modifier == 0 && Marshal.GetLastPInvokeError() is InvalidArgument or OperationNotSupported)
+                return RegisterBuffer(handles[0], pitches[0], format, offsets[0]);
+        }
+        catch (EntryPointNotFoundException error)
+        {
+            if (modifier == 0) return RegisterBuffer(handles[0], pitches[0], format, offsets[0]);
+            throw new GraphicsDeviceException("The installed libdrm cannot register GBM scanout modifiers.", error);
+        }
+        throw Error("Cannot register the GBM scanout framebuffer");
+    }
+
+    internal bool PresentSoftware(PaintTarget target)
+    {
+        if (!session.Active) return false;
         if (software.Count == 0)
         {
             try { software.Add(new(this)); software.Add(new(this)); }
             catch { foreach (var allocated in software) allocated.Dispose(); software.Clear(); throw; }
         }
+        if (queuedSoftware is { } queued)
+        {
+            if (ResumePresent(queued.Framebuffer, watchSeat: true) != DrmPresentation.Presented) return false;
+            nextSoftware = 1 - nextSoftware;
+            queuedSoftware = null;
+        }
         var buffer = software[nextSoftware];
         for (var row = 0; row < Height; row++)
             NativeMemory.Copy((byte*)target.Pixels + (long)row * target.Stride, (byte*)buffer.Pixels + (long)row * buffer.Pitch, (nuint)Width * 4);
-        Present(buffer.Framebuffer);
+        var result = Present(buffer.Framebuffer, watchSeat: true);
+        if (result == DrmPresentation.Queued) queuedSoftware = buffer;
+        if (result != DrmPresentation.Presented) return false;
         nextSoftware = 1 - nextSoftware;
+        return true;
     }
 
-    internal void Restore()
+    internal void Suspend() => Restore(allowLostMaster: true);
+
+    internal void Restore() => Restore(allowLostMaster: false);
+
+    private void Restore(bool allowLostMaster)
     {
         if (!modeset) return;
         fixed (uint* outputs = previousConnectors)
         {
             var savedMode = previous.Mode;
             if (drmModeSetCrtc(Fd, crtc, previous.BufferId, previous.X, previous.Y, outputs,
-                previous.ModeValid != 0 ? previousConnectors.Length : 0, previous.ModeValid != 0 ? &savedMode : null) != 0)
+                previous.ModeValid != 0 ? previousConnectors.Length : 0, previous.ModeValid != 0 ? &savedMode : null) != 0 &&
+                !(allowLostMaster && Marshal.GetLastPInvokeError() == AccessDenied))
                 throw Error("Cannot restore the previous DRM display state");
         }
         modeset = false;
-        if (waitingForFlip) WaitForFlip();
+        pendingFlip = 0;
     }
 
     internal static GraphicsDeviceException Error(string message) => new($"{message}: {new Win32Exception(Marshal.GetLastPInvokeError()).Message}.");

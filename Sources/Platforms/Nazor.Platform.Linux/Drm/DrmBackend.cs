@@ -11,7 +11,7 @@ internal interface IDrmBackend : IDisposable
     Action<bool>? ActiveChanged { get; set; }
     Action<DrmEvent>? Input { get; set; }
     IOpenGlWindowContext CreateOpenGlContext();
-    void Present(PaintTarget target);
+    bool Present(PaintTarget target);
     void Dispatch(int timeout);
     void Wake();
 }
@@ -46,7 +46,7 @@ internal sealed unsafe class DrmBackend : IDrmBackend
                 if (!active)
                 {
                     try { ActiveChanged?.Invoke(false); }
-                    finally { try { output.Restore(); } finally { input.Suspend(); } }
+                    finally { try { output.Suspend(); } finally { input.Suspend(); } }
                 }
                 else { input.Resume(); ActiveChanged?.Invoke(true); }
             };
@@ -60,7 +60,7 @@ internal sealed unsafe class DrmBackend : IDrmBackend
     }
 
     public IOpenGlWindowContext CreateOpenGlContext() => new DrmOpenGlContext(output!);
-    public void Present(PaintTarget target) => output!.PresentSoftware(target);
+    public bool Present(PaintTarget target) => output!.PresentSoftware(target);
 
     public void Dispatch(int timeout)
     {

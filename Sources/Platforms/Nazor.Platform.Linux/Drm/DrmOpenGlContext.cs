@@ -3,13 +3,14 @@ using static Nazor.Platform.Linux.DrmNative;
 
 namespace Nazor.Platform.Linux;
 
-internal sealed unsafe class DrmOpenGlContext : IOpenGlWindowContext
+internal sealed unsafe class DrmOpenGlContext : IOpenGlWindowContext, IConditionalOpenGlPresentation
 {
     private readonly DrmDisplay output;
     private readonly Dictionary<nint, uint> framebuffers = [];
     private readonly HashSet<nint> lockedBuffers = [];
     private readonly BufferDestroyed bufferDestroyed;
-    private nint device, window, display, surface, context, currentBuffer;
+    private nint device, window, display, surface, context, currentBuffer, queuedBuffer;
+    private bool presentationDeferred;
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     private delegate void BufferDestroyed(nint buffer, nint data);
 
@@ -22,7 +23,7 @@ internal sealed unsafe class DrmOpenGlContext : IOpenGlWindowContext
         };
     }
     public bool IsEmbedded => true;
-    public bool IsPresentationSynchronized => true;
+    public bool IsPresentationSynchronized => !presentationDeferred;
 
     public void Initialize()
     {
@@ -62,25 +63,48 @@ internal sealed unsafe class DrmOpenGlContext : IOpenGlWindowContext
         if (eglMakeCurrent(display, surface, surface, context) == 0) throw Error("Cannot make the DRM graphics context current");
     }
 
-    public void Present()
+    public void Present() => TryPresent();
+
+    public bool TryPresent()
     {
+        presentationDeferred = true;
+        if (queuedBuffer != 0)
+        {
+            if (output.ResumePresent(framebuffers[queuedBuffer]) != DrmPresentation.Presented) return false;
+            CompletePresentation(queuedBuffer);
+            queuedBuffer = 0;
+        }
         if (eglSwapBuffers(display, surface) == 0) throw Error("Cannot swap the EGL GBM buffers");
         var next = gbm_surface_lock_front_buffer(window);
         if (next == 0) throw new GraphicsDeviceException("No GBM scanout buffer is available.");
         lockedBuffers.Add(next);
         if (!framebuffers.TryGetValue(next, out var framebuffer))
         {
-            framebuffer = output.RegisterBuffer((uint)gbm_bo_get_handle(next), gbm_bo_get_stride(next), gbm_bo_get_format(next));
+            framebuffer = output.RegisterGbmBuffer(next);
             framebuffers.Add(next, framebuffer);
             gbm_bo_set_user_data(next, (nint)framebuffer, Marshal.GetFunctionPointerForDelegate(bufferDestroyed));
         }
-        output.Present(framebuffer);
-        if (currentBuffer != 0)
+        switch (output.Present(framebuffer))
         {
-            gbm_surface_release_buffer(window, currentBuffer);
-            lockedBuffers.Remove(currentBuffer);
+            case DrmPresentation.Deferred: ReleaseBuffer(next); return false;
+            case DrmPresentation.Queued: queuedBuffer = next; return false;
+            default:
+                CompletePresentation(next);
+                presentationDeferred = false;
+                return true;
         }
+    }
+
+    private void CompletePresentation(nint next)
+    {
+        if (currentBuffer != 0) ReleaseBuffer(currentBuffer);
         currentBuffer = next;
+    }
+
+    private void ReleaseBuffer(nint buffer)
+    {
+        gbm_surface_release_buffer(window, buffer);
+        lockedBuffers.Remove(buffer);
     }
 
     public void Dispose()
@@ -101,7 +125,7 @@ internal sealed unsafe class DrmOpenGlContext : IOpenGlWindowContext
             }
             framebuffers.Clear();
             foreach (var buffer in lockedBuffers) gbm_surface_release_buffer(window, buffer);
-            lockedBuffers.Clear(); currentBuffer = 0;
+            lockedBuffers.Clear(); currentBuffer = queuedBuffer = 0;
             if (window != 0) { gbm_surface_destroy(window); window = 0; }
             eglReleaseThread();
             GC.KeepAlive(bufferDestroyed);

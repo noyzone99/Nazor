@@ -12,7 +12,9 @@ if [[ -z "$managed" ]]; then
   managed="$build/managed/bin/Nazor.Linux.Tests/$flavor/Nazor.Linux.Tests.dll"
 fi
 test -f "$managed" || { echo 'Pass an existing Nazor.Linux.Tests.dll as the second argument.' >&2; exit 2; }
-gcc -shared -fPIC -std=c11 -Wall -Wextra -Werror \
+gcc -shared -fPIC -std=c11 -Wall -Wextra -Werror -pthread \
   "$root/Tests/Nazor.Linux.Tests/Native/drm-fixture.c" -o "$build/libnazor-drm-fixture.so"
 NAZOR_DRM_TEST_LIBRARY="$build/libnazor-drm-fixture.so" NAZOR_RENDERER=AUTO XKB_DEFAULT_LAYOUT=us \
   dotnet "$managed" -noLogo -noColor -class '*Drm*' -result-xml "$build/drm-tests.xml"
+NAZOR_DRM_TEST_LIBRARY="$build/libnazor-drm-fixture.so" NAZOR_DRM_TEST_INPUT_FIXTURE=1 XKB_DEFAULT_LAYOUT=us \
+  dotnet "$managed" -noLogo -noColor -method '*Input_callbacks_remain_valid_until_native_context_destruction' -result-xml "$build/drm-input-tests.xml"

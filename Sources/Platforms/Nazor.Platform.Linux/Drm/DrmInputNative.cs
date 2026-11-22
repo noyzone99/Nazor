@@ -10,7 +10,7 @@ internal static unsafe class DrmInputNative
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)] internal delegate void CloseDevice(int fd, nint user);
     [DllImport("libudev.so.1")] internal static extern nint udev_new();
     [DllImport("libudev.so.1")] internal static extern nint udev_unref(nint udev);
-    [DllImport(Input)] internal static extern nint libinput_udev_create_context(ref InputInterface callbacks, nint user, nint udev);
+    [DllImport(Input)] internal static extern nint libinput_udev_create_context(InputInterface* callbacks, nint user, nint udev);
     [DllImport(Input)] internal static extern int libinput_udev_assign_seat(nint input, [MarshalAs(UnmanagedType.LPUTF8Str)] string seat);
     [DllImport(Input)] internal static extern int libinput_get_fd(nint input);
     [DllImport(Input)] internal static extern int libinput_dispatch(nint input);

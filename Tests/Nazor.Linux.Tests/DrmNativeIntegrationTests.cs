@@ -16,7 +16,8 @@ public sealed class DrmNativeFixture
         if (!DrmNativeIntegrationTests.HasFixture) return;
         var library = NativeLibrary.Load(Environment.GetEnvironmentVariable("NAZOR_DRM_TEST_LIBRARY")!);
         NativeLibrary.SetDllImportResolver(typeof(DrmPlatform).Assembly, (name, _, _) =>
-            name is "libdrm.so.2" or "libgbm.so.1" or "libEGL.so.1" or "libseat.so.1" ? library : 0);
+            name is "libdrm.so.2" or "libgbm.so.1" or "libEGL.so.1" or "libseat.so.1" ||
+                name == "libinput.so.10" && DrmNativeIntegrationTests.HasInputFixture ? library : 0);
         NativeLibrary.SetDllImportResolver(Assembly.GetExecutingAssembly(), (name, _, _) => name == "nazor-drm-fixture" ? library : 0);
     }
 }
@@ -25,6 +26,7 @@ public sealed class DrmNativeFixture
 public sealed class DrmNativeIntegrationTests : IDisposable
 {
     public static bool HasFixture => OperatingSystem.IsLinux() && Environment.GetEnvironmentVariable("NAZOR_DRM_TEST_LIBRARY") is { Length: > 0 };
+    public static bool HasInputFixture => HasFixture && Environment.GetEnvironmentVariable("NAZOR_DRM_TEST_INPUT_FIXTURE") == "1";
 
     public DrmNativeIntegrationTests() { if (HasFixture) Reset(); }
     public void Dispose()
@@ -66,6 +68,23 @@ public sealed class DrmNativeIntegrationTests : IDisposable
             context.Initialize(); Fault(11);
             for (var index = 0; index < 12; index++) context.Present();
             Assert.Equal(1, Count(6));
+        }
+        finally { context.Dispose(); context.ReleaseDisplay(); }
+    }
+
+    [Fact(SkipUnless = nameof(HasFixture), Skip = "Requires the isolated native DRM fixture.")]
+    public void Gbm_framebuffers_register_the_modifier_and_metadata_for_every_plane()
+    {
+        using var session = new DrmSession();
+        using var display = new DrmDisplay(session, new() { DevicePath = "/dev/dri/card0" });
+        var context = new DrmOpenGlContext(display);
+        try
+        {
+            context.Initialize();
+            Fault(13);
+            context.Present();
+            context.Present();
+            Assert.Equal(2, Count(22));
         }
         finally { context.Dispose(); context.ReleaseDisplay(); }
     }
@@ -152,6 +171,58 @@ public sealed class DrmNativeIntegrationTests : IDisposable
     }
 
     [Fact(SkipUnless = nameof(HasFixture), Skip = "Requires the isolated native DRM fixture.")]
+    public unsafe void Flip_timeout_can_restore_and_late_completion_does_not_finish_the_next_flip()
+    {
+        using var session = new DrmSession();
+        using var display = new DrmDisplay(session, new() { DevicePath = "/dev/dri/card0" });
+        var context = new DrmOpenGlContext(display);
+        try
+        {
+            context.Initialize();
+            context.Present();
+            Fault(12);
+            var failure = Assert.Throws<GraphicsDeviceException>(context.Present);
+            Assert.Contains("timed out", failure.Message);
+        }
+        finally { context.Dispose(); context.ReleaseDisplay(); }
+
+        Assert.Equal(1, Count(12));
+        Fault(0);
+        var pixels = new byte[300 * 180 * 4];
+        fixed (byte* pointer = pixels)
+        {
+            var target = new PaintTarget((nint)pointer, 300, 180, 1200, 1);
+            display.PresentSoftware(target);
+            display.PresentSoftware(target);
+        }
+        Assert.Equal(2, Count(11));
+        Assert.Equal(1, Count(23));
+    }
+
+    [Fact(SkipUnless = nameof(HasFixture), Skip = "Requires the isolated native DRM fixture.")]
+    public unsafe void Software_flip_yields_to_seat_changes_and_reestablishes_scanout_on_resume()
+    {
+        using var session = new DrmSession();
+        using var display = new DrmDisplay(session, new() { DevicePath = "/dev/dri/card0" });
+        session.ActiveChanged = active => { if (!active) display.Suspend(); };
+        var pixels = new byte[300 * 180 * 4];
+        fixed (byte* pointer = pixels)
+        {
+            var target = new PaintTarget((nint)pointer, 300, 180, 1200, 1);
+            Assert.True(display.PresentSoftware(target));
+            Fault(16);
+            Assert.False(display.PresentSoftware(target));
+            Assert.Equal(0, Count(23));
+            session.Dispatch(0);
+            Assert.False(session.Active);
+            Seat(1); session.Dispatch(0);
+            Assert.True(display.PresentSoftware(target));
+        }
+        Assert.Equal(2, Count(11));
+        Assert.Equal(1, Count(23));
+    }
+
+    [Fact(SkipUnless = nameof(HasFixture), Skip = "Requires the isolated native DRM fixture.")]
     public void Real_libinput_and_xkbcommon_can_suspend_resume_and_release_a_mock_display_seat()
     {
         using var backend = new DrmBackend(new() { DevicePath = "/dev/dri/card0" });
@@ -165,24 +236,47 @@ public sealed class DrmNativeIntegrationTests : IDisposable
         Assert.Equal(new[] { false, true }, changes);
     }
 
-    [Fact(SkipUnless = nameof(HasFixture), Skip = "Requires the isolated native DRM fixture.")]
-    public void Seat_switch_restores_scanout_and_gpu_presentation_reestablishes_the_display_mode()
+    [Fact(SkipUnless = nameof(HasInputFixture), Skip = "Requires the isolated libinput callback fixture.")]
+    public void Input_callbacks_remain_valid_until_native_context_destruction()
+    {
+        using var session = new DrmSession();
+        using (var input = new DrmInput(session, 300, 180, _ => { }))
+            Assert.Equal(0, Count(24));
+
+        Assert.Equal(1, Count(24));
+        Assert.Equal(1, Count(25));
+    }
+
+    [Theory(SkipUnless = nameof(HasFixture), Skip = "Requires the isolated native DRM fixture.")]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Seat_switch_reestablishes_the_display_mode_even_when_master_is_revoked_before_notification(bool revokeMaster)
     {
         using var backend = new DrmBackend(new() { DevicePath = "/dev/dri/card0" });
-        var context = backend.CreateOpenGlContext();
+        var context = Assert.IsType<DrmOpenGlContext>(backend.CreateOpenGlContext());
         try
         {
             context.Initialize(); context.Present();
-            Seat(0); backend.Dispatch(0);
-            Assert.Equal(1, Count(12));
+            if (revokeMaster) Fault(14);
+            Seat(0);
+            if (revokeMaster)
+            {
+                Assert.False(context.TryPresent());
+                Assert.Equal(1, Count(10));
+                Assert.Equal(0, Count(11));
+            }
+            backend.Dispatch(0);
+            Assert.False(backend.Active);
+            Assert.Equal(revokeMaster ? 0 : 1, Count(12));
             Assert.Equal(1, Count(10));
             Seat(1); backend.Dispatch(0);
+            Assert.True(backend.Active);
             context.Present(); context.Present();
             Assert.Equal(1, Count(11));
             Assert.Equal(0, Count(15));
         }
         finally { context.Dispose(); context.ReleaseDisplay(); }
-        Assert.Equal(2, Count(12));
+        Assert.Equal(revokeMaster ? 1 : 2, Count(12));
     }
 
     [Fact(SkipUnless = nameof(HasFixture), Skip = "Requires the isolated native DRM fixture.")]

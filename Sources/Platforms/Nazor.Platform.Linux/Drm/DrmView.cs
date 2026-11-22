@@ -93,17 +93,15 @@ internal sealed unsafe class DrmView(DrmPlatform platform, IDrmBackend backend, 
         if (host.UsesGpuRendering) { host.OnPaint(new(0, backend.Width, backend.Height, 0, Scale)); return; }
         var stride = checked(backend.Width * 4);
         var bytes = checked((nuint)stride * (nuint)backend.Height);
-        if (pixels == 0)
-        {
-            pixels = (nint)NativeMemory.AllocZeroed(bytes);
-            presentation = (nint)NativeMemory.Alloc(bytes);
-        }
-        host.OnPaint(new(pixels, backend.Width, backend.Height, stride, Scale));
+        if (pixels == 0) pixels = (nint)NativeMemory.AllocZeroed(bytes);
+        var target = new PaintTarget(pixels, backend.Width, backend.Height, stride, Scale);
+        host.OnPaint(target);
         if (IsClosed) return;
         var started = Stopwatch.GetTimestamp();
-        NativeMemory.Copy((void*)pixels, (void*)presentation, bytes);
         if (cursorVisible)
         {
+            if (presentation == 0) presentation = (nint)NativeMemory.Alloc(bytes);
+            NativeMemory.Copy((void*)pixels, (void*)presentation, bytes);
             using var surface = SKSurface.Create(new SKImageInfo(backend.Width, backend.Height, SKColorType.Bgra8888, SKAlphaType.Premul), presentation, stride);
             surface.Canvas.Scale(Scale);
             using var path = CreateCursorPath();
@@ -112,9 +110,10 @@ internal sealed unsafe class DrmView(DrmPlatform platform, IDrmBackend backend, 
             pen.Color = SKColors.White; pen.StrokeWidth = 1;
             surface.Canvas.DrawPath(path, pen);
             surface.Canvas.Flush();
+            target = target with { Pixels = presentation };
         }
-        backend.Present(new(presentation, backend.Width, backend.Height, stride, Scale));
-        host.OnPresented(Stopwatch.GetElapsedTime(started));
+        if (backend.Present(target)) host.OnPresented(Stopwatch.GetElapsedTime(started));
+        else dirty = true;
     }
 
     private Point[] CursorPoints() => cursor switch

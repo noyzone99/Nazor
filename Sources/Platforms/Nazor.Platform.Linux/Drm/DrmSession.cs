@@ -19,8 +19,9 @@ internal sealed unsafe class DrmSession : IDisposable
     private nint seat;
     private int terminal = -1, terminalMode;
     private bool terminalSaved, terminalModeSaved;
+    private volatile bool active;
     private Exception? failure;
-    internal bool Active { get; private set; }
+    internal bool Active => active;
     internal Action<bool>? ActiveChanged { get; set; }
     internal int Fd => libseat_get_fd(seat);
     internal string Name => Marshal.PtrToStringUTF8(libseat_seat_name(seat)) ?? "seat0";
@@ -66,7 +67,7 @@ internal sealed unsafe class DrmSession : IDisposable
 
     private void ChangeActive(bool active)
     {
-        Active = active;
+        this.active = active;
         try { ActiveChanged?.Invoke(active); }
         catch (Exception error) { failure ??= error; }
     }

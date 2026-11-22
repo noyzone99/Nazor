@@ -63,6 +63,27 @@ public sealed class DrmPlatformTests
     }
 
     [Fact]
+    public void Software_presentation_uses_the_retained_pixels_when_the_cursor_is_hidden()
+    {
+        var backend = new Backend();
+        using var platform = new DrmPlatform(new(), backend);
+        var host = new Host();
+        using var view = (DrmView)platform.CreateView(host);
+        view.Show(); view.Tick();
+        Assert.Equal(host.Target.Pixels, backend.LastTarget.Pixels);
+
+        backend.Emit(new(DrmEventKind.Move, new(80, 60)));
+        view.Tick();
+        Assert.NotEqual(host.Target.Pixels, backend.LastTarget.Pixels);
+        Assert.Contains(backend.LastPixels.Skip(4), value => value < 255);
+
+        backend.Emit(new(DrmEventKind.Move, new(80, 60), Touch: true));
+        view.Tick();
+        Assert.Equal(host.Target.Pixels, backend.LastTarget.Pixels);
+        Assert.DoesNotContain(backend.LastPixels.Skip(4), value => value < 255);
+    }
+
+    [Fact]
     public void Gpu_paints_use_surface_descriptions_and_the_existing_context_contract()
     {
         var backend = new Backend();
@@ -200,16 +221,19 @@ public sealed class DrmPlatformTests
         public Action<bool>? ActiveChanged { get; set; }
         public Action<DrmEvent>? Input { get; set; }
         internal int Presented;
+        internal PaintTarget LastTarget;
         internal byte[] LastPixels = [];
         internal bool Disposed;
         internal void Emit(DrmEvent value) => Input?.Invoke(value);
         internal void SetActive(bool active) { Active = active; ActiveChanged?.Invoke(active); }
         public IOpenGlWindowContext CreateOpenGlContext() => throw new GraphicsDeviceException("No test GPU");
-        public void Present(PaintTarget target)
+        public bool Present(PaintTarget target)
         {
+            LastTarget = target;
             LastPixels = new byte[target.Stride * target.Height];
             Marshal.Copy(target.Pixels, LastPixels, 0, LastPixels.Length);
             Presented++;
+            return true;
         }
         public void Dispatch(int timeout) { if (timeout != 0) { Waiting.Set(); wake.WaitOne(5000); } }
         public void Wake() { if (!Disposed) wake.Set(); }

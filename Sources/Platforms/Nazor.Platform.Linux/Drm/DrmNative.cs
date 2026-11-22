@@ -6,6 +6,9 @@ internal static unsafe class DrmNative
 {
     internal const string Drm = "libdrm.so.2", Gbm = "libgbm.so.1", Egl = "libEGL.so.1";
     internal const uint Xrgb8888 = 0x34325258;
+    internal const ulong NoFormatModifier = (1UL << 56) - 1;
+    internal const uint FramebufferModifiers = 1 << 1;
+    internal const int AccessDenied = 13, InvalidArgument = 22, OperationNotSupported = 95;
 
     [StructLayout(LayoutKind.Sequential)]
     internal struct Mode
@@ -100,6 +103,7 @@ internal static unsafe class DrmNative
     [DllImport(Drm, SetLastError = true)] internal static extern int drmModePageFlip(int fd, uint crtc, uint fb, uint flags, nint user);
     [DllImport(Drm, SetLastError = true)] internal static extern int drmHandleEvent(int fd, ref EventContext context);
     [DllImport(Drm, SetLastError = true)] internal static extern int drmModeAddFB2(int fd, uint width, uint height, uint format, uint* handles, uint* pitches, uint* offsets, out uint fb, uint flags);
+    [DllImport(Drm, SetLastError = true)] internal static extern int drmModeAddFB2WithModifiers(int fd, uint width, uint height, uint format, uint* handles, uint* pitches, uint* offsets, ulong* modifiers, out uint fb, uint flags);
     [DllImport(Drm, SetLastError = true)] internal static extern int drmModeRmFB(int fd, uint fb);
     [DllImport(Drm, SetLastError = true)] internal static extern int drmIoctl(int fd, nuint request, void* value);
     [DllImport(Gbm)] internal static extern nint gbm_create_device(int fd);
@@ -111,6 +115,11 @@ internal static unsafe class DrmNative
     [DllImport(Gbm)] internal static extern ulong gbm_bo_get_handle(nint buffer);
     [DllImport(Gbm)] internal static extern uint gbm_bo_get_stride(nint buffer);
     [DllImport(Gbm)] internal static extern uint gbm_bo_get_format(nint buffer);
+    [DllImport(Gbm)] internal static extern ulong gbm_bo_get_modifier(nint buffer);
+    [DllImport(Gbm)] internal static extern int gbm_bo_get_plane_count(nint buffer);
+    [DllImport(Gbm)] internal static extern ulong gbm_bo_get_handle_for_plane(nint buffer, int plane);
+    [DllImport(Gbm)] internal static extern uint gbm_bo_get_stride_for_plane(nint buffer, int plane);
+    [DllImport(Gbm)] internal static extern uint gbm_bo_get_offset(nint buffer, int plane);
     [DllImport(Gbm)] internal static extern void gbm_bo_set_user_data(nint buffer, nint data, nint destroy);
     [DllImport(Egl)] internal static extern nint eglGetPlatformDisplay(uint platform, nint nativeDisplay, nint* attributes);
     [DllImport(Egl)] internal static extern int eglInitialize(nint display, out int major, out int minor);

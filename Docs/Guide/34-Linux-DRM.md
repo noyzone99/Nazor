@@ -49,11 +49,14 @@ capture reads back pixels. Normal GPU presentation stays on the graphics
 device. [Renderer selection](32-Support-and-Limitations.md#nss-and-rendering)
 
 CPU mode renders into a retained BGRA buffer and copies complete frames into
-alternating DRM dumb buffers, honoring the kernel-supplied pitch. `AUTO` can use
+alternating DRM dumb buffers, honoring the kernel-supplied pitch. A staging
+buffer is used when the software cursor must be drawn. `AUTO` can use
 this path after a recognized GPU failure, including a software OpenGL device.
 The current KMS path uses `drmModeSetCrtc`/`drmModePageFlip`; atomic KMS is not
 required. GBM buffers stay locked until scanout completion and framebuffer
-registrations follow native buffer destruction. Presentation waits are bounded;
+registrations include the buffer's explicit tiling or compression modifier and
+per-plane metadata when GBM provides them. Registrations follow native buffer
+destruction. Presentation waits are bounded;
 a disconnected or failed device reports an error rather than blocking forever.
 
 ## Runtime dependencies and local session
@@ -209,8 +212,10 @@ distribution's service/access policy and use `LIBSEAT_BACKEND=seatd` instead.
 
 The backend puts an available console TTY into graphics/raw-input mode and
 restores its saved attributes and mode on normal shutdown or managed failure.
-Seat deactivation drains rendering before restoring the display, suspending input
-and acknowledging release. Reactivation resumes input and invalidates the view.
+Seat deactivation drains rendering, suspends input and acknowledges release.
+The backend restores the previous display configuration if the session still
+owns the device. Reactivation resumes input and reestablishes scanout on the next
+frame.
 Ctrl+Alt+F1 through F12 requests a VT switch through libseat. Orderly session
 switches are supported; recovery after forced device revocation or GPU removal
 is not guaranteed. SIGKILL or power loss cannot execute managed cleanup.
@@ -258,7 +263,8 @@ bash Scripts/Tests/verify-drm.sh Release
 The script needs GCC plus the system input libraries/data above. It builds a C
 fixture that simulates DRM/GBM/EGL/libseat, then verifies display selection,
 buffer lifetimes, failure cleanup, CPU fallback, real xkbcommon/input setup and
-an actual Skia-rendered single-view application. It never acquires a real display.
+an actual Skia-rendered single-view application. A separate test process simulates
+libinput callbacks during teardown. The script runs without acquiring a display.
 An optional second argument supplies a prebuilt `Nazor.Linux.Tests.dll`, useful
 when managed assemblies were built on Windows and executed with the Linux runtime.
 Logs/results are written below `artifacts/drm-tests`.
