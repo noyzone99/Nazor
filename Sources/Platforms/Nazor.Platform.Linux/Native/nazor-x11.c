@@ -24,6 +24,7 @@
 
 #define CLIP_LIMIT (32u*1024u*1024u)
 #define CLIP_CHUNK 32768u
+#define MAX_CLIENT_PIXELS 32768
 enum { MOTIF_FUNCTIONS=1, MOTIF_DECORATIONS=2 };
 enum { MOTIF_RESIZE=2, MOTIF_MOVE=4, MOTIF_MINIMIZE=8, MOTIF_MAXIMIZE=16, MOTIF_CLOSE=32 };
 typedef struct queued_event { nz_event event; char *text; struct queued_event *next; } queued_event;
@@ -68,6 +69,7 @@ struct nz_window {
     XImage *image;
     unsigned char *pixels;
     int width, height, stride, image_width, image_height, state, visible, custom, borderless, current;
+    int pixel_width, pixel_height;
     unsigned long functions;
     int above;
     nz_window *popup_parent;
@@ -82,6 +84,7 @@ static pthread_mutex_t connections_lock = PTHREAD_MUTEX_INITIALIZER;
 static nz_connection *connections;
 static XErrorHandler previous_error;
 static Atom atom(nz_connection *c, const char *name) { return XInternAtom(c->display,name,False); }
+static int client_pixels(nz_connection *c, int logical) { return (int)fmin(MAX_CLIENT_PIXELS,fmax(1,lroundf(logical*c->scale))); }
 static int x_error(Display *display, XErrorEvent *error) {
     pthread_mutex_lock(&connections_lock);
     nz_connection *c=connections;
@@ -103,10 +106,11 @@ static void emit(nz_connection *c, nz_window *w, uint32_t type, uint32_t flags, 
 static uint32_t modifiers(unsigned state) { return (state&ShiftMask?1u:0u)|(state&ControlMask?2u:0u)|(state&Mod1Mask?4u:0u)|(state&Mod4Mask?8u:0u); }
 static void pointer_event(nz_window *w, uint32_t type, unsigned state, int x, int y, int a, int b, int d) {
     nz_connection *c=w->connection;
-    double px=(x-w->frame_margin)/c->scale, py=(y-w->frame_margin)/c->scale;
+    int client_x=x-w->frame_margin, client_y=y-w->frame_margin;
     uint32_t flags=modifiers(state);
-    if(w->frame_margin && (px<0 || py<0 || px>=w->width || py>=w->height)) flags|=NZ_POINTER_FRAME_OUTSET;
-    emit(c,w,type,flags,px,py,a,b,d,NULL);
+    if(w->frame_margin && (client_x<0 || client_y<0 || client_x>=w->pixel_width || client_y>=w->pixel_height))
+        flags|=NZ_POINTER_FRAME_OUTSET;
+    emit(c,w,type,flags,client_x/c->scale,client_y/c->scale,a,b,d,NULL);
 }
 static int companion_event(XEvent *event, Window root) {
     switch(event->type) {
@@ -286,6 +290,19 @@ int nz_window_decoration_mode(nz_window *w) {
     if(!mode && (!nz_decoration_support(c) || mapped_without_frame(w))) mode=1;
     return mode;
 }
+static void emit_configure(nz_window *w) {
+    emit(w->connection,w,NZ_CONFIGURE,0,w->pixel_width,w->pixel_height,w->width,w->height,w->state,NULL);
+}
+static int update_size(nz_window *w, int width, int height) {
+    resize_content(w,width,height);
+    int pixel_width=(int)fmax(1,width-2*w->frame_margin), pixel_height=(int)fmax(1,height-2*w->frame_margin);
+    int logical_width=(int)fmax(1,lroundf(pixel_width/w->connection->scale));
+    int logical_height=(int)fmax(1,lroundf(pixel_height/w->connection->scale));
+    int changed=pixel_width!=w->pixel_width || pixel_height!=w->pixel_height || logical_width!=w->width || logical_height!=w->height;
+    w->pixel_width=pixel_width; w->pixel_height=pixel_height;
+    w->width=logical_width; w->height=logical_height;
+    return changed;
+}
 static void configure(nz_window *w) {
     nz_connection *c=w->connection;
     Atom wm_state=atom(c,"WM_STATE"), actual;
@@ -305,13 +322,9 @@ static void configure(nz_window *w) {
         XChangeProperty(c->display,w->id,atom(c,"_GTK_FRAME_EXTENTS"),XA_CARDINAL,32,PropModeReplace,(unsigned char*)extents,4);
     }
     XWindowAttributes attributes;
-    if(XGetWindowAttributes(c->display,w->id,&attributes)) {
-        resize_content(w,attributes.width,attributes.height);
-        w->width=(int)fmax(1,(attributes.width-2*w->frame_margin)/c->scale+.5f);
-        w->height=(int)fmax(1,(attributes.height-2*w->frame_margin)/c->scale+.5f);
-    }
+    if(XGetWindowAttributes(c->display,w->id,&attributes)) update_size(w,attributes.width,attributes.height);
     if(previous!=NZ_STATE_NORMAL && w->state==NZ_STATE_NORMAL && w->frame_margin) nz_window_operations(w,w->resizable,w->width,w->height);
-    emit(c,w,NZ_CONFIGURE,0,0,0,w->width,w->height,w->state,NULL);
+    emit_configure(w);
 }
 static void send_message(nz_window *w, const char *name, long a, long b, long d, long e, long f) {
     nz_connection *c=w->connection;
@@ -346,6 +359,11 @@ static Visual *find_argb_visual(nz_connection *c) {
     if (visuals) XFree(visuals);
     return visual;
 }
+static void input_method_destroyed(XIM im, XPointer data, XPointer unused) {
+    nz_connection *c=(nz_connection*)data;
+    c->im=NULL;
+    for(nz_window *w=c->windows;w;w=w->next) w->ic=NULL;
+}
 uint32_t nz_abi_version(void) { return 5; }
 size_t nz_event_size(void) { return sizeof(nz_event); }
 nz_connection *nz_connect(char *error, size_t size) {
@@ -375,6 +393,10 @@ nz_connection *nz_connect(char *error, size_t size) {
     c->root_events=1;
     XSetLocaleModifiers(""); c->im=XOpenIM(c->display,NULL,NULL,NULL);
     if (!c->im) { XSetLocaleModifiers("@im=none"); c->im=XOpenIM(c->display,NULL,NULL,NULL); }
+    if(c->im) {
+        XIMCallback destroy={.client_data=(XPointer)c,.callback=input_method_destroyed};
+        XSetIMValues(c->im,XNDestroyCallback,&destroy,NULL);
+    }
     read_scale(c);
     XkbSetDetectableAutoRepeat(c->display,True,NULL);
     emit(c,NULL,NZ_REPEAT,0,0,0,0,0,0,NULL);
@@ -461,14 +483,18 @@ static void advance_transfer(nz_connection *c, XEvent *event) {
     }
 }
 static void keyboard(nz_connection *c, nz_window *w, XKeyEvent *key, int down) {
-    KeySym symbol=NoSymbol; unsigned consumed=0;
-    XkbLookupKeySym(c->display,(KeyCode)key->keycode,key->state,&consumed,&symbol);
-    char *name=XKeysymToString(symbol);
-    int repeat=down && c->keys[key->keycode&255]; c->keys[key->keycode&255]=(unsigned char)down;
-    emit(c,w,NZ_KEY,modifiers(key->state),0,0,down,(int)key->keycode,0,name?name:"");
-    if(c->tail) c->tail->event.d=repeat;
+    KeySym symbol=NoSymbol;
+    int composition=key->keycode==0;
+    if(!composition) {
+        unsigned consumed=0;
+        XkbLookupKeySym(c->display,(KeyCode)key->keycode,key->state,&consumed,&symbol);
+        char *name=XKeysymToString(symbol);
+        int repeat=down && c->keys[key->keycode&255]; c->keys[key->keycode&255]=(unsigned char)down;
+        emit(c,w,NZ_KEY,modifiers(key->state),0,0,down,(int)key->keycode,0,name?name:"");
+        if(c->tail) c->tail->event.d=repeat;
+    }
     if (!down) return;
-    Status status; int length=0; char buffer[128], *text=buffer;
+    Status status; int length=0; char buffer[128], latin1_utf8[2*sizeof(buffer)], *text=buffer;
     if (w->ic) {
         length=Xutf8LookupString(w->ic,key,buffer,sizeof(buffer)-1,&symbol,&status);
         if (status==XBufferOverflow && length>0 && length<1024*1024) {
@@ -476,9 +502,20 @@ static void keyboard(nz_connection *c, nz_window *w, XKeyEvent *key, int down) {
             length=Xutf8LookupString(w->ic,key,text,length,&symbol,&status);
         }
         if(status!=XLookupChars && status!=XLookupBoth) length=0;
-    } else length=XLookupString(key,buffer,sizeof(buffer)-1,&symbol,NULL);
-    if(length>0 && (unsigned char)text[0]>=32 && text[0]!=127 && !(key->state&ControlMask)) { text[length]=0; emit(c,w,NZ_TEXT,0,0,0,0,0,0,text); }
-    if(text!=buffer) free(text);
+    } else if(!composition) {
+        int bytes=XLookupString(key,buffer,sizeof(buffer)-1,&symbol,NULL);
+        for(int i=0;i<bytes;i++) {
+            unsigned char character=(unsigned char)buffer[i];
+            if(character>=128) latin1_utf8[length++]=(char)(0xc0|(character>>6));
+            latin1_utf8[length++]=(char)(character>=128?0x80|(character&63):character);
+        }
+        text=latin1_utf8;
+    }
+    if(length>0 && (composition || ((unsigned char)text[0]>=32 && text[0]!=127 && !(key->state&ControlMask)))) {
+        text[length]=0;
+        emit(c,w,NZ_TEXT,composition?1u:0u,0,0,0,0,0,text);
+    }
+    if(text!=buffer && text!=latin1_utf8) free(text);
 }
 int nz_dispatch(nz_connection *c, int timeout) {
     if(!c) return -1;
@@ -494,10 +531,16 @@ int nz_dispatch(nz_connection *c, int timeout) {
     int budget=4096, restack=0;
     while(budget-- && XPending(c->display)) {
         XEvent event; XNextEvent(c->display,&event);
+        if(XFilterEvent(&event,None)) continue;
         if(event.type==MappingNotify) { XRefreshKeyboardMapping(&event.xmapping); continue; }
         advance_transfer(c,&event);
         if(event.type==SelectionRequest) { selection_request(c,&event.xselectionrequest); continue; }
-        if(event.type==SelectionClear && event.xselectionclear.window==c->selection) { free(c->clipboard); c->clipboard=NULL; continue; }
+        if(event.type==SelectionClear && event.xselectionclear.window==c->selection) {
+            if(XGetSelectionOwner(c->display,event.xselectionclear.selection)!=c->selection) {
+                free(c->clipboard); c->clipboard=NULL;
+            }
+            continue;
+        }
         if(event.type==SelectionNotify && c->receiving && event.xselection.requestor==c->selection) {
             if(event.xselection.property==None && !c->latin1) { c->latin1=1; XConvertSelection(c->display,atom(c,"CLIPBOARD"),XA_STRING,atom(c,"_NAZOR_CLIPBOARD"),c->selection,CurrentTime); }
             else if(event.xselection.property==None) clipboard_result(c,NULL); else receive_selection(c,0);
@@ -540,7 +583,6 @@ int nz_dispatch(nz_connection *c, int timeout) {
             continue;
         }
         if(w->id!=id) continue;
-        if((event.type==KeyPress || event.type==KeyRelease) && XFilterEvent(&event,w->id)) continue;
         switch(event.type) {
             case ConfigureNotify: {
                 emit(c,w,NZ_CAPABILITIES,0,0,0,0,0,0,NULL);
@@ -555,19 +597,12 @@ int nz_dispatch(nz_connection *c, int timeout) {
                     }
                 }
                 if(w->resize_window || w->shadow_window) restack=1;
-                resize_content(w,event.xconfigure.width,event.xconfigure.height);
-                int width=(int)((event.xconfigure.width-2*w->frame_margin)/c->scale+.5f);
-                int height=(int)((event.xconfigure.height-2*w->frame_margin)/c->scale+.5f);
-                if(width<1) width=1;
-                if(height<1) height=1;
-                if(width==w->width && height==w->height) break;
-                w->width=width; w->height=height;
-                emit(c,w,NZ_CONFIGURE,0,0,0,width,height,w->state,NULL);
+                if(update_size(w,event.xconfigure.width,event.xconfigure.height)) emit_configure(w);
                 break;
             }
             case MapNotify: w->visible=1; configure(w); emit(c,w,NZ_CAPABILITIES,0,0,0,0,0,0,NULL); if(w->resize_window || w->shadow_window) restack=1; break;
             case ReparentNotify: emit(c,w,20,0,0,0,1,0,0,NULL); if(w->resize_window || w->shadow_window) restack=1; break;
-            case UnmapNotify: if(w->visible) { if(w->state==NZ_STATE_NORMAL) w->restore_margin=w->frame_margin; w->state=NZ_STATE_MINIMIZED; emit(c,w,NZ_CONFIGURE,0,0,0,w->width,w->height,w->state,NULL); } if(w->resize_window || w->shadow_window) restack=1; break;
+            case UnmapNotify: if(w->visible) { if(w->state==NZ_STATE_NORMAL) w->restore_margin=w->frame_margin; w->state=NZ_STATE_MINIMIZED; emit_configure(w); } if(w->resize_window || w->shadow_window) restack=1; break;
             case PropertyNotify:
                 if(event.xproperty.atom==atom(c,"_NET_FRAME_EXTENTS") || event.xproperty.atom==atom(c,"WM_STATE")) emit(c,w,NZ_CAPABILITIES,0,0,0,0,0,0,NULL);
                 if(event.xproperty.atom==atom(c,"_NET_WM_STATE")) {
@@ -624,7 +659,8 @@ static nz_window *window_create(nz_connection *c, const char *title, const char 
     w->functions=MOTIF_RESIZE|MOTIF_MOVE|MOTIF_MINIMIZE|MOTIF_MAXIMIZE|MOTIF_CLOSE;
     w->visual=argb?c->argb_visual:DefaultVisual(c->display,c->screen);
     w->depth=argb?32:DefaultDepth(c->display,c->screen);
-    unsigned pixel_width=(unsigned)(width*c->scale), pixel_height=(unsigned)(height*c->scale);
+    unsigned pixel_width=(unsigned)client_pixels(c,width), pixel_height=(unsigned)client_pixels(c,height);
+    w->pixel_width=(int)pixel_width; w->pixel_height=(int)pixel_height;
     if (argb) w->colormap=XCreateColormap(c->display,c->root,w->visual,AllocNone);
     // Keep the last pixels while the next application frame is being drawn.
     XSetWindowAttributes attributes={.colormap=w->colormap,.background_pixmap=None,.bit_gravity=NorthWestGravity,.border_pixel=0};
@@ -642,13 +678,19 @@ static nz_window *window_create(nz_connection *c, const char *title, const char 
     } else w->id=XCreateWindow(c->display,c->root,0,0,pixel_width,pixel_height,0,w->depth,InputOutput,w->visual,mask,&attributes);
     w->gc=XCreateGC(c->display,w->content?w->content:w->id,0,NULL);
     w->next=c->windows; c->windows=w;
-    XSelectInput(c->display,w->id,StructureNotifyMask|ExposureMask|PropertyChangeMask|FocusChangeMask|KeyPressMask|KeyReleaseMask|ButtonPressMask|ButtonReleaseMask|PointerMotionMask|EnterWindowMask|LeaveWindowMask);
+    long events=StructureNotifyMask|ExposureMask|PropertyChangeMask|FocusChangeMask|KeyPressMask|KeyReleaseMask|
+        ButtonPressMask|ButtonReleaseMask|PointerMotionMask|EnterWindowMask|LeaveWindowMask;
+    if(c->im) {
+        w->ic=XCreateIC(c->im,XNInputStyle,XIMPreeditNothing|XIMStatusNothing,XNClientWindow,w->id,XNFocusWindow,w->id,NULL);
+        long filter_events=0;
+        if(w->ic && !XGetICValues(w->ic,XNFilterEvents,&filter_events,NULL)) events|=filter_events;
+    }
+    XSelectInput(c->display,w->id,events);
     Atom protocols[]={atom(c,"WM_DELETE_WINDOW"),atom(c,"WM_TAKE_FOCUS")}; XSetWMProtocols(c->display,w->id,protocols,2);
     XClassHint class_hint={(char*)app_id,(char*)app_id}; XSetClassHint(c->display,w->id,&class_hint);
     if(parent && parent->connection==c) XSetTransientForHint(c->display,w->id,parent->id);
     XWMHints hints={.flags=InputHint|StateHint,.input=True,.initial_state=NormalState}; XSetWMHints(c->display,w->id,&hints);
     nz_window_operations(w,1,width,height);
-    if(c->im) w->ic=XCreateIC(c->im,XNInputStyle,XIMPreeditNothing|XIMStatusNothing,XNClientWindow,w->id,XNFocusWindow,w->id,NULL);
     nz_window_title(w,title); nz_window_titlebar(w,custom);
     emit(c,w,NZ_SCALE,0,c->scale,0,0,0,0,NULL);
     char exported[32]; snprintf(exported,sizeof(exported),"%lx",w->id); emit(c,w,18,0,0,0,0,0,0,exported);
@@ -659,10 +701,12 @@ static void popup_position(nz_window *w) {
     if (w->popup_parent->popup) popup_position(w->popup_parent);
     nz_connection *c=w->connection;
     nz_popup_placement *p=&w->popup_placement;
+    int parent_shadow=w->popup_parent->popup?w->popup_parent->popup_placement.shadow:0;
     Window ignored; int x,y;
     if (XTranslateCoordinates(c->display,w->popup_parent->id,c->root,
-        (int)((p->x-p->shadow)*c->scale)+w->popup_parent->frame_margin,(int)((p->y-p->shadow)*c->scale)+w->popup_parent->frame_margin,&x,&y,&ignored)) {
-        int width=(int)((p->width+2*p->shadow)*c->scale), height=(int)((p->height+2*p->shadow)*c->scale);
+        (int)((p->x+parent_shadow-p->shadow)*c->scale)+w->popup_parent->frame_margin,
+        (int)((p->y+parent_shadow-p->shadow)*c->scale)+w->popup_parent->frame_margin,&x,&y,&ignored)) {
+        int width=client_pixels(c,p->width+2*p->shadow), height=client_pixels(c,p->height+2*p->shadow);
         if(!w->popup_positioned || x!=w->popup_root_x || y!=w->popup_root_y || width!=w->popup_pixel_width || height!=w->popup_pixel_height) {
             XMoveResizeWindow(c->display,w->id,x,y,(unsigned)width,(unsigned)height);
             w->popup_positioned=1; w->popup_root_x=x; w->popup_root_y=y; w->popup_pixel_width=width; w->popup_pixel_height=height;
@@ -693,7 +737,8 @@ nz_window *nz_popup_create(nz_window *parent, const nz_popup_placement *p) {
     return w;
 }
 int nz_popup_place(nz_window *w, const nz_popup_placement *p) {
-    if (!w || !w->popup || !w->popup_parent || !p || p->width<1 || p->height<1) return 0;
+    if (!w || !w->popup || !w->popup_parent || !p || p->shadow<0 || p->shadow>4096 ||
+        p->width<1 || p->height<1 || p->width>32768-2*p->shadow || p->height>32768-2*p->shadow) return 0;
     w->popup_placement=*p; w->width=p->width+2*p->shadow; w->height=p->height+2*p->shadow;
     popup_position(w);
     XRectangle input={(short)(p->shadow*w->connection->scale),(short)(p->shadow*w->connection->scale),
@@ -856,8 +901,20 @@ void nz_window_state(nz_window *w,int state) {
     send_message(w,"_NET_WM_STATE",state==NZ_STATE_MAXIMIZED?1:0,(long)atom(c,"_NET_WM_STATE_MAXIMIZED_VERT"),(long)atom(c,"_NET_WM_STATE_MAXIMIZED_HORZ"),1,0);
     if(w->state==NZ_STATE_MINIMIZED) XMapWindow(c->display,w->id);
 }
-void nz_window_operations(nz_window *w,int resize,int width,int height) { w->resizable=resize; XSizeHints hints={.flags=PMinSize|PMaxSize|PWinGravity,.win_gravity=StaticGravity,.min_width=(resize?1:(int)(width*w->connection->scale))+2*w->frame_margin,.min_height=(resize?1:(int)(height*w->connection->scale))+2*w->frame_margin,.max_width=(resize?32768:(int)(width*w->connection->scale))+2*w->frame_margin,.max_height=(resize?32768:(int)(height*w->connection->scale))+2*w->frame_margin}; XSetWMNormalHints(w->connection->display,w->id,&hints); }
-void nz_window_resize(nz_window *w,int width,int height) { if(width>0 && height>0 && width<=32768 && height<=32768) XResizeWindow(w->connection->display,w->id,(unsigned)(width*w->connection->scale)+2*w->frame_margin,(unsigned)(height*w->connection->scale)+2*w->frame_margin); }
+void nz_window_operations(nz_window *w,int resize,int width,int height) {
+    w->resizable=resize;
+    int padding=2*w->frame_margin;
+    int fixed_width=client_pixels(w->connection,width)+padding, fixed_height=client_pixels(w->connection,height)+padding;
+    XSizeHints hints={.flags=PMinSize|PMaxSize|PWinGravity,.win_gravity=StaticGravity,
+        .min_width=resize?1+padding:fixed_width,.min_height=resize?1+padding:fixed_height,
+        .max_width=resize?MAX_CLIENT_PIXELS+padding:fixed_width,.max_height=resize?MAX_CLIENT_PIXELS+padding:fixed_height};
+    XSetWMNormalHints(w->connection->display,w->id,&hints);
+}
+void nz_window_resize(nz_window *w,int width,int height) {
+    if(width>0 && height>0 && width<=32768 && height<=32768)
+        XResizeWindow(w->connection->display,w->id,(unsigned)(client_pixels(w->connection,width)+2*w->frame_margin),
+            (unsigned)(client_pixels(w->connection,height)+2*w->frame_margin));
+}
 void nz_window_activate(nz_window *w) { send_message(w,"_NET_ACTIVE_WINDOW",1,CurrentTime,0,0,0); }
 static void move_resize(nz_window *w,int direction) { Window root,child; int x,y,local_x,local_y; unsigned mask; nz_connection *c=w->connection; if(XQueryPointer(c->display,w->id,&root,&child,&x,&y,&local_x,&local_y,&mask)) { XUngrabPointer(c->display,CurrentTime); send_message(w,"_NET_WM_MOVERESIZE",x,y,direction,1,1); } }
 void nz_window_move(nz_window *w) { move_resize(w,8); }
@@ -888,12 +945,10 @@ void nz_window_outer_resize(nz_window *w,int margin) {
         int width=attributes.width+2*delta, height=attributes.height+2*delta;
         if(w->state!=NZ_STATE_NORMAL) { width=attributes.width; height=attributes.height; delta=0; }
         XMoveResizeWindow(c->display,w->id,x-delta,y-delta,(unsigned)width,(unsigned)height);
-        resize_content(w,width,height);
         if(w->state!=NZ_STATE_NORMAL) {
-            w->width=(int)fmax(1,(width-2*next)/c->scale+.5f);
-            w->height=(int)fmax(1,(height-2*next)/c->scale+.5f);
-            emit(c,w,NZ_CONFIGURE,0,0,0,w->width,w->height,w->state,NULL);
-        }
+            update_size(w,width,height);
+            emit_configure(w);
+        } else resize_content(w,width,height);
         XClearWindow(c->display,w->id);
         sync_companions(w);
         return;

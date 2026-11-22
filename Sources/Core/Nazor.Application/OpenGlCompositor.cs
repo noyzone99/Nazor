@@ -237,7 +237,11 @@ internal sealed class OpenGlCompositor : IDisposable
         surface.Canvas.DrawImage(image, 0, 0, SKSamplingOptions.Default);
         context.Flush();
         context.Submit();
-        native.Present();
+        if (native is IConditionalOpenGlPresentation conditional)
+        {
+            if (!conditional.TryPresent()) return;
+        }
+        else native.Present();
         var presentation=new Presentation(++presented,Stopwatch.GetElapsedTime(started),frame.UiFrame);
         Volatile.Write(ref lastPresentation,presentation);
         presentedFrame?.Invoke(presentation);

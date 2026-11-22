@@ -3,6 +3,7 @@ using Nazor.Graphics;
 using Nazor.Input;
 using Nazor.Platform;
 using Nazor.Platform.Linux;
+using SkiaSharp;
 
 namespace Nazor.Linux.Tests;
 
@@ -25,6 +26,20 @@ public sealed class WaylandTests
             new(int.MaxValue,int.MaxValue,int.MaxValue,int.MaxValue), new(0,0,-1,3)],100,80);
         Assert.Equal(new[] { new PixelRect(0,0,5,5), new PixelRect(95,75,5,5) },clipped);
         Assert.Null(LinuxDesktopWindow.ClipDamage(Enumerable.Repeat(new PixelRect(0,0,1,1),129).ToArray(),100,80));
+    }
+
+    [Fact]
+    public void An_interior_damage_rect_does_not_clear_already_composited_rounded_edge_pixels()
+    {
+        using var bitmap = new SKBitmap(32, 32, SKColorType.Bgra8888, SKAlphaType.Premul);
+        using var canvas = new SKCanvas(bitmap);
+        using var rounded = new SKRoundRect(new(0, 0, 32, 32), 10, 10);
+        canvas.Clear(SKColors.White);
+        LinuxDesktopWindow.ApplyRoundedFrameClip(canvas, rounded, null, 0);
+        var first = bitmap.Pixels;
+        Assert.Contains(first, pixel => pixel.Alpha is > 0 and < 255);
+        LinuxDesktopWindow.ApplyRoundedFrameClip(canvas, rounded, [new(16, 16, 1, 1)], 0);
+        Assert.Equal(first, bitmap.Pixels);
     }
 
     public static bool HasCompositor => OperatingSystem.IsLinux() && Environment.GetEnvironmentVariable("NAZOR_TEST_COMPOSITOR") == "1";

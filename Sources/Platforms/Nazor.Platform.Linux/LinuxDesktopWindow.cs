@@ -52,19 +52,20 @@ internal sealed unsafe partial class LinuxDesktopWindow : IPlatformWindow, INati
     private uint nativeCapabilities;
     private WindowTitleBarMenuMode titleBarMenuMode;
     private int surfaceWidth, surfaceHeight, bufferWidth, bufferHeight;
+    private int x11DrawableWidth, x11DrawableHeight;
     private nint pixels;
     private bool softwarePresented;
     private bool repaintExposed;
     private bool tiled, shadowVisible;
     private CornerRadius configuredRadius;
     private readonly bool x11ShapeAvailable;
-    private (CornerRadius Radius, int Width, int Height, float Scale)? appliedShape;
+    private (CornerRadius Radius, Size FrameSize, float Scale)? appliedShape;
     private bool paintedFrameBorder;
     private float resizeInset = 4, resizeOutset;
     private float? resizeCornerLength;
     private bool showResizeGrip;
     private IReadOnlyList<DrawShadow> frameShadows = [];
-    private (int Width, int Height, float Scale)? shadowSize;
+    private (Size FrameSize, float Scale)? shadowSize;
     private long animationAt = long.MaxValue, repeatAt = long.MaxValue;
     private string? repeatKey, repeatText;
     private uint repeatCode;
@@ -97,7 +98,9 @@ internal sealed unsafe partial class LinuxDesktopWindow : IPlatformWindow, INati
     public bool UsesClientFrameAppearance => true;
     public bool HasDefaultClientFrameAppearance => !platform.IsX11;
     public bool DrawClientFrame => decorations?.Frame != WindowFrameOwner.Native && !serverDecorations && !tiled && State == WindowState.Normal;
-    private Size FrameSize => new(surfaceWidth, surfaceHeight);
+    private Size FrameSize => x11DrawableWidth > 0 && x11DrawableHeight > 0
+        ? new(x11DrawableWidth / Scale, x11DrawableHeight / Scale)
+        : new(surfaceWidth, surfaceHeight);
     public CornerRadius ClientFrameRadius => DrawClientFrame && (!platform.IsX11 || x11ShapeAvailable || transparentBackground)
         ? WindowFrameGeometry.NormalizeRadius(configuredRadius, FrameSize) : default;
     public bool HasRoundedClientFrame => !ClientFrameRadius.IsZero && (!platform.IsX11 || transparentBackground);
@@ -339,16 +342,31 @@ internal sealed unsafe partial class LinuxDesktopWindow : IPlatformWindow, INati
     {
         Access(); textCaret = caret;
         var rect = caret ?? default;
-        Native.nz_window_text_input(Handle, caret.HasValue ? 1 : 0, (int)rect.X, (int)rect.Y + HeaderInset, (int)Math.Ceiling(rect.Width), (int)Math.Ceiling(rect.Height));
-        if (caret.HasValue && host.GetSemanticTree() is { Focused: { } focused })
+        var x = (int)rect.X;
+        var y = (int)rect.Y + HeaderInset;
+        var width = (int)Math.Ceiling(rect.Width);
+        var height = (int)Math.Ceiling(rect.Height);
+        if (platform.IsX11 || !Native.HasWaylandTextContext)
+            Native.nz_window_text_input(Handle, caret.HasValue ? 1 : 0, x, y, width, height);
+        if (platform.IsX11) return;
+
+        var focused = caret.HasValue ? host.GetSemanticTree()?.Focused : null;
+        if (IsClosed) return;
+        var password = focused?.IsPassword == true;
+        var surrounding = (Text: (string?)null, Cursor: 0, Anchor: 0);
+        if (focused is not null && !password)
         {
-            var text = focused.IsPassword ? "" : focused.Value ?? "";
+            var text = focused.Value ?? "";
             var selection = focused.TextSelection;
             var cursor = Math.Clamp(selection?.Caret ?? 0, 0, text.Length);
             var anchor = Math.Clamp(selection?.Caret == selection?.Start ? selection?.End ?? cursor : selection?.Start ?? cursor, 0, text.Length);
-            var surrounding = SurroundingText(text,cursor,anchor);
-            Native.nz_window_surrounding(Handle, surrounding.Text, surrounding.Cursor, surrounding.Anchor, focused.IsPassword ? 1 : 0);
+            surrounding = SurroundingText(text, cursor, anchor);
         }
+        if (Native.HasWaylandTextContext)
+            Native.UpdateWaylandTextContext(Handle, caret.HasValue, focused?.Id ?? 0, password, x, y, width, height,
+                surrounding.Text, surrounding.Cursor, surrounding.Anchor);
+        else if (focused is not null)
+            Native.nz_window_surrounding(Handle, surrounding.Text ?? "", surrounding.Cursor, surrounding.Anchor, password ? 1 : 0);
     }
     internal static (string Text,int Cursor,int Anchor) SurroundingText(string text,int cursor,int anchor)
     {
@@ -398,12 +416,13 @@ internal sealed unsafe partial class LinuxDesktopWindow : IPlatformWindow, INati
     }
     private void Paint()
     {
-        var width = checked((int)Math.Ceiling(surfaceWidth * Scale));
-        var height = checked((int)Math.Ceiling(surfaceHeight * Scale));
+        var width = x11DrawableWidth > 0 ? x11DrawableWidth : checked((int)Math.Ceiling(surfaceWidth * Scale));
+        var height = x11DrawableHeight > 0 ? x11DrawableHeight : checked((int)Math.Ceiling(surfaceHeight * Scale));
         if (host.UsesGpuRendering)
         {
             dirty = false;
-            Native.nz_window_gpu_prepare(Handle);
+            if (Native.HasWaylandGpuPresentation) Native.WaylandGpuStart(Handle);
+            else Native.nz_window_gpu_prepare(Handle);
             framePending = true;
             var fullRedraw = repaintExposed;
             repaintExposed = false;
@@ -450,10 +469,11 @@ internal sealed unsafe partial class LinuxDesktopWindow : IPlatformWindow, INati
         paintedFrameBorder = frameBorder is not null;
         if (damage is { Count: 0 } && softwarePresented) { Native.nz_window_discard_buffer(Handle); host.OnPresented(TimeSpan.Zero); return; }
         if (!softwarePresented) damage = null;
-        if (damage is null || Native.nz_window_buffer_is_current(Handle) == 0) NativeMemory.Copy((void*)pixels, (void*)native.Pixels, bytes);
+        var copyAll = damage is null || Native.nz_window_buffer_is_current(Handle) == 0;
+        if (copyAll) NativeMemory.Copy((void*)pixels, (void*)native.Pixels, bytes);
         else
         {
-            foreach (var rectangle in damage)
+            foreach (var rectangle in damage!)
             {
                 for (var row=rectangle.Y; row<rectangle.Bottom; row++)
                 {
@@ -467,9 +487,7 @@ internal sealed unsafe partial class LinuxDesktopWindow : IPlatformWindow, INati
         {
             using var surface = SKSurface.Create(new SKImageInfo(width, height, SKColorType.Bgra8888, SKAlphaType.Premul), native.Pixels, native.Stride);
             using var clip = WindowFrameShadow.RoundRect(new SKRect(0, 0, width, height), ClientFrameRadius, Scale);
-            surface.Canvas.ClipRoundRect(clip, SKClipOperation.Difference, antialias: true);
-            surface.Canvas.Clear(SKColors.Transparent);
-            damage = null;
+            ApplyRoundedFrameClip(surface.Canvas, clip, copyAll ? null : damage, inset);
         }
         if (damage is null) Native.nz_window_present(Handle,Scale,1);
         else
@@ -481,11 +499,27 @@ internal sealed unsafe partial class LinuxDesktopWindow : IPlatformWindow, INati
         host.OnPresented(Stopwatch.GetElapsedTime(presentationStarted));
     }
 
+    internal static void ApplyRoundedFrameClip(SKCanvas canvas, SKRoundRect rounded, IReadOnlyList<PixelRect>? damage, int inset)
+    {
+        canvas.Save();
+        if (damage is not null)
+        {
+            using var builder = new SKPathBuilder();
+            foreach (var rectangle in damage)
+                builder.AddRect(new SKRect(rectangle.X, rectangle.Y + inset, rectangle.Right, rectangle.Bottom + inset));
+            using var copied = builder.Detach();
+            canvas.ClipPath(copied, SKClipOperation.Intersect, antialias: false);
+        }
+        canvas.ClipRoundRect(rounded, SKClipOperation.Difference, antialias: true);
+        canvas.Clear(SKColors.Transparent);
+        canvas.Restore();
+    }
+
     private void UpdateFrameShape()
     {
         if (!x11ShapeAvailable || transparentBackground) return;
         var radius = ClientFrameRadius;
-        var shape = (radius, surfaceWidth, surfaceHeight, Scale);
+        var shape = (radius, FrameSize, Scale);
         if (appliedShape == shape) return;
         appliedShape = shape;
         if (radius.IsZero) { Native.X11Corners(Handle, null); return; }
@@ -509,7 +543,7 @@ internal sealed unsafe partial class LinuxDesktopWindow : IPlatformWindow, INati
         }
 
         var scale = platform.IsX11 ? Scale : Math.Max(1, (int)Math.Ceiling(Scale));
-        var size = (surfaceWidth, surfaceHeight, scale);
+        var size = (FrameSize, scale);
         if (shadowSize == size) return;
         using var bitmap = WindowFrameShadow.Create(FrameSize, scale, ClientFrameRadius, frameShadows, out var margin);
         if (bitmap is null)
@@ -559,6 +593,11 @@ internal sealed unsafe partial class LinuxDesktopWindow : IPlatformWindow, INati
                 State = (WindowState)value.C;
                 tiled = !platform.IsX11 && (value.Flags & 1u) != 0;
                 surfaceWidth = Math.Max(1, value.A); surfaceHeight = Math.Max(HeaderInset + 1, value.B); configured = true;
+                if (platform.IsX11)
+                {
+                    x11DrawableWidth = (int)value.X;
+                    x11DrawableHeight = (int)value.Y;
+                }
                 SyncOuterResize();
                 if (wasRounded != HasRoundedClientFrame) softwarePresented = false;
                 if (State == WindowState.Normal && pendingNormalResize)
@@ -567,7 +606,7 @@ internal sealed unsafe partial class LinuxDesktopWindow : IPlatformWindow, INati
                     Resize(normalClientSize);
                     break;
                 }
-                if (State == WindowState.Normal) normalClientSize = ClientSize;
+                if (State == WindowState.Normal && !tiled) normalClientSize = ClientSize;
                 host.OnResized(ClientSize, Scale); if (IsClosed) break; host.OnStateChanged(State); Invalidate(); break;
             case 2: Close(); break;
             case 3: cursor = null; goto case 5;
@@ -640,7 +679,7 @@ internal sealed unsafe partial class LinuxDesktopWindow : IPlatformWindow, INati
                     }
                 }
                 break;
-            case 13: framePending = false; break;
+            case 13: framePending = false; if (!platform.IsX11 && value.A != 0) Invalidate(); break;
             case 14: if (double.IsFinite(value.X) && value.X >= 0.5 && value.X <= 8) { Scale = (float)value.X; host.OnResized(ClientSize, Scale); Invalidate(); } break;
             case 15:
                 var previousInset = HeaderInset;

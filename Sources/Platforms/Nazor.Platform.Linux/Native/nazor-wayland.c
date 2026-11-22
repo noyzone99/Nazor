@@ -6,6 +6,7 @@
 #include <locale.h>
 #include <math.h>
 #include <poll.h>
+#include <pthread.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -67,6 +68,11 @@ struct nz_window {
     struct ext_background_effect_surface_v1 *effect;
     struct nz_buffer *buffers, *acquired, *icon_buffer, *last_presented;
     int width, height, pending_width, pending_height, state, configured, visible, mapped, initial_commit;
+    uint32_t configure_serial;
+    int configure_pending, prepared_width, prepared_height, prepared_scale;
+    int gpu, gpu_mapped, gpu_retry, gpu_frame_requested;
+    int normal_width, normal_height, requested_state, fixed_width, fixed_height;
+    char *title, *app_id;
     int scale, preferred_scale, decoration_mode, decoration_configured, custom_titlebar, borderless;
     int active, pending_active, tiled;
     uint32_t capabilities;
@@ -75,6 +81,7 @@ struct nz_window {
     struct nz_window *next;
 };
 struct nz_connection {
+    pthread_mutex_t render_lock;
     struct wl_display *display;
     struct wl_registry *registry;
     struct wl_compositor *compositor;
@@ -114,7 +121,7 @@ struct nz_connection {
     struct nz_queued_event *head, *tail, *current;
     uint32_t serial, pointer_serial, modifiers;
     double pointer_x, pointer_y;
-    int wake_fd, failed, text_enabled;
+    int wake_fd, failed, text_enabled, text_field, text_password;
     int clipboard_fd;
     char *clipboard, *received, *preedit, *commit;
     size_t received_length;
@@ -217,20 +224,74 @@ static void frame_done(void *data, struct wl_callback *callback, uint32_t time) 
     emit(w->connection,w,NZ_FRAME,0,0,0,0,0,0,NULL);
 }
 static const struct wl_callback_listener frame_listener = { .done=frame_done };
+static void surface_prepare(nz_window *w, int frame) {
+    if (w->configure_pending) {
+        xdg_surface_ack_configure(w->shell,w->configure_serial);
+        w->configure_pending=0;
+    }
+    int buffer_scale=w->viewport?1:w->scale;
+    if (w->width!=w->prepared_width || w->height!=w->prepared_height) {
+        if (w->toplevel) xdg_surface_set_window_geometry(w->shell,0,0,w->width,w->height);
+        if (w->viewport) wp_viewport_set_destination(w->viewport,w->width,w->height);
+        w->prepared_width=w->width; w->prepared_height=w->height;
+    }
+    if (buffer_scale!=w->prepared_scale) {
+        wl_surface_set_buffer_scale(w->surface,buffer_scale);
+        w->prepared_scale=buffer_scale;
+    }
+    if (frame && !w->frame) { w->frame=wl_surface_frame(w->surface); wl_callback_add_listener(w->frame,&frame_listener,w); }
+}
+static void surface_mapped(nz_window *w) {
+    if (w->mapped) return;
+    w->mapped=1;
+    if (!w->toplevel) return;
+    for (nz_window *child=w->connection->windows; child; child=child->next)
+        if (child->parent==w && child->toplevel) xdg_toplevel_set_parent(child->toplevel,w->toplevel);
+}
 void *nz_window_native_display(nz_window *w) { return w ? w->connection->display : NULL; }
 void *nz_window_native_surface(nz_window *w) { return w ? w->surface : NULL; }
 void nz_window_cancel_frame(nz_window *w) {
-    if (w && w->frame) { wl_callback_destroy(w->frame); w->frame=NULL; }
+    if (!w) return;
+    pthread_mutex_lock(&w->connection->render_lock);
+    if (w->frame) { wl_callback_destroy(w->frame); w->frame=NULL; }
+    if (w->gpu_mapped) surface_mapped(w);
+    w->gpu=0; w->gpu_mapped=0; w->gpu_retry=0; w->gpu_frame_requested=0;
+    pthread_mutex_unlock(&w->connection->render_lock);
 }
 void nz_window_gpu_prepare(nz_window *w) {
     if (!w) return;
-    if (w->viewport) { wl_surface_set_buffer_scale(w->surface,1); wp_viewport_set_destination(w->viewport,w->width,w->height); }
-    else wl_surface_set_buffer_scale(w->surface,w->scale);
-    if (!w->frame) { w->frame=wl_surface_frame(w->surface); wl_callback_add_listener(w->frame,&frame_listener,w); }
-    int first_map=!w->mapped;
-    w->mapped=1;
-    if (first_map) for (nz_window *child=w->connection->windows; child; child=child->next)
-        if (child->parent==w && child->toplevel && w->toplevel) xdg_toplevel_set_parent(child->toplevel,w->toplevel);
+    surface_prepare(w,1);
+    surface_mapped(w);
+}
+void nz_window_wayland_gpu_start(nz_window *w) {
+    if (!w) return;
+    pthread_mutex_lock(&w->connection->render_lock);
+    w->gpu=1; w->gpu_frame_requested=1;
+    pthread_mutex_unlock(&w->connection->render_lock);
+}
+int nz_window_wayland_gpu_prepare(nz_window *w, int width, int height) {
+    if (!w) return 0;
+    nz_connection *c=w->connection;
+    pthread_mutex_lock(&c->render_lock);
+    float scale=w->fractional?w->preferred_scale/120.f:(float)w->scale;
+    int ready=w->visible && w->configured && width==(int)ceilf(w->width*scale) && height==(int)ceilf(w->height*scale);
+    if (ready) {
+        surface_prepare(w,w->gpu_frame_requested);
+        w->gpu_frame_requested=0; w->gpu_retry=0;
+    }
+    else w->gpu_retry=1;
+    pthread_mutex_unlock(&c->render_lock);
+    if (!ready) nz_wake(c);
+    return ready;
+}
+void nz_window_wayland_gpu_presented(nz_window *w) {
+    if (!w) return;
+    nz_connection *c=w->connection;
+    pthread_mutex_lock(&c->render_lock);
+    int first=!w->mapped && !w->gpu_mapped;
+    if (first) w->gpu_mapped=1;
+    pthread_mutex_unlock(&c->render_lock);
+    if (first) nz_wake(c);
 }
 void nz_window_present(nz_window *w, float scale, int frame) {
     nz_window_present_damage(w,scale,frame,NULL,-1);
@@ -240,24 +301,20 @@ void nz_window_discard_buffer(nz_window *w) { if (w) w->acquired=NULL; }
 void nz_window_present_damage(nz_window *w, float scale, int frame, const nz_damage_rect *rects, int count) {
     if (!w || !w->acquired) return;
     struct nz_buffer *b=w->acquired; w->acquired=NULL;
-    if (w->viewport) { wl_surface_set_buffer_scale(w->surface,1); wp_viewport_set_destination(w->viewport,w->width,w->height); }
-    else wl_surface_set_buffer_scale(w->surface,w->scale);
+    surface_prepare(w,frame);
     wl_surface_attach(w->surface,b->buffer,0,0);
     if (!w->mapped || count < 0) wl_surface_damage_buffer(w->surface,0,0,b->width,b->height);
     else for (int i=0;rects && i<count;i++)
         if (rects[i].width>0 && rects[i].height>0) wl_surface_damage_buffer(w->surface,rects[i].x,rects[i].y,rects[i].width,rects[i].height);
-    if (frame && !w->frame) { w->frame=wl_surface_frame(w->surface); wl_callback_add_listener(w->frame,&frame_listener,w); }
     b->busy=1; w->last_presented=b;
-    int first_map=!w->mapped;
-    w->mapped=1;
     wl_surface_commit(w->surface);
-    if (first_map) for (nz_window *child=w->connection->windows; child; child=child->next)
-        if (child->parent==w) xdg_toplevel_set_parent(child->toplevel,w->toplevel);
+    surface_mapped(w);
 }
 static void output_scale_for_window(nz_window *w) {
     if (wl_surface_get_version(w->surface)>=6) return;
     int scale=1;
-    for (struct nz_entered_output *entry=w->outputs;entry;entry=entry->next) if (entry->output->scale>scale) scale=entry->output->scale;
+    for (struct nz_entered_output *entry=w->outputs;entry;entry=entry->next)
+        if (entry->output->scale>scale && entry->output->scale<=8) scale=entry->output->scale;
     if (w->scale!=scale) { w->scale=scale; if (!w->fractional) emit(w->connection,w,NZ_SCALE,0,scale,0,0,0,0,NULL); }
 }
 static void surface_enter(void *data, struct wl_surface *surface, struct wl_output *output) {
@@ -277,7 +334,7 @@ static void surface_leave(void *data, struct wl_surface *surface, struct wl_outp
 #ifdef WL_SURFACE_PREFERRED_BUFFER_SCALE_SINCE_VERSION
 static void surface_scale(void *data, struct wl_surface *surface, int32_t scale) {
     nz_window *w=data;
-    if (scale>0 && w->scale!=scale) { w->scale=scale; if (!w->fractional) emit(w->connection,w,NZ_SCALE,0,scale,0,0,0,0,NULL); }
+    if (scale>0 && scale<=8 && w->scale!=scale) { w->scale=scale; if (!w->fractional) emit(w->connection,w,NZ_SCALE,0,scale,0,0,0,0,NULL); }
 }
 static void surface_transform(void *data, struct wl_surface *surface, uint32_t transform) { }
 #endif
@@ -289,12 +346,12 @@ static const struct wl_surface_listener surface_listener = {
 };
 static void preferred_scale(void *data, struct wp_fractional_scale_v1 *fractional, uint32_t scale) {
     nz_window *w=data;
-    if (scale && w->preferred_scale!=(int)scale) { w->preferred_scale=(int)scale; emit(w->connection,w,NZ_SCALE,0,scale/120.0,0,0,0,0,NULL); }
+    if (scale>=60 && scale<=960 && w->preferred_scale!=(int)scale) { w->preferred_scale=(int)scale; emit(w->connection,w,NZ_SCALE,0,scale/120.0,0,0,0,0,NULL); }
 }
 static const struct wp_fractional_scale_v1_listener scale_listener = { .preferred_scale=preferred_scale };
 static void shell_configure(void *data, struct xdg_surface *shell, uint32_t serial) {
     nz_window *w=data;
-    xdg_surface_ack_configure(shell,serial);
+    w->configure_serial=serial; w->configure_pending=1;
     if (w->popup) {
         int shadow=w->popup_placement.shadow;
         w->width=w->popup_width+2*shadow; w->height=w->popup_height+2*shadow;
@@ -306,9 +363,15 @@ static void shell_configure(void *data, struct xdg_surface *shell, uint32_t seri
         emit(w->connection,w,NZ_POPUP_CONFIGURE,0,w->popup_x,w->popup_y,w->popup_width,w->popup_height,0,NULL);
         return;
     }
-    if (w->pending_width>0) w->width=w->pending_width;
-    if (w->pending_height>0) w->height=w->pending_height;
-    xdg_surface_set_window_geometry(shell,0,0,w->width,w->height);
+    if (w->state==NZ_STATE_NORMAL && !w->tiled) {
+        w->width=w->pending_width>0?w->pending_width:w->normal_width;
+        w->height=w->pending_height>0?w->pending_height:w->normal_height;
+        w->normal_width=w->width; w->normal_height=w->height;
+    } else {
+        if (w->pending_width>0) w->width=w->pending_width;
+        if (w->pending_height>0) w->height=w->pending_height;
+    }
+    w->requested_state=w->state;
     w->configured=1;
     emit(w->connection,w,NZ_CONFIGURE,w->tiled,0,0,w->width,w->height,w->state,NULL);
     if (w->active != w->pending_active) {
@@ -464,6 +527,8 @@ static void text_leave(void *data, struct zwp_text_input_v3 *input, struct wl_su
     nz_connection *c=data;
     if (c->text_window) emit(c,c->text_window,NZ_PREEDIT,0,0,0,0,0,0,"");
     c->text_window=NULL; c->text_enabled=0;
+    free(c->preedit); c->preedit=NULL; free(c->commit); c->commit=NULL;
+    c->delete_before=0; c->delete_after=0;
 }
 static void text_preedit(void *data, struct zwp_text_input_v3 *input, const char *text, int32_t begin, int32_t end) {
     nz_connection *c=data; free(c->preedit); c->preedit=strdup(text ? text:""); c->preedit_cursor=begin;
@@ -517,6 +582,33 @@ void nz_window_surrounding(nz_window *w, const char *text, int cursor, int ancho
             zwp_text_input_v3_set_surrounding_text(c->text_input,text,cursor,anchor);
     }
     zwp_text_input_v3_commit(c->text_input);
+}
+void nz_window_wayland_text_context(nz_window *w, int enabled, int field, int password,
+    int x, int y, int width, int height, const char *text, int cursor, int anchor) {
+    if (!w) return;
+    nz_connection *c=w->connection;
+    if (!c->text_input || c->text_window!=w) return;
+    struct zwp_text_input_v3 *input=c->text_input;
+    if (c->text_enabled && (!enabled || c->text_field!=field || c->text_password!=password)) {
+        zwp_text_input_v3_disable(input);
+        zwp_text_input_v3_commit(input);
+        c->text_enabled=0;
+    }
+    if (!enabled) return;
+    if (!c->text_enabled) {
+        zwp_text_input_v3_enable(input);
+        zwp_text_input_v3_set_content_type(input,
+            password ? ZWP_TEXT_INPUT_V3_CONTENT_HINT_HIDDEN_TEXT|ZWP_TEXT_INPUT_V3_CONTENT_HINT_SENSITIVE_DATA : ZWP_TEXT_INPUT_V3_CONTENT_HINT_NONE,
+            password ? ZWP_TEXT_INPUT_V3_CONTENT_PURPOSE_PASSWORD : ZWP_TEXT_INPUT_V3_CONTENT_PURPOSE_NORMAL);
+    }
+    if (!password && text) {
+        size_t length=strlen(text);
+        if (length<=4000 && cursor>=0 && anchor>=0 && (size_t)cursor<=length && (size_t)anchor<=length)
+            zwp_text_input_v3_set_surrounding_text(input,text,cursor,anchor);
+    }
+    zwp_text_input_v3_set_cursor_rectangle(input,x,y,width>0?width:1,height>0?height:1);
+    zwp_text_input_v3_commit(input);
+    c->text_enabled=1; c->text_field=field; c->text_password=password;
 }
 
 static void source_target(void *data, struct wl_data_source *source, const char *mime) { }
@@ -589,6 +681,11 @@ int nz_clipboard_request(nz_connection *c) {
     wl_data_offer_receive(c->selection->offer,c->selection->utf8 ? "text/plain;charset=utf-8":c->selection->plain ? "text/plain":"UTF8_STRING",fds[1]);
     close(fds[1]); c->clipboard_fd=fds[0]; free(c->received); c->received=NULL; c->received_length=0;
     return 1;
+}
+void nz_clipboard_cancel(nz_connection *c) {
+    if (!c || c->clipboard_fd<0) return;
+    close(c->clipboard_fd); c->clipboard_fd=-1;
+    free(c->received); c->received=NULL; c->received_length=0;
 }
 static void clipboard_read(nz_connection *c) {
     char chunk[4096];
@@ -707,9 +804,12 @@ static const struct zxdg_exported_v2_listener exported_listener = { .handle=expo
 nz_connection *nz_connect(char *error, size_t error_size) {
     nz_connection *c=calloc(1,sizeof(*c));
     if (!c) { snprintf(error,error_size,"Cannot allocate the Wayland connection."); return NULL; }
+    if (pthread_mutex_init(&c->render_lock,NULL)!=0) {
+        snprintf(error,error_size,"Cannot initialize the Wayland rendering lock."); free(c); return NULL;
+    }
     c->wake_fd=-1; c->clipboard_fd=-1;
     c->display=wl_display_connect(NULL);
-    if (!c->display) { snprintf(error,error_size,"Cannot connect to Wayland. Check WAYLAND_DISPLAY and XDG_RUNTIME_DIR."); free(c); return NULL; }
+    if (!c->display) { snprintf(error,error_size,"Cannot connect to Wayland. Check WAYLAND_DISPLAY and XDG_RUNTIME_DIR."); nz_disconnect(c); return NULL; }
     c->wake_fd=eventfd(0,EFD_CLOEXEC|EFD_NONBLOCK);
     c->xkb=xkb_context_new(XKB_CONTEXT_NO_FLAGS);
     c->registry=wl_display_get_registry(c->display);
@@ -730,10 +830,20 @@ nz_connection *nz_connect(char *error, size_t error_size) {
     if (c->failed) { snprintf(error,error_size,"%s",c->error); nz_disconnect(c); return NULL; }
     return c;
 }
+static int dispatch_pending(nz_connection *c) {
+    pthread_mutex_lock(&c->render_lock);
+    int result=wl_display_dispatch_pending(c->display);
+    if (result>=0) for (nz_window *w=c->windows;w;w=w->next) {
+        if (w->gpu_mapped) { w->gpu_mapped=0; surface_mapped(w); }
+        if (w->gpu_retry) { w->gpu_retry=0; emit(c,w,NZ_FRAME,0,0,0,1,0,0,NULL); }
+    }
+    pthread_mutex_unlock(&c->render_lock);
+    return result;
+}
 int nz_dispatch(nz_connection *c, int timeout_ms) {
     if (!c || c->failed) return -1;
     while (wl_display_prepare_read(c->display)!=0) {
-        if (wl_display_dispatch_pending(c->display)<0) { fail(c,"The Wayland connection failed while dispatching events."); return -1; }
+        if (dispatch_pending(c)<0) { fail(c,"The Wayland connection failed while dispatching events."); return -1; }
     }
     int flush=wl_display_flush(c->display);
     if (flush<0 && errno!=EAGAIN) { wl_display_cancel_read(c->display); fail(c,"Cannot flush the Wayland connection."); return -1; }
@@ -755,7 +865,7 @@ int nz_dispatch(nz_connection *c, int timeout_ms) {
     }
     if (c->clipboard_fd>=0 && (fds[2].revents&(POLLIN|POLLHUP|POLLERR))) clipboard_read(c);
     for (int i=0;i<transfer_count;i++) if (fds[3+i].revents&(POLLOUT|POLLHUP|POLLERR)) transfer_write(c,transfers[i]);
-    if (!c->failed && wl_display_dispatch_pending(c->display)<0) fail(c,"The compositor rejected a Wayland request.");
+    if (!c->failed && dispatch_pending(c)<0) fail(c,"The compositor rejected a Wayland request.");
     if (c->failed) return -1;
     return 0;
 }
@@ -850,9 +960,12 @@ nz_window *nz_window_create(nz_connection *c, const char *title, const char *app
     if (!c || c->failed || width<=0 || height<=0 || (parent && parent->connection!=c)) return NULL;
     nz_window *w=calloc(1,sizeof(*w)); if (!w) return NULL;
     w->connection=c; w->width=width; w->height=height; w->scale=1; w->preferred_scale=120; w->capabilities=15;
+    w->normal_width=width; w->normal_height=height;
+    w->title=strdup(title ? title:""); w->app_id=strdup(app_id ? app_id:"org.nazor.Application");
+    if (!w->title || !w->app_id) { nz_window_destroy(w); return NULL; }
     w->custom_titlebar=custom_titlebar; w->decoration_mode=1; w->borderless=borderless;
     w->surface=wl_compositor_create_surface(c->compositor);
-    if (!w->surface) { free(w); return NULL; }
+    if (!w->surface) { nz_window_destroy(w); return NULL; }
     wl_surface_add_listener(w->surface,&surface_listener,w);
     w->shell=xdg_wm_base_get_xdg_surface(c->shell,w->surface);
     if (!w->shell) { nz_window_destroy(w); return NULL; }
@@ -861,9 +974,7 @@ nz_window *nz_window_create(nz_connection *c, const char *title, const char *app
     if (!w->toplevel) { nz_window_destroy(w); return NULL; }
     xdg_toplevel_add_listener(w->toplevel,&toplevel_listener,w);
     if (c->exporter) { w->exported=zxdg_exporter_v2_export_toplevel(c->exporter,w->surface); zxdg_exported_v2_add_listener(w->exported,&exported_listener,w); }
-    xdg_toplevel_set_title(w->toplevel,title ? title:""); xdg_toplevel_set_app_id(w->toplevel,app_id ? app_id:"org.nazor.Application");
     w->parent=parent;
-    if (parent && parent->mapped) xdg_toplevel_set_parent(w->toplevel,parent->toplevel);
     if (c->decorations && !borderless) {
         w->decoration=zxdg_decoration_manager_v1_get_toplevel_decoration(c->decorations,w->toplevel);
         zxdg_toplevel_decoration_v1_add_listener(w->decoration,&decoration_listener,w);
@@ -878,42 +989,69 @@ void nz_window_titlebar(nz_window *w, int custom_titlebar) {
     if (!w || w->borderless) return;
     w->custom_titlebar=custom_titlebar;
     if (w->decoration) zxdg_toplevel_decoration_v1_set_mode(w->decoration,custom_titlebar ? 1:2);
-    if (w->mapped) wl_surface_commit(w->surface);
+    if (w->mapped && !w->gpu) wl_surface_commit(w->surface);
+}
+static void apply_window_operations(nz_window *w) {
+    xdg_toplevel_set_min_size(w->toplevel,w->fixed_width?w->fixed_width:1,w->fixed_height?w->fixed_height:1);
+    xdg_toplevel_set_max_size(w->toplevel,w->fixed_width,w->fixed_height);
+}
+static void apply_window_state(nz_window *w, int state) {
+    if (state!=NZ_STATE_FULLSCREEN) xdg_toplevel_unset_fullscreen(w->toplevel);
+    if (state==NZ_STATE_MAXIMIZED) xdg_toplevel_set_maximized(w->toplevel);
+    else if (state==NZ_STATE_MINIMIZED) xdg_toplevel_set_minimized(w->toplevel);
+    else if (state==NZ_STATE_FULLSCREEN) xdg_toplevel_set_fullscreen(w->toplevel,NULL);
+    else xdg_toplevel_unset_maximized(w->toplevel);
 }
 void nz_window_show(nz_window *w, int visible) {
     if (!w || w->visible==visible) return;
+    pthread_mutex_lock(&w->connection->render_lock);
     w->visible=visible;
     if (!visible) {
         nz_window_outer_resize(w,0);
         nz_window_wayland_shadow(w,NULL,0,0,0,1);
         if (w->frame) { wl_callback_destroy(w->frame); w->frame=NULL; }
-        if (w->mapped) {
+        if (w->mapped || w->gpu_mapped) {
             wl_surface_attach(w->surface,NULL,0,0); wl_surface_commit(w->surface);
             w->configured=0; w->mapped=0; w->initial_commit=0;
+            w->configure_pending=0; w->prepared_width=0; w->prepared_height=0; w->prepared_scale=0;
         }
+        w->gpu_mapped=0; w->gpu_retry=0; w->gpu_frame_requested=0;
     } else if (!w->initial_commit) {
+        if (w->toplevel) {
+            xdg_toplevel_set_title(w->toplevel,w->title);
+            xdg_toplevel_set_app_id(w->toplevel,w->app_id);
+            apply_window_operations(w);
+            if (w->parent && w->parent->mapped && w->parent->toplevel) xdg_toplevel_set_parent(w->toplevel,w->parent->toplevel);
+            if (w->requested_state!=NZ_STATE_NORMAL) apply_window_state(w,w->requested_state);
+        }
         xdg_surface_set_window_geometry(w->shell,0,0,w->width,w->height); wl_surface_commit(w->surface); w->initial_commit=1;
     } else if (w->configured) emit(w->connection,w,NZ_CONFIGURE,w->tiled,0,0,w->width,w->height,w->state,NULL);
+    pthread_mutex_unlock(&w->connection->render_lock);
 }
-void nz_window_title(nz_window *w, const char *title) { if (w) xdg_toplevel_set_title(w->toplevel,title ? title:""); }
+void nz_window_title(nz_window *w, const char *title) {
+    if (!w) return;
+    char *copy=strdup(title ? title:"");
+    if (!copy) { fail(w->connection,"Cannot allocate the Wayland window title."); return; }
+    free(w->title); w->title=copy;
+    if (w->initial_commit) xdg_toplevel_set_title(w->toplevel,copy);
+}
 void nz_window_state(nz_window *w, int state) {
     if (!w) return;
-    if (state!=3) xdg_toplevel_unset_fullscreen(w->toplevel);
-    if (state==1) xdg_toplevel_set_maximized(w->toplevel);
-    else if (state==2) xdg_toplevel_set_minimized(w->toplevel);
-    else if (state==3) xdg_toplevel_set_fullscreen(w->toplevel,NULL);
-    else xdg_toplevel_unset_maximized(w->toplevel);
+    if (state!=NZ_STATE_MINIMIZED || !w->initial_commit) w->requested_state=state;
+    if (w->initial_commit) apply_window_state(w,state);
 }
 void nz_window_operations(nz_window *w, int resize, int width, int height) {
     if (!w) return;
-    xdg_toplevel_set_min_size(w->toplevel,resize ? 1:width,resize ? 1:height);
-    xdg_toplevel_set_max_size(w->toplevel,resize ? 0:width,resize ? 0:height);
+    w->fixed_width=resize?0:width; w->fixed_height=resize?0:height;
+    if (w->initial_commit) apply_window_operations(w);
 }
 void nz_window_resize(nz_window *w, int width, int height) {
     if (!w || width<=0 || height<=0) return;
+    pthread_mutex_lock(&w->connection->render_lock);
     w->width=width; w->height=height;
-    xdg_surface_set_window_geometry(w->shell,0,0,width,height);
+    if (w->state==NZ_STATE_NORMAL && !w->tiled) { w->normal_width=width; w->normal_height=height; }
     emit(w->connection,w,NZ_CONFIGURE,w->tiled,0,0,width,height,w->state,NULL);
+    pthread_mutex_unlock(&w->connection->render_lock);
 }
 static void token_done(void *data, struct xdg_activation_token_v1 *token, const char *value) {
     nz_window *w=data; xdg_activation_v1_activate(w->connection->activation,value,w->surface);
@@ -1009,7 +1147,7 @@ int nz_window_wayland_shadow(nz_window *w,const void *pixels,int width,int heigh
     wl_surface_attach(w->shadow_surface,buffer->buffer,0,0);
     wl_surface_damage_buffer(w->shadow_surface,0,0,width,height);
     wl_surface_commit(w->shadow_surface);
-    if (w->mapped) wl_surface_commit(w->surface);
+    if (w->mapped && !w->gpu) wl_surface_commit(w->surface);
     buffer_free(w->shadow_buffer);
     w->shadow_buffer=buffer;
     return 1;
@@ -1035,7 +1173,7 @@ void nz_window_outer_resize(nz_window *w,int margin) {
         buffer_free(w->resize_buffer);
         w->resize_viewport=NULL; w->resize_subsurface=NULL; w->resize_surface=NULL; w->resize_buffer=NULL;
         w->resize_margin=0;
-        if (w->mapped) wl_surface_commit(w->surface);
+        if (w->mapped && !w->gpu) wl_surface_commit(w->surface);
         return;
     }
     if (margin>128 || w->width>32768 || w->height>32768) { nz_window_outer_resize(w,0); return; }
@@ -1068,7 +1206,7 @@ void nz_window_outer_resize(nz_window *w,int margin) {
     wl_subsurface_set_position(w->resize_subsurface,-margin,-margin);
     w->resize_margin=margin; w->resize_width=width; w->resize_height=height;
     wl_surface_commit(w->resize_surface);
-    if (w->mapped) wl_surface_commit(w->surface);
+    if (w->mapped && !w->gpu) wl_surface_commit(w->surface);
 }
 int nz_window_blur(nz_window *w, int enabled) {
     if (!w || !w->connection->effects || !(w->connection->effect_capabilities & EXT_BACKGROUND_EFFECT_MANAGER_V1_CAPABILITY_BLUR)) return 0;
@@ -1112,6 +1250,7 @@ void nz_window_destroy(nz_window *w) {
     if (w->surface) wl_surface_destroy(w->surface);
     while (w->outputs) { struct nz_entered_output *entry=w->outputs; w->outputs=entry->next; free(entry); }
     while (w->buffers) { struct nz_buffer *b=w->buffers; w->buffers=b->next; buffer_free(b); }
+    free(w->title); free(w->app_id);
     free(w);
 }
 void nz_disconnect(nz_connection *c) {
@@ -1150,6 +1289,7 @@ void nz_disconnect(nz_connection *c) {
     xkb_state_unref(c->key_state); xkb_keymap_unref(c->keymap); xkb_context_unref(c->xkb);
     free(c->clipboard); free(c->received); free(c->preedit); free(c->commit);
     free_event(c->current); while (c->head) { struct nz_queued_event *e=c->head; c->head=e->next; free_event(e); }
+    pthread_mutex_destroy(&c->render_lock);
     free(c);
 }
 

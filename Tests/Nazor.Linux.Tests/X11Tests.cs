@@ -102,12 +102,19 @@ public sealed class X11Tests
     }
 
     [Theory(SkipUnless = nameof(HasDisplay), Skip = "Requires X11 and Mesa EGL/OpenGL ES.")]
-    [InlineData(0)]
-    [InlineData(16)]
-    public void Egl_context_matches_the_X11_visual_and_releases_its_display(int outset)
+    [InlineData(0, false)]
+    [InlineData(16, false)]
+    [InlineData(0, true)]
+    [InlineData(16, true)]
+    public void Egl_context_matches_the_X11_visual_and_releases_its_display(int outset, bool transparent)
     {
         using var platform = new X11Platform();
-        using var window = platform.CreateWindow(new Host(), new("X11 EGL", 160, 100) { Decorations = WindowDecorations.Nazor() });
+        Assert.SkipUnless(!transparent || platform.Capabilities.CanUseTransparentBackground, "Requires an X11 compositing manager for the ARGB visual.");
+        using var window = platform.CreateWindow(new Host(), new("X11 EGL", 160, 100)
+        {
+            Decorations = WindowDecorations.Nazor(),
+            BackgroundMode = transparent ? BackgroundMode.Transparent : BackgroundMode.Default,
+        });
         window.Show(false);
         unsafe { platform.Native.OuterResize(window.Handle, outset); }
         var context = window.CreateOpenGlContext()!;

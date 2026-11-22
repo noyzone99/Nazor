@@ -334,6 +334,12 @@ static void verify_popups(nz_connection *c, nz_window *owner, Display *display) 
     memset(view.pixels,0xff,(size_t)view.stride*view.height); nz_window_present(popup,1,0);
     nz_popup_placement nested={.x=90,.y=20,.width=60,.height=40,.anchor_x=80,.anchor_y=20,.anchor_width=20,.anchor_height=20,.shadow=8,.side=2};
     nz_window *child=nz_popup_create(popup,&nested); assert(child);
+    Window root=DefaultRootWindow(display), ignored;
+    Window child_id=(Window)(uintptr_t)nz_window_native_surface(child);
+    int parent_x,parent_y,child_x,child_y;
+    assert(XTranslateCoordinates(display,id,root,placement.shadow,placement.shadow,&parent_x,&parent_y,&ignored));
+    assert(XTranslateCoordinates(display,child_id,root,nested.shadow,nested.shadow,&child_x,&child_y,&ignored));
+    assert(child_x==parent_x+nested.x && child_y==parent_y+nested.y);
     nz_window_destroy(child);
     placement.y=120; assert(nz_popup_place(popup,&placement));
     nz_window_destroy(popup);
@@ -357,6 +363,80 @@ static void verify_popups(nz_connection *c, nz_window *owner, Display *display) 
     assert(deactivated);
     XSync(display,False);
     assert(nz_dispatch(c,0)==0);
+}
+
+static void verify_drawable_size(Display *display) {
+    Window root=DefaultRootWindow(display);
+    Atom previous_type;
+    int previous_format;
+    unsigned long previous_count, remaining;
+    unsigned char *previous=NULL;
+    assert(XGetWindowProperty(display,root,XA_RESOURCE_MANAGER,0,65536,False,AnyPropertyType,
+        &previous_type,&previous_format,&previous_count,&remaining,&previous)==Success && !remaining);
+    const char dpi[]="Xft.dpi: 240\n";
+    XChangeProperty(display,root,XA_RESOURCE_MANAGER,XA_STRING,8,PropModeReplace,(const unsigned char*)dpi,sizeof(dpi)-1);
+    XSync(display,False);
+
+    char error[512];
+    nz_connection *c=nz_connect(error,sizeof(error)); assert(c);
+    nz_window *w=nz_window_create(c,"Drawable size","org.nazor.Tests",40,40,NULL,1,1); assert(w);
+    Window id=(Window)(uintptr_t)nz_window_native_surface(w);
+    XSetWindowAttributes attributes={.override_redirect=True};
+    XChangeWindowAttributes(display,id,CWOverrideRedirect,&attributes);
+    XSync(display,False);
+    nz_window_show(w,1);
+    for(unsigned width=100;width<=101;width++) {
+        if(width==101) {
+            XResizeWindow(display,id,width,100);
+            XSync(display,False);
+        }
+        nz_event e;
+        int configured=0;
+        double deadline=now()+3;
+        while(!configured && now()<deadline) {
+            assert(nz_dispatch(c,20)==0);
+            while(nz_next_event(c,&e)) if(e.type==NZ_CONFIGURE && e.window==w) {
+                assert(e.a==40 && e.b==40 && e.x==width && e.y==100);
+                configured=1;
+            }
+        }
+        assert(configured);
+    }
+    nz_disconnect(c);
+
+    const char half_dpi[]="Xft.dpi: 48\n";
+    XChangeProperty(display,root,XA_RESOURCE_MANAGER,XA_STRING,8,PropModeReplace,(const unsigned char*)half_dpi,sizeof(half_dpi)-1);
+    XSync(display,False);
+    c=nz_connect(error,sizeof(error)); assert(c);
+    w=nz_window_create(c,"One pixel","org.nazor.Tests",1,1,NULL,1,1); assert(w);
+    XWindowAttributes geometry;
+    assert(XGetWindowAttributes(nz_window_native_display(w),(Window)(uintptr_t)nz_window_native_surface(w),&geometry));
+    assert(geometry.width==1 && geometry.height==1 && nz_dispatch(c,0)==0);
+    nz_disconnect(c);
+
+    if(previous_type==None) XDeleteProperty(display,root,XA_RESOURCE_MANAGER);
+    else XChangeProperty(display,root,XA_RESOURCE_MANAGER,previous_type,previous_format,PropModeReplace,previous,(int)previous_count);
+    if(previous) XFree(previous);
+    XSync(display,False);
+}
+
+static void verify_clipboard_reacquisition(nz_connection *c) {
+    assert(nz_clipboard_set(c,"first copy"));
+    Display *other=XOpenDisplay(NULL); assert(other);
+    Atom clipboard=XInternAtom(other,"CLIPBOARD",False);
+    Window owner=XCreateSimpleWindow(other,DefaultRootWindow(other),0,0,1,1,0,0,0);
+    XSetSelectionOwner(other,clipboard,owner,CurrentTime);
+    assert(XGetSelectionOwner(other,clipboard)==owner);
+    assert(nz_clipboard_set(c,"second copy"));
+    assert(nz_dispatch(c,0)==0 && nz_clipboard_request(c));
+    int delivered=0;
+    nz_event event;
+    while(nz_next_event(c,&event)) if(event.type==NZ_CLIPBOARD) {
+        assert(event.text && !strcmp(event.text,"second copy"));
+        delivered=1;
+    }
+    assert(delivered);
+    XCloseDisplay(other);
 }
 
 int main(int argc,char **argv) {
@@ -415,15 +495,23 @@ int main(int argc,char **argv) {
     verify_minimize_restore(c,w);
     assert(nz_clipboard_set(c,"Nazor è 😀")); assert(nz_clipboard_request(c));
     int clipboard=0; while(nz_next_event(c,&e)) if(e.type==NZ_CLIPBOARD) { assert(!strcmp(e.text,"Nazor è 😀")); clipboard=1; } assert(clipboard);
+    verify_clipboard_reacquisition(c);
     XEvent key={0}; key.xkey=(XKeyEvent){.type=KeyPress,.display=display,.window=id,.root=DefaultRootWindow(display),.keycode=XKeysymToKeycode(display,XK_a),.same_screen=True};
     XSendEvent(display,id,False,KeyPressMask,&key); XSendEvent(display,id,False,KeyPressMask,&key);
     key.xkey.type=KeyRelease; XSendEvent(display,id,False,KeyReleaseMask,&key); XFlush(display);
-    int keys=0,repeat=0; deadline=now()+3;
-    while(keys<3 && now()<deadline) { assert(nz_dispatch(c,20)==0); while(nz_next_event(c,&e)) if(e.type==NZ_KEY && e.window==w) { keys++; repeat+=e.d; assert(!strcmp(e.text,"a")); } }
-    assert(keys==3 && repeat==1);
+    int keys=0,repeat=0,texts=0; deadline=now()+3;
+    while(keys<3 && now()<deadline) {
+        assert(nz_dispatch(c,20)==0);
+        while(nz_next_event(c,&e)) if(e.window==w) {
+            if(e.type==NZ_KEY) { keys++; repeat+=e.d; assert(!strcmp(e.text,"a")); }
+            if(e.type==NZ_TEXT) { texts++; assert(!e.flags && !strcmp(e.text,"a")); }
+        }
+    }
+    assert(keys==3 && repeat==1 && texts==2);
     XEvent close={0}; close.xclient.type=ClientMessage; close.xclient.window=id; close.xclient.message_type=XInternAtom(display,"WM_PROTOCOLS",False); close.xclient.format=32; close.xclient.data.l[0]=(long)XInternAtom(display,"WM_DELETE_WINDOW",False); XSendEvent(display,id,False,0,&close); XFlush(display);
     int closed=0; deadline=now()+3; while(!closed && now()<deadline) { assert(nz_dispatch(c,20)==0); while(nz_next_event(c,&e)) if(e.type==NZ_CLOSE && e.window==w) closed=1; } assert(closed);
     verify_argb(c,display);
+    verify_drawable_size(display);
     verify_foreign_parent(w);
     verify_popups(c,w,display);
     nz_window_destroy(owned); nz_window_destroy(w);

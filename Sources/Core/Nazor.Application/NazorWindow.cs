@@ -672,9 +672,12 @@ public sealed partial class NazorWindow : IWindowHost, IWindow, IDisposable
         LastFrameDamage = damage;
         FrameCount++;
 
-        PlatformWindow.SetTextInputCaret(Input.GetTextCaretRect());
-
+        var caret = Input.GetTextCaretRect();
+        if (PlatformWindow.Platform == PlatformKind.Linux && caret.HasValue)
+            _ = Semantics;
         semantics?.UpdateAfterScene();
+        if (!disposed && !PlatformWindow.IsClosed)
+            PlatformWindow.SetTextInputCaret(caret);
 
         var autonomousMotion=gpuFrame && Scene.CanAnimateOnCompositor && displayList.Commands.Any(command => command is PushComposition);
         if (Scene.TimeUntilNextFrame is { } delay && !autonomousMotion)

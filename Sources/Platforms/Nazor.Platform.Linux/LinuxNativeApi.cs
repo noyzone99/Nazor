@@ -67,6 +67,8 @@ internal sealed unsafe class LinuxNativeApi : IDisposable
     internal readonly delegate* unmanaged[Cdecl]<nint, byte*, void> _nz_window_cursor;
     internal readonly delegate* unmanaged[Cdecl]<nint, int, int, int, int, int, void> nz_window_text_input;
     internal readonly delegate* unmanaged[Cdecl]<nint, byte*, int, int, int, void> _nz_window_surrounding;
+    private readonly delegate* unmanaged[Cdecl]<nint, int, int, int, int, int, int, int, byte*, int, int, void> waylandTextContext;
+    internal bool HasWaylandTextContext => waylandTextContext != null;
     internal readonly delegate* unmanaged[Cdecl]<nint, uint> nz_window_capabilities;
     internal readonly delegate* unmanaged[Cdecl]<nint, int, int, BufferView*, int> _nz_window_acquire;
     internal readonly delegate* unmanaged[Cdecl]<nint, float, int, void> nz_window_present;
@@ -77,6 +79,10 @@ internal sealed unsafe class LinuxNativeApi : IDisposable
     internal readonly delegate* unmanaged[Cdecl]<nint, nint> nz_window_native_surface;
     internal readonly delegate* unmanaged[Cdecl]<nint, nint> RenderSurface;
     internal readonly delegate* unmanaged[Cdecl]<nint, void> nz_window_gpu_prepare;
+    internal readonly delegate* unmanaged[Cdecl]<nint, void> WaylandGpuStart;
+    internal readonly delegate* unmanaged[Cdecl]<nint, int, int, int> WaylandGpuPrepare;
+    internal readonly delegate* unmanaged[Cdecl]<nint, void> WaylandGpuPresented;
+    internal bool HasWaylandGpuPresentation => WaylandGpuStart != null && WaylandGpuPrepare != null && WaylandGpuPresented != null;
     internal readonly delegate* unmanaged[Cdecl]<nint, void> nz_window_cancel_frame;
     internal readonly delegate* unmanaged[Cdecl]<nint, byte*, int, int, int> nz_window_icon;
     private readonly delegate* unmanaged[Cdecl]<nint, nint, int, int, int, float, int> frameShadow;
@@ -84,6 +90,7 @@ internal sealed unsafe class LinuxNativeApi : IDisposable
     internal readonly delegate* unmanaged[Cdecl]<nint, int, int> nz_window_blur;
     internal readonly delegate* unmanaged[Cdecl]<nint, byte*, int> _nz_clipboard_set;
     internal readonly delegate* unmanaged[Cdecl]<nint, int> nz_clipboard_request;
+    internal readonly delegate* unmanaged[Cdecl]<nint, void> ClipboardCancel;
     internal readonly delegate* unmanaged[Cdecl]<nint, int, void> PointerCapture;
     internal readonly delegate* unmanaged[Cdecl]<nint, int> NativeVisual;
     private readonly delegate* unmanaged[Cdecl]<nint, int> argbSupported;
@@ -142,6 +149,8 @@ internal sealed unsafe class LinuxNativeApi : IDisposable
             _nz_window_cursor = (delegate* unmanaged[Cdecl]<nint, byte*, void>)NativeLibrary.GetExport(library, "nz_window_cursor");
             nz_window_text_input = (delegate* unmanaged[Cdecl]<nint, int, int, int, int, int, void>)NativeLibrary.GetExport(library, "nz_window_text_input");
             _nz_window_surrounding = (delegate* unmanaged[Cdecl]<nint, byte*, int, int, int, void>)NativeLibrary.GetExport(library, "nz_window_surrounding");
+            NativeLibrary.TryGetExport(library, "nz_window_wayland_text_context", out var textContext);
+            waylandTextContext = (delegate* unmanaged[Cdecl]<nint, int, int, int, int, int, int, int, byte*, int, int, void>)textContext;
             nz_window_capabilities = (delegate* unmanaged[Cdecl]<nint, uint>)NativeLibrary.GetExport(library, "nz_window_capabilities");
             _nz_window_acquire = (delegate* unmanaged[Cdecl]<nint, int, int, BufferView*, int>)NativeLibrary.GetExport(library, "nz_window_acquire");
             nz_window_present = (delegate* unmanaged[Cdecl]<nint, float, int, void>)NativeLibrary.GetExport(library, "nz_window_present");
@@ -153,6 +162,12 @@ internal sealed unsafe class LinuxNativeApi : IDisposable
             NativeLibrary.TryGetExport(library, "nz_window_render_surface", out var renderSurface);
             RenderSurface = (delegate* unmanaged[Cdecl]<nint, nint>)renderSurface;
             nz_window_gpu_prepare = (delegate* unmanaged[Cdecl]<nint, void>)NativeLibrary.GetExport(library, "nz_window_gpu_prepare");
+            NativeLibrary.TryGetExport(library, "nz_window_wayland_gpu_start", out var waylandGpuStart);
+            WaylandGpuStart = (delegate* unmanaged[Cdecl]<nint, void>)waylandGpuStart;
+            NativeLibrary.TryGetExport(library, "nz_window_wayland_gpu_prepare", out var waylandGpuPrepare);
+            WaylandGpuPrepare = (delegate* unmanaged[Cdecl]<nint, int, int, int>)waylandGpuPrepare;
+            NativeLibrary.TryGetExport(library, "nz_window_wayland_gpu_presented", out var waylandGpuPresented);
+            WaylandGpuPresented = (delegate* unmanaged[Cdecl]<nint, void>)waylandGpuPresented;
             nz_window_cancel_frame = (delegate* unmanaged[Cdecl]<nint, void>)NativeLibrary.GetExport(library, "nz_window_cancel_frame");
             nz_window_icon = (delegate* unmanaged[Cdecl]<nint, byte*, int, int, int>)NativeLibrary.GetExport(library, "nz_window_icon");
             NativeLibrary.TryGetExport(library, "nz_window_frame_shadow", out var shadow);
@@ -162,6 +177,8 @@ internal sealed unsafe class LinuxNativeApi : IDisposable
             nz_window_blur = (delegate* unmanaged[Cdecl]<nint, int, int>)NativeLibrary.GetExport(library, "nz_window_blur");
             _nz_clipboard_set = (delegate* unmanaged[Cdecl]<nint, byte*, int>)NativeLibrary.GetExport(library, "nz_clipboard_set");
             nz_clipboard_request = (delegate* unmanaged[Cdecl]<nint, int>)NativeLibrary.GetExport(library, "nz_clipboard_request");
+            NativeLibrary.TryGetExport(library, "nz_clipboard_cancel", out var clipboardCancel);
+            ClipboardCancel = (delegate* unmanaged[Cdecl]<nint, void>)clipboardCancel;
             NativeLibrary.TryGetExport(library, "nz_window_pointer_capture", out var capture);
             PointerCapture = (delegate* unmanaged[Cdecl]<nint, int, void>)capture;
             NativeLibrary.TryGetExport(library, "nz_window_native_visual", out var visual);
@@ -227,6 +244,13 @@ internal sealed unsafe class LinuxNativeApi : IDisposable
         var textBytes = System.Text.Encoding.UTF8.GetBytes(text + "\0");
         fixed (byte* textPointer = textBytes)
         { _nz_window_surrounding(window, textPointer, cursor, anchor, password); }
+    }
+    internal void UpdateWaylandTextContext(nint window, bool enabled, int field, bool password, int x, int y, int width, int height,
+        string? text, int cursor, int anchor)
+    {
+        var textBytes = text is null ? null : System.Text.Encoding.UTF8.GetBytes(text + "\0");
+        fixed (byte* textPointer = textBytes)
+            waylandTextContext(window, enabled ? 1 : 0, field, password ? 1 : 0, x, y, width, height, textPointer, cursor, anchor);
     }
     internal int nz_window_acquire(nint window, int width, int height, out BufferView view)
     {

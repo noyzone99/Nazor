@@ -258,15 +258,22 @@ public abstract unsafe partial class LinuxDesktopPlatform : IPlatform, IDisposab
             platform.AssertAccess();
             if (reading) return null;
             reading = true;
+            var requested = false;
             try
             {
                 complete = false;
-                if (platform.Native.nz_clipboard_request(platform.connection) == 0) return null;
+                requested = platform.Native.nz_clipboard_request(platform.connection) != 0;
+                if (!requested) return null;
                 var deadline = Stopwatch.GetTimestamp() + 2 * Stopwatch.Frequency;
                 while (!complete && Stopwatch.GetTimestamp() < deadline) platform.Dispatch(20);
                 return complete ? received : null;
             }
-            finally { reading = false; }
+            finally
+            {
+                if (requested && !complete && platform.connection != 0 && platform.Native.ClipboardCancel != null)
+                    platform.Native.ClipboardCancel(platform.connection);
+                reading = false;
+            }
         }
         public bool SetText(string text)
         {

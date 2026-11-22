@@ -71,6 +71,8 @@ NZ_API void nz_window_outer_resize(nz_window *window, int margin);
 NZ_API void nz_window_cursor(nz_window *window, const char *name);
 NZ_API void nz_window_text_input(nz_window *window, int enabled, int x, int y, int width, int height);
 NZ_API void nz_window_surrounding(nz_window *window, const char *text, int cursor, int anchor, int password);
+NZ_API void nz_window_wayland_text_context(nz_window *window, int enabled, int field, int password,
+    int x, int y, int width, int height, const char *text, int cursor, int anchor);
 NZ_API uint32_t nz_window_capabilities(nz_window *window);
 NZ_API int nz_window_acquire(nz_window *window, int width, int height, nz_buffer_view *view);
 NZ_API void nz_window_present(nz_window *window, float scale, int frame);
@@ -81,6 +83,9 @@ NZ_API void *nz_window_native_display(nz_window *window);
 NZ_API void *nz_window_native_surface(nz_window *window);
 NZ_API void *nz_window_render_surface(nz_window *window);
 NZ_API void nz_window_gpu_prepare(nz_window *window);
+NZ_API void nz_window_wayland_gpu_start(nz_window *window);
+NZ_API int nz_window_wayland_gpu_prepare(nz_window *window, int width, int height);
+NZ_API void nz_window_wayland_gpu_presented(nz_window *window);
 NZ_API void nz_window_cancel_frame(nz_window *window);
 NZ_API int nz_window_icon(nz_window *window, const void *pixels, int width, int height);
 NZ_API int nz_window_wayland_shadow(nz_window *window, const void *pixels, int width, int height, int margin, int scale);
@@ -89,5 +94,6 @@ NZ_API int nz_window_x11_corners(nz_window *window, const float *radii);
 NZ_API int nz_window_blur(nz_window *window, int enabled);
 NZ_API int nz_clipboard_set(nz_connection *connection, const char *text);
 NZ_API int nz_clipboard_request(nz_connection *connection);
+NZ_API void nz_clipboard_cancel(nz_connection *connection);
 NZ_API int nz_window_foreign_parent(nz_window *window, const char *handle);
 #endif

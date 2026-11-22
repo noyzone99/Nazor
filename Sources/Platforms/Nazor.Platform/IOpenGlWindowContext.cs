@@ -33,6 +33,11 @@ public interface IOpenGlWindowContext : IDisposable
     void Present();
 }
 
+internal interface IConditionalOpenGlPresentation
+{
+    bool TryPresent();
+}
+
 /// <summary>A recognized failure to initialize or use a native graphics device.</summary>
 public sealed class GraphicsDeviceException : Exception
 {

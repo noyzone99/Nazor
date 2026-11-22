@@ -2,7 +2,7 @@ using System.Runtime.InteropServices;
 
 namespace Nazor.Platform.Linux;
 
-internal sealed unsafe class EglWindowContext : IOpenGlWindowContext
+internal sealed unsafe class EglWindowContext : IOpenGlWindowContext, IConditionalOpenGlPresentation
 {
     private static readonly Lock displayGate = new();
     private static readonly Dictionary<nint, (nint Display, int Users)> displays = [];
@@ -11,6 +11,7 @@ internal sealed unsafe class EglWindowContext : IOpenGlWindowContext
     private readonly bool isX11;
     private readonly LinuxNativeApi native;
     private nint display, window, surface, context, config;
+    private int bufferWidth, bufferHeight;
     private int invalidDrawable;
     public bool IsEmbedded => true;
 
@@ -49,10 +50,15 @@ internal sealed unsafe class EglWindowContext : IOpenGlWindowContext
                 }
             }
             if (eglBindAPI(0x30A0) == 0) throw Error("Cannot select the OpenGL ES API");
-            int* attributes = stackalloc int[] { 0x3033, 4, 0x3040, 4, 0x3024, 8, 0x3023, 8, 0x3022, 8, 0x3021, isX11 ? 0 : 8, 0x3026, 8, 0x3038, 0x3038, 0x3038 };
-            if (isX11) { attributes[14] = 0x302E; attributes[15] = native.NativeVisual(nativeWindow); }
-            if (eglChooseConfig(display, attributes, out config, 1, out var count) == 0 || count == 0)
-                throw Error("No RGBA8 EGL window configuration is available");
+            int* attributes = stackalloc int[] { 0x3033, 4, 0x3040, 4, 0x3024, 8, 0x3023, 8, 0x3022, 8, 0x3021, isX11 ? 0 : 8, 0x3026, 8, 0x3038 };
+            if (isX11) config = ChooseX11Config(attributes);
+            else
+            {
+                nint first;
+                if (eglChooseConfig(display, attributes, &first, 1, out var count) == 0 || count == 0)
+                    throw Error("No RGBA8 EGL window configuration is available");
+                config = first;
+            }
             int* options = stackalloc int[] { 0x3098, 3, 0x3038 };
             context = eglCreateContext(display, config, 0, options);
             if (context == 0) { options[1] = 2; context = eglCreateContext(display, config, 0, options); }
@@ -69,6 +75,23 @@ internal sealed unsafe class EglWindowContext : IOpenGlWindowContext
         catch { Dispose(); throw; }
     }
 
+    private nint ChooseX11Config(int* attributes)
+    {
+        if (eglChooseConfig(display, attributes, null, 0, out var count) == 0 || count == 0)
+            throw Error("No EGL window configurations are available for X11");
+        var candidates = new nint[count];
+        fixed (nint* configurations = candidates)
+            if (eglChooseConfig(display, attributes, configurations, candidates.Length, out count) == 0)
+                throw Error("Cannot enumerate the EGL window configurations for X11");
+
+        const int nativeVisualId = 0x302E;
+        var visual = native.NativeVisual(nativeWindow);
+        foreach (var candidate in candidates.AsSpan(0, count))
+            if (eglGetConfigAttrib(display, candidate, nativeVisualId, out var candidateVisual) != 0 && candidateVisual == visual)
+                return candidate;
+        throw new GraphicsDeviceException($"No EGL window configuration matches the X11 visual 0x{visual:X}.");
+    }
+
     public nint GetProcAddress(string name) => eglGetProcAddress(name);
 
     internal void InvalidateDrawable() => Interlocked.Exchange(ref invalidDrawable, 1);
@@ -76,7 +99,12 @@ internal sealed unsafe class EglWindowContext : IOpenGlWindowContext
     public void MakeCurrent(int width, int height)
     {
         var rebound = false;
-        if (!isX11) wl_egl_window_resize(window, width, height, 0, 0);
+        if (!isX11)
+        {
+            wl_egl_window_resize(window, width, height, 0, 0);
+            bufferWidth = width;
+            bufferHeight = height;
+        }
         else if (Interlocked.Exchange(ref invalidDrawable, 0) != 0)
         {
             // The window manager may replace the redirected drawable when it reparents the XID.
@@ -90,9 +118,15 @@ internal sealed unsafe class EglWindowContext : IOpenGlWindowContext
         if (rebound) eglSwapInterval(display, 0);
     }
 
-    public void Present()
+    public void Present() => TryPresent();
+
+    public bool TryPresent()
     {
+        var wayland = !isX11 && native.HasWaylandGpuPresentation;
+        if (wayland && native.WaylandGpuPrepare(nativeWindow, bufferWidth, bufferHeight) == 0) return false;
         if (eglSwapBuffers(display, surface) == 0) throw Error("The EGL window framebuffer could not be presented");
+        if (wayland) native.WaylandGpuPresented(nativeWindow);
+        return true;
     }
 
     public void Dispose()
@@ -127,7 +161,8 @@ internal sealed unsafe class EglWindowContext : IOpenGlWindowContext
     [DllImport("libEGL.so.1")] private static extern int eglInitialize(nint display, out int major, out int minor);
     [DllImport("libEGL.so.1")] private static extern int eglTerminate(nint display);
     [DllImport("libEGL.so.1")] private static extern int eglBindAPI(uint api);
-    [DllImport("libEGL.so.1")] private static extern int eglChooseConfig(nint display, int* attributes, out nint config, int size, out int count);
+    [DllImport("libEGL.so.1")] private static extern int eglChooseConfig(nint display, int* attributes, nint* configs, int size, out int count);
+    [DllImport("libEGL.so.1")] private static extern int eglGetConfigAttrib(nint display, nint config, int attribute, out int value);
     [DllImport("libEGL.so.1")] private static extern nint eglCreateContext(nint display, nint config, nint share, int* attributes);
     [DllImport("libEGL.so.1")] private static extern int eglDestroyContext(nint display, nint context);
     [DllImport("libEGL.so.1")] private static extern nint eglCreateWindowSurface(nint display, nint config, nint window, int* attributes);
