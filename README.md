@@ -27,7 +27,7 @@ Blazor inspired the component model. Avalonia inspired the separation between pl
 
 The goal is to make that freedom practical for a small utility or a larger desktop app. Compose a new control from layout and interaction primitives, or start with ready-to-use editors, menus, lists, and tables. Headless tests and DevTools already let you inspect what a component renders, how it lays out, and which styles apply. [Control catalog](Docs/Guide/09-Control-Catalog.md) · [DevTools](Docs/DevTools.md)
 
-Windows 10 and 11 x64 are the primary verification baseline. Linux has Wayland and X11 desktop backends and a DRM/KMS single-view host for embedded systems. Platform features and verification vary by backend. macOS, Android, and iOS are longer-term targets. [Support and limitations](Docs/Guide/32-Support-and-Limitations.md)
+Windows 10 and 11 x64 are the primary verification baseline. Linux has Wayland and X11 desktop backends and a DRM/KMS single-view host for embedded systems. Platform features and verification vary by backend. macOS, Android, and iOS are longer-term targets, along with .NET Framework 4.7.2 (`net472`) compatibility for Windows desktop applications. [Support and limitations](Docs/Guide/32-Support-and-Limitations.md)
 
 You can run the visual regression tests and benchmarks yourself. The Windows comparison runs the same text, paint, and layout workloads in Nazor and Avalonia, with CPU and GPU runs, screenshot checks, and raw results. The protocol describes what those measurements cover. [Testing and benchmarks](Docs/Guide/27-Testing-and-Diagnostics.md#contributor-checks) · [Renderer comparison](Tests/RendererComparison/README.md)
 
