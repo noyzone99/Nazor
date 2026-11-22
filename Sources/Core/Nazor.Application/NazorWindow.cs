@@ -262,22 +262,27 @@ public sealed partial class NazorWindow : IWindowHost, IWindow, IDisposable
         }
         try
         {
-            compositor = new OpenGlCompositor(PlatformWindow.CreateOpenGlContext, exception => Dispatcher.Post(() =>
+            OpenGlCompositor? created = null;
+            created = new OpenGlCompositor(PlatformWindow.CreateOpenGlContext, exception => Dispatcher.Post(() =>
             {
-                if (disposed) return;
-                StopCompositor();
+                if (disposed || compositor != created) return;
+                Exception? cleanupFailure = null;
+                try { StopCompositor(); }
+                catch (Exception error) { cleanupFailure = error; }
                 frameDamage.Reset();
                 if (Rendering.Requested == RenderingMode.Auto && exception is GraphicsDeviceException)
                 {
                     Rendering = new(Rendering.Requested, RenderingMode.Cpu, "Skia raster", FallbackReason: exception.Message);
+                    if (cleanupFailure is not null) Log(LogLevel.Warning, "GPU cleanup failed during CPU fallback.", cleanupFailure);
                     PlatformWindow.ResetRendering();
                     if (logger is null) Log(LogLevel.Warning, $"GPU rendering failed; using CPU: {exception.Message}");
                     else StartupLog.Renderer(logger, Rendering, failed: true);
                     RequestFrame();
                 }
-                else { OnException(exception); Close(); }
+                else { OnException(cleanupFailure is null ? exception : new AggregateException(exception, cleanupFailure)); Close(); }
             }), () => Dispatcher.Post(() => { if (!disposed) RequestFrame(WindowFrameCause.Animation); }),
                 frame => { if (FramePresented is not null) ReportPresentation(new(frame.UiFrame,RenderingMode.Gpu,frame.Number,frame.Duration)); });
+            compositor = created;
             Rendering = new(requested, RenderingMode.Gpu, compositor.Backend, compositor.Device);
             PlatformWindow.ResetRendering();
             return false;
@@ -844,7 +849,7 @@ public sealed partial class NazorWindow : IWindowHost, IWindow, IDisposable
 
     void IWindowHost.OnVisibilityChanged(bool visible)
     {
-
+        if (visible && !isVisible && compositor is not null) frameDamage.Reset();
         isVisible = visible;
         if (!visible) CloseNativePopups();
         compositor?.SetVisible(visible);

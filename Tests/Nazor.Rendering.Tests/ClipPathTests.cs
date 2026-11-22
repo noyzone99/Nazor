@@ -113,17 +113,24 @@ public sealed class ClipPathTests
     }
 
     [Theory]
-    [InlineData(1f)]
-    [InlineData(1.25f)]
-    [InlineData(1.5f)]
-    [InlineData(2f)]
-    public void Animated_clip_damage_repaints_exactly_like_a_full_frame(float scale)
+    [InlineData(1f, false)]
+    [InlineData(1.25f, false)]
+    [InlineData(1.5f, false)]
+    [InlineData(2f, false)]
+    [InlineData(1f, true)]
+    [InlineData(1.25f, true)]
+    [InlineData(1.5f, true)]
+    [InlineData(2f, true)]
+    public void Animated_clip_damage_repaints_exactly_like_a_full_frame(float scale, bool radiusOnly)
     {
         var clock = new ManualAnimationClock();
         using var harness = new RenderHarness(clock: clock);
         harness.Scene.Styles.Theme = StyleSheets.Basic;
         harness.Scene.Transitions.ReducedMotion = false;
-        var result = NssCompiler.Compile("clip", "@keyframes reveal { from { clip-path: inset(50% 0 round 30px / 15px); } to { clip-path: inset(0 round 6px); } }");
+        var animation = radiusOnly
+            ? "@keyframes reveal { from { clip-path: inset(0 round 0px); } to { clip-path: inset(0 round 20px); } }"
+            : "@keyframes reveal { from { clip-path: inset(50% 0 round 30px / 15px); } to { clip-path: inset(0 round 6px); } }";
+        var result = NssCompiler.Compile("clip", animation);
         Assert.True(result.Success);
         harness.Scene.Styles.Application = result.StyleSheet;
         var root = harness.Host.Render<ClipPathProbe>();

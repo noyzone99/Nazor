@@ -49,6 +49,29 @@ public sealed class GpuWindowTests
     }
 
     [Fact]
+    public void The_first_gpu_frame_after_resuming_repaints_the_retained_surface()
+    {
+        using var harness = new WindowHarness(typeof(NativeAppearancePage), new() { Rendering = RenderingMode.Auto });
+        if (harness.Read(window => window.Rendering.Actual) == RenderingMode.Cpu) Assert.Skip("Hardware GPU unavailable.");
+        harness.WaitUntil(window => window.GpuFramesPresented > 0, "first frame");
+
+        harness.Read(window =>
+        {
+            var host = (Nazor.Platform.IWindowHost)window;
+            var scale = window.Scene.Scale;
+            var size = window.PlatformWindow.ClientSize;
+            var target = new Nazor.Platform.PaintTarget(0, (int)Math.Round(size.Width * scale), (int)Math.Round(size.Height * scale), 0, scale);
+            host.OnPaint(target);
+            Assert.Empty(host.OnPaint(target)!);
+
+            host.OnVisibilityChanged(false);
+            host.OnVisibilityChanged(true);
+            Assert.Null(host.OnPaint(target));
+            return true;
+        });
+    }
+
+    [Fact]
     public void An_exposed_clean_window_reuses_its_scene_and_drawing_commands()
     {
         using var harness = new WindowHarness(typeof(NativeAppearancePage),new() { Rendering=RenderingMode.Cpu });

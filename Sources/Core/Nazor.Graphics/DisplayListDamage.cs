@@ -17,7 +17,7 @@ public sealed class DisplayListDamage
     private Size? previousSize;
     private float previousScale = 1;
     private readonly Dictionary<Drawing, int> first = new(DrawingComparer.Instance);
-    private readonly Stack<(Matrix, Rect, Opacities?)> states = new();
+    private readonly Stack<(Matrix, Rect, ClipShape?, Opacities?)> states = new();
     private int[] next = [];
     private bool[] matched = [];
 
@@ -260,8 +260,9 @@ public sealed class DisplayListDamage
     }
 
     private sealed record Opacities(float Opacity, Opacities? Outer);
+    private sealed record ClipShape(PushClip Command, Matrix Transform, ClipShape? Outer);
 
-    private readonly record struct Drawing(DrawCommand Command, Matrix Transform, Rect Clip, Opacities? Opacities, Rect Bounds);
+    private readonly record struct Drawing(DrawCommand Command, Matrix Transform, Rect Clip, ClipShape? ClipShape, Opacities? Opacities, Rect Bounds);
 
     private bool Flatten(DisplayList list, List<Drawing> drawings)
     {
@@ -269,33 +270,36 @@ public sealed class DisplayListDamage
         states.Clear();
         var transform = Matrix.Identity;
         var clip = new Rect(-1e9f, -1e9f, 2e9f, 2e9f);
+        ClipShape? clipShape = null;
         Opacities? opacities = null;
         foreach (var command in list.Commands)
         {
             switch (command)
             {
                 case PushClip push:
-                    states.Push((transform, clip, opacities));
+                    states.Push((transform, clip, clipShape, opacities));
                     clip = clip.Intersect(transform.TransformBounds(push.Rect));
+                    if (!push.Radius.IsZero || transform.M12 != 0 || transform.M21 != 0)
+                        clipShape = new ClipShape(push, transform, clipShape);
                     continue;
                 case PushOpacity push:
-                    states.Push((transform, clip, opacities));
+                    states.Push((transform, clip, clipShape, opacities));
                     opacities = new Opacities(push.Opacity, opacities);
                     continue;
                 case PushTranslate push:
-                    states.Push((transform, clip, opacities));
+                    states.Push((transform, clip, clipShape, opacities));
                     transform = Matrix.Translation(push.X, push.Y).Then(transform);
                     continue;
                 case PushTransform push:
-                    states.Push((transform, clip, opacities));
+                    states.Push((transform, clip, clipShape, opacities));
                     transform = push.Matrix.Then(transform);
                     continue;
                 case Pop:
-                    (transform, clip, opacities) = states.Pop();
+                    (transform, clip, clipShape, opacities) = states.Pop();
                     continue;
             }
             if (LocalBounds(command) is not { } local) return false;
-            drawings.Add(new Drawing(command, transform, clip, opacities, transform.TransformBounds(local).Intersect(clip)));
+            drawings.Add(new Drawing(command, transform, clip, clipShape, opacities, transform.TransformBounds(local).Intersect(clip)));
         }
         return true;
     }
@@ -347,7 +351,7 @@ public sealed class DisplayListDamage
         public static readonly DrawingComparer Instance = new();
 
         public bool Equals(Drawing x, Drawing y) =>
-            x.Transform == y.Transform && x.Clip == y.Clip && Equals(x.Opacities, y.Opacities) && Same(x.Command, y.Command);
+            x.Transform == y.Transform && x.Clip == y.Clip && Equals(x.ClipShape, y.ClipShape) && Equals(x.Opacities, y.Opacities) && Same(x.Command, y.Command);
 
         public int GetHashCode(Drawing drawing) => HashCode.Combine(Hash(drawing.Command), drawing.Transform, drawing.Clip);
 
