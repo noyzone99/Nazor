@@ -117,7 +117,13 @@ public sealed class X11Tests
         });
         window.Show(false);
         unsafe { platform.Native.OuterResize(window.Handle, outset); }
-        var context = window.CreateOpenGlContext()!;
+        var context = window.CreateOpenGlContext();
+        if (transparent)
+        {
+            Assert.Null(context);
+            context = new EglWindowContext(window.Handle, platform.Native, isX11: true);
+        }
+        Assert.NotNull(context);
         Exception? failure = null;
         var worker = new Thread(() =>
         {
