@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NazorUseCore>false</NazorUseCore>
+    <Description>Light and dark control styles based on Libadwaita 1.10, with private Adwaita fonts.</Description>
+    <EnableDefaultNazorAssets>false</EnableDefaultNazorAssets>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../Core/Nazor.Graphics/Nazor.Graphics.csproj" />
+    <None Remove="Fonts/**;buildTransitive/Nazor.Themes.Adwaita.targets" />
+    <None Include="Fonts/*.ttf;Fonts/*.txt" Link="Themes/Adwaita/%(Filename)%(Extension)"
+          CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest"
+          Pack="true" PackagePath="assets/" />
+    <None Include="buildTransitive/Nazor.Themes.Adwaita.targets" Pack="true" PackagePath="buildTransitive/" />
+  </ItemGroup>
+  <Import Project="../../Tools/Nazor.Sdk/build/Nazor.targets" />
+</Project>

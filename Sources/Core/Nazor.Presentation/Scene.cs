@@ -1963,6 +1963,8 @@ public sealed partial class Scene : IDisposable
         scrollBarFades.Clear();
         revealedScrollBars.Clear();
         scrollBarContainers.Clear();
+        hoveredScrollBar = null;
+        draggedScrollBarThumb = null;
         pressedScrollBarButton = null;
         hoveredScrollBarButton = null;
         Styles.Dispose();

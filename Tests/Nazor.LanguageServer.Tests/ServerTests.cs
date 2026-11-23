@@ -299,6 +299,8 @@ public sealed class ServerTests : IAsyncLifetime
             ("scrollbar-placement", new[] { "overlay", "reserve" }),
             ("scrollbar-buttons", new[] { "none", "visible" }),
             ("scrollbar-track-radius", new[] { "auto" }),
+            ("scrollbar-thumb-expanded-width", new[] { "auto" }),
+            ("scrollbar-thumb-hover-color", new[] { "auto", "currentcolor", "rgb()" }),
             ("scrollbar-track-border-color", new[] { "currentcolor", "rgb()" }),
             ("scrollbar-fade-timing-function", new[] { "ease-out", "cubic-bezier()" }),
         })
@@ -324,7 +326,15 @@ public sealed class ServerTests : IAsyncLifetime
                 scrollbar-placement: overlay;
                 scrollbar-width: 8px;
                 scrollbar-thumb-color: red;
+                scrollbar-thumb-width: 3px;
+                scrollbar-thumb-expanded-width: 8px;
+                scrollbar-thumb-hover-color: auto;
+                scrollbar-thumb-active-color: currentColor;
+                scrollbar-thumb-border-width: 1px;
+                scrollbar-thumb-border-color: CanvasText;
+                scrollbar-thumb-border-highlight-color: auto;
                 scrollbar-track-color: transparent;
+                scrollbar-track-hover-color: Canvas;
                 scrollbar-radius: 4px;
                 scrollbar-inset: 2px;
                 scrollbar-min-thumb-length: 24px;

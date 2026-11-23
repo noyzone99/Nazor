@@ -9,6 +9,8 @@ $ErrorActionPreference = 'Stop'
 $repositoryRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../..'))
 $Feed = [IO.Path]::GetFullPath($Feed)
 $version = (Select-Xml -Path "$repositoryRoot/Directory.Build.props" -XPath '//NazorVersion').Node.InnerText
+$themeVersion = dotnet msbuild "$repositoryRoot/Directory.Build.props" -nologo -getProperty:NazorThemeVersion
+if ($LASTEXITCODE -ne 0) { throw 'Could not read the theme package version.' }
 $consumerRoot = Join-Path ([IO.Path]::GetFullPath($Workspace)) ([Guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $consumerRoot -Force | Out-Null
 
@@ -59,7 +61,7 @@ foreach ($framework in $Frameworks) {
     <RootNamespace>FontConsumer</RootNamespace>
     <NuGetAudit>false</NuGetAudit>
   </PropertyGroup>
-  <ItemGroup><PackageReference Include="Nazor.Themes.$Theme" Version="$version" /></ItemGroup>
+  <ItemGroup><PackageReference Include="Nazor.Themes.$Theme" Version="$themeVersion" /></ItemGroup>
 </Project>
 "@ | Set-Content -LiteralPath "$consumer/FontConsumer.csproj"
     @'

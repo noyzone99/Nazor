@@ -1,0 +1,9 @@
+<Project>
+  <Target Name="NazorCollectAdwaitaAssets" BeforeTargets="AssignTargetPaths" Condition="'$(DesignTimeBuild)' != 'true'">
+    <ItemGroup>
+      <_AdwaitaAsset Include="$(MSBuildThisFileDirectory)../assets/*" />
+      <None Include="@(_AdwaitaAsset)" TargetPath="Themes/Adwaita/%(_AdwaitaAsset.Filename)%(_AdwaitaAsset.Extension)"
+            CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" Visible="false" />
+    </ItemGroup>
+  </Target>
+</Project>

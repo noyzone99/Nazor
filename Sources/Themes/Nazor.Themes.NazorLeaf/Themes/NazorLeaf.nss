@@ -113,9 +113,19 @@
     font-size: 14px;
     /* Text inherits the prototype's 1.5 line height (body { font: 400 14px/1.5 }), which sets the rhythm of labels and help text. */
     line-height: 1.5;
-    /* Thin neutral scroll thumbs that stay out of the way. */
-    scrollbar-width: 6px;
-    scrollbar-thumb-color: color-mix(in srgb, var(--leaf-text) 24%, transparent);
+}
+
+@media (forced-colors: none) {
+    :root {
+        scrollbar-width: 8px;
+        scrollbar-thumb-width: 5px;
+        scrollbar-thumb-expanded-width: 7px;
+        scrollbar-radius: 4px;
+        scrollbar-thumb-color: color-mix(in srgb, var(--leaf-text) 46%, transparent);
+        scrollbar-thumb-hover-color: color-mix(in srgb, var(--leaf-text) 65%, transparent);
+        scrollbar-thumb-active-color: var(--leaf-primary);
+        scrollbar-track-hover-color: var(--leaf-hover);
+    }
 }
 
 @media (prefers-color-scheme: dark) {

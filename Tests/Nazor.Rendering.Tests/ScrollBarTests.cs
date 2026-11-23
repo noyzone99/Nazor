@@ -60,11 +60,11 @@ public sealed class ScrollBarTests : IDisposable
         return result.StyleSheet;
     }
 
-    private void SetStyle(string declarations, string extra = "")
+    private void SetStyle(string declarations, string extra = "", StyleSheet? theme = null)
     {
         var sheet = Compile("Page { width: 300px; height: 200px; } Viewer { width: 200px; height: 120px; overflow: auto; " +
             declarations + " } Content { width: 600px; height: 400px; } Cover { display: none; } " + extra);
-        harness.Scene.Styles.Theme = sheet;
+        harness.Scene.Styles.Theme = theme is null ? sheet : StyleSheet.Combine(theme, sheet);
         harness.Scene.Update();
     }
 
@@ -156,6 +156,113 @@ public sealed class ScrollBarTests : IDisposable
         input.PointerPressed(Center(Bar().Thumb), PointerButton.Primary, KeyModifiers.None);
         input.PointerMoved(new Point(200, 200), KeyModifiers.None);
         Assert.True(float.IsFinite(State.OffsetY));
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Styled_thumb_expands_and_changes_color_without_moving_the_hit_lane(bool horizontal)
+    {
+        SetStyle("""
+            scrollbar-placement: reserve; scrollbar-width: 12px; scrollbar-inset: 0;
+            scrollbar-thumb-color: red; color: lime; scrollbar-thumb-hover-color: currentColor;
+            scrollbar-thumb-active-color: var(--drag-color); scrollbar-track-hover-color: yellow;
+            scrollbar-thumb-border-width: 1px; scrollbar-thumb-border-color: black;
+            """, "Page { scrollbar-thumb-width: 4px; scrollbar-thumb-expanded-width: 30px; --drag-color: blue; }");
+        var bar = Bar(horizontal);
+        var other = Bar(!horizontal);
+        var gutter = harness.Scene.GetLayoutNode(Viewer)!.Style.ScrollbarGutter;
+        var compact = horizontal ? new Rect(bar.Thumb.X, bar.Thumb.Y + 4, bar.Thumb.Width, 4)
+            : new Rect(bar.Thumb.X + 4, bar.Thumb.Y, 4, bar.Thumb.Height);
+        var otherCompact = horizontal ? new Rect(other.Thumb.X + 4, other.Thumb.Y, 4, other.Thumb.Height)
+            : new Rect(other.Thumb.X, other.Thumb.Y + 4, other.Thumb.Width, 4);
+        var red = new Nazor.Graphics.Color(255, 0, 0, 255);
+        var green = new Nazor.Graphics.Color(0, 255, 0, 255);
+        var blue = new Nazor.Graphics.Color(0, 0, 255, 255);
+        var yellow = new Nazor.Graphics.Color(255, 255, 0, 255);
+
+        Assert.Contains(harness.Scene.BuildDisplayList().Commands.OfType<FillRectangle>(), fill => fill.Rect == compact && fill.Color == red);
+        var trackPoint = horizontal ? new Point(bar.Track.Right - 1, bar.Track.Y + 1) : new Point(bar.Track.X + 1, bar.Track.Bottom - 1);
+        input.PointerMoved(trackPoint, KeyModifiers.None);
+        AssertPaint(bar.Thumb, red);
+        var thumbPoint = horizontal ? new Point(Center(bar.Thumb).X, bar.Thumb.Y + 1) : new Point(bar.Thumb.X + 1, Center(bar.Thumb).Y);
+        input.PointerMoved(thumbPoint, KeyModifiers.None);
+        AssertPaint(bar.Thumb, green);
+        input.PointerPressed(thumbPoint, PointerButton.Primary, KeyModifiers.None);
+        Assert.Same(Viewer, input.CapturedPointer);
+        input.PointerLeft();
+        AssertPaint(bar.Thumb, blue);
+        Assert.Equal(bar, Bar(horizontal));
+        Assert.Equal(gutter, harness.Scene.GetLayoutNode(Viewer)!.Style.ScrollbarGutter);
+        input.PointerCanceled();
+        Assert.Contains(harness.Scene.BuildDisplayList().Commands.OfType<FillRectangle>(), fill => fill.Rect == compact && fill.Color == red);
+
+        void AssertPaint(Rect thumb, Nazor.Graphics.Color fillColor)
+        {
+            var commands = harness.Scene.BuildDisplayList().Commands;
+            Assert.Contains(commands.OfType<FillRectangle>(), fill => fill.Rect == thumb && fill.Color == fillColor);
+            Assert.Contains(commands.OfType<FillRectangle>(), fill => fill.Rect == bar.Track && fill.Color == yellow);
+            Assert.Contains(commands.OfType<FillRectangle>(), fill => fill.Rect == otherCompact && fill.Color == red);
+            Assert.Contains(commands.OfType<DrawBorder>(), border => border.Rect == thumb && border.Widths.Left == 1);
+        }
+    }
+
+    [Theory]
+    [InlineData("0", "white", false)]
+    [InlineData("0", "auto", true)]
+    [InlineData("3px", "white", true)]
+    public void Square_thumbs_can_use_a_beveled_outline(string radius, string highlight, bool uniform)
+    {
+        SetStyle($"scrollbar-width: 12px; scrollbar-radius: {radius}; scrollbar-thumb-color: red; scrollbar-thumb-border-width: 1px;" +
+            $" scrollbar-thumb-border-color: black; scrollbar-thumb-border-highlight-color: {highlight};");
+        var border = Assert.Single(harness.Scene.BuildDisplayList().Commands.OfType<DrawBorder>(), draw => draw.Rect == Bar().Thumb);
+        Assert.Equal(uniform, border.IsUniform);
+        Assert.Equal(new Nazor.Graphics.Color(0, 0, 0, 255), border.Right.Color);
+        Assert.Equal(border.Right, border.Bottom);
+        Assert.Equal(border.Top, border.Left);
+        Assert.Equal(uniform ? border.Right.Color : new Nazor.Graphics.Color(255, 255, 255, 255), border.Top.Color);
+    }
+
+    [Theory]
+    [InlineData("Basic", 4, 4, 4, false)]
+    [InlineData("Fluent", 12, 4, 8, true)]
+    [InlineData("NazorLeaf", 8, 5, 7, false)]
+    public void Existing_themes_use_their_scrollbar_metrics_and_system_forced_colors(
+        string name, float laneWidth, float restingWidth, float expandedWidth, bool hidesAtRest)
+    {
+        var theme = name switch
+        {
+            "Fluent" => Nazor.Themes.Fluent.Themes.Fluent,
+            "NazorLeaf" => Nazor.Themes.NazorLeaf.NazorLeafTheme.Theme,
+            _ => Nazor.Themes.Themes.Basic,
+        };
+        SetStyle("", theme: theme);
+        Assert.Equal(laneWidth, Bar().Thumb.Width);
+        Assert.Equal(!hidesAtRest, Bar().IsVisible);
+
+        input.PointerWheel(new Point(50, 50), -1, KeyModifiers.None);
+        Assert.True(Bar().IsVisible);
+        AssertThumbPaint(restingWidth);
+        input.PointerMoved(Center(Bar().Thumb), KeyModifiers.None);
+        AssertThumbPaint(expandedWidth);
+
+        input.PointerLeft();
+        var canvasText = Nazor.Style.Color.FromRgb(255, 255, 0);
+        harness.Scene.Styles.Preferences = new MediaPreferences(ColorScheme.Dark, ReducedMotion: true, ForcedColors: true,
+            Colors: SystemColors.Default with { CanvasText = canvasText });
+        harness.Scene.Update();
+        var forced = Bar();
+        Assert.Equal(6, forced.Thumb.Width);
+        Assert.True(forced.IsVisible);
+        Assert.Contains(harness.Scene.BuildDisplayList().Commands.OfType<FillRectangle>(),
+            fill => fill.Rect == forced.Thumb && fill.Color == new Nazor.Graphics.Color(255, 255, 0, 255));
+
+        void AssertThumbPaint(float width)
+        {
+            var thumb = Bar().Thumb;
+            var bounds = new Rect(thumb.X + (thumb.Width - width) / 2, thumb.Y, width, thumb.Height);
+            Assert.Contains(harness.Scene.BuildDisplayList().Commands.OfType<FillRectangle>(), fill => fill.Rect == bounds);
+        }
     }
 
     [Fact]

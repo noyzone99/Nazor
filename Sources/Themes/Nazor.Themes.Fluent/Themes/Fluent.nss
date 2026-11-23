@@ -177,6 +177,25 @@
     --nz-accent-elevation: linear-gradient(to top, var(--winui-control-stroke-color-on-accent-secondary) 0.99px, var(--winui-control-stroke-color-on-accent-default) 3px);
 }
 
+@media (forced-colors: none) {
+    :root {
+        scrollbar-visibility: autohide;
+        scrollbar-width: 12px;
+        scrollbar-inset: 1px;
+        scrollbar-radius: 4px;
+        scrollbar-min-thumb-length: 30px;
+        scrollbar-thumb-width: 4px;
+        scrollbar-thumb-expanded-width: 8px;
+        scrollbar-thumb-color: var(--winui-control-strong-fill-color-default);
+        scrollbar-thumb-hover-color: var(--winui-text-fill-color-secondary);
+        scrollbar-thumb-active-color: var(--winui-text-fill-color-primary);
+        scrollbar-track-hover-color: var(--winui-subtle-fill-color-secondary);
+        scrollbar-fade-in-duration: 120ms;
+        scrollbar-fade-out-duration: 160ms;
+        scrollbar-fade-out-delay: 600ms;
+    }
+}
+
 @media (prefers-color-scheme: dark) {
     :root {
         --winui-text-fill-color-primary: #ffffff;

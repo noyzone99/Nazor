@@ -14,7 +14,7 @@ public sealed partial class InputManager
     private void UpdateScrollBarHover(Point? point, ElementNode? target)
     {
         scrollBarPointer = point;
-        if (scene.UpdateScrollBarInteraction(point, target, draggedScrollBar ?? pressedScrollBarButton)) VisualStateChanged?.Invoke();
+        if (scene.UpdateScrollBarInteraction(point, target, draggedScrollBar, draggedScrollBarHorizontal)) VisualStateChanged?.Invoke();
     }
 
     private bool ScrollBarPointerPressed(ElementNode? target, Point point)

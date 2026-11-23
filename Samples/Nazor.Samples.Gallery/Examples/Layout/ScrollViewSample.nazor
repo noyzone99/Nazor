@@ -1,8 +1,17 @@
-<ScrollView Class="log" IsFocusable="true" AccessibleName="Activity log">
+<ScrollView Class="log" Orientation="ScrollOrientation.Both" IsFocusable="true" AccessibleName="Activity log">
     @for (var i = 1; i <= 25; i++)
     {
         var entry = i;
-        <TextBlock>@($"Activity entry {entry}")</TextBlock>
+        <Container Class="entry">
+            <TextBlock>@($"Activity entry {entry:00}")</TextBlock>
+            <TextBlock>Component gallery</TextBlock>
+            <TextBlock>Preview rendered</TextBlock>
+            <TextBlock>Completed</TextBlock>
+        </Container>
     }
 </ScrollView>
-@style { .log { height: 140px; align-self: stretch; } }
+@style {
+    .log { height: 180px; align-self: stretch; border: 1px solid var(--nz-border, ButtonBorder); }
+    .entry { display: grid; grid-template-columns: repeat(4, 1fr); min-width: 1080px; padding: 4px 12px; }
+    .entry:nth-child(even) { background: color-mix(in srgb, var(--nz-on-surface, CanvasText) 5%, transparent); }
+}

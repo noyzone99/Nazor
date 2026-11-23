@@ -65,10 +65,10 @@
             </Container>
             <Field LabelText="Theme">
                 <Select TValue="string" @bind-Value="Theme" Id="gallery-theme">
-                    <SelectItem Value="@("basic")">Basic</SelectItem>
-                    <SelectItem Value="@("fluent")">Fluent</SelectItem>
-                    <SelectItem Value="@("nazor-leaf")">NazorLeaf</SelectItem>
-                    <SelectItem Value="@("none")">None</SelectItem>
+                    @foreach (var option in GalleryThemes.Options)
+                    {
+                        <SelectItem Value="@option.Id">@option.Label</SelectItem>
+                    }
                 </Select>
             </Field>
             <Field LabelText="Color scheme">
@@ -292,21 +292,10 @@
 
     private string Theme
     {
-        get
-        {
-            if (ReferenceEquals(Appearance.Theme, Nazor.Themes.Fluent.Themes.Fluent)) return "fluent";
-            if (ReferenceEquals(Appearance.Theme, LeafTheme) || ReferenceEquals(Appearance.Theme, NazorLeafTheme.Theme)) return "nazor-leaf";
-            return ReferenceEquals(Appearance.Theme, Nazor.Themes.Themes.None) ? "none" : "basic";
-        }
+        get => GalleryThemes.Identify(Appearance.Theme);
         set
         {
-            Appearance.Theme = value switch
-            {
-                "fluent" => Nazor.Themes.Fluent.Themes.Fluent,
-                "nazor-leaf" => LeafTheme,
-                "none" => Nazor.Themes.Themes.None,
-                _ => Nazor.Themes.Themes.Basic,
-            };
+            Appearance.Theme = GalleryThemes.Find(value) ?? Nazor.Themes.Themes.Basic;
             UpdateWindowMaterial();
             Window.Backdrop = value == "fluent" ? CommonBackdrop.Solid : CommonBackdrop.None;
         }
@@ -321,6 +310,12 @@
 
 @style {
     .gallery { position: absolute; left: 0; top: 0; right: 0; bottom: 0; display: grid; grid-template-rows: minmax(0px, 1fr); grid-template-columns: 260px minmax(0px, 1fr); color: var(--nz-on-surface, CanvasText); background: var(--nz-surface, Canvas); }
+    @media (forced-colors: none) {
+        .theme-adwaita .sidebar { background: var(--adwaita-sidebar); }
+        .theme-adwaita .main-scroll { border-left-color: var(--nz-border); }
+        .theme-adwaita .nav-item, .theme-adwaita .nav-home { font-weight: 400; }
+        .theme-adwaita .nav-item.current { border-color: transparent; border-radius: 9px; background: var(--nz-control); }
+    }
     .gallery.showcase-active { display: flex; flex-direction: column; }
     .sidebar { display: flex; flex-direction: column; min-height: 0; gap: 8px; padding: 16px 12px; }
     .brand { display: flex; flex-direction: row; align-items: center; gap: 8px; margin-bottom: 8px; }

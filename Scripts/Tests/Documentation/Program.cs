@@ -15,6 +15,7 @@ if (args.Length != 2)
 var root = Path.GetFullPath(args[0]);
 var feed = Path.GetFullPath(args[1]);
 var version = XDocument.Load(Path.Combine(root, "Directory.Build.props")).Descendants("NazorVersion").Single().Value;
+var themeVersion = Regex.IsMatch(version, @"^[^-+]+-alpha(?:[.+]|$)") ? version : version.Split('-', '+')[0] + "-alpha";
 var errors = new List<string>();
 string Read(string relativePath) => File.ReadAllText(Path.Combine(root, relativePath));
 void Check(bool condition, string message)
@@ -35,7 +36,8 @@ foreach (var file in Directory.GetFiles(feed, "Nazor.*.nupkg"))
     string PackageValue(string name) => manifest.Elements().Single(element => element.Name.LocalName == name).Value;
     var package = PackageValue("id");
     Check(packageIds.Add(package), $"{package}: more than one archive in the release feed.");
-    Check(PackageValue("version") == version, $"{file}: version must match {version}.");
+    var packageVersion = package.StartsWith("Nazor.Themes.", StringComparison.Ordinal) ? themeVersion : version;
+    Check(PackageValue("version") == packageVersion, $"{file}: version must match {packageVersion}.");
     Check(PackageValue("license") == "LICENSE" && archive.GetEntry("LICENSE") is not null, $"{package}: missing project license.");
     Check(PackageValue("readme") == "NuGet.md" && archive.GetEntry("NuGet.md") is not null, $"{package}: missing NuGet readme.");
     Check(!archive.Entries.Any(entry => entry.Name is "Microsoft.InteractiveExperiences.Projection.dll" or "Microsoft.Windows.SDK.NET.dll" or "WinRT.Runtime.dll" or "Microsoft.UI.Windowing.dll" or "CoreMessagingXP.dll"),
@@ -48,7 +50,11 @@ foreach (var file in Directory.GetFiles(feed, "Nazor.*.nupkg"))
     if (package == "Nazor.Templates")
     {
         using var template = archive.Entries.Single(entry => entry.Name == "MyNazorApp.csproj").Open();
-        Check((string?)XDocument.Load(template).Root?.Attribute("Sdk") == $"Nazor.Sdk/{version}", "Nazor.Templates: SDK version does not match the release.");
+        var project = XDocument.Load(template);
+        Check((string?)project.Root?.Attribute("Sdk") == $"Nazor.Sdk/{version}", "Nazor.Templates: SDK version does not match the release.");
+        foreach (var themeReference in project.Descendants("PackageReference").Where(element =>
+            ((string?)element.Attribute("Include"))?.StartsWith("Nazor.Themes.", StringComparison.Ordinal) is true))
+            Check((string?)themeReference.Attribute("Version") == themeVersion, $"Nazor.Templates: {themeReference.Attribute("Include")?.Value} must use {themeVersion}.");
     }
     foreach (var entry in archive.Entries.Where(entry => Regex.IsMatch(entry.FullName, @"^lib/[^/]+/[^/]+\.dll$")))
     {

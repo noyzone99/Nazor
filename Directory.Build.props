@@ -9,6 +9,8 @@
     <Deterministic>true</Deterministic>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <NazorVersion>0.1.0-alpha</NazorVersion>
+    <NazorThemeVersion>$(NazorVersion)</NazorThemeVersion>
+    <NazorThemeVersion Condition="!$([System.Text.RegularExpressions.Regex]::IsMatch('$(NazorVersion)', '^[^-+]+-alpha(?:[.+]|$)'))">$([System.Text.RegularExpressions.Regex]::Replace('$(NazorVersion)', '[-+].*$', ''))-alpha</NazorThemeVersion>
     <Version>$(NazorVersion)</Version>
     <Authors>Nazor</Authors>
     <IsPackable>false</IsPackable>

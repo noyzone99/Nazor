@@ -16,13 +16,15 @@ if ($Framework -eq 'net11.0') {
 }
 foreach ($file in 'Directory.Build.props','Directory.Build.targets','Directory.Packages.props') { '<Project />' | Set-Content "$Workspace/$file" }
 $version = (Select-Xml -Path "$root/Directory.Build.props" -XPath '//NazorVersion').Node.InnerText
+$themeVersion = dotnet msbuild "$root/Directory.Build.props" -nologo -getProperty:NazorThemeVersion
+if ($LASTEXITCODE -ne 0) { throw 'Could not read the theme package version.' }
 @'
-<Project Sdk="Nazor.Sdk/VERSION">
+<Project Sdk="Nazor.Sdk/SDK_VERSION">
   <PropertyGroup><TargetFramework>$(NazorDeploymentFramework)</TargetFramework><OutputType>Exe</OutputType><NazorApplicationId>org.nazor.deployment</NazorApplicationId><RootNamespace>Deployment</RootNamespace><AssemblyName>Deployment</AssemblyName><TreatWarningsAsErrors>true</TreatWarningsAsErrors></PropertyGroup>
   <ItemGroup><None Update="payload.txt" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" /></ItemGroup>
-  <ItemGroup><PackageReference Include="Nazor.Themes.NazorLeaf" Version="VERSION" /></ItemGroup>
+  <ItemGroup><PackageReference Include="Nazor.Themes.NazorLeaf" Version="THEME_VERSION" /></ItemGroup>
 </Project>
-'@.Replace('VERSION', $version) | Set-Content "$Workspace/project/Deployment.csproj"
+'@.Replace('SDK_VERSION', $version).Replace('THEME_VERSION', $themeVersion) | Set-Content "$Workspace/project/Deployment.csproj"
 foreach ($file in 'Program.cs','Probe.nazor','payload.txt') { Copy-Item "$root/Tests/Fixtures/Deployment/$file" "$Workspace/project/$file" }
 $escapedFeed = [Security.SecurityElement]::Escape($Feed)
 $escapedCache = [Security.SecurityElement]::Escape("$Workspace/.packages")

@@ -426,8 +426,40 @@ public static partial class StyleProperties
     /// <summary>Gets the inherited scrollbar thumb color.</summary>
     public static readonly StyleProperty<Color> ScrollbarThumbColor = Add("scrollbar-thumb-color", new Color(128, 128, 128, 176), true, StyleEffects.Paint, ParseColor, animatable: true, syntax: "<color>");
 
+    /// <summary>Gets the inherited resting thumb width. Auto uses the full scrollbar width.</summary>
+    public static readonly StyleProperty<SizeValue> ScrollbarThumbWidth = Add("scrollbar-thumb-width", SizeValue.Auto, true, StyleEffects.Paint,
+        r => r.TryConsumeIdent("auto") ? SizeValue.Auto : SizeValue.Fixed(ParseLength(r, allowPercent: false)), animatable: true, syntax: "auto | <length>");
+
+    /// <summary>Gets the inherited thumb width while the scrollbar is hovered or the thumb is dragged. Auto uses the resting width.</summary>
+    public static readonly StyleProperty<SizeValue> ScrollbarThumbExpandedWidth = Add("scrollbar-thumb-expanded-width", SizeValue.Auto, true, StyleEffects.Paint,
+        r => r.TryConsumeIdent("auto") ? SizeValue.Auto : SizeValue.Fixed(ParseLength(r, allowPercent: false)), animatable: true, syntax: "auto | <length>");
+
+    /// <summary>Gets the inherited hovered thumb color. Auto uses the normal thumb color.</summary>
+    public static readonly StyleProperty<NativeColor> ScrollbarThumbHoverColor = Add("scrollbar-thumb-hover-color", NativeColor.Auto, true, StyleEffects.Paint,
+        r => r.TryConsumeIdent("auto") ? NativeColor.Auto : new NativeColor(ParseColor(r)), syntax: "auto | <color>");
+
+    /// <summary>Gets the inherited dragged thumb color. Auto uses the normal thumb color.</summary>
+    public static readonly StyleProperty<NativeColor> ScrollbarThumbActiveColor = Add("scrollbar-thumb-active-color", NativeColor.Auto, true, StyleEffects.Paint,
+        r => r.TryConsumeIdent("auto") ? NativeColor.Auto : new NativeColor(ParseColor(r)), syntax: "auto | <color>");
+
+    /// <summary>Gets the inherited scrollbar thumb border width.</summary>
+    public static readonly StyleProperty<Length> ScrollbarThumbBorderWidth = Add("scrollbar-thumb-border-width", Length.Zero, true, StyleEffects.Paint,
+        r => ParseLength(r, allowPercent: false), animatable: true, syntax: "<length>");
+
+    /// <summary>Gets the inherited scrollbar thumb border color.</summary>
+    public static readonly StyleProperty<Color> ScrollbarThumbBorderColor = Add("scrollbar-thumb-border-color", Style.Color.CurrentColor, true, StyleEffects.Paint,
+        ParseColor, animatable: true, syntax: "<color>");
+
+    /// <summary>Gets the inherited top and left border color of a square scrollbar thumb. Auto uses the normal border color.</summary>
+    public static readonly StyleProperty<NativeColor> ScrollbarThumbBorderHighlightColor = Add("scrollbar-thumb-border-highlight-color", NativeColor.Auto, true, StyleEffects.Paint,
+        r => r.TryConsumeIdent("auto") ? NativeColor.Auto : new NativeColor(ParseColor(r)), syntax: "auto | <color>");
+
     /// <summary>Gets the inherited scrollbar track color.</summary>
     public static readonly StyleProperty<Color> ScrollbarTrackColor = Add("scrollbar-track-color", Style.Color.Transparent, true, StyleEffects.Paint, ParseColor, animatable: true, syntax: "<color>");
+
+    /// <summary>Gets the inherited track color while the scrollbar is hovered or the thumb is dragged. Auto uses the normal track color.</summary>
+    public static readonly StyleProperty<NativeColor> ScrollbarTrackHoverColor = Add("scrollbar-track-hover-color", NativeColor.Auto, true, StyleEffects.Paint,
+        r => r.TryConsumeIdent("auto") ? NativeColor.Auto : new NativeColor(ParseColor(r)), syntax: "auto | <color>");
 
     /// <summary>Gets the inherited corner radius of scrollbar thumbs and tracks.</summary>
     public static readonly StyleProperty<Length> ScrollbarRadius = Add("scrollbar-radius", Length.Px(2), true, StyleEffects.Paint, r => ParseLength(r, allowPercent: false), animatable: true, syntax: "<length>");

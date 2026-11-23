@@ -1166,9 +1166,11 @@ public sealed partial class InputManager : IDisposable, IElementInteraction
         foreach (var overlay in overlayModalScopes.Keys.Where(element=>element.IsRemoved || !Scene.IsOverlay(element)).ToArray()) overlayModalScopes.Remove(overlay);
         foreach (var overlay in overlayOwners.Keys.Where(element=>element.IsRemoved || !Scene.IsOverlay(element)).ToArray()) overlayOwners.Remove(overlay);
         if (CapturedPointer is { } captured && !scene.IsRendered(captured)) PointerCanceled();
-        if (draggedScrollBar is { } container && scene.GetScrollBar(container, draggedScrollBarHorizontal) is null) PointerCanceled();
+        if (draggedScrollBar is { } container &&
+            (IsDisabled(container) || scene.GetScrollBar(container, draggedScrollBarHorizontal) is null)) PointerCanceled();
         if (pressedScrollBarButton is { } buttonContainer &&
-            (scene.GetScrollBar(buttonContainer, draggedScrollBarHorizontal) is not { } buttonBar || buttonBar.DecreaseButton.IsEmpty)) PointerCanceled();
+            (IsDisabled(buttonContainer) || scene.GetScrollBar(buttonContainer, draggedScrollBarHorizontal) is not { } buttonBar ||
+                buttonBar.DecreaseButton.IsEmpty)) PointerCanceled();
         UpdateScrollBarHover(scrollBarPointer, scrollBarPointer is { } point ? scene.HitTest(point) : null);
         if (pressedByKey is { } pressed && !scene.IsRendered(pressed))
         {

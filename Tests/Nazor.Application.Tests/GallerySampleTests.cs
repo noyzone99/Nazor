@@ -27,7 +27,7 @@ public sealed class GallerySampleTests : IDisposable
     public GallerySampleTests()
     {
         scope = services.CreateScope(); host = new TestHost(scope.ServiceProvider);
-        foreach (var file in Nazor.Themes.Fluent.Themes.FontFiles)
+        foreach (var file in Nazor.Themes.Fluent.Themes.FontFiles.Concat(Nazor.Themes.Adwaita.AdwaitaTheme.FontFiles))
             ((SkiaFontProvider)graphics.Fonts).Register(Path.Combine(AppContext.BaseDirectory, file));
         scene = new Scene(host.Renderer, graphics.Fonts, graphics.Shaper, images: graphics.Images) { Viewport = new Size(1180,820) };
         input = new InputManager(host.Renderer,scene); tree = new SemanticTree(host.Renderer,scene,input);
@@ -101,6 +101,115 @@ public sealed class GallerySampleTests : IDisposable
             Assert.True(scene.GetBounds(ById("gallery-theme")).Bottom<=scene.Viewport.Height);
         }
         await Pick("gallery-scheme","Dark"); Assert.Equal(ColorScheme.Dark,Appearance.ColorScheme);
+    }
+
+    [Theory]
+    [InlineData("Adwaita", "adwaita", 0xfafafb, 0x222226, 9)]
+    [InlineData("Breeze", "breeze", 0xeff0f1, 0x202326, 5)]
+    [InlineData("Windows 9x", "windows-9x", 0xd0d2d7, 0xd0d2d7, 0)]
+    [InlineData("Windows XP", "windows-xp", 0xece9dc, 0xece9dc, 5)]
+    [InlineData("Windows 7", "windows-7", 0xedf2f7, 0xedf2f7, 4)]
+    [InlineData("CDE", "cde", 0xc6b2a8, 0x828585, 0)]
+    public async Task Desktop_theme_picker_applies_control_styles_and_respects_forced_colors(
+        string label, string id, int light, int dark, int radius)
+    {
+        await Show("button");
+        await Click("Save");
+        await Pick("gallery-theme", label);
+        var gallery = root.Elements().Single(element => element.Class?.Split(' ').Contains($"theme-{id}") is true);
+        var button = ById("sample-preview").Elements().First(element => element.Name == "Button");
+        await CheckScheme("Light", ColorScheme.Light, light);
+        await CheckScheme("Dark", ColorScheme.Dark, dark);
+
+        var colors = SystemColors.Default with { Canvas = Rgb(0x102030) };
+        scene.Styles.Preferences = new MediaPreferences(ColorScheme.Dark, ReducedMotion: true, ForcedColors: true, Colors: colors);
+        Update();
+        Assert.Equal(colors.Canvas, scene.GetStyle(gallery).BackgroundColor);
+        Assert.Equal(0, scene.GetStyle(button).Get(StyleProperties.BorderTopLeftRadius).X.Value);
+
+        scene.Styles.Preferences = new MediaPreferences(ColorScheme.Dark, ReducedMotion: true);
+        await Show("menu");
+        await Click("Open the File menu");
+        var newItem = root.Elements("MenuItem").First();
+        input.Focus(newItem, visible: true);
+        Update();
+        var selectedColor = scene.GetStyle(newItem).Get(StyleProperties.Color);
+        var delete = root.Elements("MenuItem").Single(element => Equals(element.Attributes.GetValueOrDefault("intent"), "danger"));
+        input.Focus(delete, visible: true);
+        Update();
+        Assert.Same(delete, input.Focused);
+        Assert.Equal(selectedColor, scene.GetStyle(delete).Get(StyleProperties.Color));
+        Assert.Equal(selectedColor, scene.GetStyle(root.Single("MenuItemDescription")).Get(StyleProperties.Color));
+
+        async Task CheckScheme(string name, ColorScheme scheme, int surface)
+        {
+            await Pick("gallery-scheme", name);
+            Assert.Equal(scheme, Appearance.ColorScheme);
+            scene.Styles.Preferences = new MediaPreferences(scheme, ReducedMotion: true);
+            Update();
+            Assert.Equal(Rgb(surface), scene.GetStyle(gallery).BackgroundColor);
+            Assert.Equal(radius, scene.GetStyle(button).Get(StyleProperties.BorderTopLeftRadius).X.Value);
+            Assert.Contains("Saved: 1", ById("sample-preview").Text());
+            Assert.Same(button, ById("sample-preview").Elements().First(element => element.Name == "Button"));
+            if (id is "windows-9x" or "cde")
+            {
+                var buttons = ById("sample-preview").Elements().Where(element => element.Name == "Button");
+                var standard = scene.GetStyle(buttons.Single(element => element.Text() == "Standard"));
+                var round = scene.GetStyle(buttons.Single(element => Equals(element.Attributes.GetValueOrDefault("shape"), "circle")));
+                Assert.NotEqual(standard.Get(StyleProperties.BorderTopColor), standard.Get(StyleProperties.BorderRightColor));
+                Assert.Equal(round.Get(StyleProperties.BorderTopColor), round.Get(StyleProperties.BorderRightColor));
+            }
+            await Save($"{id}-{name.ToLowerInvariant()}-controls");
+        }
+
+        static Style.Color Rgb(int rgb) => Style.Color.FromRgb((byte)(rgb >> 16), (byte)(rgb >> 8), (byte)rgb);
+    }
+
+    [Theory]
+    [InlineData("Basic", "basic", 4, 4, 4, ScrollbarPlacement.Overlay, false)]
+    [InlineData("Fluent", "fluent", 12, 4, 8, ScrollbarPlacement.Overlay, false)]
+    [InlineData("NazorLeaf", "nazor-leaf", 8, 5, 7, ScrollbarPlacement.Overlay, false)]
+    [InlineData("Adwaita", "adwaita", 16, 3, 8, ScrollbarPlacement.Overlay, false)]
+    [InlineData("Breeze", "breeze", 21, 8, 8, ScrollbarPlacement.Reserve, false)]
+    [InlineData("Windows 9x", "windows-9x", 17, 17, 17, ScrollbarPlacement.Reserve, true)]
+    [InlineData("Windows XP", "windows-xp", 16, 14, 14, ScrollbarPlacement.Reserve, true)]
+    [InlineData("Windows 7", "windows-7", 16, 12, 12, ScrollbarPlacement.Reserve, true)]
+    [InlineData("CDE", "cde", 15, 15, 15, ScrollbarPlacement.Reserve, true)]
+    public async Task Desktop_theme_styles_both_gallery_scrollbar_axes(
+        string label, string id, int lane, int thumb, int expanded, ScrollbarPlacement placement, bool arrows)
+    {
+        await Pick("gallery-theme", label);
+        await Show("scroll-view");
+        scene.Styles.Preferences = new MediaPreferences(ColorScheme.Light, ReducedMotion: true);
+        scene.Transitions.ReducedMotion = true;
+        Update();
+
+        var view = ById("sample-preview").Elements().Single(element => element.Name == "ScrollView");
+        Assert.Contains("Activity entry 01", view.Text());
+        Assert.Contains("Activity entry 25", view.Text());
+        var style = scene.GetStyle(view);
+        Assert.Equal(placement, style.Get(StyleProperties.ScrollbarPlacement));
+        Assert.Equal(arrows, style.Get(StyleProperties.ScrollbarButtons));
+        var resting = style.Get(StyleProperties.ScrollbarThumbWidth);
+        var hovered = style.Get(StyleProperties.ScrollbarThumbExpandedWidth);
+        Assert.Equal(thumb, resting.IsFixed ? resting.Length.Value : lane);
+        Assert.Equal(expanded, hovered.IsFixed ? hovered.Length.Value : thumb);
+        var horizontal = Assert.IsType<ScrollBarGeometry>(scene.GetScrollBar(view, horizontal: true));
+        var vertical = Assert.IsType<ScrollBarGeometry>(scene.GetScrollBar(view, horizontal: false));
+        Assert.Equal(lane, horizontal.Bounds.Height);
+        Assert.Equal(lane, vertical.Bounds.Width);
+        Assert.Equal(arrows, !horizontal.IncreaseButton.IsEmpty && !vertical.DecreaseButton.IsEmpty);
+
+        input.PointerMoved(new Point(vertical.Thumb.X + vertical.Thumb.Width / 2, vertical.Thumb.Y + vertical.Thumb.Height / 2), KeyModifiers.None);
+        scene.NotifyWheelScroll(view);
+        Update();
+        Assert.True(scene.GetScrollBar(view, horizontal: false)?.IsVisible);
+        Assert.True(scene.GetScrollBar(view, horizontal: true)?.IsVisible);
+        await Save($"{id}-scrollbars");
+
+        scene.Styles.Preferences = new MediaPreferences(ColorScheme.Light, ReducedMotion: true, ForcedColors: true);
+        Update();
+        Assert.Equal(6, Assert.IsType<ScrollBarGeometry>(scene.GetScrollBar(view, horizontal: false)).Bounds.Width);
     }
 
     [Fact]

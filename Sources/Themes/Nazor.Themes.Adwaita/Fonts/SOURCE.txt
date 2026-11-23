@@ -1,0 +1,9 @@
+Adwaita Fonts 51.0
+https://download.gnome.org/sources/adwaita-fonts/51/adwaita-fonts-51.0.tar.xz
+
+The six TrueType faces are distributed without modification under the SIL
+Open Font License, Version 1.1. OFL.txt is the license and copyright notice
+included in the release archive.
+
+SHA-256 of adwaita-fonts-51.0.tar.xz
+fa104ae2c1b96580d322f563ffe8b2dfca5296b0eca4971efd2d8011405123d2

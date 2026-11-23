@@ -1,10 +1,10 @@
 namespace Nazor.Style;
 
-/// <summary>A native decoration color, or auto to restore the operating system default.</summary>
+/// <summary>An explicit color or the default selected by the consuming property.</summary>
 /// <param name="Value">Explicit color; null means auto.</param>
 public readonly record struct NativeColor(Color? Value)
 {
-    /// <summary>Uses the operating system color.</summary>
+    /// <summary>Uses the automatic color for the property.</summary>
     public static NativeColor Auto => default;
     /// <inheritdoc />
     public override string ToString() => Value?.ToString() ?? "auto";

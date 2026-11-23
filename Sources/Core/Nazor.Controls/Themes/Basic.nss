@@ -27,11 +27,19 @@
     --nz-success: #1e7b34;
     --nz-warning: #8a5a00;
     --nz-scrim: rgba(0, 0, 0, 0.35);
+    scrollbar-thumb-hover-color: color-mix(in srgb, CanvasText 64%, transparent);
+    scrollbar-thumb-active-color: AccentColor;
     color: var(--nz-on-surface);
     background: var(--nz-surface);
 }
 @media (forced-colors: active) {
     :root { --nz-danger: CanvasText; --nz-success: CanvasText; --nz-warning: CanvasText; --nz-accent: Highlight; --nz-on-accent: HighlightText; --nz-scrim: transparent; }
+    :root {
+        scrollbar-width: 6px;
+        scrollbar-thumb-color: CanvasText;
+        scrollbar-thumb-hover-color: CanvasText;
+        scrollbar-thumb-active-color: Highlight;
+    }
 }
 :root[role=window] { height: 100%; }
 :root[role=window][backdrop] { background: transparent; }

@@ -10,11 +10,11 @@
   </PropertyGroup>
   <!--#if (Theme == "fluent") -->
   <ItemGroup>
-    <PackageReference Include="Nazor.Themes.Fluent" Version="NAZOR_SDK_VERSION" />
+    <PackageReference Include="Nazor.Themes.Fluent" Version="NAZOR_THEME_VERSION" />
   </ItemGroup>
   <!--#elseif (Theme == "nazorleaf") -->
   <ItemGroup>
-    <PackageReference Include="Nazor.Themes.NazorLeaf" Version="NAZOR_SDK_VERSION" />
+    <PackageReference Include="Nazor.Themes.NazorLeaf" Version="NAZOR_THEME_VERSION" />
   </ItemGroup>
   <!--#endif -->
 </Project>

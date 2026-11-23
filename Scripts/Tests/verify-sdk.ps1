@@ -109,7 +109,9 @@ $releaseOutput = Join-Path $Workspace 'inspectable-release'
 Invoke-Dotnet @('publish', "$inspectableApp/InspectableApp.csproj", '-c', 'Release', '-o', $releaseOutput, '-warnaserror') | Out-Null
 Assert (-not (Get-ChildItem -LiteralPath $releaseOutput -Recurse -Filter 'Nazor.DevTools*')) 'the opted-in template publishes Release without DevTools'
 
-$themePackages = @{ basic = ''; fluent = "Nazor.Themes.Fluent/$version"; nazorleaf = "Nazor.Themes.NazorLeaf/$version" }
+$themeVersion = dotnet msbuild "$root/Directory.Build.props" -nologo -getProperty:NazorThemeVersion
+if ($LASTEXITCODE -ne 0) { throw 'Could not read the theme package version.' }
+$themePackages = @{ basic = ''; fluent = "Nazor.Themes.Fluent/$themeVersion"; nazorleaf = "Nazor.Themes.NazorLeaf/$themeVersion" }
 foreach ($theme in 'basic', 'fluent', 'nazorleaf') {
     $sampleName = "Sample-$theme"
     $sampleApp = Join-Path $Workspace $sampleName

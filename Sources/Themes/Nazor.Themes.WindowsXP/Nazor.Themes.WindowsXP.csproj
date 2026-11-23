@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NazorUseCore>false</NazorUseCore>
+    <Description>Windows XP Luna-inspired light control styles for Nazor.</Description>
+  </PropertyGroup>
+  <Import Project="../../Tools/Nazor.Sdk/build/Nazor.targets" />
+</Project>

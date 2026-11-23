@@ -223,6 +223,30 @@ public sealed class ScrollBarPlacementTests : IDisposable
         Assert.Null(harness.Scene.TimeUntilNextFrame);
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Held_button_releases_capture_when_its_container_or_ancestor_is_disabled(bool disableAncestor)
+    {
+        SetStyle("scrollbar-buttons: visible; scrollbar-width: 14px; scrollbar-button-step: 25px;");
+        Frame();
+        input.PointerPressed(Center(Bar().IncreaseButton), PointerButton.Primary, KeyModifiers.None);
+        Frame(400);
+        Assert.Equal(50, State.OffsetY);
+        Assert.Same(Viewer, input.CapturedPointer);
+
+        var disabled = disableAncestor ? root.Single("Page") : Viewer;
+        disabled.SetState(ElementStates.Disabled, true);
+        Frame(50);
+        Assert.Equal(50, State.OffsetY);
+        Assert.Null(input.CapturedPointer);
+        Assert.Null(harness.Scene.TimeUntilNextFrame);
+
+        disabled.SetState(ElementStates.Disabled, false);
+        Frame(400);
+        Assert.Equal(50, State.OffsetY);
+    }
+
     [Fact]
     public void Zero_repeat_interval_disables_repetition_and_hiding_buttons_releases_capture()
     {

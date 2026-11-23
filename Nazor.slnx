@@ -25,6 +25,12 @@
     <Project Path="Sources/Core/Nazor.Style/Nazor.Style.csproj" />
   </Folder>
   <Folder Name="/Sources/Themes/">
+    <Project Path="Sources/Themes/Nazor.Themes.Adwaita/Nazor.Themes.Adwaita.csproj" />
+    <Project Path="Sources/Themes/Nazor.Themes.Breeze/Nazor.Themes.Breeze.csproj" />
+    <Project Path="Sources/Themes/Nazor.Themes.Windows9x/Nazor.Themes.Windows9x.csproj" />
+    <Project Path="Sources/Themes/Nazor.Themes.WindowsXP/Nazor.Themes.WindowsXP.csproj" />
+    <Project Path="Sources/Themes/Nazor.Themes.Windows7/Nazor.Themes.Windows7.csproj" />
+    <Project Path="Sources/Themes/Nazor.Themes.Cde/Nazor.Themes.Cde.csproj" />
     <Project Path="Sources/Themes/Nazor.Themes.Fluent/Nazor.Themes.Fluent.csproj" />
     <Project Path="Sources/Themes/Nazor.Themes.NazorLeaf/Nazor.Themes.NazorLeaf.csproj" />
   </Folder>

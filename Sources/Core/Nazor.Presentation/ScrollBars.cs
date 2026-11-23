@@ -6,7 +6,7 @@ namespace Nazor.Presentation;
 
 /// <summary>Scrollbar geometry in the element's untransformed layout coordinates.</summary>
 /// <param name="Track">The track receiving pointer input.</param>
-/// <param name="Thumb">The draggable thumb.</param>
+/// <param name="Thumb">The draggable thumb's hit bounds.</param>
 /// <param name="IsVisible">Whether the scrollbar is currently painted.</param>
 public readonly record struct ScrollBarGeometry(Rect Track, Rect Thumb, bool IsVisible)
 {
@@ -28,6 +28,8 @@ public sealed partial class Scene
     private HashSet<(ElementNode Element, bool Horizontal)> revealedScrollBars = [];
     private readonly Dictionary<(ElementNode Element, bool Horizontal), ScrollBarFade> scrollBarFades = [];
     private readonly Dictionary<ElementNode, TimeSpan> wheelScrollUntil = new(ReferenceEqualityComparer.Instance);
+    private (ElementNode Element, bool Horizontal, bool Thumb)? hoveredScrollBar;
+    private (ElementNode Element, bool Horizontal)? draggedScrollBarThumb;
 
     private sealed record ScrollBarFade(double From, double To, TimeSpan Start, TimeSpan Duration, EasingFunction Easing)
     {
@@ -148,14 +150,24 @@ public sealed partial class Scene
         return new(track, thumb, opacity > 0) { Opacity = opacity, Bounds = bounds, DecreaseButton = decrease, IncreaseButton = increase };
     }
 
-    /// <summary>Updates autohide proximity and keeps a dragged scrollbar visible. Call on the UI thread.</summary>
+    /// <summary>Updates scrollbar hover and autohide proximity. Call on the UI thread.</summary>
     /// <param name="point">The pointer position in window coordinates, or null after pointer leave.</param>
     /// <param name="target">The hit-tested element under the pointer.</param>
-    /// <param name="dragged">The container whose scrollbar is being dragged, if any.</param>
-    /// <returns>True when the revealed scrollbar set changed and a frame should be scheduled.</returns>
-    public bool UpdateScrollBarInteraction(Point? point, ElementNode? target, ElementNode? dragged = null)
+    /// <param name="dragged">The container whose scrollbars stay revealed during capture, if any.</param>
+    /// <returns>True when a scrollbar visual state changed and a frame should be scheduled.</returns>
+    public bool UpdateScrollBarInteraction(Point? point, ElementNode? target, ElementNode? dragged = null) =>
+        UpdateScrollBarInteraction(point, target, dragged, draggedHorizontal: null);
+
+    /// <summary>Updates scrollbar hover, drag appearance and autohide proximity. Call on the UI thread.</summary>
+    /// <param name="point">The pointer position in window coordinates, or null after pointer leave.</param>
+    /// <param name="target">The hit-tested element under the pointer.</param>
+    /// <param name="dragged">The container whose thumb is captured, if any.</param>
+    /// <param name="draggedHorizontal">True for horizontal thumb capture, false for vertical capture, or null to reveal both axes without marking an active thumb.</param>
+    /// <returns>True when a scrollbar visual state changed and a frame should be scheduled.</returns>
+    public bool UpdateScrollBarInteraction(Point? point, ElementNode? target, ElementNode? dragged, bool? draggedHorizontal)
     {
         HashSet<(ElementNode Element, bool Horizontal)> revealed = [];
+        (ElementNode Element, bool Horizontal, bool Thumb)? hovered = null;
         ScrollBarButtonTarget? hoveredButton = null;
         for (var element = target; point is { } pointer && element is not null; element = element.ParentElement)
         {
@@ -167,6 +179,8 @@ public sealed partial class Scene
             foreach (var horizontal in new[] { false, true })
             {
                 if (GetScrollBar(element, horizontal) is not { } bar) continue;
+                if (hovered is null && bar.Bounds.Contains(local))
+                    hovered = (element, horizontal, bar.Thumb.Contains(local));
                 if (hoveredButton is null)
                 {
                     if (bar.DecreaseButton.Contains(local)) hoveredButton = new(element, horizontal, true);
@@ -179,12 +193,17 @@ public sealed partial class Scene
         }
         if (dragged is not null)
         {
-            revealed.Add((dragged, false));
-            revealed.Add((dragged, true));
+            if (draggedHorizontal is not true) revealed.Add((dragged, false));
+            if (draggedHorizontal is not false) revealed.Add((dragged, true));
         }
-        var buttonChanged = hoveredScrollBarButton != hoveredButton;
+        if (pressedScrollBarButton is { } pressed)
+            revealed.Add((pressed.Element, pressed.Horizontal));
+        (ElementNode, bool)? draggedThumb = dragged is not null && draggedHorizontal is { } axis ? (dragged, axis) : null;
+        var interactionChanged = hoveredScrollBarButton != hoveredButton || hoveredScrollBar != hovered || draggedScrollBarThumb != draggedThumb;
         hoveredScrollBarButton = hoveredButton;
-        if (revealedScrollBars.SetEquals(revealed)) return buttonChanged;
+        hoveredScrollBar = hovered;
+        draggedScrollBarThumb = draggedThumb;
+        if (revealedScrollBars.SetEquals(revealed)) return interactionChanged;
         var changed = revealedScrollBars.Union(revealed).ToArray();
         revealedScrollBars = revealed;
         foreach (var (element, horizontal) in changed) GetScrollBar(element, horizontal);
@@ -198,16 +217,48 @@ public sealed partial class Scene
         var trackRadius = trackRadiusValue.IsFixed ? (float)trackRadiusValue.Length.Resolve(0) : radius;
         var trackBorderWidth = (float)Effective(element, style, StyleProperties.ScrollbarTrackBorderWidth).Resolve(0);
         var trackBorderColor = ToGraphics(Effective(element, style, StyleProperties.ScrollbarTrackBorderColor));
-        var trackColor = ToGraphics(Effective(element, style, StyleProperties.ScrollbarTrackColor));
-        var thumbColor = ToGraphics(Effective(element, style, StyleProperties.ScrollbarThumbColor));
+        var normalTrackColor = Effective(element, style, StyleProperties.ScrollbarTrackColor);
+        var normalThumbColor = Effective(element, style, StyleProperties.ScrollbarThumbColor);
+        var thumbBorderWidth = (float)Effective(element, style, StyleProperties.ScrollbarThumbBorderWidth).Resolve(0);
+        var thumbBorderColor = ToGraphics(Effective(element, style, StyleProperties.ScrollbarThumbBorderColor));
+        var thumbBorderHighlight = radius == 0 && thumbBorderWidth > 0 &&
+            Effective(element, style, StyleProperties.ScrollbarThumbBorderHighlightColor).Value is { } highlight
+            ? ToGraphics(highlight) : thumbBorderColor;
         foreach (var horizontal in new[] { false, true })
         {
             if (GetScrollBar(element, horizontal) is not { IsVisible: true } bar) continue;
+            var target = hoveredScrollBar.GetValueOrDefault();
+            var hover = target.Element == element && target.Horizontal == horizontal;
+            var drag = draggedScrollBarThumb == (element, horizontal);
+            var expanded = hover || drag;
+            var trackColor = ToGraphics(expanded
+                ? Effective(element, style, StyleProperties.ScrollbarTrackHoverColor).Value ?? normalTrackColor
+                : normalTrackColor);
+            var thumbColor = ToGraphics(drag ? Effective(element, style, StyleProperties.ScrollbarThumbActiveColor).Value ?? normalThumbColor
+                : hover && target.Thumb ? Effective(element, style, StyleProperties.ScrollbarThumbHoverColor).Value ?? normalThumbColor
+                : normalThumbColor);
+            var width = expanded ? Effective(element, style, StyleProperties.ScrollbarThumbExpandedWidth) : SizeValue.Auto;
+            if (!width.IsFixed) width = Effective(element, style, StyleProperties.ScrollbarThumbWidth);
+            var thickness = horizontal ? bar.Thumb.Height : bar.Thumb.Width;
+            var paintedWidth = width.IsFixed ? Math.Clamp((float)width.Length.Resolve(0), 0, thickness) : thickness;
+            var inset = (thickness - paintedWidth) / 2;
+            var thumb = horizontal ? new Rect(bar.Thumb.X, bar.Thumb.Y + inset, bar.Thumb.Width, paintedWidth)
+                : new Rect(bar.Thumb.X + inset, bar.Thumb.Y, paintedWidth, bar.Thumb.Height);
             if (bar.Opacity < 1) builder.Add(new PushOpacity((float)bar.Opacity, bar.Bounds));
             if (!trackColor.IsTransparent) builder.Add(new FillRectangle(bar.Track, trackRadius, trackColor));
             if (trackBorderWidth > 0 && !trackBorderColor.IsTransparent)
                 builder.Add(new DrawBorder(bar.Track, trackRadius, new Thickness(trackBorderWidth, trackBorderWidth, trackBorderWidth, trackBorderWidth), trackBorderColor));
-            if (!thumbColor.IsTransparent) builder.Add(new FillRectangle(bar.Thumb, radius, thumbColor));
+            if (!thumb.IsEmpty)
+            {
+                if (!thumbColor.IsTransparent) builder.Add(new FillRectangle(thumb, radius, thumbColor));
+                if (thumbBorderWidth > 0 && (!thumbBorderColor.IsTransparent || !thumbBorderHighlight.IsTransparent))
+                {
+                    var leading = new BorderSide(thumbBorderHighlight);
+                    var trailing = new BorderSide(thumbBorderColor);
+                    builder.Add(new DrawBorder(thumb, radius, new Thickness(thumbBorderWidth, thumbBorderWidth, thumbBorderWidth, thumbBorderWidth),
+                        leading, trailing, trailing, leading));
+                }
+            }
             PaintScrollBarButton(new(element, horizontal, true), bar.DecreaseButton, style, builder);
             PaintScrollBarButton(new(element, horizontal, false), bar.IncreaseButton, style, builder);
             if (bar.Opacity < 1) builder.Add(Pop.Instance);

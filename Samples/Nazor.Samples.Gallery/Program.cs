@@ -1,24 +1,20 @@
 
 using Nazor.Samples.Gallery;
+using Nazor.Themes.Adwaita;
 using Nazor.Themes.Fluent;
 using Nazor.Themes.NazorLeaf;
 
 var builder = NazorApplication.CreateBuilder(args);
+builder.Fonts.AddAdwaitaFonts();
 builder.Fonts.AddNazorLeafFonts();
 builder.Fonts.AddFluentFonts();
 builder.Application.Culture = CultureInfo.GetCultureInfo("en-US");
 builder.Application.UICulture = CultureInfo.GetCultureInfo("en-US");
 builder.Application.UseMainWindow<App>();
 using var app = builder.Build();
-// --theme basic|fluent|nazor-leaf|none selects the starting theme; the sidebar switches it at run time.
+// --theme uses the same identifiers as the sidebar picker.
 var theme = args.SkipWhile(arg => arg != "--theme").Skip(1).FirstOrDefault();
-app.Appearance.Theme = theme switch
-{
-    "fluent" => Nazor.Themes.Fluent.Themes.Fluent,
-    "basic" => Nazor.Themes.Themes.Basic,
-    "none" => Nazor.Themes.Themes.None,
-    _ => App.LeafTheme,
-};
+app.Appearance.Theme = GalleryThemes.Find(theme) ?? App.LeafTheme;
 // --scheme light|dark selects the starting color scheme instead of following the system.
 var scheme = args.SkipWhile(arg => arg != "--scheme").Skip(1).FirstOrDefault();
 app.Appearance.ColorScheme = scheme switch

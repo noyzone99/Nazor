@@ -23,7 +23,7 @@
       <_NazorProjectFile Include="@(_NazorProjectTemplate->'$(IntermediateOutputPath)templates/%(RecursiveDir)%(Filename)')" Source="%(FullPath)" Folder="%(RecursiveDir)" />
     </ItemGroup>
     <WriteLinesToFile File="%(_NazorProjectFile.Identity)" Overwrite="true" WriteOnlyWhenDifferent="true"
-                      Lines="$([System.IO.File]::ReadAllText('%(_NazorProjectFile.Source)').Replace('NAZOR_SDK_VERSION', '$(Version)'))" />
+                      Lines="$([System.IO.File]::ReadAllText('%(_NazorProjectFile.Source)').Replace('NAZOR_SDK_VERSION', '$(Version)').Replace('NAZOR_THEME_VERSION', '$(NazorThemeVersion)'))" />
     <ItemGroup>
       <TfmSpecificPackageFile Include="@(_NazorProjectFile)" PackagePath="content/%(_NazorProjectFile.Folder)" />
     </ItemGroup>

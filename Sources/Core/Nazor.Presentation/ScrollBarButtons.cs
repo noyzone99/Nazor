@@ -28,7 +28,8 @@ public sealed partial class Scene
 
     private bool CanStepScrollBarButton(ScrollBarButtonTarget target)
     {
-        if (target.Element.IsRemoved || !IsRendered(target.Element) || GetScrollState(target.Element) is not { } scroll) return false;
+        if (target.Element.IsRemoved || target.Element.IsDisabled || !IsRendered(target.Element) ||
+            GetScrollState(target.Element) is not { } scroll) return false;
         var style = GetStyle(target.Element);
         if (style.Get(StyleProperties.ScrollbarVisibility) == ScrollbarVisibility.None || !style.Get(StyleProperties.ScrollbarButtons) ||
             style.Get(StyleProperties.ScrollbarButtonStep).Resolve(0) <= 0) return false;

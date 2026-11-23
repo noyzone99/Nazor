@@ -8,6 +8,12 @@
   </PropertyGroup>
   <Import Project="../../Sources/Tools/Nazor.Sdk/Sdk/Sdk.targets" />
   <ItemGroup>
+    <ProjectReference Include="../../Sources/Themes/Nazor.Themes.Adwaita/Nazor.Themes.Adwaita.csproj" />
+    <ProjectReference Include="../../Sources/Themes/Nazor.Themes.Breeze/Nazor.Themes.Breeze.csproj" />
+    <ProjectReference Include="../../Sources/Themes/Nazor.Themes.Windows9x/Nazor.Themes.Windows9x.csproj" />
+    <ProjectReference Include="../../Sources/Themes/Nazor.Themes.WindowsXP/Nazor.Themes.WindowsXP.csproj" />
+    <ProjectReference Include="../../Sources/Themes/Nazor.Themes.Windows7/Nazor.Themes.Windows7.csproj" />
+    <ProjectReference Include="../../Sources/Themes/Nazor.Themes.Cde/Nazor.Themes.Cde.csproj" />
     <ProjectReference Include="../../Sources/Themes/Nazor.Themes.Fluent/Nazor.Themes.Fluent.csproj" />
     <ProjectReference Include="../../Sources/Themes/Nazor.Themes.NazorLeaf/Nazor.Themes.NazorLeaf.csproj" />
   </ItemGroup>

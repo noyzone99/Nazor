@@ -9,11 +9,12 @@ mkdir -p "$workspace/project" "$workspace/dbus"
 workspace=$(cd "$workspace" && pwd)
 for file in Directory.Build.props Directory.Build.targets Directory.Packages.props; do echo '<Project />' > "$workspace/$file"; done
 version=$(dotnet msbuild "$root/Directory.Build.props" -nologo -getProperty:NazorVersion)
+theme_version=$(dotnet msbuild "$root/Directory.Build.props" -nologo -getProperty:NazorThemeVersion)
 cat > "$workspace/project/Deployment.csproj" <<'PROJECT'
-<Project Sdk="Nazor.Sdk/VERSION">
+<Project Sdk="Nazor.Sdk/SDK_VERSION">
   <PropertyGroup><TargetFramework>$(NazorDeploymentFramework)</TargetFramework><OutputType>Exe</OutputType><NazorApplicationId>org.nazor.deployment</NazorApplicationId><RootNamespace>Deployment</RootNamespace><AssemblyName>Deployment</AssemblyName><TreatWarningsAsErrors>true</TreatWarningsAsErrors></PropertyGroup>
   <ItemGroup><None Update="payload.txt" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" /></ItemGroup>
-  <ItemGroup><PackageReference Include="Nazor.Themes.NazorLeaf" Version="VERSION" /></ItemGroup>
+  <ItemGroup><PackageReference Include="Nazor.Themes.NazorLeaf" Version="THEME_VERSION" /></ItemGroup>
 </Project>
 PROJECT
 cat > "$workspace/dbus/DBusAot.csproj" <<'PROJECT'
@@ -22,7 +23,8 @@ cat > "$workspace/dbus/DBusAot.csproj" <<'PROJECT'
   <ItemGroup><PackageReference Include="Nazor.Platform.Linux" Version="VERSION" /></ItemGroup>
 </Project>
 PROJECT
-sed -i "s/VERSION/$version/g" "$workspace/project/Deployment.csproj" "$workspace/dbus/DBusAot.csproj"
+sed -i "s/SDK_VERSION/$version/g; s/THEME_VERSION/$theme_version/g" "$workspace/project/Deployment.csproj"
+sed -i "s/VERSION/$version/g" "$workspace/dbus/DBusAot.csproj"
 cp "$root/Tests/Fixtures/Deployment/Program.cs" "$root/Tests/Fixtures/Deployment/Probe.nazor" "$root/Tests/Fixtures/Deployment/payload.txt" "$workspace/project/"
 cp "$root/Tests/Fixtures/DBusAot/Program.cs" "$workspace/dbus/"
 cat > "$workspace/nuget.config" <<'CONFIG'
