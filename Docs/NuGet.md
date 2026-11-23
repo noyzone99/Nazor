@@ -7,7 +7,7 @@ Create an app with `Nazor.Templates` or use **Nazor application** in the Visual 
 Windows x64 is the primary verification baseline. Linux has Wayland, X11 and explicit DRM/KMS backends with different prerequisites and capabilities. See the support guide for details.
 
 - [Get started](https://github.com/noyzone99/Nazor/blob/main/Docs/Guide/02-Getting-Started.md)
-- [Nazor.Templates 0.1.0-alpha](https://www.nuget.org/packages/Nazor.Templates/0.1.0-alpha)
+- [Nazor.Templates 0.1.1-alpha](https://www.nuget.org/packages/Nazor.Templates/0.1.1-alpha)
 - [Nazor for Visual Studio](https://marketplace.visualstudio.com/items?itemName=Noyzone99.nazorvisualstudio)
 - [NuGet package list](https://github.com/noyzone99/Nazor#nuget-packages)
 - [Developer guide](https://github.com/noyzone99/Nazor/blob/main/Docs/Guide/README.md)

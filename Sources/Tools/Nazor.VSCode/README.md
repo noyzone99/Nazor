@@ -4,7 +4,7 @@ Editor setup, capabilities, and hot reload are documented in the [developer guid
 
 The extension supports `.nazor` components and `.nss` stylesheets through TextMate grammars and a bundled language server. It uses the .NET executable on `PATH`; set `nazor.dotnetPath` in VS Code settings to select another executable.
 
-The extension for Nazor `0.1.0-alpha` uses manifest version `0.1.0`. It bundles C# 15 Roslyn/Razor services for `.nazor` components while the language server runs on .NET 10 LTS. Generation and editor analysis follow the project's evaluated language version, conditional symbols and references. Rebuild after changing project settings. Both completion and highlighting use the supported NSS selectors. [NSS selector guide](https://github.com/noyzone99/Nazor/blob/main/Docs/Guide/17-Selectors-and-Media-Queries.md)
+The extension for Nazor `0.1.1-alpha` uses manifest version `0.1.1`. It bundles C# 15 Roslyn/Razor services for `.nazor` components while the language server runs on .NET 10 LTS. Generation and editor analysis follow the project's evaluated language version, conditional symbols and references. Rebuild after changing project settings. Both completion and highlighting use the supported NSS selectors. [NSS selector guide](https://github.com/noyzone99/Nazor/blob/main/Docs/Guide/17-Selectors-and-Media-Queries.md)
 
 The extension supplies light and dark icons for components and stylesheets. File icon themes can use these language icons or supply their own.
 

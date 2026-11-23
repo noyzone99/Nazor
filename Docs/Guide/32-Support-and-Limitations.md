@@ -1,6 +1,6 @@
 # 32. Support and limitations
 
-This guide describes Nazor `0.1.0-alpha`, a public pre-alpha for evaluation and feedback. APIs, component markup, NSS and tooling may change between previews.
+This guide describes Nazor `0.1.1-alpha`, a public pre-alpha for evaluation and feedback. APIs, component markup, NSS and tooling may change between previews.
 
 ## Platform and distribution
 

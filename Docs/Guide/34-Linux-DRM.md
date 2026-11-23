@@ -9,7 +9,7 @@ Publish with a Linux RID and `-p:NazorLinuxNativeLibraries=None` to omit both de
 
 ## Application startup
 
-The packaged `Nazor.Sdk/0.1.0-alpha` supplies the Linux platform assembly in
+The packaged `Nazor.Sdk/0.1.1-alpha` supplies the Linux platform assembly in
 portable and Linux publications. An application can replace the default host:
 
 ```csharp

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
-    <Identity Id="Nazor.VisualStudio.Languages" Version="0.1.0" Language="en-US" Publisher="Noyzone99" />
+    <Identity Id="Nazor.VisualStudio.Languages" Version="0.1.1" Language="en-US" Publisher="Noyzone99" />
     <DisplayName>Nazor for Visual Studio</DisplayName>
-    <Description xml:space="preserve">Build native .NET desktop apps with Razor components and NSS stylesheets. Create a Nazor app with an optional theme, sample pages, and DevTools. Edit .nazor and .nss files with completion, diagnostics, navigation, and Hot Reload. Supports Visual Studio 2022 and 2026 (x64). This is the free, open-source Nazor 0.1.0-alpha preview.</Description>
+    <Description xml:space="preserve">Build native .NET desktop apps with Razor components and NSS stylesheets. Create a Nazor app with an optional theme, sample pages, and DevTools. Edit .nazor and .nss files with completion, diagnostics, navigation, and Hot Reload. Supports Visual Studio 2022 and 2026 (x64). This is the free, open-source Nazor 0.1.1-alpha preview.</Description>
     <MoreInfo>https://github.com/noyzone99/Nazor</MoreInfo>
     <License>LICENSE.txt</License>
     <ReleaseNotes>ReleaseNotes.txt</ReleaseNotes>
