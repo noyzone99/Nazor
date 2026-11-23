@@ -26,7 +26,8 @@ if [[ -n "$expected_rid" && "$expected_rid" != "$rid" ]]; then
 fi
 build=${NAZOR_NATIVE_BUILD:-"$root/artifacts/native-build/$rid/$configuration"}
 cmake -S "$root/Sources/Platforms/Nazor.Platform.Linux/Native" -B "$build" \
-  -DCMAKE_BUILD_TYPE="$configuration" -DCMAKE_LIBRARY_OUTPUT_DIRECTORY="$root/artifacts/native/$rid" -DBUILD_TESTING=ON -DNAZOR_WAYLAND="$wayland" -DNAZOR_X11="$x11"
+  -DCMAKE_BUILD_TYPE="$configuration" -DCMAKE_LIBRARY_OUTPUT_DIRECTORY="$root/artifacts/native/$rid" -DBUILD_TESTING=ON \
+  -DNAZOR_WAYLAND="$wayland" -DNAZOR_X11="$x11" -DNAZOR_X11_WINDOW_TESTS="${NAZOR_X11_WINDOW_TESTS:-ON}"
 cmake --build "$build" --parallel 2
 env -u WAYLAND_SOCKET WAYLAND_DISPLAY=nazor-missing-display ctest --test-dir "$build" --output-on-failure \
   | tee "$root/artifacts/native/$rid/native-tests.txt"

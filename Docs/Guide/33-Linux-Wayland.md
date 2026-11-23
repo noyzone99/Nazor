@@ -50,9 +50,9 @@ This table describes implemented mappings, not certified Windows feature parity 
 
 ## Build from source
 
-Install the .NET SDK pinned in `global.json`, a C11 compiler, CMake, pkg-config, the Wayland development libraries and scanner, and xkbcommon development files. The default `All` build also requires X11, Xcursor, Xrender and Xext development files (`pkg-config x11 xcursor xrender xext` must succeed). `Native/Protocols` contains the protocol XML and retained upstream license notices, so building does not fetch protocol definitions from the network.
+Install the .NET SDK pinned in `global.json`, a C11 compiler, CMake, pkg-config, the Wayland development libraries and scanner, and xkbcommon development files. The default `All` build also requires X11, Xcursor, Xrender, Xext and Xrandr development files (`pkg-config x11 xcursor xrender xext xrandr` must succeed). `Native/Protocols` contains the protocol XML and retained upstream license notices, so building does not fetch protocol definitions from the network.
 
-On Fedora, the Wayland development packages include `gcc cmake wayland-devel libxkbcommon-devel fontconfig`. Add pkg-config, `libX11-devel`, `libXcursor-devel`, `libXrender-devel`, and `libXext-devel` for `All`. On Debian/Ubuntu, the default build uses `build-essential cmake pkg-config libwayland-dev libwayland-bin libxkbcommon-dev libfontconfig1 libx11-dev libxcursor-dev libxrender-dev libxext-dev`.
+On Fedora, the Wayland development packages include `gcc cmake wayland-devel libxkbcommon-devel fontconfig`. Add pkg-config, `libX11-devel`, `libXcursor-devel`, `libXrender-devel`, `libXext-devel`, and `libXrandr-devel` for `All`. On Debian/Ubuntu, the default build uses `build-essential cmake pkg-config libwayland-dev libwayland-bin libxkbcommon-dev libfontconfig1 libx11-dev libxcursor-dev libxrender-dev libxext-dev libxrandr-dev`.
 
 ```bash
 bash Scripts/Build/build-native.sh Release
@@ -78,6 +78,8 @@ dotnet publish Samples/Nazor.Samples.Counter -c Release -r linux-x64 --self-cont
 ```
 
 The compiler used during this build runs on Windows. Runtime identifier and self-contained application settings are removed when building and locating that compiler, so publishing a Linux application does not turn the compiler into a Linux tool.
+
+If WSLg mounts `/tmp/.X11-unix` read-only, run `wsl -- env NAZOR_X11_WINDOW_TESTS=OFF bash Scripts/Build/build-native.sh Release`. This builds both bridges and runs the native ABI and input checks without starting the graphical X11 and Xwayland tests.
 
 Copy the entire publication directory to the VM. Run `chmod u+x Nazor.Samples.Counter` followed by `./Nazor.Samples.Counter` from a terminal inside the Wayland session. The self-contained publication includes .NET; Wayland, xkbcommon, fontconfig and fonts are still system dependencies. Copying ordinary Windows `bin` output instead leaves a Windows apphost and an unspecialized native-runtime layout.
 

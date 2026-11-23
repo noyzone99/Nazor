@@ -5,13 +5,13 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-ins
     && rm -rf /var/lib/apt/lists/*
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends xkb-data libx11-data \
     && rm -rf /var/lib/apt/lists/*
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends libx11-dev libxcursor-dev libxrender-dev libxext-dev libxrandr-dev xvfb openbox x11-utils \
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends libx11-dev libxcursor-dev libxrender-dev libxext-dev libxrandr-dev \
     && rm -rf /var/lib/apt/lists/*
 
 FROM alpine:3.21 AS musl
 RUN apk add --no-cache build-base cmake ninja pkgconf wayland-dev libxkbcommon-dev binutils
 RUN apk add --no-cache xkeyboard-config libx11
-RUN apk add --no-cache libx11-dev libxcursor-dev libxrender-dev libxext-dev libxrandr-dev xvfb openbox xprop
+RUN apk add --no-cache libx11-dev libxcursor-dev libxrender-dev libxext-dev libxrandr-dev
 
 FROM ${LIBC} AS build
 ARG LIBC
