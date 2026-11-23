@@ -79,7 +79,11 @@ app.Appearance.ColorScheme = Nazor.Style.ColorScheme.System;
 
 Set application appearance on the UI thread. Changing a theme updates existing windows and their defaults. The color scheme is independent. System follows platform preferences, while Light and Dark request a variant.
 
-Install the optional [`Nazor.Themes.Fluent` package](../ApiReferences/Nazor.Themes.Fluent.md) at the same version as your SDK and set `app.Appearance.Theme = Nazor.Themes.Fluent.Themes.Fluent` to use WinUI-inspired styling over the Basic control geometry. The theme uses WinUI 3 color tokens and follows WinUI templates for control states, metrics, corner radii and dialog layout. The [package reference](../ApiReferences/Nazor.Themes.Fluent.md) lists the rules.
+### Theme package versions
+
+Optional themes use the same major, minor and patch numbers as the SDK and carry an alpha prerelease label. An SDK version already labeled `-alpha` or `-alpha.<qualifier>` supplies its full prerelease version. For other SDK versions, the theme package uses the matching numeric version with `-alpha`. The app template generates the matching theme reference when you choose Fluent or NazorLeaf. Basic ships with the SDK.
+
+Install the matching alpha release of `Nazor.Themes.Fluent` and set `app.Appearance.Theme = Nazor.Themes.Fluent.Themes.Fluent` to use WinUI-inspired styling over the Basic control geometry. The theme uses WinUI 3 color tokens and follows WinUI templates for control states, metrics, corner radii and dialog layout. [Fluent package reference](../ApiReferences/Nazor.Themes.Fluent.md)
 
 The same package includes private Fluent System Icons fonts and the typed `FluentSymbol` catalog for `Icon.Symbol`. Register them with `builder.Fonts.AddFluentFonts()` before `Build()`. The packaged icons work with any theme. Fluent decorative parts prefer exact covered Segoe Fluent Icons or Segoe MDL2 Assets glyphs and fall back to these packaged fonts, so register them whenever you select it. `WinUISymbol` exposes the same native-preferred policy for application icons; `FluentSymbol` always selects the packaged family. [Icon setup](22-Images-Icons-and-Drawing.md#typed-fluent-symbols)
 
@@ -94,7 +98,7 @@ The shared host hint is available to custom and future backends. Existing deskto
 
 ### NazorLeaf
 
-Reference `Nazor.Themes.NazorLeaf` at the same version as your SDK. In `Program.cs`, keep the application's namespace import for `App`, register the fonts before `Build()`, and select the theme before `Run()`.
+Reference the matching alpha release of `Nazor.Themes.NazorLeaf`. In `Program.cs`, keep the application's namespace import for `App`, register the fonts before `Build()`, and select the theme before `Run()`.
 
 ```csharp
 using Nazor.Themes.NazorLeaf;
@@ -108,6 +112,37 @@ return app.Run();
 ```
 
 `NazorLeafTheme.Theme` layers the NazorLeaf rules over Basic. The package copies the Geist, Geist Mono, Bricolage Grotesque and NazorLeaf Icons fonts, their notices and the paper-grain texture to `Themes/NazorLeaf` in build and publish output. The same `AddNazorLeafFonts()` call registers all four fonts. Use `Icon Symbol="@LeafSymbol.Plus"` for the theme's typed icons with any active theme. Customize the theme in your application stylesheet with tokens such as `--leaf-primary`, `--leaf-on-primary`, `--leaf-pc`, `--leaf-on-pc` and `--leaf-ink`. Check each color scheme you support. A `Badge` that decorates an icon on a colored bar should set `--leaf-badge-cutout` to the bar color, so the 2 px cutout around the leaf matches. Slider thumb gaps reveal the actual surface underneath, including gradients and images; no surface-color token is required. NazorLeaf also styles the Windows taskbar overlay badge as a seed-colored leaf. Text inherits a 1.5 line height from the theme root, as in the prototype. Field buttons such as clear, reveal and the search mark draw NazorLeaf icons in `::before` and hide Basic's vector glyphs with `stroke-trim-end: 0`; anchored menus and drop-down lists open 6 px from their anchor. [NazorLeaf API](../ApiReferences/Nazor.Themes.NazorLeaf.md) · [Packaging theme assets](28-Libraries-Packaging-and-Deployment.md#theme-packages)
+
+## Desktop-inspired themes
+
+Reference the matching alpha release of the theme package. After building the application, assign its stylesheet to `app.Appearance.Theme`.
+
+```csharp
+using Nazor.Themes.Adwaita;
+
+var builder = NazorApplication.CreateBuilder(args);
+builder.Fonts.AddAdwaitaFonts();
+builder.Application.UseMainWindow<App>();
+using var app = builder.Build();
+app.Appearance.Theme = AdwaitaTheme.Theme;
+app.Appearance.ColorScheme = Nazor.Style.ColorScheme.Dark;
+return app.Run();
+```
+
+| Theme package | Stylesheet | Palettes |
+| --- | --- | --- |
+| [Nazor.Themes.Adwaita](../ApiReferences/Nazor.Themes.Adwaita.md) | `AdwaitaTheme.Theme` | Light and dark |
+| [Nazor.Themes.Breeze](../ApiReferences/Nazor.Themes.Breeze.md) | `BreezeTheme.Theme` | Light and dark |
+| [Nazor.Themes.Windows9x](../ApiReferences/Nazor.Themes.Windows9x.md) | `Windows9xTheme.Theme` | Light |
+| [Nazor.Themes.WindowsXP](../ApiReferences/Nazor.Themes.WindowsXP.md) | `WindowsXPTheme.Theme` | Light |
+| [Nazor.Themes.Windows7](../ApiReferences/Nazor.Themes.Windows7.md) | `Windows7Theme.Theme` | Light |
+| [Nazor.Themes.Cde](../ApiReferences/Nazor.Themes.Cde.md) | `CdeTheme.Theme` | Light and dark |
+
+These packages layer compiled NSS over Basic. Adwaita follows libadwaita 1.10 from GNOME 51 and includes Adwaita Sans and Mono. Register those faces before building the application to use them on every host. The other desktop themes use installed faces through the font provider. In normal appearance, the light-only themes use their light palette even when the app chooses Dark. All six use Basic's system palette and control rules when forced colors are active. Window decorations follow the application's window settings.
+
+Adwaita uses overlay scrollbars with a narrow indicator that widens under the pointer. Breeze reserves its Qt-style scrollbar gutter. The three historical Windows styles and CDE reserve gutters with end buttons. Thumb colors also respond to pointer hover and dragging. See [scrollbar styling](20-Layout-and-Scrolling.md#scrolling) to adjust these choices in your app.
+
+Try each theme with the Gallery's theme and color scheme selectors. **ScrollView** demonstrates both scrollbar axes. **TitleBar and window controls** previews Nazor-drawn decorations. Gallery and headless tests cover control styles and interaction. Native toolkit comparisons remain part of the alpha verification. [Gallery](../../Samples/Nazor.Samples.Gallery/README.md)
 
 ## Design tokens
 

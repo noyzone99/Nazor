@@ -22,7 +22,7 @@ The implicit C# usings are `Nazor`, `Nazor.Controls`, `Nazor.Input`, `Nazor.Styl
 
 In top-level startup code, qualify application stylesheets as `MyApp.StyleSheets.Theme` (using the actual root namespace), as the template does. The controls package also exposes a `StyleSheets` class, so importing both namespaces can make an unqualified name ambiguous. A C# using alias is another option.
 
-Keep the SDK, official runtime packages, and optional themes on the same Nazor release. [Nazor.Sdk on NuGet](https://www.nuget.org/packages/Nazor.Sdk/0.1.0-alpha) · [NuGet package list](../../README.md#nuget-packages)
+Keep the SDK and official runtime packages on the same version. Use the matching numeric version of any optional alpha theme package. [Nazor.Sdk on NuGet](https://www.nuget.org/packages/Nazor.Sdk/0.1.0-alpha) · [Theme package versions](16-Styling-and-Themes.md#theme-package-versions)
 
 The SDK supplies the `Nazor.Controls` package and imports its component namespace. Add `@using Nazor.Controls.Primitives` in markup that uses lower-level interaction components. See the [control catalog](09-Control-Catalog.md).
 
@@ -61,7 +61,7 @@ The bundled Roslyn/Razor services support C# 15 while running on .NET 10. Compon
 
 ## Visual Studio 2022 and .NET 8
 
-Runtime packages and the optional Fluent theme contain `net8.0`, `net9.0` and `net10.0` assemblies. Create a .NET 8 application with:
+Runtime packages and the optional theme packages contain `net8.0`, `net9.0` and `net10.0` assemblies. Create a .NET 8 application with:
 
 ```powershell
 dotnet new nazor-app -n HelloNazor8 --framework net8.0

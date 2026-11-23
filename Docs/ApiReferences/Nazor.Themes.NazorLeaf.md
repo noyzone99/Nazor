@@ -2,7 +2,7 @@
 
 Automatic virtualized List/Tree rows follow 46px Compact/54px Touch metrics; DataGrid includes a 2px internal gap in 48/56px row pitch. Explicit application heights override density. Surviving realized rows relocate with a 320ms spring and stable Tree chevrons rotate over 450ms; removal retention is available through the shared ItemsTransition primitive.
 
-Reference this optional package and register its bundled private fonts on the application builder. After building the application, select the theme through `app.Appearance.Theme`.
+Reference the matching alpha release and register its bundled private fonts on the application builder. After building the application, select the theme through `app.Appearance.Theme`. [Theme package versions](../Guide/16-Styling-and-Themes.md#theme-package-versions)
 
 Selected TimePicker rows center their values and place the seed 3 logical pixels inside the row's leading edge. This spacing is scoped to time options; ordinary menu seeds keep their own geometry.
 
@@ -23,6 +23,8 @@ The example uses an `App` component with `@window`. The theme combines Basic wit
 `ControlDensity.Touch` selects 42px controls/menus, 54px rows and 15px body text, with larger toggle/list/table targets; compact uses 34/34/46/14. Set `app.Appearance.ControlDensity`, or override an individual `IWindow.ControlDensity`. Automatic follows the host hint and falls back to compact when unavailable. [Density contracts](../Guide/16-Styling-and-Themes.md#control-density)
 
 `LeafSymbol` implements the shared `IFontSymbol` contract. Use `<Icon Symbol="@LeafSymbol.Search" />` after importing `Nazor.Themes.NazorLeaf`; symbols select their font with any theme. Raw `Glyph` codes remain available with `font-family: "NazorLeaf Icons"`, which the NazorLeaf theme supplies by default for `Icon`. The icon font and original artwork are MIT-licensed; retain `LICENSE-NazorLeaf-Icons.txt` and `SOURCE-NazorLeaf-Icons.txt` with the font. Text fonts retain their Open Font License notices. [Icon usage](../Guide/22-Images-Icons-and-Drawing.md#typed-nazorleaf-symbols)
+
+Neutral overlay scroll thumbs widen under the pointer and use the seed color while dragged. Forced colors use Basic's system-colored scrollbar. [Scrollbar styling](../Guide/20-Layout-and-Scrolling.md#scrolling)
 
 The generated icon font preserves hollow and overlapping SVG regions on both DirectWrite and FreeType. Its closed contours use consistent nonzero winding, including nested holes. Icon mappings and source artwork are unchanged.
 

@@ -44,22 +44,27 @@ Ship licenses for third-party fonts/images. The sample source may link a test fo
 
 ## Theme packages
 
-A theme is a library with compiled standalone `.nss` files exposed through the generated `StyleSheets` class. It can provide a `Themes` catalog as a convenient public entry point. It needs no control-package reference, plugin interface, or service registration. Consumers choose a sheet explicitly through `app.Appearance.Theme`. Provide the full set of supported control states, forced colors, reduced-motion behavior, and required assets. Record supported framework versions and keep official SDK/runtime/theme versions aligned.
+A theme is a library with compiled standalone `.nss` files exposed through the generated `StyleSheets` class. It can provide a public catalog property that layers its sheets over Basic. Such a catalog references `Nazor.Controls` for Basic. Consumers choose a sheet through `app.Appearance.Theme`. Provide the supported control states, forced colors, reduced-motion behavior, and required assets. Record the supported frameworks and use the alpha theme release with the matching numeric SDK version. [Theme package versions](16-Styling-and-Themes.md#theme-package-versions)
 
 `Nazor.Themes.Fluent` packages its Regular and Filled Fluent System Icons TTFs and MIT notices under `Themes/Fluent/`. Register them before startup with `builder.Fonts.AddFluentFonts()`. Check that both TTFs and `LICENSE.txt`, `NOTICE.txt`, and `SOURCE.txt` reach the consumer's build and publish output. The generated `FluentSymbol` catalog selects the correct family independently of the active theme. [Fluent on NuGet](https://www.nuget.org/packages/Nazor.Themes.Fluent/0.1.0-alpha) · [Fluent icon setup](22-Images-Icons-and-Drawing.md#typed-fluent-symbols)
 
 `Nazor.Themes.NazorLeaf` supplies private fonts and a texture under `Themes/NazorLeaf/` in build and publish output. The application registers the fonts before building its host. Keep the font licenses and texture together with the fonts when distributing the app. The icon font is `NazorLeafIcons.otf`; `LeafSymbol` selects it without depending on a system icon font. [NazorLeaf on NuGet](https://www.nuget.org/packages/Nazor.Themes.NazorLeaf/0.1.0-alpha) · [NazorLeaf setup](16-Styling-and-Themes.md#nazorleaf)
 
-Both theme packages copy their assets during the build. In Visual Studio, the packages appear under **Dependencies**, and their asset folders appear in the build and publish outputs.
+Fluent and NazorLeaf copy their assets during the build. In Visual Studio, the packages appear under **Dependencies**, and their asset folders appear in the build and publish outputs.
+
+Adwaita, Breeze, Windows 9x, Windows XP, Windows 7 and CDE ship their compiled NSS in separate packages that depend on `Nazor.Controls`. Adwaita copies its font faces and SIL OFL notice to `Themes/Adwaita/` in build and publish output. Call `builder.Fonts.AddAdwaitaFonts()` before building the application to register the packaged faces. [Desktop-inspired theme setup](16-Styling-and-Themes.md#desktop-inspired-themes)
 
 To check a theme as a package consumer, start with `HelloNazor` from the quickstart in a directory outside the checkout. Apply the NazorLeaf setup from the styling guide before publishing. Verify `Themes/NazorLeaf` in the publish output, including the four font files, their notices and paper-grain image. Run the published application from that directory to check font and texture loading.
 
 ```powershell
 $project = 'HelloNazor/HelloNazor.csproj'
-$nazorVersion = ([xml](Get-Content -Raw $project)).Project.Sdk.Split('/')[1]
-dotnet add $project package Nazor.Themes.NazorLeaf --version $nazorVersion
+$sdkVersion = ([xml](Get-Content -Raw $project)).Project.Sdk.Split('/')[1]
+$themeVersion = if ($sdkVersion -match '^[^-+]+-alpha(?:[.+]|$)') { $sdkVersion } else { ($sdkVersion -replace '[-+].*$', '') + '-alpha' }
+dotnet add $project package Nazor.Themes.NazorLeaf --version $themeVersion
 dotnet publish HelloNazor -c Release -r win-x64 --self-contained false -o HelloNazor-theme-publish
 ```
+
+For Adwaita, use its package and register `AddAdwaitaFonts()` before building. Check the six font files, the license and the source notice under `Themes/Adwaita`. Run the published application from outside the checkout to verify font loading. [Adwaita package reference](../ApiReferences/Nazor.Themes.Adwaita.md)
 
 ## Development inspector payload
 

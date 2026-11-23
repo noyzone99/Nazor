@@ -114,7 +114,15 @@ All scrollbar properties inherit and apply to both overflowing axes. See [scroll
 | `scrollbar-visibility` | `none \| visible \| autohide` | `visible` | Yes | No |
 | `scrollbar-width` | `<length>` | `4px` | Yes | Yes |
 | `scrollbar-thumb-color` | `<color>` | `#808080b0` | Yes | Yes |
+| `scrollbar-thumb-width` | `auto \| <length>` | `auto` (uses scrollbar width) | Yes | Yes |
+| `scrollbar-thumb-expanded-width` | `auto \| <length>` | `auto` (uses resting thumb width) | Yes | Yes |
+| `scrollbar-thumb-hover-color` | `auto \| <color>` | `auto` (uses thumb color) | Yes | No |
+| `scrollbar-thumb-active-color` | `auto \| <color>` | `auto` (uses thumb color) | Yes | No |
+| `scrollbar-thumb-border-width` | `<length>` | `0px` | Yes | Yes |
+| `scrollbar-thumb-border-color` | `<color>` | `currentColor` | Yes | Yes |
+| `scrollbar-thumb-border-highlight-color` | `auto \| <color>` | `auto` (uses thumb border color) | Yes | No |
 | `scrollbar-track-color` | `<color>` | `transparent` | Yes | Yes |
+| `scrollbar-track-hover-color` | `auto \| <color>` | `auto` (uses track color) | Yes | No |
 | `scrollbar-radius` | `<length>` | `2px` | Yes | Yes |
 | `scrollbar-inset` | `<length>` | `2px` | Yes | Yes |
 | `scrollbar-min-thumb-length` | `<length>` | `24px` | Yes | Yes |

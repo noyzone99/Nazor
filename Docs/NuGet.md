@@ -2,7 +2,7 @@
 
 Nazor is an open-source .NET UI framework for building native desktop applications with Razor components, C# and NSS stylesheets. This is an early pre-alpha preview. Expect breaking changes in APIs, markup, styling and tooling.
 
-Create an app with `Nazor.Templates` or use **Nazor application** in the Visual Studio extension. The template configures `Nazor.Sdk`, which restores the required runtime packages from NuGet.org. Basic is built in. Add `Nazor.Themes.Fluent` or `Nazor.Themes.NazorLeaf` to use an optional theme. Keep Nazor packages on the same version.
+Create an app with `Nazor.Templates` or use **Nazor application** in the Visual Studio extension. The template configures `Nazor.Sdk`, which restores the required runtime packages from NuGet.org. Basic is built in. Optional theme packages include Fluent, NazorLeaf, Adwaita, Breeze, Windows 9x, Windows XP, Windows 7 and CDE. Choose the alpha theme release with the same numeric version as the SDK. [Theme setup](https://github.com/noyzone99/Nazor/blob/main/Docs/Guide/16-Styling-and-Themes.md)
 
 Windows x64 is the primary verification baseline. Linux has Wayland, X11 and explicit DRM/KMS backends with different prerequisites and capabilities. See the support guide for details.
 

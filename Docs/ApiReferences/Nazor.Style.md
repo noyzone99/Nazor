@@ -1254,7 +1254,7 @@ Namespace: `Nazor.Style`
 public readonly record struct NativeColor(Color? Value)
 ```
 
-A native decoration color, or `auto` to restore the operating system default. `Value` is nullable; null means auto. `NativeColor.Auto` returns that default. `ToString()` returns the explicit color or `"auto"`. NSS resolves `currentColor`, system color aliases and custom properties before applying explicit colors to the backend. Compiled C# and stylesheet JSON preserve both explicit colors and auto.
+An explicit color or `auto` for the default selected by the consuming property. Native decoration properties use the operating system color on auto. Scrollbar interaction colors follow the corresponding normal fill. `Value` is nullable, and null means auto. `ToString()` returns the explicit color or `"auto"`. NSS resolves `currentColor`, system color aliases and custom properties. Compiled C# and stylesheet JSON preserve both explicit colors and auto.
 
 [Source](../../Sources/Core/Nazor.Style/Values/NativeColor.cs)
 
@@ -5873,13 +5873,21 @@ Inherited scroll request settings. `ScrollBehavior` is `Auto` (immediate, defaul
 
 #### Scrollbar properties
 
-All scrollbar descriptors are inherited and apply to both overflowing axes. Opacity, geometry and colors support standard transitions and keyframes. Timing, reveal distance and visibility control automatic fades and wheel behavior. Use global `:root` defaults or component-scoped overrides; see [the scrollbar property catalog](../Guide/19-NSS-Property-Reference.md#scrollbars) for NSS grammar, defaults, animation flags and behavior.
+All scrollbar descriptors are inherited and apply to both overflowing axes. Opacity, geometry and normal fills support standard transitions and keyframes. Pointer interaction selects the hover or active fill immediately. Timing, reveal distance and visibility control automatic fades and wheel behavior. Use global `:root` defaults or component-scoped overrides. [Scrollbar property catalog](../Guide/19-NSS-Property-Reference.md#scrollbars)
 
 ```csharp
 public static readonly StyleProperty<ScrollbarVisibility> ScrollbarVisibility;
 public static readonly StyleProperty<Length> ScrollbarWidth;
 public static readonly StyleProperty<Color> ScrollbarThumbColor;
+public static readonly StyleProperty<SizeValue> ScrollbarThumbWidth;
+public static readonly StyleProperty<SizeValue> ScrollbarThumbExpandedWidth;
+public static readonly StyleProperty<NativeColor> ScrollbarThumbHoverColor;
+public static readonly StyleProperty<NativeColor> ScrollbarThumbActiveColor;
+public static readonly StyleProperty<Length> ScrollbarThumbBorderWidth;
+public static readonly StyleProperty<Color> ScrollbarThumbBorderColor;
+public static readonly StyleProperty<NativeColor> ScrollbarThumbBorderHighlightColor;
 public static readonly StyleProperty<Color> ScrollbarTrackColor;
+public static readonly StyleProperty<NativeColor> ScrollbarTrackHoverColor;
 public static readonly StyleProperty<Length> ScrollbarRadius;
 public static readonly StyleProperty<Length> ScrollbarInset;
 public static readonly StyleProperty<Length> ScrollbarMinThumbLength;
@@ -10657,9 +10665,9 @@ Namespace `Nazor.Style`. [Source](../../Sources/Core/Nazor.Style/Values/NativeCo
 
 | Declaration | Contract |
 | --- | --- |
-| `public readonly struct NativeColor : IEquatable<NativeColor>` | A native decoration color, or auto to restore the operating system default.<br>`Value`. Explicit color; null means auto. |
+| `public readonly struct NativeColor : IEquatable<NativeColor>` | An explicit color or the default selected by the consuming property.<br>`Value`. Explicit color. Null means auto. |
 | `public NativeColor()` |  |
-| `public NativeColor(Color? Value)` | A native decoration color, or auto to restore the operating system default.<br>`Value`. Explicit color; null means auto. |
+| `public NativeColor(Color? Value)` | An explicit color or the default selected by the consuming property.<br>`Value`. Explicit color. Null means auto. |
 | `public override string ToString()` |  |
 | `public static bool operator !=(NativeColor left, NativeColor right)` |  |
 | `public static bool operator ==(NativeColor left, NativeColor right)` |  |
@@ -10668,7 +10676,7 @@ Namespace `Nazor.Style`. [Source](../../Sources/Core/Nazor.Style/Values/NativeCo
 | `public bool Equals(NativeColor other)` |  |
 | `public void Deconstruct(out Color? Value)` |  |
 | `public Color? Value { get; init; }` | Explicit color; null means auto. |
-| `public static NativeColor Auto { get; }` | Uses the operating system color. |
+| `public static NativeColor Auto { get; }` | Uses the automatic color for the property. |
 
 ### `NthSelector`
 

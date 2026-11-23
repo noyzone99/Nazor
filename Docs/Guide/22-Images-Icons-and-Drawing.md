@@ -31,7 +31,7 @@ The SVG reader supports basic shapes/path/grouping, fills and strokes, opacity, 
 
 ### Typed Fluent symbols
 
-Reference `Nazor.Themes.Fluent` at the same version as the SDK and register its packaged icon fonts before `Build()`:
+Reference the alpha release of `Nazor.Themes.Fluent` that matches your SDK's numeric version. Register its packaged icon fonts before `Build()`.
 
 ```csharp
 using Nazor.Themes.Fluent;

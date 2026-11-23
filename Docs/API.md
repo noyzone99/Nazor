@@ -31,6 +31,12 @@ Use the package map to choose an API reference and the NuGet package list to fin
 | `Nazor.Style` | [Nazor.Style](ApiReferences/Nazor.Style.md) |
 | `Nazor.Themes.Fluent` | [Nazor.Themes.Fluent](ApiReferences/Nazor.Themes.Fluent.md) — optional theme, private icon fonts and typed symbols |
 | `Nazor.Themes.NazorLeaf` | [Nazor.Themes.NazorLeaf](ApiReferences/Nazor.Themes.NazorLeaf.md) — optional theme, its controls, private fonts and typed icons |
+| `Nazor.Themes.Adwaita` | [Nazor.Themes.Adwaita](ApiReferences/Nazor.Themes.Adwaita.md) — libadwaita 1.10 control styles and private Adwaita fonts |
+| `Nazor.Themes.Breeze` | [Nazor.Themes.Breeze](ApiReferences/Nazor.Themes.Breeze.md) — KDE Breeze-inspired control styles |
+| `Nazor.Themes.Windows9x` | [Nazor.Themes.Windows9x](ApiReferences/Nazor.Themes.Windows9x.md) — Windows 95 and 98-inspired control styles |
+| `Nazor.Themes.WindowsXP` | [Nazor.Themes.WindowsXP](ApiReferences/Nazor.Themes.WindowsXP.md) — Windows XP-inspired control styles |
+| `Nazor.Themes.Windows7` | [Nazor.Themes.Windows7](ApiReferences/Nazor.Themes.Windows7.md) — Windows 7-inspired control styles |
+| `Nazor.Themes.Cde` | [Nazor.Themes.Cde](ApiReferences/Nazor.Themes.Cde.md) — Common Desktop Environment-inspired control styles |
 
 ## API usage notes
 
@@ -119,6 +125,8 @@ The standard Nazor title bar uses `IWindow.EffectiveIcon`: an explicit `Window.I
 `IWindow.NativeHandle` exposes a borrowed, backend-described `NativeWindowHandle`; see [native window interop](Guide/13-Windows-and-Dialogs.md#native-window-interop) for lifetime and dispatcher requirements.
 
 Window roots keep their caption fixed while `WindowContent` defaults to automatic scrolling; see [scrolling defaults and overrides](Guide/20-Layout-and-Scrolling.md#scrolling).
+
+Scrollbar thumbs can change painted width and color on hover or drag within a fixed hit lane. [Scrollbar properties](Guide/19-NSS-Property-Reference.md#scrollbars)
 
 App-launched DevTools use an exported native owner token and close with their source window; see [DevTools lifetime](DevTools.md).
 

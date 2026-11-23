@@ -37,6 +37,8 @@ see [DRM validation](../Docs/Guide/34-Linux-DRM.md#build-publish-and-verificatio
 
 ## Shared infrastructure and fixtures
 
+`GallerySampleTests` checks the desktop theme picker, scheme changes, retained control state, forced colors and both scrollbar axes in the Gallery. `ScrollBarTests`, `ScrollBarPlacementTests` and `ScrollBarAnimationTests` cover painted and hit geometry, gutter layout, hover and drag, fades, end-button repetition and capture cancellation. `ScrollbarPropertyTests` covers the NSS declarations. Native visual comparison with the original toolkits is a separate alpha verification step.
+
 `python -B -m unittest discover -s Tests/Verification -p test_gallery_fidelity.py -v` checks metadata rejection, exact PNG decoding, image differences and result de-duplication for the optional Gallery evidence tool. It needs Python 3.
 
 `node --test Tests/Verification/test-capture-leaf-reference.mjs` uses Node 22 or newer to test offline reference preparation, source-selected theme and density controls, and capture output paths. Capturing the actual reference requires the HTML and a browser.

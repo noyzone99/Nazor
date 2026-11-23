@@ -10,7 +10,17 @@ The ListView page demonstrates opt-in city reordering by primary drag or Ctrl/Me
 dotnet run --project Samples/Nazor.Samples.Gallery
 ```
 
-Search by control name or browse the component families. Composition parts such as `TableHeaderCell` lead to a page that shows them in context. Each page renders a live example and displays the source that was compiled. The gallery opens in NazorLeaf. Use the sidebar to switch to Basic, Fluent or None and to select the system, light or dark color scheme. Pass `-- --theme fluent` to start in Fluent and `--scheme light` or `--scheme dark` to choose the starting color scheme.
+Search by control name or browse the component families. Composition parts such as `TableHeaderCell` lead to a page that shows them in context. Each page renders a live example and displays the source that was compiled. The gallery opens in NazorLeaf. Use the sidebar to select a theme and choose System, Light or Dark.
+
+The `--theme` option accepts `basic`, `fluent`, `nazor-leaf`, `adwaita`, `breeze`, `windows-9x`, `windows-xp`, `windows-7`, `cde` and `none`. For example, start in Breeze Dark with the following command.
+
+```powershell
+dotnet run --project Samples/Nazor.Samples.Gallery -- --theme breeze --scheme dark
+```
+
+Adwaita, Breeze and CDE follow the selected color scheme. The Windows 9x, Windows XP and Windows 7 themes use their light palettes. All six support the system's forced colors. [Desktop-inspired themes](../../Docs/Guide/16-Styling-and-Themes.md#desktop-inspired-themes)
+
+The **ScrollView** page shows both scrollbar axes in the same activity log. Move the pointer to a scrollbar to see its interactive appearance, then try the wheel, arrow buttons where present, and thumb dragging. Open **TitleBar and window controls** to see a separate window with Nazor-drawn decorations.
 
 Every theme uses a tall application title bar with the app icon, title and component search, keeping the system caption buttons where supported and falling back to a Nazor frame otherwise. Theme changes preserve the search text and editor. Fluent follows WinUI Gallery. The title bar and the navigation pane sit on Mica (`CommonBackdrop.Solid`). The content is a layer with a rounded leading corner, and the catalog cards and navigation list use the WinUI card, stroke and subtle-fill colors. Where a native frame cannot host the title bar, as on current Linux desktops, the same title bar uses a Nazor frame. Without Mica, the solid Fluent base replaces the material. Live examples have a separate source area: dark examples are recessed below the page and the source area is raised; light examples use the corresponding card fills. Forced colors use Canvas with system-color boundaries. Basic uses tonal system-color surfaces, card borders in each family's color and an accent selection bar. Each component family has a color and a packaged Fluent System Icons glyph, so the decoration looks the same on every platform. Forced colors replace these colors with system colors. These styles apply only to the sidebar, catalog and page frame. Live examples keep the theme's ordinary control appearance, without gallery overrides.
 
@@ -44,7 +54,7 @@ In the showcase's navigation section, the **Movimento** tab replays four motion 
 
 The **Colori** and **Forme** tabs read their displayed values from the rendered styles. Seed/scheme/custom-token changes update the labels; the radius slider scales all four radius families together while preserving the system frame.
 
-Startup registers NazorLeaf's text/icon fonts and the packaged Fluent System Icons fonts. The Icon example shows typed symbols from both catalogs and a raw-code example with an explicit NSS family. The NazorLeaf showcase uses `LeafSymbol` instead of sample-owned SVG paths; its original SVG artwork is maintained in the theme package's `Icons` source directory. These icons do not depend on installed system icon fonts and remain available while switching themes. [Icon setup](../../Docs/Guide/22-Images-Icons-and-Drawing.md#typed-nazorleaf-symbols)
+Startup registers the Adwaita Sans and Mono faces, NazorLeaf's text and icon fonts, and the Fluent System Icons fonts. The Icon example shows typed symbols from the Fluent and NazorLeaf catalogs and a raw-code example with an explicit NSS family. The NazorLeaf showcase uses `LeafSymbol` from the package's original artwork in `Icons`. These icons remain available while switching themes. [Icon setup](../../Docs/Guide/22-Images-Icons-and-Drawing.md#typed-nazorleaf-symbols)
 
 The **Content and layout transitions** page demonstrates keyed editable pages, collection add/remove/reorder and a connected destination captured before source removal. Local component state survives stable keys; outgoing content is unavailable immediately and is disposed after theme retention. Basic uses immediate replacement; Fluent supplies motion. Reduced motion shows final states directly.
 

@@ -94,7 +94,7 @@ Follow the [first application tutorial](38-First-Desktop-Application.md) to reus
 
 Install [editor support](26-Editors-and-Hot-Reload.md) for completion, source navigation, diagnostics, and formatting. Use Debug builds for [hot reload](26-Editors-and-Hot-Reload.md#terminal-hot-reload). Learn the [SDK's file conventions](03-Projects-and-Builds.md) before extracting components or creating a library.
 
-Keep the SDK, runtime packages and optional themes on the same version. If installation or restore fails, see [package installation and restore](30-Troubleshooting.md#package-installation-and-restore).
+Keep the SDK and runtime packages on the same version. Choose the alpha theme packages with the matching numeric version. [Theme package versions](16-Styling-and-Themes.md#theme-package-versions) · [Package installation and restore](30-Troubleshooting.md#package-installation-and-restore)
 
 ## Build a local package feed
 

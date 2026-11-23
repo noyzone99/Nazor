@@ -80,7 +80,7 @@ For independent or nested regions, set overflow on the element that owns each sc
 .strip-content > .tile { flex-shrink: 0; width: 240px; }
 ```
 
-Auto and scroll both show an overlaid scrollbar only when content overflows. Drag either thumb with the primary mouse button to scroll, including outside the container while the pointer is captured. Clicking the track pages in that direction. A non-visible overflow value on either axis clips both axes at the inner border, including rounded corners. Scroll extent includes child boxes/margins and non-clipping descendants; painted text overflow does not itself enlarge it.
+Auto and scroll both show a scrollbar only when content overflows. Drag either thumb with the primary mouse button to scroll, including outside the container while the pointer is captured. Clicking the track pages in that direction. A non-visible overflow value on either axis clips both axes at the inner border, including rounded corners. Scroll extent comes from layout bounds and margins for child boxes and non-clipping descendants. Painted text overflow does not enlarge it.
 
 Scrollbar properties are inherited: place defaults on `:root` in a global stylesheet, then override them on a container or in a component's `.nazor.nss` stylesheet using the normal NSS cascade and component scope.
 
@@ -88,7 +88,11 @@ Scrollbar properties are inherited: place defaults on `:root` in a global styles
 :root {
     scrollbar-visibility: autohide;
     scrollbar-width: 8px;
+    scrollbar-thumb-width: 4px;
+    scrollbar-thumb-expanded-width: 8px;
     scrollbar-thumb-color: #808080b0;
+    scrollbar-thumb-hover-color: #606060;
+    scrollbar-thumb-active-color: #0078d4;
     scrollbar-track-color: transparent;
     scrollbar-radius: 4px;
     scrollbar-inset: 2px;
@@ -107,7 +111,9 @@ Scrollbar properties are inherited: place defaults on `:root` in a global styles
 
 **Autohide always uses overlay placement**, even when a global or component rule specifies `reserve`. This avoids layout shifts when the scrollbar appears or fades. Explicit `visible` visibility is required for reserved placement.
 
-Track color, radius and border are independent of the thumb. `scrollbar-track-radius: auto` uses `scrollbar-radius`. End buttons are optional (`scrollbar-buttons: none` by default). Visible buttons scroll in the corresponding direction, clamp at the endpoints, and use their disabled arrow color when they cannot scroll further. Buttons capture the pointer and repeat while held over the pressed button; moving away pauses repeat, and releasing or canceling stops it. A zero repeat interval disables repetition. For very short bars, each button is clamped to one third of the available scrollbar length so the thumb still has room.
+Track color, radius and border are independent of the thumb. `scrollbar-track-radius: auto` uses `scrollbar-radius`. End buttons are optional (`scrollbar-buttons: none` by default). Visible buttons scroll in the corresponding direction, clamp at the endpoints, and use their disabled arrow color when they cannot scroll further or the container is disabled. Buttons capture the pointer and repeat while held over the pressed button. Moving away pauses repeat. Releasing, canceling or disabling the scroll container stops it. A zero repeat interval disables repetition. For very short bars, each button is clamped to one third of the available scrollbar length so the thumb still has room.
+
+Use `scrollbar-thumb-width` to center a thinner painted thumb inside the scrollbar lane. `scrollbar-thumb-expanded-width` applies when the pointer overlaps that axis's lane or its thumb is captured. Both widths are clamped to `scrollbar-width`, which continues to define the hit area and reserved gutter. Auto uses the lane width at rest and the resting thumb width when expanded. Thumb hover and active colors apply over the thumb hit area and during captured dragging, respectively. The track hover color applies while the lane is hovered or the thumb is dragged. Auto colors follow the corresponding normal fills. Thumb borders use the painted thumb bounds. Set `scrollbar-radius: 0` and `scrollbar-thumb-border-highlight-color` to give the top and left edges of a square thumb a different border color.
 
 ```css
 .results {
@@ -132,7 +138,7 @@ Track color, radius and border are independent of the thumb. `scrollbar-track-ra
 }
 ```
 
-These properties inherit, so the same rules can be global defaults on `:root` or component-specific overrides. Track and button colors, radii, border width and button length support the same NSS transitions and keyframes as the thumb.
+These properties inherit, so the same rules can be global defaults on `:root` or component-specific overrides. The normal track fill, track border, button colors, radii and button length support NSS transitions and keyframes.
 
 ### Autohide and wheel animations
 
@@ -154,7 +160,7 @@ Autohide fades in over 120ms and fades out over 200ms after a 300ms hide delay, 
 
 `:wheel-scrolling` matches only the container receiving wheel input and remains active until `scrollbar-wheel-timeout` after its last event. Repeated wheel input restarts the timeout. Wheel events at a scroll limit also activate the state; nested scrolling marks the ancestor that actually scrolls. Prevented and zero-delta wheel events do not activate it. A `none` visibility stays hidden unless an NSS rule overrides it. Programmatic, keyboard and thumb scrolling do not activate this wheel-specific state.
 
-Width, colors, radius, inset, minimum thumb length and `scrollbar-opacity` support normal `transition` and `@keyframes` rules. These animate the scrollbar independently of its container. The effective `scrollbar-opacity` multiplies the autohide fade; visibility `none` suppresses painting and interaction immediately.
+Scrollbar and thumb widths, normal track and thumb colors, radii, inset, minimum thumb length and `scrollbar-opacity` support `transition` and `@keyframes`. The lane and thumb state colors switch when interaction changes. The effective `scrollbar-opacity` multiplies the autohide fade. Visibility `none` suppresses painting and interaction immediately.
 
 ```css
 .results { transition: scrollbar-width 180ms ease-out; }

@@ -248,7 +248,7 @@ Returns: true when the operation succeeds or the condition is satisfied; otherwi
 public ScrollBarGeometry? GetScrollBar(ElementNode element, bool horizontal)
 ```
 
-Gets track and thumb bounds in the element's untransformed layout coordinates, plus current visibility. Returns null when the axis does not overflow, scrollbar visibility is `none`, or the configured geometry has no space. `horizontal` selects the axis. Apply `GetTransform(element)` for window coordinates.
+Gets track and draggable thumb hit bounds in the element's untransformed layout coordinates, plus current visibility. Returns null when the axis does not overflow, scrollbar visibility is `none`, or the configured geometry has no space. `horizontal` selects the axis. Apply `GetTransform(element)` for window coordinates. A painted thumb width override leaves these bounds unchanged.
 
 #### `TimeUntilNextFrame`
 
@@ -286,9 +286,10 @@ Releases the pressed end button and cancels its repeat timer. `InputManager` cal
 
 ```csharp
 public bool UpdateScrollBarInteraction(Point? point, ElementNode? target, ElementNode? dragged = null)
+public bool UpdateScrollBarInteraction(Point? point, ElementNode? target, ElementNode? dragged, bool? draggedHorizontal)
 ```
 
-Updates autohide proximity from a window-coordinate pointer position and its hit-tested target. Null clears proximity. An optional dragged container keeps its scrollbars revealed. Call on the UI thread; true requests a new frame. `InputManager` calls this automatically for pointer movement, leave, capture changes and scene updates.
+Updates hover appearance and autohide proximity from a window-coordinate pointer position and its hit-tested target. A null point clears proximity. Pass the captured thumb's axis as `draggedHorizontal` to keep that axis revealed and display its active thumb color. The overload without an axis, or a null axis, keeps both axes revealed during capture. Call on the UI thread. A true result requests a new frame. `InputManager` calls this automatically for pointer movement, leave, capture changes and scene updates.
 
 #### `GetScrollState`
 
@@ -597,7 +598,7 @@ Namespace: `Nazor.Presentation`
 public readonly record struct ScrollBarGeometry(Rect Track, Rect Thumb, bool IsVisible)
 ```
 
-Scrollbar geometry in the element's untransformed layout coordinates. `Track` receives paging input; `Thumb` is the draggable region. `IsVisible` reports whether opacity is greater than zero, including autohide proximity, wheel input and active dragging. The additional `double Opacity { get; init; }` property is the sampled automatic fade multiplied by the effective `scrollbar-opacity`.
+Scrollbar geometry in the element's untransformed layout coordinates. `Track` receives paging input. `Thumb` is the draggable hit region, including when a theme paints a thinner thumb inside it. `IsVisible` reports whether opacity is greater than zero, including autohide proximity, wheel input and active dragging. The additional `double Opacity { get; init; }` property is the sampled automatic fade multiplied by the effective `scrollbar-opacity`.
 
 `Rect Bounds { get; init; }` covers the full bar including buttons. `Rect DecreaseButton { get; init; }` and `Rect IncreaseButton { get; init; }` contain the end-button bounds; they are empty when buttons are hidden. The track excludes both buttons.
 
@@ -908,9 +909,9 @@ Namespace `Nazor.Presentation`. [Source](../../Sources/Core/Nazor.Presentation/S
 
 | Declaration | Contract |
 | --- | --- |
-| `public readonly struct ScrollBarGeometry : IEquatable<ScrollBarGeometry>` | Scrollbar geometry in the element's untransformed layout coordinates.<br>`Track`. The track receiving pointer input.<br>`Thumb`. The draggable thumb.<br>`IsVisible`. Whether the scrollbar is currently painted. |
+| `public readonly struct ScrollBarGeometry : IEquatable<ScrollBarGeometry>` | Scrollbar geometry in the element's untransformed layout coordinates.<br>`Track`. The track receiving pointer input.<br>`Thumb`. The draggable hit region.<br>`IsVisible`. Whether the scrollbar is currently painted. |
 | `public ScrollBarGeometry()` |  |
-| `public ScrollBarGeometry(Rect Track, Rect Thumb, bool IsVisible)` | Scrollbar geometry in the element's untransformed layout coordinates.<br>`Track`. The track receiving pointer input.<br>`Thumb`. The draggable thumb.<br>`IsVisible`. Whether the scrollbar is currently painted. |
+| `public ScrollBarGeometry(Rect Track, Rect Thumb, bool IsVisible)` | Scrollbar geometry in the element's untransformed layout coordinates.<br>`Track`. The track receiving pointer input.<br>`Thumb`. The draggable hit region.<br>`IsVisible`. Whether the scrollbar is currently painted. |
 | `public override string ToString()` |  |
 | `public static bool operator !=(ScrollBarGeometry left, ScrollBarGeometry right)` |  |
 | `public static bool operator ==(ScrollBarGeometry left, ScrollBarGeometry right)` |  |
@@ -919,7 +920,7 @@ Namespace `Nazor.Presentation`. [Source](../../Sources/Core/Nazor.Presentation/S
 | `public bool Equals(ScrollBarGeometry other)` |  |
 | `public void Deconstruct(out Rect Track, out Rect Thumb, out bool IsVisible)` |  |
 | `public Rect Track { get; init; }` | The track receiving pointer input. |
-| `public Rect Thumb { get; init; }` | The draggable thumb. |
+| `public Rect Thumb { get; init; }` | The draggable hit region. |
 | `public bool IsVisible { get; init; }` | Whether the scrollbar is currently painted. |
 | `public double Opacity { get; init; }` | Gets the sampled opacity, including automatic fade and the effective scrollbar-opacity value. |
 | `public Rect Bounds { get; init; }` | Gets the full scrollbar bounds, including its end buttons. |

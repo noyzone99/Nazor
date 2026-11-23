@@ -1,6 +1,6 @@
 # Nazor.Themes.Fluent
 
-Add a package reference to `Nazor.Themes.Fluent`. Register its private icon fonts before building the application; select the theme separately.
+Reference the matching alpha release of `Nazor.Themes.Fluent`. Register its private icon fonts before building the application, then select the theme. [Theme package versions](../Guide/16-Styling-and-Themes.md#theme-package-versions)
 
 ```csharp
 using Nazor.Themes.Fluent;
@@ -26,6 +26,7 @@ Control states and metrics follow the WinUI 3 templates:
 - Dialogs place their content on an opaque `LayerFillColorAlt` area and their footer on the base fill, with 24px padding. Titles use the 20px semibold subtitle style.
 - The month calendar uses 40px days with 1px margins, a left title with trailing vertical navigation and localized shortest weekday names. Selection is outlined; Today is filled, with distinct hover, press, focus and disabled states. The picker popup has one rounded calendar edge.
 - Tooltips use 12/16px caption text.
+- Overlay scrollbars reveal a compact 4px indicator while scrolling or near the pointer. Hovering the scrollbar or capturing its thumb expands the indicator to 8px inside a stable 12px hit area. Forced colors use Basic's visible, system-colored thumb. [Windows scrolling controls](https://learn.microsoft.com/en-us/windows/apps/develop/ui/controls/scroll-controls)
 - Caption buttons use the subtle hover and pressed fills.
 - Overlays use the two-layer Fluent shadow, which is stronger in the dark scheme.
 - Headings follow the WinUI type ramp in semibold. Controls keep the natural line height of the font.

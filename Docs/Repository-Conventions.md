@@ -55,9 +55,9 @@ Validate moved paths and Markdown links, parse scripts and project metadata, bui
 
 ### Documentation release checks
 
-Set the framework version in `Directory.Build.props` through `NazorVersion`. Packing derives the package versions, the SDK version metadata, and the SDK reference in the project template from that value. Update any versioned installation commands and project examples to match it. Public pages describe the release's current contracts.
+Set the framework version in `Directory.Build.props` through `NazorVersion`. Packing derives the runtime and SDK package versions, SDK metadata, and the SDK reference in the project template from that value. Optional theme packages use `NazorThemeVersion`, which retains an existing alpha label or adds `-alpha` to the framework's numeric version. Template theme references use the same value. Update versioned installation commands and examples to match their packages. Public pages describe the release's current contracts.
 
-The repository owner chooses every version increment. Use the approved `NazorVersion` for the framework, NuGet packages, templates, and editor extension descriptions. Use its numeric major, minor, and patch in the Visual Studio and VS Code manifests and the VS Code lockfile.
+The repository owner chooses every version increment. Use the approved `NazorVersion` for the framework, runtime, SDK, templates, and editor extension descriptions. Keep optional theme packages in the alpha channel while native visual verification is pending. Use the framework's numeric major, minor, and patch in the Visual Studio and VS Code manifests and the VS Code lockfile.
 
 After producing the release packages, run both checks from the repository root with the same feed used by the release. Substitute the pack output directory if it differs.
 
