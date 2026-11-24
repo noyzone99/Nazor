@@ -3,13 +3,12 @@
 <head>
     <meta charset="utf-8" />
     <title>Nazor</title>
+    <base href="/" />
     <script>
         // GitHub Pages serves this file for unknown paths. Keep the requested route and reopen the app at its base address.
         (function () {
-            var segments = location.pathname.split('/');
-            // On a project site (user.github.io/Repository/) the first segment is the repository name.
-            var isProjectSite = /\.github\.io$/i.test(location.hostname);
-            var base = isProjectSite && segments.length > 1 && segments[1] ? '/' + segments[1] + '/' : '/';
+            var base = new URL(document.baseURI).pathname;
+            if (location.pathname === base) return;
             try { sessionStorage.setItem('nazor-redirect', location.pathname + location.search + location.hash); } catch (e) { }
             location.replace(base);
         })();

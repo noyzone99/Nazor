@@ -1,57 +1,95 @@
 name: Website
 
-# Builds the Blazor WebAssembly website in Webpage/ and publishes it to GitHub Pages.
-# Enable it in the repository settings: Pages > Build and deployment > Source: GitHub Actions.
 on:
   push:
-    branches: [main]
+    branches: [main, dev]
     paths:
       - "Docs/**"
       - "Webpage/**"
       - "Sources/Themes/Nazor.Themes.NazorLeaf/Fonts/**"
       - "Directory.Build.props"
+      - "global.json"
+      - "nuget.config"
       - ".github/workflows/website.yml"
   workflow_dispatch:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
-  group: pages
+  group: website-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      pages: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v5
         with:
           global-json-file: global.json
+
+      - uses: actions/configure-pages@v5
+        if: github.ref == 'refs/heads/main'
+        id: pages
 
       - name: Publish
         run: dotnet publish Webpage/Nazor.Website/Nazor.Website.csproj -c Release -o publish
 
       - name: Prepare for GitHub Pages
+        env:
+          PAGES_BASE_PATH: ${{ steps.pages.outputs.base_path }}
         run: |
           site=publish/wwwroot
-          # A project site is served from /<repository>/.
-          sed -i "s|<base href=\"/\" />|<base href=\"/${{ github.event.repository.name }}/\" />|" "$site/index.html"
-          # GitHub Pages compresses responses itself and ignores precompressed files.
+          for page in index.html 404.html; do
+            grep -qF '<base href="/" />' "$site/$page"
+            sed -i "s|<base href=\"/\" />|<base href=\"${PAGES_BASE_PATH%/}/\" />|" "$site/$page"
+          done
           find "$site" -name "*.br" -delete
           find "$site" -name "*.gz" -delete
-          touch "$site/.nojekyll"
 
-      - uses: actions/upload-pages-artifact@v3
+      - name: Verify published documentation
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          site = Path("publish/wwwroot")
+          manifest = json.loads((site / "content/manifest.json").read_text(encoding="utf-8"))
+          pages = manifest["pages"]
+          expected = {"Docs/README.md", "Docs/Guide/README.md", "Docs/API.md"}
+          expected.update(path.as_posix() for path in Path("Docs/Guide").glob("[0-9][0-9]-*.md"))
+          expected.update(path.as_posix() for path in Path("Docs/ApiReferences").glob("*.md"))
+          missing = expected - {page["source"] for page in pages}
+          if missing:
+              raise SystemExit("Missing documentation sources: " + ", ".join(sorted(missing)))
+
+          for asset in ["_framework/blazor.webassembly.js", "content/fonts/Geist.ttf",
+                        "content/fonts/GeistMono.ttf", "content/fonts/BricolageGrotesque.ttf",
+                        *(page["content"] for page in pages)]:
+              if not (site / asset).is_file() or not (site / asset).stat().st_size:
+                  raise SystemExit(f"Missing or empty published asset: {asset}")
+          print(f"Verified {len(pages)} documentation pages in {site}")
+          PY
+
+      - uses: actions/upload-pages-artifact@v4
+        if: github.ref == 'refs/heads/main'
         with:
           path: publish/wwwroot
 
   deploy:
+    if: github.ref == 'refs/heads/main'
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    permissions:
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

@@ -30,7 +30,7 @@ dotnet run --project Webpage/Nazor.Website.Generator -- . Webpage/Nazor.Website/
 
 ## Publish
 
-`.github/workflows/website.yml` publishes the site on pushes to `main` that touch `Docs/` or `Webpage/`. It sets the `<base>` address to `/<repository>/` for a GitHub project site. `404.html` keeps deep links working by redirecting unknown paths to the app, which restores the requested route.
+The [Website workflow](../.github/workflows/website.yml) builds and verifies the site on relevant pushes to `main` and `dev`, and can also run on demand. It checks that the published output contains the guide, the API reference, and their generated HTML fragments. Runs from `main` deploy to GitHub Pages and use its configured base path in both `index.html` and `404.html`. The app restores deep links after the redirect from `404.html`.
 
 Select **GitHub Actions** as the Pages source in the repository settings before the first deployment.
 

@@ -4,8 +4,8 @@
     <RootNamespace>Nazor.Website</RootNamespace>
     <BlazorWebAssemblyLoadAllGlobalizationData>false</BlazorWebAssemblyLoadAllGlobalizationData>
     <InvariantGlobalization>true</InvariantGlobalization>
-    <SiteContentDirectory>$(MSBuildProjectDirectory)\wwwroot\content</SiteContentDirectory>
-    <SiteGeneratorProject>$(MSBuildProjectDirectory)\..\Nazor.Website.Generator\Nazor.Website.Generator.csproj</SiteGeneratorProject>
+    <SiteContentDirectory>$(MSBuildProjectDirectory)/wwwroot/content</SiteContentDirectory>
+    <SiteGeneratorProject>$(MSBuildProjectDirectory)/../Nazor.Website.Generator/Nazor.Website.Generator.csproj</SiteGeneratorProject>
   </PropertyGroup>
 
   <ItemGroup>
