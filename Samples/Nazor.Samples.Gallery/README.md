@@ -2,12 +2,15 @@
 
 The NazorLeaf showcase uses a horizontal section strip at widths up to 860px and a desktop rail above that width. They share the active section and retain one visible navigation Tab stop. Arrow/Home/End navigation reveals the chosen section; reduced motion makes both content and strip scrolling immediate.
 
-Run the gallery from the repository root.
+The Gallery brings together live examples of Nazor controls and primitives, their Razor source, and a showcase of complete interfaces. [Download the portable Gallery](../../README.md#try-the-gallery).
 
-The ListView page demonstrates opt-in city reordering by primary drag or Ctrl/Meta+Shift+Up/Down. Its callback updates the model; selected identity survives the move. TreeView uses automatic theme row metrics, and the showcase DataGrid follows application density without fixed-height overlap.
+## Run from source
+
+Run these commands from the repository root. Start the DRM command from a Linux local console configured for direct display access. Use **Exit Gallery** to leave the single-view session. The buttons that open separate preview windows are disabled in this mode. [DRM/KMS prerequisites](../../Docs/Guide/34-Linux-DRM.md#runtime-dependencies-and-local-session)
 
 ```powershell
 dotnet run --project Samples/Nazor.Samples.Gallery
+dotnet run --project Samples/Nazor.Samples.Gallery -- --drm
 ```
 
 Search by control name or browse the component families. Composition parts such as `TableHeaderCell` lead to a page that shows them in context. Each page renders a live example and displays the source that was compiled. The gallery opens in NazorLeaf. Use the sidebar to select a theme and choose System, Light or Dark.
@@ -19,6 +22,21 @@ dotnet run --project Samples/Nazor.Samples.Gallery -- --theme breeze --scheme da
 ```
 
 Adwaita, Breeze and CDE follow the selected color scheme. The Windows 9x, Windows XP and Windows 7 themes use their light palettes. All six support the system's forced colors. [Desktop-inspired themes](../../Docs/Guide/16-Styling-and-Themes.md#desktop-inspired-themes)
+
+## Package the portable release
+
+From the repository root, publish to a fresh output directory with no runtime identifier. The archive keeps the Windows assets and both Linux desktop bridges in their runtime directories. The same application supports explicit DRM/KMS startup and requires the .NET 10 Runtime. [Portable deployment](../../Docs/Guide/28-Libraries-Packaging-and-Deployment.md) · [Native build prerequisites](../../Docs/Guide/33-Linux-Wayland.md#build-from-source)
+
+```powershell
+dotnet publish Samples/Nazor.Samples.Gallery -c Release --self-contained false -p:UseAppHost=false -o artifacts/gallery-release/publish
+Compress-Archive -Path artifacts/gallery-release/publish/* -DestinationPath artifacts/gallery-release/Nazor.Gallery-portable.zip
+```
+
+Attach `Nazor.Gallery-portable.zip` to the GitHub release.
+
+## What to explore
+
+The ListView page demonstrates opt-in city reordering by primary drag or Ctrl/Meta+Shift+Up/Down. Its callback updates the model and preserves the selected item. TreeView uses automatic theme row metrics, and the showcase DataGrid follows application density without fixed-height overlap.
 
 The **ScrollView** page shows both scrollbar axes in the same activity log. Move the pointer to a scrollbar to see its interactive appearance, then try the wheel, arrow buttons where present, and thumb dragging. Open **TitleBar and window controls** to see a separate window with Nazor-drawn decorations.
 

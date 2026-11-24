@@ -6,7 +6,7 @@ Nazor will always be free to use and open source. That commitment covers the fra
 
 > **`0.1.1-alpha` is an early preview for experiments and prototypes.** Expect changes to the APIs, markup, styling, and tooling.
 
-[Create an app](#try-the-preview) · [NuGet packages](Docs/NuGet.md#nuget-packages) · [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=Noyzone99.nazorvisualstudio) · [Run the Gallery](#build-and-run-from-source) · [Report an issue](https://github.com/noyzone99/Nazor/issues)
+[Create an app](#try-the-preview) · [NuGet packages](Docs/NuGet.md#nuget-packages) · [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=Noyzone99.nazorvisualstudio) · [Try the Gallery](#try-the-gallery) · [Report an issue](https://github.com/noyzone99/Nazor/issues)
 
 ## A quick look at the code
 
@@ -30,7 +30,25 @@ A `.nazor` component puts Razor markup, C# state, and scoped NSS in one file. Pr
 
 [Run the Counter sample](Samples/Nazor.Samples.Counter/README.md)
 
+## Try the Gallery
+
+The Nazor Gallery is a searchable, interactive catalog of ready-to-use controls and lower-level primitives. Try buttons, pickers, data grids, navigation, layout, and overlays, then inspect the Razor source beside each live example. Switch themes and color schemes in the same app, or open the NazorLeaf showcase to see how the controls work together in a complete interface.
+
 ![The Nazor Gallery control catalog running with the optional NazorLeaf theme](Docs/Assets/gallery.png)
+
+[Download the Gallery from GitHub Releases](https://github.com/noyzone99/Nazor/releases). Choose a release with a `Nazor.Gallery-portable.zip` asset, extract the archive, and install the [.NET 10 Runtime](https://dotnet.microsoft.com/download/dotnet/10.0) if needed. Open a terminal in the extracted folder and run:
+
+```sh
+dotnet Nazor.Samples.Gallery.dll
+```
+
+The portable build selects the Windows backend on Windows x64 and the Wayland or X11 backend on supported Linux desktops. On a Linux machine configured for direct display access, run the same Gallery from a local console with:
+
+```sh
+dotnet Nazor.Samples.Gallery.dll --drm
+```
+
+DRM/KMS runs the catalog in one fullscreen view. Use **Exit Gallery** to return to the console. Separate-window previews require a desktop session. [Linux desktop prerequisites](Docs/Guide/33-Linux-Wayland.md#runtime-dependencies) · [X11 prerequisites](Docs/Guide/35-Linux-X11.md#system-dependencies-and-behavior) · [DRM/KMS prerequisites](Docs/Guide/34-Linux-DRM.md#runtime-dependencies-and-local-session) · [Build from source](#build-and-run-from-source)
 
 ## Why I started Nazor
 
@@ -57,7 +75,7 @@ You can run the visual regression tests and benchmarks yourself. The Windows com
 
 I build Nazor on my own, outside working hours, just for fun. Getting it stable enough for the first real apps is hard work, especially when it comes to keyboard input, accessibility, rendering, and the differences between desktops. Feedback from people trying Nazor on their own machines will help it mature faster.
 
-Running the Gallery for a few minutes is already a contribution. If a control behaves oddly, the build fails on your setup, or a page leaves you wondering what to do next, open an issue. A short description of what you tried, what happened, and which OS and .NET SDK you used is enough to start. [Open an issue](https://github.com/noyzone99/Nazor/issues/new)
+Running the Gallery for a few minutes is already a contribution. If a control behaves oddly or the Gallery fails to start, open an issue with the release, your OS and backend, what you tried, and what happened. [Open an issue](https://github.com/noyzone99/Nazor/issues/new)
 
 ## Try the preview
 
@@ -80,6 +98,6 @@ dotnet build Samples/Nazor.Samples.Gallery -c Release
 dotnet run --project Samples/Nazor.Samples.Gallery -c Release --no-build
 ```
 
-Pick a control in the Gallery to try it and see its source. For a smaller example of state, events, and scoped styling, start with [Counter](Samples/Nazor.Samples.Counter/README.md). On Linux, follow the [native build prerequisites](Docs/Guide/33-Linux-Wayland.md#build-from-source).
+On Linux, follow the [native build prerequisites](Docs/Guide/33-Linux-Wayland.md#build-from-source). See the [Gallery README](Samples/Nazor.Samples.Gallery/README.md) for launch options and portable packaging.
 
 [Developer guide](Docs/Guide/README.md) · [API reference](Docs/API.md) · [MIT license](LICENSE)

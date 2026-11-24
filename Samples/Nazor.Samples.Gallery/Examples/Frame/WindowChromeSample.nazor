@@ -1,5 +1,9 @@
 @inject IWindowService Windows
 
-<TextBlock>The title bar and caption buttons run in a separate preview window.</TextBlock>
+<TextBlock>@(SingleView ? "The title bar preview requires a desktop window." : "The title bar and caption buttons run in a separate preview window.")</TextBlock>
 <TitleBar Title="Composable title-bar surface" />
-<Button OnClick="() => Windows.Open<WindowChromePreview>()">Open title bar preview</Button>
+<Button Disabled="@SingleView" OnClick="() => Windows.Open<WindowChromePreview>()">Open title bar preview</Button>
+
+@code {
+    [CascadingParameter(Name = "gallery-single-view")] public bool SingleView { get; set; }
+}

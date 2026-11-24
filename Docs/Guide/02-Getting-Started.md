@@ -1,6 +1,6 @@
 # 2. Getting started
 
-Create a desktop app with the `0.1.1-alpha` template from NuGet.org or the template included with **Nazor for Visual Studio**. You can also run the Gallery from the source checkout. [NuGet packages](../NuGet.md#nuget-packages) · [Build and run the Gallery](../../README.md#build-and-run-from-source)
+Create a desktop app with the `0.1.1-alpha` template from NuGet.org or the template included with **Nazor for Visual Studio**. You can try the controls in the portable Gallery. [NuGet packages](../NuGet.md#nuget-packages) · [Try the Gallery](../../README.md#try-the-gallery)
 
 ## Prerequisites
 

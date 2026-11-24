@@ -20,4 +20,4 @@ The Gallery is a runnable app that lets you explore the controls and see the com
 
 ![Nazor Gallery showing the desktop control catalog with the NazorLeaf theme](https://raw.githubusercontent.com/noyzone99/Nazor/main/Docs/Assets/gallery.png)
 
-[Build and run the Gallery](https://github.com/noyzone99/Nazor#build-and-run-from-source)
+[Try the Gallery](https://github.com/noyzone99/Nazor#try-the-gallery)

@@ -39,6 +39,7 @@ native message boxes and tray startup are unavailable. Reuse popup, menu and
 overlay controls inside the same view. Use application lifetime to stop the app.
 The [DRM sample](../../Samples/Nazor.Samples.Drm/README.md) switches the same
 content between desktop development and DRM deployment.
+The [Gallery](../../README.md#try-the-gallery) also accepts `--drm` to run its interactive catalog and theme showcase in a single view.
 
 ## Display and rendering
 

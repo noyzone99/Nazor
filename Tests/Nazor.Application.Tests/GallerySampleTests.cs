@@ -41,6 +41,20 @@ public sealed class GallerySampleTests : IDisposable
     private async Task Click(string text) { await host.ClickAsync(ById("sample-preview").Elements().Single(e=>Equals(e.Attributes.GetValueOrDefault("role"),"button") && e.Text()==text)); Update(); }
 
     [Fact]
+    public async Task Single_view_shows_the_catalog_and_disables_separate_window_previews()
+    {
+        var view = host.Render<GalleryView>();
+        await host.ClickAsync(view.Elements().Single(element => element.Id == "nav-window-chrome"));
+        Update();
+
+        Assert.Contains(view.Elements(), element => element.Id == "gallery-search");
+        Assert.DoesNotContain(view.Elements(), element => element.Name == "Window");
+        var preview = Assert.Single(view.Elements("Button"), element => element.Text() == "Open title bar preview");
+        Assert.True(preview.IsDisabled);
+        Assert.Contains(view.Elements("Button"), element => element.Text() == "Exit Gallery" && !element.IsDisabled);
+    }
+
+    [Fact]
     public void Catalog_covers_each_family_with_unique_compiled_examples()
     {
         Assert.Equal(GalleryCatalog.Entries.Count, GalleryCatalog.Entries.Select(entry => entry.Id).Distinct().Count());

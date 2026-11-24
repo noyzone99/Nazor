@@ -7,6 +7,9 @@
     <RootNamespace>Nazor.Samples.Gallery</RootNamespace>
   </PropertyGroup>
   <Import Project="../../Sources/Tools/Nazor.Sdk/Sdk/Sdk.targets" />
+  <PropertyGroup Condition="'$(_NazorRuntimePlatform)' == 'portable' or '$(_NazorRuntimePlatform)' == 'linux'">
+    <DefineConstants>$(DefineConstants);GALLERY_DRM</DefineConstants>
+  </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../../Sources/Themes/Nazor.Themes.Adwaita/Nazor.Themes.Adwaita.csproj" />
     <ProjectReference Include="../../Sources/Themes/Nazor.Themes.Breeze/Nazor.Themes.Breeze.csproj" />

@@ -1,17 +1,17 @@
 .demo-root { display: flex; flex-direction: column; flex: 1; min-height: 0; }
-:root[role=window].gallery-leaf {
+:root[role=window].gallery-leaf, .single-view.gallery-leaf {
     --gallery-pane: var(--leaf-pane);
     --gallery-depth: var(--leaf-sh-pop), inset 0 0 0 1px var(--leaf-stroke);
     background-color: var(--leaf-tray);
     background-image: none;
 }
-:root.seed-green { --leaf-primary: #146c2e; --leaf-on-primary: #ffffff; --leaf-pc: #c4eed0; --leaf-on-pc: #072711; --leaf-ink: #146c2e; }
-:root.seed-red { --leaf-primary: #c5221f; --leaf-on-primary: #ffffff; --leaf-pc: #ffdad6; --leaf-on-pc: #410e0b; --leaf-ink: #b3261e; }
-:root.seed-yellow { --leaf-primary: #f9ab00; --leaf-on-primary: #2a1e00; --leaf-pc: #ffe9b0; --leaf-on-pc: #2a1e00; --leaf-ink: #8a5a00; }
+:root.seed-green, .single-view.seed-green { --leaf-primary: #146c2e; --leaf-on-primary: #ffffff; --leaf-pc: #c4eed0; --leaf-on-pc: #072711; --leaf-ink: #146c2e; }
+:root.seed-red, .single-view.seed-red { --leaf-primary: #c5221f; --leaf-on-primary: #ffffff; --leaf-pc: #ffdad6; --leaf-on-pc: #410e0b; --leaf-ink: #b3261e; }
+:root.seed-yellow, .single-view.seed-yellow { --leaf-primary: #f9ab00; --leaf-on-primary: #2a1e00; --leaf-pc: #ffe9b0; --leaf-on-pc: #2a1e00; --leaf-ink: #8a5a00; }
 @media (prefers-color-scheme: dark) {
-    :root.seed-green { --leaf-primary: #6dd58c; --leaf-on-primary: #0a3818; --leaf-pc: #0f5223; --leaf-on-pc: #c4eed0; --leaf-ink: #6dd58c; }
-    :root.seed-red { --leaf-primary: #ffb4ab; --leaf-on-primary: #690005; --leaf-pc: #93000a; --leaf-on-pc: #ffdad6; --leaf-ink: #ffb4ab; }
-    :root.seed-yellow { --leaf-primary: #fdd663; --leaf-on-primary: #3d2e00; --leaf-pc: #5c4400; --leaf-on-pc: #ffe08a; --leaf-ink: #fdd663; }
+    :root.seed-green, .single-view.seed-green { --leaf-primary: #6dd58c; --leaf-on-primary: #0a3818; --leaf-pc: #0f5223; --leaf-on-pc: #c4eed0; --leaf-ink: #6dd58c; }
+    :root.seed-red, .single-view.seed-red { --leaf-primary: #ffb4ab; --leaf-on-primary: #690005; --leaf-pc: #93000a; --leaf-on-pc: #ffdad6; --leaf-ink: #ffb4ab; }
+    :root.seed-yellow, .single-view.seed-yellow { --leaf-primary: #fdd663; --leaf-on-primary: #3d2e00; --leaf-pc: #5c4400; --leaf-on-pc: #ffe08a; --leaf-ink: #fdd663; }
 }
 .demo-options { display: flex; flex-direction: row; align-items: center; flex-wrap: wrap; gap: 14px; padding: 8px 20px; }
 .demo-search { width: 310px; }

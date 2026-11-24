@@ -28,12 +28,14 @@
         </Container>
     }
     <Container Class="demo-row">
-        <Button OnClick="() => Open(false)">Apri barra normale</Button>
-        <Button OnClick="() => Open(true)">Apri barra alta</Button>
+        <Button Disabled="@SingleView" OnClick="() => Open(false)">Apri barra normale</Button>
+        <Button Disabled="@SingleView" OnClick="() => Open(true)">Apri barra alta</Button>
     </Container>
 </Container>
 
 @code {
+    [CascadingParameter(Name = "gallery-single-view")] public bool SingleView { get; set; }
+
     private readonly string[] sizes = ["Normale", "Alta"];
     private string platform = "Windows";
     private bool inactive;
