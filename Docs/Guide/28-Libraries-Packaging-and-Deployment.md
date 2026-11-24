@@ -54,7 +54,7 @@ Fluent and NazorLeaf copy their assets during the build. In Visual Studio, the p
 
 Adwaita, Breeze, Windows 9x, Windows XP, Windows 7 and CDE ship their compiled NSS in separate packages that depend on `Nazor.Controls`. Adwaita copies its font faces and SIL OFL notice to `Themes/Adwaita/` in build and publish output. Call `builder.Fonts.AddAdwaitaFonts()` before building the application to register the packaged faces. [Desktop-inspired theme setup](16-Styling-and-Themes.md#desktop-inspired-themes)
 
-To check a theme as a package consumer, start with `HelloNazor` from the quickstart in a directory outside the checkout. Apply the NazorLeaf setup from the styling guide before publishing. Verify `Themes/NazorLeaf` in the publish output, including the four font files, their notices and paper-grain image. Run the published application from that directory to check font and texture loading.
+To check a theme as a package consumer, start with `HelloNazor` from the quickstart in a directory outside the checkout. Apply the NazorLeaf setup from the styling guide before publishing. Verify `Themes/NazorLeaf` in the publish output, including the four font files and their notices. Run the published application from that directory to check font loading.
 
 ```powershell
 $project = 'HelloNazor/HelloNazor.csproj'

@@ -39,9 +39,9 @@ html.scrolled .topbar { box-shadow: 0 1px 0 var(--stroke-2), 0 10px 24px -20px r
 .topnav a.nav-start { color: var(--ink) }
 .topnav a.nav-start.active { color: var(--on-pc) }
 .search-trigger { margin-left: auto; display: flex; align-items: center; gap: 8px; width: min(280px, 26vw); height: 36px; padding: 0 8px 0 12px; border: 0; border-radius: var(--lf-ctl);
-  background: color-mix(in oklab, var(--pane) 60%, transparent); box-shadow: inset 0 0 0 1px var(--stroke); color: var(--text-3); font-size: 13.5px; text-align: left;
+  background: color-mix(in oklab, var(--pane) 60%, transparent); box-shadow: var(--sh-field), inset 0 0 0 1px var(--field-edge); color: var(--text-3); font-size: 13.5px; text-align: left;
   transition: background .2s, box-shadow .2s, border-radius .35s var(--spring) }
-.search-trigger:hover { background: var(--pane); box-shadow: inset 0 0 0 1px var(--stroke-2); border-radius: 14px 3px 14px 3px }
+.search-trigger:hover { background: var(--pane); box-shadow: var(--sh-field), inset 0 0 0 1px var(--stroke-2); border-radius: 14px 3px 14px 3px }
 .search-trigger .ic { width: 16px; height: 16px }
 .search-trigger .st-label { flex: 1 }
 .appearance { display: flex; align-items: center; gap: 8px }
@@ -151,7 +151,6 @@ html.scrolled .topbar { box-shadow: 0 1px 0 var(--stroke-2), 0 10px 24px -20px r
 .hero-demo { position: relative; padding-bottom: 70px }
 .win { position: relative; border-radius: var(--lf-win); background: var(--tray); overflow: hidden; isolation: isolate;
   box-shadow: var(--sh-win), inset 0 0 0 1px var(--stroke-2), inset 0 1px 0 var(--hi); animation: winIn .9s var(--out) both }
-.win::before { content: ""; position: absolute; inset: 0; z-index: -1; background: var(--grain); opacity: var(--grain-o); pointer-events: none }
 @keyframes winIn { from { opacity: 0; transform: translateY(24px) scale(.98); border-radius: 60px 8px 60px 8px } }
 .win-bar { display: flex; align-items: center; gap: 10px; height: 52px; padding: 0 10px 0 20px }
 .win-title { font: 700 14px var(--display); letter-spacing: -.01em; margin-right: auto }
@@ -188,7 +187,6 @@ html.scrolled .topbar { box-shadow: 0 1px 0 var(--stroke-2), 0 10px 24px -20px r
 .quickstart { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 32px; align-items: center; padding: 34px 38px; border-radius: var(--lf-win);
   text-decoration: none; color: var(--on-pc); background: radial-gradient(80% 140% at 100% 0%, color-mix(in srgb, var(--primary) 30%, transparent), transparent 70%), var(--pc);
   box-shadow: var(--glow), inset 0 1px 0 var(--hi); position: relative; overflow: hidden; isolation: isolate; transition: transform .4s var(--spring), border-radius .5s var(--spring) }
-.quickstart::before { content: ""; position: absolute; inset: 0; z-index: -1; background: var(--grain); opacity: var(--grain-o) }
 .quickstart:hover { transform: translateY(-3px); border-radius: 8px 28px 8px 28px }
 .qs-copy { display: flex; flex-direction: column; align-items: flex-start; gap: 12px }
 .qs-copy .eyebrow { color: inherit }
@@ -206,7 +204,6 @@ html.scrolled .topbar { box-shadow: 0 1px 0 var(--stroke-2), 0 10px 24px -20px r
 .shot { margin: 0 }
 .shot-frame { position: relative; max-width: 1080px; margin: 0 auto; padding: 10px; border-radius: var(--lf-win); background: var(--tray); isolation: isolate; overflow: hidden;
   box-shadow: var(--sh-win), inset 0 0 0 1px var(--stroke-2), inset 0 1px 0 var(--hi) }
-.shot-frame::before { content: ""; position: absolute; inset: 0; z-index: -1; background: var(--grain); opacity: var(--grain-o) }
 .shot figcaption { max-width: 1080px; margin: 18px auto 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; font-size: 14px; color: var(--text-2) }
 .shot figcaption b { font: 700 15px var(--display); color: var(--text) }
 .shot figcaption span { flex: 1 1 320px }
@@ -240,7 +237,7 @@ html.scrolled .topbar { box-shadow: 0 1px 0 var(--stroke-2), 0 10px 24px -20px r
 .file span { font-size: 13.5px; color: var(--text-2) }
 
 /* NazorLeaf signs */
-.signs { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px }
+.signs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px }
 .sign { position: relative; padding: 14px 14px 16px; border-radius: var(--lf-ovl); background: color-mix(in oklab, var(--pane) 84%, transparent);
   box-shadow: inset 0 0 0 1px var(--stroke), inset 0 1px 0 var(--hi) }
 .sign .demo { height: 72px; display: grid; place-items: center; margin-bottom: 12px; border-radius: var(--lf-ctl); background: var(--s1); overflow: hidden; position: relative }
@@ -254,7 +251,6 @@ html.scrolled .topbar { box-shadow: 0 1px 0 var(--stroke-2), 0 10px 24px -20px r
 .d-seed span:first-child { background: var(--pc) }
 .d-seed span:first-child::after { content: ""; position: absolute; left: -10px; top: 5px; width: 6px; height: 10px; border-radius: 5px 1px 5px 1px; background: var(--primary) }
 .d-glow { height: 30px; padding: 0 16px; display: grid; place-items: center; border-radius: var(--lf-ctl); background: var(--primary); color: var(--on-primary); font-weight: 600; font-size: 13px; box-shadow: var(--glow), inset 0 1px 0 rgba(255,255,255,.25) }
-.d-grain { position: absolute; inset: 0; background: var(--grain), linear-gradient(135deg, var(--pc), var(--s2)); background-size: 120px, cover }
 .leaf-hint { margin: 22px auto 0; text-align: center; font-size: 14px; color: var(--text-3) }
 
 /* Pipeline */
@@ -380,7 +376,7 @@ html.scrolled .topbar { box-shadow: 0 1px 0 var(--stroke-2), 0 10px 24px -20px r
 @media (max-width: 1280px) {
   .docshell { grid-template-columns: 248px minmax(0, 1fr) }
   .toc { display: none }
-  .signs { grid-template-columns: repeat(3, 1fr) }
+  .signs { grid-template-columns: repeat(2, 1fr) }
   .platforms { grid-template-columns: repeat(3, 1fr) }
 }
 @media (max-width: 1080px) {

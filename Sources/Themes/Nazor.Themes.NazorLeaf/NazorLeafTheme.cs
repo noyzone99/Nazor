@@ -25,7 +25,7 @@ public static class NazorLeafTheme
 {
     private static StyleSheet? theme;
 
-    /// <summary>The folder, relative to the application directory, that holds the fonts and the optional grain texture.</summary>
+    /// <summary>The folder, relative to the application directory, that holds the theme fonts and their notices.</summary>
     public const string AssetDirectory = "Themes/NazorLeaf";
 
     /// <summary>The NazorLeaf rules alone, without the Basic rules underneath.</summary>

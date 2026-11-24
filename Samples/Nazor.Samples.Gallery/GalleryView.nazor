@@ -14,7 +14,7 @@
     @if (showcase)
     {
         <CascadingValue TValue="Nazor.Presentation.Scene" Value="@((Window as NazorWindow)?.Scene)" Name="gallery-scene" IsFixed="true">
-            <LeafShowcase @bind-Grain="Grain" @bind-Radius="Radius"
+            <LeafShowcase @bind-Radius="Radius"
                           SeedClass="@seedClass" SeedChanged="SetSeed" OnClose="CloseShowcase" />
         </CascadingValue>
     }
@@ -152,14 +152,7 @@
     private string query = "";
     private bool showcase;
     private string seedClass = "seed-blue";
-    private double grain = 50;
     private double radius = 11;
-
-    private double Grain
-    {
-        get => grain;
-        set { grain = value; if (!SingleView) Window.Style = MaterialStyle; }
-    }
 
     private double Radius
     {
@@ -224,7 +217,7 @@
             var overlay = Math.Round(16 * factor, MidpointRounding.AwayFromZero);
             var pane = Math.Round(22 * factor, MidpointRounding.AwayFromZero);
             var window = Math.Round(28 * factor, MidpointRounding.AwayFromZero);
-            return FormattableString.Invariant($"--demo-grain-opacity: {grain / 100}; --leaf-r-ctl: {radius}px 3px {radius}px 3px; --leaf-r-ovl: {overlay}px 4px {overlay}px 4px; --leaf-r-pane: {pane}px 6px {pane}px 6px; --leaf-r-win: {window}px 8px {window}px 8px;");
+            return FormattableString.Invariant($"--leaf-r-ctl: {radius}px 3px {radius}px 3px; --leaf-r-ovl: {overlay}px 4px {overlay}px 4px; --leaf-r-pane: {pane}px 6px {pane}px 6px; --leaf-r-win: {window}px 8px {window}px 8px;");
         }
     }
 

@@ -1,11 +1,11 @@
 /* The inspector on NazorLeaf's window material: one strip holds the picker, the panel tabs and the connection controls,
    as in browser developer tools; each panel sets its tree and its details on two leaf panes; a quiet status line closes
-   the window. The shell paints the tray and its paper grain itself, so the panes read the same with or without the
+   the window. The shell paints the tray itself, so the panes read the same with or without the
    app-drawn title bar. */
 
 .shell {
     position: relative; display: flex; flex-direction: column; flex: 1 1 auto; width: 100%; height: 100%; min-height: 0; padding: 0 10px;
-    background-color: var(--leaf-tray); background-image: url("/Themes/NazorLeaf/grain.png"); background-size: 180px 180px; background-repeat: repeat;
+    background-color: var(--leaf-tray);
     color: var(--leaf-text); font-family: var(--leaf-font-ui); font-size: 13.5px;
 }
 

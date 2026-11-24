@@ -18,7 +18,7 @@ app.Appearance.Theme = NazorLeafTheme.Theme;
 return app.Run();
 ```
 
-The example uses an `App` component with `@window`. The theme combines Basic with the NazorLeaf rules. The package supplies Geist, Geist Mono, Bricolage Grotesque, the NazorLeaf Icons OpenType font, their license notices, and the grain asset under `Themes/NazorLeaf` in build and publish output. `AddNazorLeafFonts()` registers all four fonts. See the [theming guide](../Guide/16-Styling-and-Themes.md) for stylesheet precedence.
+The example uses an `App` component with `@window`. The theme combines Basic with the NazorLeaf rules. The package supplies Geist, Geist Mono, Bricolage Grotesque, the NazorLeaf Icons OpenType font, and their license notices under `Themes/NazorLeaf` in build and publish output. `AddNazorLeafFonts()` registers all four fonts. See the [theming guide](../Guide/16-Styling-and-Themes.md) for stylesheet precedence.
 
 `ControlDensity.Touch` selects 42px controls/menus, 54px rows and 15px body text, with larger toggle/list/table targets; compact uses 34/34/46/14. Set `app.Appearance.ControlDensity`, or override an individual `IWindow.ControlDensity`. Automatic follows the host hint and falls back to compact when unavailable. [Density contracts](../Guide/16-Styling-and-Themes.md#control-density)
 
@@ -200,7 +200,7 @@ NazorLeaf, the Nazor visual language: two wide corners on one diagonal and two n
 | Declaration | Contract |
 | --- | --- |
 | `public static class NazorLeafTheme` | NazorLeaf, the Nazor visual language: two wide corners on one diagonal and two nearly sharp ones on every shape, a small leaf (the seed) that marks the selection, filled elements that cast their own color, a uniform window material and the four-leaf mark (`Nazor.Themes.NazorLeaf.LeafMark`) as brand and loading indicator. Surfaces are tinted by the seed color, so every application gets its own shade. Select the theme with app.Appearance.Theme = NazorLeafTheme.Theme and register its fonts before Build with builder.Fonts.AddNazorLeafFonts(); text can fall back to system fonts, while typed icons require the private icon font. The theme sits on top of Basic, so a control part that NazorLeaf does not draw keeps its Basic look. Retune the seed with the --leaf-primary, --leaf-on-primary, --leaf-pc, --leaf-on-pc and --leaf-ink custom properties of :root, in both color schemes. The Spinner is drawn as the proportional ring: a full value stroke over a thinner track, with the percentage in medium and large rings and a check at 100%. Badges are leaves with a 2 px cutout in --leaf-badge-cutout (the pane by default); set it to the color behind decorated content, such as a toolbar or dock. Slider thumb gaps reveal the surface underneath, including gradients and images; no surface-color token is required. |
-| `public const string AssetDirectory = "Themes/NazorLeaf"` | The folder, relative to the application directory, that holds the fonts and the optional grain texture. |
+| `public const string AssetDirectory = "Themes/NazorLeaf"` | The folder, relative to the application directory, that holds the theme fonts and their notices. |
 | `public static FontOptions AddNazorLeafFonts(this FontOptions fonts)` | Registers the fonts of the NazorLeaf theme as private families. The same options, for chaining. |
 | `public static StyleSheet Rules { get; }` | The NazorLeaf rules alone, without the Basic rules underneath. |
 | `public static StyleSheet Theme { get; }` | The NazorLeaf theme: Basic with the NazorLeaf rules on top. |

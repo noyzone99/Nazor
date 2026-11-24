@@ -62,7 +62,7 @@
     // A demo selection, so the showcase does not need access to local files.
     private static Task<IReadOnlyList<string>?> PickDemoFile() => Task.FromResult<IReadOnlyList<string>?>(["copertina.png"]);
 
-    private string notes = "Menu che si srotolano dall’angolo. Interruttori con cursore rotante. Grana regolabile nel materiale della finestra.";
+    private string notes = "Menu che si srotolano dall’angolo. Interruttori con cursore rotante. Raggio della foglia regolabile.";
 }
 @style {
     .demo-span { grid-column-start: 1; grid-column-end: -1; }

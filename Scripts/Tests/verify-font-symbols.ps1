@@ -22,7 +22,6 @@ $settings = if ($Theme -eq 'Fluent') {
 $settings['__THEME__'] = $Theme
 $themeRoot = Join-Path $repositoryRoot "Sources/Themes/Nazor.Themes.$Theme"
 $themeAssets = @(Get-ChildItem -LiteralPath "$themeRoot/Fonts" -File | Sort-Object Name)
-if ($Theme -eq 'NazorLeaf') { $themeAssets += Get-Item -LiteralPath "$themeRoot/Assets/grain.png" }
 $settings['__ASSETS__'] = (($themeAssets | ForEach-Object { '"' + $_.Name + '"' }) -join ', ')
 
 function Expand-Source([string]$Source) {

@@ -78,20 +78,25 @@ public sealed class NazorLeafSamplesTests
         {
             WaitForFrame(window);
             OpenShowcase(window);
-            var (slider, originalStyle) = ApplicationHarness.On(window, () =>
-                (window.Root.Elements("Slider").First(), window.Style));
-            var value = new ChangeEventArgs { Value = 75d };
+            var originalStyle = ApplicationHarness.On(window, () => window.Style);
             ApplicationHarness.Result(ApplicationHarness.On(window, async () =>
             {
-                await window.Renderer.DispatchEventAsync(slider, "oninput", value);
-                Assert.Equal(75d, slider.Attributes.GetValueOrDefault("range-value"));
+                Nazor.Rendering.ElementNode Slider(string name) => window.Root.Elements("Slider").Single(element => element.Attributes.GetValueOrDefault("accessible-name") as string == name);
+                // The volume demo stays local to its row.
+                var volume = Slider("Volume degli avvisi");
+                var volumeValue = new ChangeEventArgs { Value = 75d };
+                await window.Renderer.DispatchEventAsync(volume, "oninput", volumeValue);
+                await window.Renderer.DispatchEventAsync(volume, "onchange", volumeValue);
+                Assert.Equal(75d, volume.Attributes.GetValueOrDefault("range-value"));
                 Assert.Equal(originalStyle, window.Style);
-                await window.Renderer.DispatchEventAsync(slider, "onchange", value);
-                Assert.NotEqual(originalStyle, window.Style);
-                var radius = window.Root.Elements("Slider").Single(element => element.Attributes.GetValueOrDefault("accessible-name") is "Raggio della foglia");
+                // The leaf radius previews while dragging and restyles the window when the drag ends.
+                var radius = Slider("Raggio della foglia");
                 var radiusValue = new ChangeEventArgs { Value = 18d };
                 await window.Renderer.DispatchEventAsync(radius, "oninput", radiusValue);
+                Assert.Equal(18d, radius.Attributes.GetValueOrDefault("range-value"));
+                Assert.Equal(originalStyle, window.Style);
                 await window.Renderer.DispatchEventAsync(radius, "onchange", radiusValue);
+                Assert.NotEqual(originalStyle, window.Style);
                 Assert.Contains("--leaf-r-ctl: 18px 3px 18px 3px", window.Style);
                 Assert.Contains("--leaf-r-ovl: 26px 4px 26px 4px", window.Style);
                 Assert.Contains("--leaf-r-pane: 36px 6px 36px 6px", window.Style);

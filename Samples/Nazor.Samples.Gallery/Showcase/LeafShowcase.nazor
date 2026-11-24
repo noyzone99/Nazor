@@ -66,7 +66,7 @@
 			            @onwheel="CancelNavigation" @onpointerdown="CancelNavigation" @onkeydown="CancelNavigation">
 				<Container Class="demo-page">
 					<Container @ref="sections[0]" Id="leaf-section-0" @onresize="LayoutChanged"><ActionsSection/></Container>
-					<Container @ref="sections[1]" Id="leaf-section-1" @onresize="LayoutChanged"><SelectionSection Grain="Grain" GrainChanged="GrainChanged" Radius="Radius" RadiusChanged="RadiusChanged"/></Container>
+					<Container @ref="sections[1]" Id="leaf-section-1" @onresize="LayoutChanged"><SelectionSection Radius="Radius" RadiusChanged="RadiusChanged"/></Container>
 					<Container @ref="sections[2]" Id="leaf-section-2" @onresize="LayoutChanged"><FieldsSection/></Container>
 					<Container @ref="sections[3]" Id="leaf-section-3" @onresize="LayoutChanged"><MenusSection/></Container>
 					<Container @ref="sections[4]" Id="leaf-section-4" @onresize="LayoutChanged"><WindowsSection/></Container>
@@ -85,8 +85,6 @@
 </ToastHost>
 
 @code {
-	[Parameter] public double Grain { get; set; }
-	[Parameter] public EventCallback<double> GrainChanged { get; set; }
 	[Parameter] public double Radius { get; set; }
 	[Parameter] public EventCallback<double> RadiusChanged { get; set; }
 	[Parameter] public string SeedClass { get; set; } = "seed-blue";

@@ -51,6 +51,9 @@
     --leaf-g4: #34a853;
 
     --leaf-sh-pane: 0 1px 2px rgba(16, 22, 40, 0.04);
+    /* Fields: a slightly grayer edge and a barely visible lift, so they stand off the surface as in dark. */
+    --leaf-field-edge: rgba(16, 22, 40, 0.15);
+    --leaf-sh-field: 0 1px 2px rgba(16, 22, 40, 0.06);
     --leaf-sh-pop: 0 12px 28px -12px rgba(16, 22, 40, 0.22), 0 2px 6px -2px rgba(16, 22, 40, 0.08);
     --leaf-sh-win: 0 40px 80px -44px rgba(16, 22, 40, 0.32), 0 10px 24px -16px rgba(16, 22, 40, 0.14);
     --leaf-inverse: #1e2025;
@@ -161,6 +164,8 @@
         --leaf-err-c: rgba(242, 184, 181, 0.13);
         --leaf-on-err-c: #f9dedc;
         --leaf-sh-pane: 0 1px 2px rgba(0, 0, 0, 0.3);
+        --leaf-field-edge: rgba(255, 255, 255, 0.075);
+        --leaf-sh-field: 0 0 0 transparent;
         --leaf-sh-pop: 0 14px 30px -12px rgba(0, 0, 0, 0.55), 0 2px 6px -2px rgba(0, 0, 0, 0.3);
         --leaf-sh-win: 0 40px 80px -44px rgba(0, 0, 0, 0.7), 0 10px 24px -16px rgba(0, 0, 0, 0.4);
         --leaf-inverse: #e8e9ed;
@@ -192,6 +197,8 @@
         --leaf-glow-h: 0 0 0 transparent;
         --leaf-hi: transparent;
         --leaf-sh-pane: 0 0 0 transparent;
+        --leaf-field-edge: CanvasText;
+        --leaf-sh-field: 0 0 0 transparent;
         --leaf-sh-pop: 0 0 0 transparent;
         --leaf-inverse: Canvas;
         --leaf-on-inverse: CanvasText;
@@ -371,12 +378,12 @@ TextField, TextArea, Select, Combobox, PasswordField, NumberField, SearchField, 
 DatePicker, TimePicker, DateRangePicker, DateTimePicker {
     gap: 8px; min-height: var(--leaf-h); padding: 0 11px; border: 0; border-radius: var(--leaf-r-ctl);
     background: var(--leaf-pane); color: var(--leaf-text);
-    box-shadow: inset 0 0 0 1px var(--leaf-stroke-2);
+    box-shadow: var(--leaf-sh-field), inset 0 0 0 1px var(--leaf-stroke-2);
     transition: box-shadow 250ms cubic-bezier(0.2, 0, 0, 1), border-radius 350ms cubic-bezier(0.34, 1.5, 0.64, 1), background-color 200ms;
 }
 TextField:hover, TextArea:hover, Combobox:hover, PasswordField:hover, NumberField:hover, SearchField:hover, MaskedField:hover, FileField:hover, ShortcutField:hover, ComboBox:hover, TokenField:hover,
 DatePicker:hover, TimePicker:hover, DateRangePicker:hover {
-    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--leaf-text) 30%, transparent);
+    box-shadow: var(--leaf-sh-field), inset 0 0 0 1px color-mix(in srgb, var(--leaf-text) 30%, transparent);
 }
 TextField:focus-within, TextArea:focus-within, Combobox:focus-within, PasswordField:focus-within, NumberField:focus-within, SearchField:focus-within, MaskedField:focus-within,
 FileField:focus-within, ShortcutField:focus-within, ComboBox:focus-within, TokenField:focus-within, DatePicker:focus-within, TimePicker:focus-within, DateRangePicker:focus-within, DateTimePicker:focus-within,
@@ -948,7 +955,7 @@ TitleBarLeading, TitleBarTrailing { gap: 2px; }
 TitleBarLeading Button, TitleBarTrailing Button, TitleBarLeading ToggleButton, TitleBarTrailing ToggleButton { min-height: 32px; background: transparent; box-shadow: none; color: var(--leaf-text-2); }
 TitleBarLeading Button:hover, TitleBarTrailing Button:hover, TitleBarLeading ToggleButton:hover, TitleBarTrailing ToggleButton:hover { background: var(--leaf-hover); color: var(--leaf-text); }
 TitleBarCenter > TextField, TitleBarCenter > SearchField {
-    width: 380px; max-width: 100%; min-height: 32px; background: color-mix(in oklab, var(--leaf-pane) 60%, transparent); box-shadow: inset 0 0 0 1px var(--leaf-stroke); color: var(--leaf-text-3);
+    width: 380px; max-width: 100%; min-height: 32px; background: color-mix(in oklab, var(--leaf-pane) 60%, transparent); box-shadow: var(--leaf-sh-field), inset 0 0 0 1px var(--leaf-field-edge); color: var(--leaf-text-3);
 }
 TitleBarCenter > TextField:focus-within, TitleBarCenter > SearchField:focus-within { background: var(--leaf-pane); box-shadow: inset 0 0 0 1.5px var(--leaf-ink), 0 0 0 4px var(--leaf-focus-ring); }
 TitleBar { min-height: max(var(--nz-window-controls-height, 38px), 38px); }

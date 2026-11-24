@@ -49,14 +49,10 @@
             </SegmentedControl>
         </Container>
         <Container Class="demo-stack demo-gap-18">
-            <Container Class="demo-material-preview">
-                <Container Class="demo-material-grain" />
-                <TextBlock>Campione di materiale</TextBlock>
-            </Container>
             <Container Class="demo-slider-row">
-                <TextBlock>Grana del materiale</TextBlock>
-                <Slider @bind-Value="grain" @onchange="CommitGrain" AccessibleName="Grana del materiale" />
-                <TextBlock Class="demo-output">@($"{grain:0}%")</TextBlock>
+                <TextBlock>Volume degli avvisi</TextBlock>
+                <Slider @bind-Value="volume" AccessibleName="Volume degli avvisi" />
+                <TextBlock Class="demo-output">@($"{volume:0}%")</TextBlock>
             </Container>
             <Container Class="demo-slider-row">
                 <TextBlock>Raggio della foglia</TextBlock>
@@ -74,21 +70,17 @@
     private IReadOnlyList<string> platforms = ["Windows", "macOS", "Linux"];
     private string period = "Settimana";
     private string channel = "Stabile";
-    private double grain;
+    private double volume = 50;
     private double radius;
-    [Parameter] public double Grain { get; set; }
-    [Parameter] public EventCallback<double> GrainChanged { get; set; }
     [Parameter] public double Radius { get; set; }
     [Parameter] public EventCallback<double> RadiusChanged { get; set; }
 
     protected override void OnParametersSet()
     {
-        grain = Grain;
         radius = Radius;
     }
 
-    // The readouts follow the drag locally. Grain is confined to the opaque material sample.
-    private Task CommitGrain() => GrainChanged.InvokeAsync(grain);
+    // The readout follows the drag locally; the leaf radius reaches the window when the drag ends.
     private Task CommitRadius() => RadiusChanged.InvokeAsync(radius);
 
     private void SelectAll(bool value) => Array.Fill(parts, value);
@@ -98,9 +90,6 @@
     .demo-switches { display: flex; flex-direction: column; gap: 14px; }
     .demo-gap-16 { margin-top: 16px; }
     .demo-gap-18 { margin-top: 18px; }
-    .demo-material-preview { position: relative; display: flex; align-items: center; justify-content: center; min-height: 60px; background: var(--leaf-s1); border-radius: var(--leaf-r-pane); overflow: hidden; }
-    .demo-material-grain { position: absolute; left: 0; top: 0; right: 0; bottom: 0; pointer-events: none; opacity: var(--demo-grain-opacity, 0.5); background-image: url("/Themes/NazorLeaf/grain.png"); background-repeat: repeat; background-size: 180px 180px; }
-    @media (forced-colors: active) { .demo-material-grain { display: none; } }
     .demo-slider-row { display: flex; flex-direction: row; align-items: center; gap: 14px; }
     .demo-slider-row > TextBlock:first-child { min-width: 160px; font-size: 13.5px; }
     .demo-slider-row > Slider { flex: 1; }

@@ -111,7 +111,7 @@ app.Appearance.Theme = NazorLeafTheme.Theme;
 return app.Run();
 ```
 
-`NazorLeafTheme.Theme` layers the NazorLeaf rules over Basic. The package copies the Geist, Geist Mono, Bricolage Grotesque and NazorLeaf Icons fonts, their notices and the paper-grain texture to `Themes/NazorLeaf` in build and publish output. The same `AddNazorLeafFonts()` call registers all four fonts. Use `Icon Symbol="@LeafSymbol.Plus"` for the theme's typed icons with any active theme. Customize the theme in your application stylesheet with tokens such as `--leaf-primary`, `--leaf-on-primary`, `--leaf-pc`, `--leaf-on-pc` and `--leaf-ink`. Check each color scheme you support. A `Badge` that decorates an icon on a colored bar should set `--leaf-badge-cutout` to the bar color, so the 2 px cutout around the leaf matches. Slider thumb gaps reveal the actual surface underneath, including gradients and images; no surface-color token is required. NazorLeaf also styles the Windows taskbar overlay badge as a seed-colored leaf. Text inherits a 1.5 line height from the theme root, as in the prototype. Field buttons such as clear, reveal and the search mark draw NazorLeaf icons in `::before` and hide Basic's vector glyphs with `stroke-trim-end: 0`; anchored menus and drop-down lists open 6 px from their anchor. [NazorLeaf API](../ApiReferences/Nazor.Themes.NazorLeaf.md) · [Packaging theme assets](28-Libraries-Packaging-and-Deployment.md#theme-packages)
+`NazorLeafTheme.Theme` layers the NazorLeaf rules over Basic. The package copies the Geist, Geist Mono, Bricolage Grotesque and NazorLeaf Icons fonts, and their notices to `Themes/NazorLeaf` in build and publish output. The same `AddNazorLeafFonts()` call registers all four fonts. Use `Icon Symbol="@LeafSymbol.Plus"` for the theme's typed icons with any active theme. Customize the theme in your application stylesheet with tokens such as `--leaf-primary`, `--leaf-on-primary`, `--leaf-pc`, `--leaf-on-pc` and `--leaf-ink`. Check each color scheme you support. A `Badge` that decorates an icon on a colored bar should set `--leaf-badge-cutout` to the bar color, so the 2 px cutout around the leaf matches. Slider thumb gaps reveal the actual surface underneath, including gradients and images; no surface-color token is required. NazorLeaf also styles the Windows taskbar overlay badge as a seed-colored leaf. Text inherits a 1.5 line height from the theme root, as in the prototype. Field buttons such as clear, reveal and the search mark draw NazorLeaf icons in `::before` and hide Basic's vector glyphs with `stroke-trim-end: 0`; anchored menus and drop-down lists open 6 px from their anchor. [NazorLeaf API](../ApiReferences/Nazor.Themes.NazorLeaf.md) · [Packaging theme assets](28-Libraries-Packaging-and-Deployment.md#theme-packages)
 
 ## Desktop-inspired themes
 
@@ -146,15 +146,7 @@ Try each theme with the Gallery's theme and color scheme selectors. **ScrollView
 
 ## Design tokens
 
-Leaf uses a uniform window surface by default. It becomes translucent only while a requested backdrop is actually active; otherwise it retains an opaque tinted surface. Applications that want the optional paper texture can select it explicitly:
-
-```nss
-:root {
-    background-image: url("/Themes/NazorLeaf/grain.png");
-    background-size: 180px 180px;
-    background-repeat: repeat;
-}
-```
+Leaf uses a uniform window surface by default. It becomes translucent only while a requested backdrop is actually active; otherwise it retains an opaque tinted surface. Text fields sit on that surface with a slightly darker edge and a faint drop shadow in light mode, set by `--leaf-field-edge` and `--leaf-sh-field`; dark mode keeps the plain hairline.
 
 Override the shared properties defined in [Basic.nss](../../Sources/Core/Nazor.Controls/Themes/Basic.nss). For example, override both sides of the accent color pair to preserve contrast.
 

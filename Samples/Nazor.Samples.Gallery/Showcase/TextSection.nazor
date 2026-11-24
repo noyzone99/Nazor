@@ -16,11 +16,11 @@
         <Heading Level="3">Riconoscibile da lontano</Heading>
         <List><ListItem>La sagoma a foglia vale per ogni elemento.</ListItem><ListItem>Il seme segna sempre la selezione.</ListItem><ListItem>Solo ciò che è pieno di colore emette luce.</ListItem></List>
         <Heading Level="4">Ordine di rendering</Heading>
-        <List Ordered="true"><ListItem>Vassoio della finestra con la grana</ListItem><ListItem>Riquadri del contenuto</ListItem><ListItem>Controlli e testo</ListItem><ListItem>Menu, suggerimenti e notifiche</ListItem></List>
+        <List Ordered="true"><ListItem>Vassoio della finestra</ListItem><ListItem>Riquadri del contenuto</ListItem><ListItem>Controlli e testo</ListItem><ListItem>Menu, suggerimenti e notifiche</ListItem></List>
         <Blockquote Cite="Linee guida di Nazor">Un’app Nazor deve essere riconoscibile anche sfocata, a dieci metri, in una miniatura.</Blockquote>
         <Heading Level="5">Definizioni</Heading>
         <DefinitionList Layout="DefinitionListLayout.Inline">
-            <DefinitionTerm>Vassoio</DefinitionTerm><DefinitionDescription>Il fondo della finestra, granulato e tinto dal seme.</DefinitionDescription>
+            <DefinitionTerm>Vassoio</DefinitionTerm><DefinitionDescription>Il fondo della finestra, tinto dal seme.</DefinitionDescription>
             <DefinitionTerm>Riquadro</DefinitionTerm><DefinitionDescription>La superficie piena su cui poggia il contenuto.</DefinitionDescription>
             <DefinitionTerm>Seme</DefinitionTerm><DefinitionDescription>Il colore d’origine e il segno della selezione.</DefinitionDescription>
         </DefinitionList>
