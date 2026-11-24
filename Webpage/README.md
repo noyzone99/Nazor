@@ -28,9 +28,13 @@ The build regenerates the content when `Docs/`, the generator, or the NazorLeaf 
 dotnet run --project Webpage/Nazor.Website.Generator -- . Webpage/Nazor.Website/wwwroot/content
 ```
 
-## Build artifact
+## Build and deploy
 
-The [Website workflow](../.github/workflows/website.yml) builds and verifies the site on relevant pushes to `main` and `dev`, and can also run on demand. It checks that the output contains the guide, the API reference, and their generated HTML fragments. Download the static site from the run's `website` artifact.
+The [Website workflow](../.github/workflows/website.yml) builds and verifies the site on relevant pushes to `main` and `dev`, and can also run on demand. It checks that the output contains the guide, the API reference, and their generated HTML fragments.
+
+Pushes to `main` deploy the verified output to GitHub Pages. The workflow applies the configured Pages base path to both HTML entry points so the app can restore deep links redirected by `404.html`. Set the Pages source to **GitHub Actions** in the repository settings.
+
+Download the static site from the `website` artifact in `dev` and manually triggered runs.
 
 ## Structure
 

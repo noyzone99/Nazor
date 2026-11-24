@@ -16,10 +16,17 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: website-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-24.04
     timeout-minutes: 20
+    permissions:
+      contents: read
+      pages: read
     steps:
       - uses: actions/checkout@v6
         with:
@@ -57,9 +64,46 @@ jobs:
           print(f"Verified {len(pages)} documentation pages in {site}")
           PY
 
+      - name: Configure GitHub Pages
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        id: pages
+        uses: actions/configure-pages@v5
+
+      - name: Prepare for GitHub Pages
+        if: steps.pages.outcome == 'success'
+        env:
+          PAGES_BASE_PATH: ${{ steps.pages.outputs.base_path }}
+        run: |
+          site=publish/wwwroot
+          for page in index.html 404.html; do
+            grep -qF '<base href="/" />' "$site/$page"
+            sed -i "s|<base href=\"/\" />|<base href=\"${PAGES_BASE_PATH%/}/\" />|" "$site/$page"
+          done
+          find "$site" -type f \( -name '*.br' -o -name '*.gz' \) -delete
+
+      - uses: actions/upload-pages-artifact@v4
+        if: steps.pages.outcome == 'success'
+        with:
+          path: publish/wwwroot
+
       - uses: actions/upload-artifact@v7
+        if: steps.pages.outcome == 'skipped'
         with:
           name: website
           path: publish/wwwroot
           include-hidden-files: true
           if-no-files-found: error
+
+  deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-24.04
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
