@@ -69,6 +69,10 @@ The deployment fixture also exercises statically registered Leaf decoration pres
 
 ## Run verification
 
+The [Tests workflow](../.github/workflows/tests.yml) runs on every push to `main` and `dev` and on demand. It runs the managed suites on Windows x64 and Linux x64/ARM64, including Windows application tests and the .NET 8/9/10 protocol suite. The Linux jobs run native and managed GUI checks under isolated Weston and Xvfb sessions and run the DRM fixture. Download the XML reports from the `test-results-*` artifacts.
+
+The hosted jobs exercise virtual displays and ordinary Windows window APIs. Tests that require foreground input, the system clipboard, real monitors or physical DRM hardware retain their local prerequisites. Nazor currently provides desktop backends for Windows and Linux.
+
 `WindowsBadgeCompositionTests` extends the Windows launcher tests with full mathematical image positioning after fitting, private fonts and missing-glyph fallback, cached native snapshots, asynchronous SVG masks, decorative gradients, independent borders, static transforms and alpha composition at 100%/125%/150%/200%/300%/400% scale. `BadgeStyleTests` covers the 53 NSS longhands, border/background shorthands, cascade order and serialization/code generation. Language-server tests check root applicability and both editors' completion, hover and diagnostics. Composed-pixel checks and intercepted shell calls do not establish actual taskbar acceptance; `Native_overlay_accepts_count_icon_and_clear_for_a_real_window` is the separate real-shell probe.
 
 NSS pseudo-element coverage is in `Nazor.Style.Tests/PseudoElementTests.cs` (syntax, specificity, C#/JSON output, scope, variables, viewport/media invalidation), `Nazor.Rendering.Tests/PseudoElementRenderingTests.cs` (generated layout/paint/hit retargeting, 100%/150%/200% scale, Hot Reload, placeholder/IME, aligned and multiline selection), and the NSS language-server/grammar tests (completion, hover, applicability and both IDE classifications). The Theming sample exercises emitted styles with actual field parts. Native IDE and platform acceptance remain separate from these portable/headless checks.
