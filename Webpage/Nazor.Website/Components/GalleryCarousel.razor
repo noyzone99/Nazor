@@ -1,0 +1,40 @@
+<nazor-gallery-carousel>
+    <div class="gallery-stage" data-platform="windows" data-theme="light" role="img"
+         aria-label="Nazor Gallery on the Windows desktop">
+        <div class="gallery-desktop windows">
+            <img class="gallery-capture" src="media/gallery/windows-light.png" alt="" width="1920" height="1200" loading="lazy" />
+            <img class="gallery-capture dark" src="media/gallery/windows-dark.png" alt="" width="1920" height="1200" loading="lazy" />
+            <time class="gallery-clock"><span class="gallery-clock-time"></span><span class="gallery-clock-date"></span></time>
+        </div>
+        <div class="gallery-desktop kde" hidden>
+            <img class="gallery-capture" src="media/gallery/kdeplasma-light.png" alt="" width="1920" height="1200" loading="lazy" />
+            <img class="gallery-capture dark" src="media/gallery/kdeplasma-dark.png" alt="" width="1920" height="1200" loading="lazy" />
+            <time class="gallery-clock"><span class="gallery-clock-time"></span><span class="gallery-clock-date"></span></time>
+        </div>
+        <div class="gallery-desktop gnome" hidden>
+            <img class="gallery-capture" src="media/gallery/gnome-light.png" alt="" width="1920" height="1200" loading="lazy" />
+            <img class="gallery-capture dark" src="media/gallery/gnome-dark.png" alt="" width="1920" height="1200" loading="lazy" />
+            <time class="gallery-clock"><span class="gallery-clock-date"></span><span class="gallery-clock-time"></span></time>
+        </div>
+        <div class="gallery-window">
+            <img class="gallery-capture" src="media/gallery/nazor-gallery-dark.png" alt="" width="1182" height="821" loading="lazy" />
+            <img class="gallery-capture light" src="media/gallery/nazor-gallery-light.png" alt="" width="1182" height="821" loading="lazy" />
+            <div class="gallery-window-buttons" aria-hidden="true">
+                <span class="gallery-window-button minimize"></span>
+                <span class="gallery-window-button maximize"></span>
+                <span class="gallery-window-button close"></span>
+            </div>
+        </div>
+    </div>
+    <div class="gallery-controls">
+        <div class="gallery-platforms" role="group" aria-label="Desktop">
+            <button type="button" class="btn sm b-line" data-gallery-platform="windows" aria-pressed="true">Windows</button>
+            <button type="button" class="btn sm b-line" data-gallery-platform="kde" aria-pressed="false">KDE Plasma</button>
+            <button type="button" class="btn sm b-line" data-gallery-platform="gnome" aria-pressed="false">GNOME</button>
+        </div>
+        <div class="gallery-preview-controls">
+            <button type="button" class="btn sm b-line gallery-theme" aria-pressed="false">Dark mode</button>
+            <button type="button" class="btn sm b-line gallery-playback">Pause</button>
+        </div>
+    </div>
+</nazor-gallery-carousel>

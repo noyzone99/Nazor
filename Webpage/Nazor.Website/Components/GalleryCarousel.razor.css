@@ -1,0 +1,190 @@
+.gallery-stage {
+  --slide-duration: 850ms;
+  --chrome-duration: 420ms;
+  --chrome-delay: calc((var(--slide-duration) - var(--chrome-duration)) / 2);
+  color-scheme: light;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  container-type: inline-size;
+  aspect-ratio: 8 / 5;
+  border-radius: var(--lf-pane);
+  background: #0e2354;
+}
+
+.gallery-stage[data-theme="dark"] { color-scheme: dark; }
+.gallery-desktop, .gallery-capture { position: absolute; inset: 0; }
+.gallery-desktop[hidden] { display: none; }
+.gallery-capture { display: block; width: 100%; height: 100%; }
+.gallery-capture.dark { opacity: 0; transition: opacity var(--theme-duration) ease; }
+.gallery-stage[data-theme="dark"] .gallery-capture.dark { opacity: 1; }
+
+.gallery-clock {
+  position: absolute;
+  bottom: .28%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 3.25%;
+  color: light-dark(#181818, #f8f8f8);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.27;
+  white-space: nowrap;
+  transition: background-color var(--theme-duration) ease, color var(--theme-duration) ease;
+}
+
+.windows .gallery-clock {
+  right: 2.22%;
+  min-width: 3.9%;
+  align-items: flex-end;
+  padding-right: .21cqw;
+  background: light-dark(#eee, #1c1c1c);
+  font: .625cqw/1.27 "Segoe UI", sans-serif;
+}
+
+.kde .gallery-clock {
+  right: 3%;
+  min-width: 4%;
+  align-items: center;
+  background: light-dark(#eff0f1, #202326);
+  font: .677cqw/1.08 system-ui, sans-serif;
+}
+.kde .gallery-clock-time { font-size: .833cqw; }
+
+.gnome .gallery-clock {
+  top: 0;
+  left: 50%;
+  translate: -50% 0;
+  flex-direction: row;
+  align-items: center;
+  gap: .55cqw;
+  min-width: 8.5%;
+  height: 2.667%;
+  padding-inline: .5cqw;
+  background: #000;
+  color: #fff;
+  font: 650 .78cqw/1 system-ui, sans-serif;
+}
+
+.gallery-window {
+  --chrome-fill: light-dark(#d1dbeb, #1c2027);
+  --chrome-ink: light-dark(#545c69, #a3aab6);
+  position: absolute;
+  z-index: 1;
+  inset: 50% auto auto 50%;
+  translate: -50% -50%;
+  width: 72%;
+  aspect-ratio: 1182 / 821;
+  container-type: inline-size;
+  overflow: hidden;
+  border-radius: .5rem;
+  background: #1c2027;
+  box-shadow: 0 .8cqw 2.7cqw -.3cqw rgb(0 0 0 / .32), 0 .14cqw .55cqw rgb(0 0 0 / .18);
+  transition: box-shadow var(--chrome-duration) ease var(--chrome-delay);
+}
+
+.gallery-window .gallery-capture { scale: 1.0034 1.0049; }
+
+.gallery-window .gallery-capture.light { transition: opacity var(--theme-duration) ease; }
+.gallery-stage[data-theme="dark"] .gallery-window .gallery-capture.light { opacity: 0; }
+
+.gallery-stage[data-platform="kde"] .gallery-window { box-shadow: 0 .73cqw 2.45cqw rgb(0 0 0 / .42); }
+.gallery-stage[data-platform="gnome"] .gallery-window { box-shadow: 0 0 .9cqw rgb(0 0 0 / .45); }
+
+.gallery-window::after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  inset: .6cqw .38cqw auto 86.8%;
+  height: 2.9cqw;
+  background: var(--chrome-fill);
+  transition: background-color var(--theme-duration) ease;
+}
+
+.gallery-window-buttons {
+  position: absolute;
+  z-index: 2;
+  top: .96cqw;
+  right: .1cqw;
+  display: flex;
+  color: var(--chrome-ink);
+  font-size: 1.18cqw;
+  transition: right var(--chrome-duration) ease var(--chrome-delay), color var(--theme-duration) ease;
+}
+
+.gallery-window-button {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 4.06cqw;
+  height: 2.03cqw;
+  transition: var(--chrome-duration) ease var(--chrome-delay);
+  transition-property: width, margin-left, border-radius, background-color;
+}
+
+.gallery-window-button::before, .gallery-window-button::after {
+  position: absolute;
+  transition: var(--chrome-duration) ease var(--chrome-delay);
+  transition-property: transform, border-color;
+}
+
+.minimize::before, .minimize::after {
+  content: "";
+  width: .38em;
+  border-bottom: 1px solid;
+}
+.minimize::before { right: 50%; transform-origin: right center; }
+.minimize::after { left: 50%; transform-origin: left center; }
+.maximize::before { content: ""; width: .58em; height: .58em; border: 1px solid; }
+.close::before, .close::after { content: ""; width: .9em; border-bottom: 1px solid; transform: rotate(45deg); }
+.close::after { transform: rotate(-45deg); }
+
+.gallery-stage:not([data-platform="windows"]) .gallery-window-buttons { right: 1.02cqw; }
+.gallery-stage:not([data-platform="windows"]) .gallery-window-button { width: 2.03cqw; }
+.gallery-stage[data-platform="kde"] .gallery-window-buttons { color: light-dark(#26323a, #e0e5ea); }
+.gallery-stage[data-platform="kde"] .minimize::before { transform: translateY(.14em) rotate(40deg); }
+.gallery-stage[data-platform="kde"] .minimize::after { transform: translateY(.14em) rotate(-40deg); }
+.gallery-stage[data-platform="kde"] .maximize::before {
+  border-bottom-color: transparent;
+  border-left-color: transparent;
+  transform: translateY(.14em) rotate(-45deg) scale(.8);
+}
+
+.gallery-stage[data-platform="gnome"] .gallery-window-buttons { color: light-dark(#26303f, #f1f1f4); }
+.gallery-stage[data-platform="gnome"] .gallery-window-button {
+  margin-left: 1.05cqw;
+  border-radius: 50%;
+  background: light-dark(#bbc6d9, #35383f);
+}
+
+nazor-gallery-carousel {
+    display: block;
+    --theme-duration: 280ms;
+}
+
+.gallery-controls,
+.gallery-platforms,
+.gallery-preview-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+}
+
+.gallery-controls { justify-content: space-between; margin-top: 10px; }
+.gallery-preview-controls { margin-inline-start: auto; }
+.gallery-controls button[aria-pressed="true"] { background: var(--pc); color: var(--on-pc); }
+
+@media (max-width: 620px) {
+    .gallery-window { width: 79%; border-radius: .3rem; }
+    .gallery-controls .btn { padding-inline: 8px; }
+}
+
+@media (max-width: 480px) {
+    .gallery-preview-controls { flex-basis: 100%; justify-content: space-between; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    nazor-gallery-carousel { --theme-duration: 0ms; }
+    .gallery-stage { --chrome-duration: 0ms; --chrome-delay: 0ms; }
+}

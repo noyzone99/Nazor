@@ -81,27 +81,16 @@
     <div class="band-head">
         <span class="eyebrow">Showcase</span>
         <h2>Real controls, drawn by Nazor</h2>
-        <p>Every pixel below comes from Nazor's own layout and Skia renderer, not from a browser or wrapped OS widgets.</p>
+        <p>Explore the Gallery control catalog, drawn by Nazor with Skia.</p>
     </div>
-    @if (Shots.Length > 1)
-    {
-        <div class="tabs shot-tabs" role="tablist" aria-label="Screenshots" style="--i:@activeShot; --n:@Shots.Length">
-            <span class="tab-ind"></span>
-            @for (var i = 0; i < Shots.Length; i++)
-            {
-                var index = i;
-                <button type="button" role="tab" class="tab" aria-selected="@(activeShot == index ? "true" : "false")" @onclick="() => activeShot = index">@Shots[index].Title</button>
-            }
-        </div>
-    }
     <figure class="shot">
         <div class="shot-frame">
-            <img src="@Shots[activeShot].Image" alt="@Shots[activeShot].Alt" width="1180" height="820" loading="lazy" />
+            <GalleryCarousel />
         </div>
         <figcaption>
-            <b>@Shots[activeShot].Title</b>
-            <span>@Shots[activeShot].Caption</span>
-            <a href="@Shots[activeShot].Link" target="_blank" rel="noopener">View the sample<Icon Name="external" /></a>
+            <b>Gallery</b>
+            <span>The Gallery sample uses the optional NazorLeaf theme. The preview places its captures on Windows, KDE Plasma and GNOME desktops.</span>
+            <a href="https://github.com/noyzone99/Nazor/tree/main/Samples/Nazor.Samples.Gallery" target="_blank" rel="noopener">View the sample<Icon Name="external" /></a>
         </figcaption>
     </figure>
 </section>
@@ -247,7 +236,6 @@
 @code {
     private string? version;
     private int activeSnippet;
-    private int activeShot;
     private int count;
     private string name = string.Empty;
 
@@ -264,14 +252,6 @@
             version = null;
         }
     }
-
-    // Add screenshots here: each entry appears as a tab in the showcase.
-    private static readonly (string Title, string Image, string Alt, string Caption, string Link)[] Shots =
-    [
-        ("Gallery", "content/assets/gallery.png", "The Nazor Gallery sample on Windows with the NazorLeaf theme",
-            "The Gallery sample explores every built-in control by family, captured on Windows with the optional NazorLeaf theme.",
-            "https://github.com/noyzone99/Nazor/tree/main/Samples/Nazor.Samples.Gallery"),
-    ];
 
     private static readonly (string Icon, string Color, string Title, string Text, string Link, string LinkText)[] Features =
     [

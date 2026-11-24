@@ -38,10 +38,10 @@ Select **GitHub Actions** as the Pages source in the repository settings before 
 
 | Route | Content |
 | --- | --- |
-| `/` | Showcase: what Nazor is, screenshots, features, NazorLeaf, platforms and the documentation hub |
+| `/` | Showcase: what Nazor is, the Gallery carousel, features, NazorLeaf, platforms and the documentation hub |
 | `/getting-started` | Quick start with the Visual Studio extension or the .NET CLI |
 | `/docs`, `/guide/*` | Documentation overview and developer guide |
 | `/api`, `/api/*` | API reference by package |
 | `/devtools`, `/nuget`, `/conventions`, `/brand` | Tools and project pages |
 
-Add showcase screenshots to `Docs/Assets/` and list them in `Shots` in `Nazor.Website/Pages/Home.razor`.
+The Gallery carousel uses the captures in `Nazor.Website/wwwroot/media/gallery/`. Its markup and appearance live in `Nazor.Website/Components/GalleryCarousel.razor` and its scoped stylesheet. The browser module in `Nazor.Website/wwwroot/js/gallery-carousel.js` handles playback, themes and local clocks.
