@@ -16,16 +16,10 @@ on:
 permissions:
   contents: read
 
-concurrency:
-  group: website-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   build:
     runs-on: ubuntu-24.04
-    permissions:
-      contents: read
-      pages: read
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v6
         with:
@@ -35,24 +29,8 @@ jobs:
         with:
           global-json-file: global.json
 
-      - uses: actions/configure-pages@v5
-        if: github.ref == 'refs/heads/main'
-        id: pages
-
-      - name: Publish
+      - name: Build static site
         run: dotnet publish Webpage/Nazor.Website/Nazor.Website.csproj -c Release -o publish
-
-      - name: Prepare for GitHub Pages
-        env:
-          PAGES_BASE_PATH: ${{ steps.pages.outputs.base_path }}
-        run: |
-          site=publish/wwwroot
-          for page in index.html 404.html; do
-            grep -qF '<base href="/" />' "$site/$page"
-            sed -i "s|<base href=\"/\" />|<base href=\"${PAGES_BASE_PATH%/}/\" />|" "$site/$page"
-          done
-          find "$site" -name "*.br" -delete
-          find "$site" -name "*.gz" -delete
 
       - name: Verify published documentation
         run: |
@@ -70,29 +48,18 @@ jobs:
           if missing:
               raise SystemExit("Missing documentation sources: " + ", ".join(sorted(missing)))
 
-          for asset in ["_framework/blazor.webassembly.js", "content/fonts/Geist.ttf",
-                        "content/fonts/GeistMono.ttf", "content/fonts/BricolageGrotesque.ttf",
-                        *(page["content"] for page in pages)]:
-              if not (site / asset).is_file() or not (site / asset).stat().st_size:
+          for asset in ["index.html", "404.html", "_framework/blazor.webassembly.js",
+                        "content/fonts/Geist.ttf", "content/fonts/GeistMono.ttf",
+                        "content/fonts/BricolageGrotesque.ttf", *(page["content"] for page in pages)]:
+              file = site / asset
+              if not file.is_file() or not file.stat().st_size:
                   raise SystemExit(f"Missing or empty published asset: {asset}")
           print(f"Verified {len(pages)} documentation pages in {site}")
           PY
 
-      - uses: actions/upload-pages-artifact@v4
-        if: github.ref == 'refs/heads/main'
+      - uses: actions/upload-artifact@v7
         with:
+          name: website
           path: publish/wwwroot
-
-  deploy:
-    if: github.ref == 'refs/heads/main'
-    needs: build
-    runs-on: ubuntu-24.04
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@v4
+          include-hidden-files: true
+          if-no-files-found: error

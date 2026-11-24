@@ -1,6 +1,6 @@
 # Nazor website
 
-The Nazor showcase and documentation site: a Blazor WebAssembly app styled with the NazorLeaf visual language and published to GitHub Pages.
+The Nazor showcase and documentation site: a Blazor WebAssembly app styled with the NazorLeaf visual language.
 
 | Project | Purpose |
 | --- | --- |
@@ -28,11 +28,9 @@ The build regenerates the content when `Docs/`, the generator, or the NazorLeaf 
 dotnet run --project Webpage/Nazor.Website.Generator -- . Webpage/Nazor.Website/wwwroot/content
 ```
 
-## Publish
+## Build artifact
 
-The [Website workflow](../.github/workflows/website.yml) builds and verifies the site on relevant pushes to `main` and `dev`, and can also run on demand. It checks that the published output contains the guide, the API reference, and their generated HTML fragments. Runs from `main` deploy to GitHub Pages and use its configured base path in both `index.html` and `404.html`. The app restores deep links after the redirect from `404.html`.
-
-Select **GitHub Actions** as the Pages source in the repository settings before the first deployment.
+The [Website workflow](../.github/workflows/website.yml) builds and verifies the site on relevant pushes to `main` and `dev`, and can also run on demand. It checks that the output contains the guide, the API reference, and their generated HTML fragments. Download the static site from the run's `website` artifact.
 
 ## Structure
 
