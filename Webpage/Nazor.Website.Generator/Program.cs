@@ -16,9 +16,9 @@ var repository = Path.GetFullPath(args[0]);
 var output = Path.GetFullPath(args[1]);
 const string repositoryUrl = "https://github.com/noyzone99/Nazor";
 
-if (!File.Exists(Path.Combine(repository, "Docs", "README.md")))
+if (!File.Exists(Path.Combine(repository, "Docs", "Guide", "README.md")))
 {
-    Console.Error.WriteLine($"Docs/README.md was not found under '{repository}'.");
+    Console.Error.WriteLine($"Docs/Guide/README.md was not found under '{repository}'.");
     return 1;
 }
 

@@ -32,9 +32,8 @@ internal static class SiteLayout
     /// <summary>Pages that open an area, listed before its chapters or packages.</summary>
     public static readonly (string Source, string Route, string Area, string Group, string? Title)[] LeadingPages =
     [
-        ("Docs/README.md", "docs", GuideArea, "Start here", "Documentation"),
         ("Docs/Guide/README.md", "guide", GuideArea, "Start here", null),
-        ("Docs/API.md", "api", ApiArea, "Overview", null),
+        ("Docs/API.md", "api", ApiArea, "Start here", null),
     ];
 
     /// <summary>Pages listed after the guide chapters. Other Markdown files in <c>Docs/</c> stay off the site.</summary>

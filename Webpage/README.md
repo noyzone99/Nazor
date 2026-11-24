@@ -42,7 +42,9 @@ Download the static site from the `website` artifact in `dev` and manually trigg
 | --- | --- |
 | `/` | Showcase: what Nazor is, the Gallery carousel, features, NazorLeaf, platforms and the documentation hub |
 | `/getting-started` | Quick start with the Visual Studio extension or the .NET CLI |
-| `/docs`, `/guide/*`, `/devtools`, `/devtools/protocol` | Documentation overview and developer guide, including the DevTools pages |
+| `/guide`, `/guide/*`, `/devtools`, `/devtools/protocol` | Developer guide, including the DevTools pages |
 | `/api`, `/api/*` | API reference by package |
+
+Existing links to `/docs` redirect to `/guide`.
 
 The Gallery carousel uses the captures in `Nazor.Website/wwwroot/media/gallery/`. Its markup and appearance live in `Nazor.Website/Components/GalleryCarousel.razor` and its scoped stylesheet. The browser module in `Nazor.Website/wwwroot/js/gallery-carousel.js` handles desktop transitions, autoplay, the draggable theme comparison and local clocks.

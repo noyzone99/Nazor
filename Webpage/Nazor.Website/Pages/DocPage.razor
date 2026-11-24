@@ -35,10 +35,7 @@ else
                         }
                     </div>
                     <h1>@doc.Title</h1>
-                    <div class="ph-act">
-                        <a class="btn b-line sm" href="@($"{repository}/blob/main/{doc.Source}")" target="_blank" rel="noopener"><Icon Name="github" />View source</a>
-                        <a class="btn b-ghost sm" href="@($"{repository}/edit/main/{doc.Source}")" target="_blank" rel="noopener"><Icon Name="pen" />Edit</a>
-                    </div>
+                    <a class="btn b-line sm" href="@($"{repository}/blob/main/{doc.Source}")" target="_blank" rel="noopener"><Icon Name="github" />View source</a>
                 </header>
             }
 
@@ -104,6 +101,12 @@ else
     protected override async Task OnParametersSetAsync()
     {
         var route = (Path ?? string.Empty).Trim('/').ToLowerInvariant();
+        if (route == "docs")
+        {
+            Navigation.NavigateTo("guide", replace: true);
+            return;
+        }
+
         if (route == loadedRoute)
         {
             // Same document, usually a hash change: only scroll.

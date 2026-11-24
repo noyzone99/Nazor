@@ -20,7 +20,7 @@
     </a>
     <nav class="topnav" aria-label="Primary">
         <NavLink href="getting-started" Match="NavLinkMatch.All" class="nav-start">Get started</NavLink>
-        <a href="docs" class="@(inDocs ? "active" : null)" aria-current="@(inDocs ? "page" : null)">Docs</a>
+        <a href="guide" class="@(inDocs ? "active" : null)" aria-current="@(inDocs ? "page" : null)">Docs</a>
     </nav>
     <button type="button" class="search-trigger" @onclick="OpenSearch" aria-label="Search the documentation">
         <Icon Name="search" />
@@ -58,7 +58,6 @@
         </div>
         <nav class="foot-links" aria-label="Footer">
             <a href="getting-started">Getting started</a>
-            <a href="docs">Documentation</a>
             <a href="guide">Developer guide</a>
             <a href="api">API reference</a>
             <a href="devtools">DevTools</a>
@@ -137,7 +136,7 @@
         }
     }
 
-    // Every documentation route belongs to the Docs entry: the overview, the guide, DevTools and the API reference.
+    // Keep Docs active across the guide, DevTools and the API reference.
     private bool IsDocsRoute(string uri)
     {
         var relative = Navigation.ToBaseRelativePath(uri);

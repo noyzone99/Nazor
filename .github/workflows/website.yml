@@ -48,7 +48,7 @@ jobs:
           site = Path("publish/wwwroot")
           manifest = json.loads((site / "content/manifest.json").read_text(encoding="utf-8"))
           pages = manifest["pages"]
-          expected = {"Docs/README.md", "Docs/Guide/README.md", "Docs/API.md"}
+          expected = {"Docs/Guide/README.md", "Docs/API.md"}
           expected.update(path.as_posix() for path in Path("Docs/Guide").glob("[0-9][0-9]-*.md"))
           expected.update(path.as_posix() for path in Path("Docs/ApiReferences").glob("*.md"))
           missing = expected - {page["source"] for page in pages}

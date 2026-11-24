@@ -6,6 +6,7 @@
     <InvariantGlobalization>true</InvariantGlobalization>
     <SiteContentDirectory>$(MSBuildProjectDirectory)/wwwroot/content</SiteContentDirectory>
     <SiteGeneratorProject>$(MSBuildProjectDirectory)/../Nazor.Website.Generator/Nazor.Website.Generator.csproj</SiteGeneratorProject>
+    <DefaultItemExcludes>$(DefaultItemExcludes);wwwroot/content/**</DefaultItemExcludes>
   </PropertyGroup>
 
   <ItemGroup>
@@ -33,10 +34,9 @@
     <Exec Command="dotnet run --project &quot;$(SiteGeneratorProject)&quot; -c Release -- &quot;$(NazorRepositoryRoot)&quot; &quot;$(SiteContentDirectory)&quot;" />
   </Target>
 
-  <!-- Files generated during this build were not present at evaluation time. -->
+  <!-- Collect generated files after regeneration so stale paths are never recorded at evaluation time. -->
   <Target Name="IncludeSiteContent" AfterTargets="GenerateSiteContent">
     <ItemGroup>
-      <Content Remove="wwwroot\content\**" />
       <Content Include="wwwroot\content\**" />
     </ItemGroup>
   </Target>

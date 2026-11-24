@@ -84,7 +84,6 @@ html.scrolled .topbar { box-shadow: 0 1px 0 var(--stroke-2), 0 10px 24px -20px r
 .phead { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px 16px; padding: 30px 0 22px; margin-bottom: 26px; border-bottom: 1px solid var(--stroke) }
 .phead .crumbs { width: 100% }
 .phead h1 { flex: 1 1 auto; margin: 0; font: 800 40px/1.05 var(--display); letter-spacing: -.035em; overflow-wrap: anywhere }
-.ph-act { display: flex; gap: 6px }
 .loading { display: flex; align-items: center; gap: 14px; padding: 40px 0; color: var(--text-3) }
 .doc { max-width: 80ch }
 
