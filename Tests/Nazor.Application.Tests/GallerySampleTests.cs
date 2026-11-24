@@ -1,6 +1,9 @@
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.DependencyInjection;
 using Nazor.Accessibility;
+using Nazor.DevTools;
+using Nazor.DevTools.Protocol;
+using Nazor.Diagnostics;
 using Nazor.Graphics;
 using Nazor.Graphics.Text;
 using Nazor.Input;
@@ -39,6 +42,22 @@ public sealed class GallerySampleTests : IDisposable
     private async Task Show(string id) { await host.ClickAsync(ById($"nav-{id}")); Update(); }
     private async Task Pick(string id,string text) { await host.ClickAsync(ById(id)); Update(); await host.ClickAsync(root.Elements("SelectOption").Single(e=>e.Text()==text)); Update(); }
     private async Task Click(string text) { await host.ClickAsync(ById("sample-preview").Elements().Single(e=>Equals(e.Attributes.GetValueOrDefault("role"),"button") && e.Text()==text)); Update(); }
+
+    [Fact]
+    public async Task DevTools_can_serialize_the_initial_gallery_tree()
+    {
+        Appearance.Theme = App.LeafTheme;
+        Update();
+
+        using var session = new DevToolsSession(host.Renderer, scene, input);
+        var target = new TargetState(new(42, "process", "runtime", "app", "gallery", session.SessionId), 1, "running", null);
+        var capture = new TreeSnapshotExporter(session).Capture(target);
+        var serialization = TreeSnapshotExporter.SerializeAsync(capture, cancellationToken: TestContext.Current.CancellationToken);
+        host.RunUntil(() => serialization.IsCompleted);
+        var snapshot = DevToolsJson.Read<TreeSnapshot>(await serialization);
+        Assert.Contains(snapshot.Components, component => component.TypeName == typeof(GalleryView).FullName);
+        Assert.Contains(snapshot.Elements, element => element.ElementId == "card-button");
+    }
 
     [Fact]
     public async Task Single_view_shows_the_catalog_and_disables_separate_window_previews()

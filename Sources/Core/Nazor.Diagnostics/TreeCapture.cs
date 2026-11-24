@@ -14,7 +14,7 @@ public sealed partial class DevToolsSession
     /// <summary>Maximum individual string length, measured in UTF-16 code units.</summary>
     public const int MaxCaptureStringLength = 16384;
     /// <summary>Maximum total copied string content in one structural snapshot.</summary>
-    public const int MaxCaptureCharacters = 128 * 1024;
+    public const int MaxCaptureCharacters = 256 * 1024;
     /// <summary>Maximum component-child, output and physical-child links in one capture.</summary>
     public const int MaxCaptureLinks = 16384;
     /// <summary>Maximum retained parameters or attributes copied from an individual node.</summary>

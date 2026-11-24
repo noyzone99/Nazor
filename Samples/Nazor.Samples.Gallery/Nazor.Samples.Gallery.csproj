@@ -5,6 +5,7 @@
     <OutputType>Exe</OutputType>
     <NazorApplicationId>org.nazor.samples.gallery</NazorApplicationId>
     <RootNamespace>Nazor.Samples.Gallery</RootNamespace>
+    <NazorEnableDevTools Condition="'$(NazorEnableDevTools)' == '' and '$(Configuration)' == 'Debug'">true</NazorEnableDevTools>
   </PropertyGroup>
   <Import Project="../../Sources/Tools/Nazor.Sdk/Sdk/Sdk.targets" />
   <PropertyGroup Condition="'$(_NazorRuntimePlatform)' == 'portable' or '$(_NazorRuntimePlatform)' == 'linux'">

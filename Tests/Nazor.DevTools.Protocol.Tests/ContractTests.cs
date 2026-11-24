@@ -113,6 +113,8 @@ public sealed class ContractTests
         Assert.Equal("A title", current.Components[0].Parameters![0].Value);
         Assert.Equal("markup-id", current.Elements[0].ElementId);
         var json = DevToolsJson.Write(tree);
+        Assert.False(json["elements"]![0]!.AsObject().ContainsKey("isRendered"));
+        Assert.True(json["elements"]![0]!.AsObject().ContainsKey("parentId"));
         json["components"]![0]!.AsObject().Remove("parameters");
         foreach (var field in new[] { "elementId", "attributes", "classes", "states", "events" }) json["elements"]![0]!.AsObject().Remove(field);
         var legacy = DevToolsJson.Read<TreeSnapshot>(json);

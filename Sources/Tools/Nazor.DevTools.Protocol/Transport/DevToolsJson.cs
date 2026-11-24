@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Text.Json.Serialization.Metadata;
 
 namespace Nazor.DevTools.Protocol;
 
@@ -13,6 +14,18 @@ public static class DevToolsJson
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         MaxDepth = DevToolsProtocol.MaxDepth,
+        TypeInfoResolver = new DefaultJsonTypeInfoResolver
+        {
+            Modifiers =
+            {
+                type =>
+                {
+                    foreach (var property in type.Properties)
+                        if (property.AttributeProvider?.IsDefined(typeof(OptionalFieldAttribute), inherit: false) == true)
+                            property.ShouldSerialize = static (_, value) => value is not null;
+                }
+            }
+        }
     };
 
     public static T Read<T>(JsonNode? node)

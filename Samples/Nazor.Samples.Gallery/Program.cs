@@ -29,6 +29,9 @@ if (drm)
 else
 {
     builder.Application.UseMainWindow<App>();
+#if NAZOR_DEVTOOLS
+    builder.UseDevTools();
+#endif
 }
 using var app = builder.Build();
 // --theme uses the same identifiers as the sidebar picker.

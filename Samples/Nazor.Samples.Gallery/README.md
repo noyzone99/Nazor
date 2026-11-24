@@ -23,6 +23,10 @@ dotnet run --project Samples/Nazor.Samples.Gallery -- --theme breeze --scheme da
 
 Adwaita, Breeze and CDE follow the selected color scheme. The Windows 9x, Windows XP and Windows 7 themes use their light palettes. All six support the system's forced colors. [Desktop-inspired themes](../../Docs/Guide/16-Styling-and-Themes.md#desktop-inspired-themes)
 
+## Inspect the Gallery with DevTools
+
+The Debug build from source includes Nazor DevTools. In a desktop Gallery window, press **F12** to open its inspector and examine the component tree, computed styles, and frame timings. The portable Release archive ships with DevTools disabled. [Standalone DevTools](../../Docs/DevTools.md#start-and-connect)
+
 ## Package the portable release
 
 From the repository root, publish to a fresh output directory with no runtime identifier. The archive keeps the Windows assets and both Linux desktop bridges in their runtime directories. The same application supports explicit DRM/KMS startup and requires the .NET 10 Runtime. [Portable deployment](../../Docs/Guide/28-Libraries-Packaging-and-Deployment.md) · [Native build prerequisites](../../Docs/Guide/33-Linux-Wayland.md#build-from-source)

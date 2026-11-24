@@ -837,7 +837,7 @@ public const int MaxCaptureNodes = 4096;
 public const int MaxCaptureLogicalNodes = 8192;
 public const int MaxCaptureDepth = 128;
 public const int MaxCaptureStringLength = 16384;
-public const int MaxCaptureCharacters = 131072;
+public const int MaxCaptureCharacters = 262144;
 public const int MaxCaptureLinks = 16384;
 public const int MaxCaptureProperties = 128;
 ```
@@ -919,7 +919,7 @@ Namespace `Nazor.Diagnostics`. [Source](../../Sources/Core/Nazor.Diagnostics/Dev
 | `public const int MaxCaptureLogicalNodes = 8192` | Maximum retained logical nodes, including transparent regions. |
 | `public const int MaxCaptureDepth = 128` | Maximum logical nesting depth, including regions and components. |
 | `public const int MaxCaptureStringLength = 16384` | Maximum individual string length, measured in UTF-16 code units. |
-| `public const int MaxCaptureCharacters = 131072` | Maximum total copied string content in one structural snapshot. |
+| `public const int MaxCaptureCharacters = 262144` | Maximum total copied string content in one structural snapshot. |
 | `public const int MaxCaptureLinks = 16384` | Maximum component-child, output and physical-child links in one capture. |
 | `public const int MaxCaptureProperties = 128` | Maximum retained parameters or attributes copied from an individual node. |
 | `public StyleTrace? Trace(int id)` | How the style of an element came to be: its rules in cascade order with the declarations that win, and where every value comes from; null for a text or a node that is not in the tree.<br>`id`. The diagnostic identifier of the element to trace.<br>**Returns**. The resulting Nazor.Style.StyleTrace? value. |
