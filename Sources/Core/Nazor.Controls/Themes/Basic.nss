@@ -48,6 +48,14 @@
 :disabled { color: GrayText; }
 
 /* Engine surfaces: window caption, built-in tooltip and text menu, message boxes. */
+:root[frame-owner="nazor"][client-titlebar] {
+    -window-frame-border: 1px solid var(--nz-border);
+    -window-frame-border-radius: 4px;
+    -window-frame-box-shadow: 0 3px 12px #00000036;
+}
+@media (forced-colors: active) {
+    :root[frame-owner="nazor"][client-titlebar] { -window-frame-border-color: CanvasText; -window-frame-box-shadow: none; }
+}
 TitleBar { display: flex; align-items: center; gap: 4px; min-height: var(--nz-window-controls-height, 0px); }
 Tooltip { padding: 2px 6px; border: 1px solid var(--nz-on-surface); background: var(--nz-surface); color: var(--nz-on-surface); max-width: 320px; }
 ContextMenu { display: flex; flex-direction: column; min-width: 160px; padding: 2px; border: 1px solid var(--nz-on-surface); background: var(--nz-surface); color: var(--nz-on-surface); }

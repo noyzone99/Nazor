@@ -928,6 +928,17 @@ FloatingActionButton[size="small"] { min-width: 42px; height: 42px; border-radiu
 FloatingActionButton[size="large"] { min-width: 72px; height: 72px; border-radius: 28px 8px 28px 8px; font-size: 18px; }
 
 /* Title bar: drawn on the window material, with the platform heights of the prototype. */
+@media (forced-colors: none) {
+    :root[frame-owner="nazor"][client-titlebar] {
+        -window-frame-border: 1px solid var(--leaf-stroke-2);
+        -window-frame-border-radius: var(--leaf-r-win);
+        -window-frame-box-shadow: var(--leaf-sh-win);
+    }
+    :root[frame-owner="nazor"][client-titlebar]:window-inactive {
+        -window-frame-border-color: var(--leaf-stroke);
+        -window-frame-box-shadow: var(--leaf-sh-pop);
+    }
+}
 TitleBar { gap: 10px; padding-left: 14px; padding-right: 6px; background: transparent; color: var(--leaf-text); font-size: 12px; }
 TitleBar[fullscreen] { display: none; }
 TitleBarHeading { gap: 8px; }

@@ -1,25 +1,51 @@
 @window
 @inject IApplicationAppearance Appearance
+@inject IWindowService Windows
 @using Nazor.Style
+@using Nazor.Themes.Adwaita
+@using Nazor.Themes.Breeze
+@using Nazor.Themes.Cde
+@using Nazor.Themes.NazorLeaf
+@using Nazor.Themes.Windows7
+@using Nazor.Themes.Windows9x
+@using Nazor.Themes.WindowsXP
 
-@* Swap stylesheet references, not the component tree. Input values and focus can therefore survive theme changes.
-   The application theme is None so exactly one control theme participates in the comparison. *@
-
-<UserTitleBar><TextBlock Class="caption-title">Nazor / Theme studio</TextBlock></UserTitleBar>
 <Container Class="scroll-fill">
 	<Container Class="page">
-		<TextBlock Class="title">One theme, many combinations</TextBlock>
-		<TextBlock Class="muted">Compare the same controls with different themes, color schemes, and window materials.</TextBlock>
+		<TextBlock Class="title">Window themes</TextBlock>
+		<Container Class="row chrome-preview">
+			<Button OnClick="OpenPreview">Open comparison window</Button>
+			<TextBlock Class="muted">@DecorationStatus</TextBlock>
+		</Container>
+		<Container Class="settings">
+			<Field LabelText="Title bar">
+				<Select TValue="bool" @bind-Value="SystemTitleBar" Id="titlebar-owner" Disabled="@DecorationSelectionDisabled">
+					<SelectItem Value="@false">Theme</SelectItem>
+					<SelectItem Value="@true">System</SelectItem>
+				</Select>
+			</Field>
+			<Field LabelText="Window frame">
+				<Select TValue="WindowFrameOwner" @bind-Value="FrameOwner" Id="frame-owner" Disabled="@DecorationSelectionDisabled">
+					<SelectItem Value="@WindowFrameOwner.Nazor">Theme</SelectItem>
+					<SelectItem Value="@WindowFrameOwner.Native">System</SelectItem>
+				</Select>
+			</Field>
+			<Container Class="section">
+				<Button Id="apply-decorations" Disabled="@(!CanApplyDecorations)" OnClick="ApplyDecorationsAsync">Apply decorations</Button>
+				<TextBlock Class="muted" @attributes="statusAttributes">@DecorationFeedback</TextBlock>
+			</Container>
+		</Container>
 		<Container Class="settings">
 			<Container Class="section">
-				<TextBlock Class="heading">Control theme</TextBlock>
-				<RadioGroup @bind-Value="Theme" AccessibleName="Control theme">
-					<RadioButton Value="@("basic")">Basic</RadioButton>
-					<RadioButton Value="@("fluent")">Fluent</RadioButton>
-					<RadioButton Value="@("none")">None</RadioButton>
-				</RadioGroup>
+				<Field LabelText="Theme">
+					<Select TValue="string" @bind-Value="Theme" Id="theme-picker">
+						@foreach (var option in Themes)
+						{
+							<SelectItem Value="@option.Id">@option.Label</SelectItem>
+						}
+					</Select>
+				</Field>
 				<CheckBox @bind-IsChecked="CustomAccent">Custom accent</CheckBox>
-				<TextBlock Class="muted">Basic uses system colors. Fluent adds WinUI colors and motion. None leaves styling to the application.</TextBlock>
 			</Container>
 			<Container Class="section">
 				<TextBlock Class="heading">Color scheme</TextBlock>
@@ -74,26 +100,113 @@
 </Container>
 
 @code {
+	private static readonly (string Id, string Label, StyleSheet Sheet)[] Themes =
+	[
+		("basic", "Basic", Nazor.Themes.Themes.Basic),
+		("fluent", "Fluent", Nazor.Themes.Fluent.Themes.Fluent),
+		("nazor-leaf", "NazorLeaf", NazorLeafTheme.Theme),
+		("adwaita", "Adwaita", AdwaitaTheme.Theme),
+		("breeze", "Breeze", BreezeTheme.Theme),
+		("windows-9x", "Windows 9x", Windows9xTheme.Theme),
+		("windows-xp", "Windows XP", WindowsXPTheme.Theme),
+		("windows-7", "Windows 7", Windows7Theme.Theme),
+		("cde", "CDE", CdeTheme.Theme),
+		("none", "None", StyleSheet.Combine(Nazor.Themes.Themes.None, StyleSheets.UnstyledChrome)),
+	];
+	private static readonly WindowDecorations ThemeDecorations = WindowDecorations.Nazor();
+	private static readonly WindowDecorations SystemDecorations = WindowDecorations.Native();
+	private static readonly WindowDecorations ThemeTitleBarWithSystemFrame =
+		WindowDecorations.Native(WindowTitleBarContent.Nazor, WindowCaptionButtons.Nazor);
+
 	protected override void OnInitialized()
 	{
 		Window.Title = "Nazor — Theming";
 		Window.Width = 1080;
 		Window.Height = 820;
-		Window.Decorations = WindowDecorationPolicy.Prefer(WindowDecorations.Native(WindowTitleBarContent.User, WindowCaptionButtons.Native), WindowDecorations.Nazor(WindowTitleBarContent.User));
-		Window.StyleSheet = SelectedTheme;
+		Window.Decorations = WindowDecorationPolicy.Prefer(ThemeDecorations);
 		Window.Backdrop = SelectedBackdrop;
 	}
 
-	private string theme = "basic";
 	private bool customAccent;
 	private string? backdrop = "none";
-	private string Theme { get => theme; set { theme = value; Window.StyleSheet = SelectedTheme; } }
-	private StyleSheet SelectedTheme => theme switch
+	private string Theme
 	{
-		"fluent" => Nazor.Themes.Fluent.Themes.Fluent,
-		"none" => Nazor.Themes.Themes.None,
-		_ => Nazor.Themes.Themes.Basic,
+		get => Themes.FirstOrDefault(option => ReferenceEquals(option.Sheet, Appearance.Theme)).Id ?? "basic";
+		set => Appearance.Theme = Themes.FirstOrDefault(option => option.Id == value).Sheet ?? Nazor.Themes.Themes.Basic;
+	}
+	private WindowDecorations? AppliedDecorations => Window.AppliedDecorations?.Configuration;
+	private bool? systemTitleBar;
+	private WindowFrameOwner? frameOwner;
+	private bool applyingDecorations;
+	private string? decorationError;
+	private bool SystemTitleBar
+	{
+		get => systemTitleBar ?? AppliedDecorations?.HasNativeTitleBar ?? false;
+		set { systemTitleBar = value; decorationError = null; }
+	}
+	private WindowFrameOwner FrameOwner
+	{
+		get => frameOwner ?? AppliedDecorations?.Frame ?? WindowFrameOwner.Nazor;
+		set { frameOwner = value; decorationError = null; }
+	}
+	private WindowDecorations? RequestedDecorations => (SystemTitleBar, FrameOwner) switch
+	{
+		(true, WindowFrameOwner.Native) => SystemDecorations,
+		(false, WindowFrameOwner.Native) => ThemeTitleBarWithSystemFrame,
+		(false, WindowFrameOwner.Nazor) => ThemeDecorations,
+		_ => null,
 	};
+	private WindowDecorationSupport GetDecorationSupport(WindowDecorations? request) => request is null
+		? new(WindowSupportStatus.Unsupported, "The system title bar requires the system frame.")
+		: Window.Capabilities.Decorations.GetChangeSupport(request);
+	private bool DecorationSelectionDisabled => applyingDecorations || AppliedDecorations is null;
+	private bool CanApplyDecorations => !DecorationSelectionDisabled && RequestedDecorations is { } request &&
+		request != AppliedDecorations && GetDecorationSupport(request).Status != WindowSupportStatus.Unsupported;
+	private string DecorationStatus => AppliedDecorations switch
+	{
+		{ HasNativeTitleBar: true } => "Applied: System title bar and frame",
+		{ Frame: WindowFrameOwner.Native } => "Applied: Theme title bar, system frame",
+		{ Frame: WindowFrameOwner.Nazor } => "Applied: Theme title bar and frame",
+		_ => "Waiting for window decorations…",
+	};
+	private string? DecorationFeedback
+	{
+		get
+		{
+			if (applyingDecorations) return "Applying decorations…";
+			if (decorationError is not null) return decorationError;
+			var request = RequestedDecorations;
+			if (AppliedDecorations is null || request == AppliedDecorations) return null;
+			var support = GetDecorationSupport(request);
+			return support.Status switch
+			{
+				WindowSupportStatus.Unsupported => support.Reason,
+				WindowSupportStatus.Unknown => "The backend must negotiate this combination.",
+				_ => null,
+			};
+		}
+	}
+	private async Task ApplyDecorationsAsync()
+	{
+		if (!CanApplyDecorations || RequestedDecorations is not { } request) return;
+		applyingDecorations = true;
+		decorationError = null;
+		try
+		{
+			await Window.SetDecorationsAsync(WindowDecorationPolicy.Require(request));
+			systemTitleBar = null;
+			frameOwner = null;
+		}
+		catch (Exception error) when (error is PlatformNotSupportedException or AggregateException)
+		{
+			decorationError = error.Message;
+		}
+		catch (OperationCanceledException) when (Window.IsClosed) { }
+		finally { applyingDecorations = false; }
+	}
+	private void OpenPreview() => Windows.Open<PreviewWindow>(
+		new Dictionary<string, object?> { [nameof(PreviewWindow.PreferredDecorations)] = AppliedDecorations },
+		new WindowOpenOptions { StartupLocation = WindowStartupLocation.CenterScreen });
 	private string? BackdropChoice { get => backdrop; set { backdrop = value; Window.Backdrop = SelectedBackdrop; } }
 	private bool CustomAccent { get => customAccent; set { customAccent = value; Window.Class = value ? "custom-accent" : ""; } }
 	private string name = "Nazor project";

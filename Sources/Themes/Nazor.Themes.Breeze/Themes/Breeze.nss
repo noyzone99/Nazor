@@ -60,8 +60,34 @@
     :disabled { color: var(--nz-muted); }
     MenuItem[intent="danger"]:is(:hover, :focus):where(:not(:disabled)) { color: var(--nz-on-selection); }
     MenuItem:is(:hover, :focus):not(:disabled) > MenuItemDescription { color: inherit; }
+    :root[frame-owner="nazor"][client-titlebar] {
+        -window-frame-border: 1px solid var(--nz-border);
+        -window-frame-border-radius: 5px;
+        -window-frame-box-shadow: 0 5px 16px #00000040;
+    }
     TitleBar, Toolbar, MenuBar, TableHeaderCell { background: var(--breeze-header); }
     TitleBar, Toolbar { border-bottom: 1px solid var(--nz-border); }
+    TitleBar[source="nazor"] { position: relative; }
+    TitleBar[source="nazor"][height="standard"] { min-height: max(var(--nz-window-controls-height, 28px), 28px); }
+    TitleBar[source="nazor"] > TitleBarHeading {
+        position: absolute;
+        inset: 0 104px;
+        justify-content: center;
+        pointer-events: none;
+    }
+    :root[frame-owner="nazor"]:window-inactive TitleBar { color: var(--nz-muted); }
+    CaptionButtons { align-items: center; padding: 0 3px; }
+    CaptionButtonsButton { width: 25px; min-height: 23px; border-radius: 4px; }
+    CaptionButtonsGlyph[kind="minimize"], CaptionButtonsGlyph[kind="maximize"] {
+        width: 7px;
+        height: 7px;
+        border: 0;
+        border-right: 1px solid currentColor;
+        border-bottom: 1px solid currentColor;
+        transform: rotate(45deg);
+    }
+    CaptionButtonsGlyph[kind="minimize"] { stroke-trim-end: 0; }
+    CaptionButtonsGlyph[kind="maximize"] { transform: rotate(225deg); }
 
     Button, ToggleButton { min-height: 30px; padding: 6px; gap: 4px; border-radius: 5px; }
     Button:where([appearance="standard"]:not([icon-only], [shape="square"], [shape="circle"], [size="small"])),

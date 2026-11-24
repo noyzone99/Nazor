@@ -13,6 +13,7 @@
     <ProjectReference Include="../../Samples/Nazor.Samples.Counter/Nazor.Samples.Counter.csproj" />
     <ProjectReference Include="../Fixtures/Projects/DeviceRegistry/DeviceRegistry.csproj" />
     <ProjectReference Include="../../Samples/Nazor.Samples.Gallery/Nazor.Samples.Gallery.csproj" />
+    <ProjectReference Include="../../Samples/Nazor.Samples.Theming/Nazor.Samples.Theming.csproj" />
     <ProjectReference Include="../../Samples/Nazor.Samples.Windowing/Nazor.Samples.Windowing.csproj" />
     <ProjectReference Include="../../Samples/Nazor.Samples.Localization/Nazor.Samples.Localization.csproj" />
     <ProjectReference Include="../Nazor.Testing/Nazor.Testing.csproj" />

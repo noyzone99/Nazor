@@ -1,0 +1,20 @@
+@window (WindowDecorations? PreferredDecorations = null)
+
+<Container Class="preview">
+    <Heading Level="2">Active and inactive windows</Heading>
+    <Paragraph>Click between this window and the theme picker to compare the title bars and borders. Drag the title bar or resize from an edge to try the frame.</Paragraph>
+</Container>
+
+@style {
+    .preview { padding: 24px; }
+}
+
+@code {
+    protected override void OnInitialized()
+    {
+        Window.Title = "Theme comparison";
+        Window.Width = 430;
+        Window.Height = 230;
+        Window.Decorations = WindowDecorationPolicy.Prefer(PreferredDecorations ?? WindowDecorations.Nazor());
+    }
+}

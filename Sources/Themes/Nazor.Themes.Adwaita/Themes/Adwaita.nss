@@ -73,12 +73,24 @@
     :focus-visible { outline: 2px solid var(--adwaita-focus); outline-offset: 1px; }
     :disabled { color: var(--nz-muted); }
     CodeBlock { font-family: "Adwaita Mono", monospace; }
+    :root[frame-owner="nazor"][client-titlebar] {
+        -window-frame-border: 1px solid var(--nz-border);
+        -window-frame-border-radius: 14px;
+        -window-frame-box-shadow: 0 10px 24px #0000003d, 0 2px 6px #00000024;
+    }
+    :root[frame-owner="nazor"][client-titlebar]:window-inactive {
+        -window-frame-box-shadow: 0 5px 15px #0000002b;
+    }
     TitleBar, Toolbar, MenuBar { background: var(--adwaita-header); }
     TitleBar {
         min-height: max(var(--nz-window-controls-height, 46px), 46px);
         padding: 0 6px;
         gap: 6px;
         border-bottom: 1px solid var(--nz-border);
+    }
+    :root[frame-owner="nazor"]:window-inactive TitleBar {
+        background: var(--nz-surface);
+        color: var(--nz-muted);
     }
     TitleBarTitle { font-weight: 700; }
     CaptionButtons { align-items: center; gap: 3px; padding: 0 6px; }

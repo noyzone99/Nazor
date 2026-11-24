@@ -116,6 +116,8 @@ NSS pseudo-elements use `PseudoElement`, `CompoundSelector.PseudoElement`, `Styl
 
 Window decoration selection uses complete `WindowDecorationPolicy` configurations with capability checks: `Require` is strict; `Prefer` tries explicit preferences before complete native and Nazor defaults. See [title bars and platform integration](Guide/14-Title-Bars-and-Platform-Integration.md) for native, Nazor and User providers and runtime changes.
 
+With Nazor decorations selected, the application theme supplies frame styles and can register title-bar and caption-button presenters. [Window decoration composition](Guide/16-Styling-and-Themes.md#window-decoration-composition)
+
 Windows launcher badge styling includes application fonts, layered backgrounds, per-side borders, mathematical positioning, static transforms and alpha masks. See the [badge property reference](Guide/19-NSS-Property-Reference.md#windows-launcher-badges) and [platform snapshot contract](ApiReferences/Nazor.Platform.md#type-windowsbadgeappearance).
 
 The [Linux desktop reference](ApiReferences/Nazor.Platform.Linux.md#desktop-hosting) describes Xwayland resize outset behavior and its separation from client layout and rendering dimensions.

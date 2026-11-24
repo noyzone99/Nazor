@@ -49,11 +49,18 @@
     :disabled { color: var(--nz-muted); }
     MenuItem[intent="danger"]:is(:hover, :focus):where(:not(:disabled)) { color: var(--nz-on-selection); }
     MenuItem:is(:hover, :focus):not(:disabled) > MenuItemDescription { color: inherit; }
+    :root[frame-owner="nazor"][client-titlebar] {
+        -window-frame-border: 3px solid #315ca1;
+        -window-frame-border-radius: 10px 10px 2px 2px;
+        -window-frame-box-shadow: 0 4px 12px #142c4c40;
+    }
+    :root[frame-owner="nazor"][client-titlebar]:window-inactive { -window-frame-border-color: #687fa2; }
     TitleBar {
         background: linear-gradient(180deg, #3e6ab8, #345fae 40%, #254880);
         border-bottom: 1px solid #244171;
         color: #ffffff;
     }
+    TitleBar[source="nazor"][height="standard"] { min-height: max(var(--nz-window-controls-height, 30px), 30px); }
     TitleBarTitle { font-weight: 700; }
     :root:window-inactive TitleBar { background: linear-gradient(180deg, #536b8e, #435b7b); }
     CaptionButtons { align-items: center; gap: 3px; padding: 0 5px; }
@@ -66,6 +73,7 @@
     }
     CaptionButtonsButton:hover:not(:disabled) { background: #537da9; }
     CaptionButtonsButton:active:not(:disabled) { background: #29456f; }
+    CaptionButtonsButton[kind="close"]:not(:disabled) { background: linear-gradient(180deg, #ab594a, #864036); }
     CaptionButtonsButton[kind="close"]:hover:not(:disabled) { background: #aa6043; }
     CaptionButtonsButton[kind="close"]:active:not(:disabled) { background: #7e3f2a; }
     Toolbar, MenuBar, TableHeaderCell { background: var(--winxp-toolbar); }

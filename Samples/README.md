@@ -9,7 +9,7 @@ The samples start in English, including built-in control labels and formatting. 
 | [DRM](Nazor.Samples.Drm/README.md) | Reuse content in a desktop window or a Linux DRM/KMS single view. | `Program.cs`, then `App.nazor`. |
 | [Tasks](Nazor.Samples.Tasks/README.md) | Hosting, DI lifetimes, reusable components, templates, keys, keyboard input, and a scrollbar/smooth-scrolling playground. | `Program.cs`, `Views/TasksView.nazor`, then `Views/ScrollbarsView.nazor`. |
 | [Gallery](Nazor.Samples.Gallery/README.md) | Searchable control catalog with compiled example sources, live theme switching and an interactive NazorLeaf showcase. | `Catalog/`, `Examples/`, `Showcase/`. |
-| [Theming](Nazor.Samples.Theming/README.md) | Complete themes, color schemes, system colors, and backdrop requests. | `Program.cs`, then `App.nazor.nss`. |
+| [Theming](Nazor.Samples.Theming/README.md) | Live comparison of theme-owned title bars, caption buttons, window frames, color schemes and backdrops. | `App.nazor`, then `PreviewWindow.nazor`. |
 | [Localization](Nazor.Samples.Localization/README.md) | Resource lookup, culture-aware formatting, and language fallback. | `Program.cs`, then `App.resx`. |
 | [Windowing](Nazor.Samples.Windowing/README.md) | Window commands and capabilities, dialogs, system tray, notifications, and launcher integration. | `Program.cs`, then `App.nazor`. |
 

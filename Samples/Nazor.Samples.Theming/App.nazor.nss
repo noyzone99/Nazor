@@ -1,11 +1,11 @@
-/* Component layout stays separate from the complete control theme selected by Window.StyleSheet.
+/* Component layout stays separate from the complete theme selected by the application.
    The same controls can keep their state while theme geometry and colors are recomputed. */
 :root {
 	display: flex;
 	flex-direction: column;
 }
 
-.caption-title { padding: 0 12px; font-weight: 600; }
+.chrome-preview { align-items: center; }
 
 /* Override only the accent: control geometry and states still come from the selected theme. */
 :root.custom-accent {

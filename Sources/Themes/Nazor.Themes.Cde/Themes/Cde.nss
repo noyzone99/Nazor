@@ -91,11 +91,31 @@
     :disabled { color: var(--nz-muted); }
     MenuItem[intent="danger"]:is(:hover, :focus):where(:not(:disabled)) { color: var(--nz-on-selection); }
     MenuItem:is(:hover, :focus):not(:disabled) > MenuItemDescription { color: inherit; }
+    :root[frame-owner="nazor"][client-titlebar] {
+        -window-frame-border: 3px solid var(--cde-title);
+        -window-frame-border-radius: 0px;
+        -window-frame-box-shadow: none;
+    }
+    :root[frame-owner="nazor"][client-titlebar][window-state="normal"] > WindowContent {
+        border: 2px solid var(--cde-dark-edge);
+        border-top-color: var(--cde-light-edge);
+        border-left-color: var(--cde-light-edge);
+    }
     TitleBar {
         background: var(--cde-title);
         color: var(--cde-on-title);
         border-top: 2px solid var(--cde-light-edge);
         border-bottom: 2px solid var(--cde-dark-edge);
+    }
+    TitleBar[source="nazor"] { position: relative; }
+    TitleBar[source="nazor"][height="standard"] {
+        min-height: max(var(--nz-window-controls-height, 26px), 26px);
+    }
+    TitleBar[source="nazor"] > TitleBarHeading {
+        position: absolute;
+        inset: 0 104px;
+        justify-content: center;
+        pointer-events: none;
     }
     :root:window-inactive {
         --cde-title: var(--cde-inactive-title);

@@ -383,6 +383,18 @@
     -windows-title-bar-button-pressed-background-color: var(--nz-subtle-pressed);
 }
 
+@media (forced-colors: none) {
+    :root[frame-owner="nazor"][client-titlebar] {
+        -window-frame-border: 1px solid var(--winui-surface-stroke-color-default);
+        -window-frame-border-radius: 8px;
+        -window-frame-box-shadow: 0 8px 24px #00000040;
+    }
+    :root[frame-owner="nazor"][client-titlebar]:window-inactive {
+        -window-frame-box-shadow: 0 4px 14px #0000002e;
+    }
+    :root[frame-owner="nazor"]:window-inactive TitleBar { color: var(--nz-muted); }
+}
+
 /* WinUI caption buttons use the subtle fills; only close turns red. */
 CaptionButtonsButton:hover { background: var(--nz-subtle-hover); }
 CaptionButtonsButton:active { background: var(--nz-subtle-pressed); color: var(--nz-text-secondary); }

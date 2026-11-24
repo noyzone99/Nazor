@@ -88,6 +88,8 @@ Left and Right are physical sides, independent of text direction. ChildContent i
 
 `Window.Capabilities.Decorations.GetSupport(configuration)` checks the complete configuration; GetChangeSupport additionally checks the transition from the accepted configuration. Supported, Unsupported and Unknown distinguish confirmed backend support, rejection and required negotiation. General NativeFrame, NazorFrame, NativeTitleBar and IntegratedNativeCaptionButtons indicators are informational: they cannot be combined to infer full-configuration support.
 
+The Theming sample lets you choose the title bar and frame independently, shows why a pair or transition is unavailable, and applies the exact pair through `Require`. [Theming sample](../../Samples/Nazor.Samples.Theming/README.md)
+
 Use `CanExecute(WindowCommand)` and `Request(WindowCommand)` for caption commands and Close() to close. WindowCommands follows state and capability changes. SystemButtonsLayout reports physical desktop conventions even when controls are hidden; SystemButtonsMetrics measures only occupied integrated native control areas. Nazor and User controls participate in the client layout. CaptionButtons supplies localized names, tooltips, maximize/restore state, default non-Tab-stop behavior and the native Snap area where supported.
 
 SnapLayoutArea marks a supported maximize hit region; it does not execute a command. Its child runs maximize once. On unsupported backends it is an ordinary container. DragRegion provides additional explicit draggable client areas. A frame with no visible border can still resize when permitted by operations and backend support.

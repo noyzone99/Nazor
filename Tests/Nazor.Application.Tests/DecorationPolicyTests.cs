@@ -1,9 +1,11 @@
+using Microsoft.Extensions.DependencyInjection;
 using Nazor.Graphics;
 using Nazor.Input;
 using Nazor.Platform;
 using Nazor.Rendering;
 using Nazor.Testing;
 using Nazor.Controls;
+using Nazor.Style;
 
 namespace Nazor.Application.Tests;
 
@@ -94,6 +96,41 @@ public sealed class DecorationPolicyTests
     }
 
     [Fact]
+    public void Client_frame_styles_follow_the_theme_and_respect_forced_colors()
+    {
+        using var window = new NazorWindow(new ProbePlatform(native: true), new UIDispatcher(), typeof(PolicyWindow),
+            new() { Decorations = WindowDecorationPolicy.Require(WindowDecorations.Nazor()) });
+        var root = window.Root.Single("Window");
+        Assert.Equal("nazor", root.Attributes["frame-owner"]);
+        (StyleSheet Theme, int TopLeft, int BottomLeft, int Border)[] themes =
+        [
+            (Themes.Themes.Basic, 4, 4, 1),
+            (Themes.Fluent.Themes.Fluent, 8, 8, 1),
+            (Themes.NazorLeaf.NazorLeafTheme.Theme, 28, 8, 1),
+            (Themes.Adwaita.AdwaitaTheme.Theme, 14, 14, 1),
+            (Themes.Breeze.BreezeTheme.Theme, 5, 5, 1),
+            (Themes.Windows9x.Windows9xTheme.Theme, 0, 0, 2),
+            (Themes.WindowsXP.WindowsXPTheme.Theme, 10, 2, 3),
+            (Themes.Windows7.Windows7Theme.Theme, 8, 8, 1),
+            (Themes.Cde.CdeTheme.Theme, 0, 0, 3),
+        ];
+        foreach (var (theme, topLeft, bottomLeft, border) in themes)
+        {
+            window.UpdateAppearance(new ApplicationAppearance { Theme = theme });
+            var style = window.Scene.GetStyle(root);
+            Assert.Equal(SizeValue.Fixed(Length.Px(topLeft)), style.Get(StyleProperties.WindowFrameBorderTopLeftRadius));
+            Assert.Equal(SizeValue.Fixed(Length.Px(bottomLeft)), style.Get(StyleProperties.WindowFrameBorderBottomLeftRadius));
+            Assert.Equal(Length.Px(border), style.Get(StyleProperties.WindowFrameBorderWidth));
+        }
+
+        window.UpdateAppearance(new ApplicationAppearance { Theme = Themes.Cde.CdeTheme.Theme, HighContrast = true });
+        var forced = window.Scene.GetStyle(root);
+        Assert.Equal(SizeValue.Fixed(Length.Px(4)), forced.Get(StyleProperties.WindowFrameBorderTopLeftRadius));
+        Assert.Equal(Length.Px(1), forced.Get(StyleProperties.WindowFrameBorderWidth));
+        Assert.Empty(forced.Get(StyleProperties.WindowFrameBoxShadow).Shadows!.Items);
+    }
+
+    [Fact]
     public void Desktop_default_selects_native_then_nazor_and_never_user()
     {
         var platform = new ProbePlatform(native: false);
@@ -102,6 +139,71 @@ public sealed class DecorationPolicyTests
         Assert.Equal(WindowDecorations.Nazor(), platform.Options!.Decorations);
         Assert.Single(platform.Window!.Requests);
         Assert.Equal(WindowDecorations.Nazor(), window.Capabilities.Decorations.Current);
+    }
+
+    [Theory]
+    [InlineData(WindowSupportStatus.Supported, WindowSupportStatus.Supported)]
+    [InlineData(WindowSupportStatus.Unsupported, WindowSupportStatus.Supported)]
+    [InlineData(WindowSupportStatus.Unknown, WindowSupportStatus.Supported)]
+    [InlineData(WindowSupportStatus.Supported, WindowSupportStatus.Unsupported)]
+    public async Task Theming_sample_checks_the_pair_and_keeps_the_accepted_decorations_on_rejection(
+        WindowSupportStatus mixed, WindowSupportStatus frameChanges)
+    {
+        var platform = new ProbePlatform(native: true, rejectNative: mixed == WindowSupportStatus.Unknown)
+        {
+            ClientTitleBarOnNativeFrame = mixed,
+            FrameChanges = frameChanges,
+        };
+        using var services = new ServiceCollection().AddNazorServices().BuildServiceProvider();
+        using var scope = services.CreateScope();
+        using var window = new NazorWindow(platform, new UIDispatcher(), typeof(Nazor.Samples.Theming.App),
+            new() { Services = scope.ServiceProvider });
+        var root = window.Root;
+        var args = new PointerEventArgs { Button = PointerButton.Primary };
+        ElementNode ById(string id) => root.Elements().Single(element => Equals(element.Attributes.GetValueOrDefault("id"), id));
+        Task Click(ElementNode element) => window.Renderer.DispatchEventAsync(element, "onclick", args);
+        async Task Pick(string id, string label)
+        {
+            await Click(ById(id));
+            await Click(root.Elements("SelectOption").Single(option => option.Text() == label));
+        }
+
+        await Pick("titlebar-owner", "System");
+        Assert.True(ById("apply-decorations").IsDisabled);
+        Assert.Contains("The system title bar requires the system frame.", root.Text());
+        await Pick("titlebar-owner", "Theme");
+        await Pick("frame-owner", "System");
+        Assert.Equal(WindowDecorations.Nazor(), window.AppliedDecorations!.Configuration);
+        Assert.Single(platform.Window!.Requests);
+
+        if (frameChanges == WindowSupportStatus.Unsupported)
+        {
+            Assert.True(ById("apply-decorations").IsDisabled);
+            Assert.Contains("The backend cannot change the requested decorations on an open window.", root.Text());
+            return;
+        }
+        if (mixed == WindowSupportStatus.Unsupported)
+        {
+            Assert.True(ById("apply-decorations").IsDisabled);
+            Assert.Contains("Client title-bar content on a native frame is unavailable.", root.Text());
+            await Pick("titlebar-owner", "System");
+        }
+        Assert.False(ById("apply-decorations").IsDisabled);
+        await Click(ById("apply-decorations"));
+
+        var hybrid = WindowDecorations.Native(WindowTitleBarContent.Nazor, WindowCaptionButtons.Nazor);
+        if (mixed == WindowSupportStatus.Unknown)
+        {
+            Assert.Equal(WindowDecorations.Nazor(), window.AppliedDecorations!.Configuration);
+            Assert.Equal([WindowDecorations.Nazor(), hybrid, WindowDecorations.Nazor()], platform.Window.Requests);
+            Assert.Contains("The desktop rejected the requested owner.", root.Text());
+        }
+        else
+        {
+            var applied = mixed == WindowSupportStatus.Supported ? hybrid : WindowDecorations.Native();
+            Assert.Equal(applied, window.AppliedDecorations!.Configuration);
+            Assert.Equal([applied], window.Decorations.Options);
+        }
     }
 
     [Fact]
@@ -277,6 +379,8 @@ public sealed class DecorationPolicyTests
         public WindowOptions? Options;
         public ProbeWindow? Window;
         public bool HoldOpening;
+        public WindowSupportStatus ClientTitleBarOnNativeFrame = WindowSupportStatus.Unsupported;
+        public WindowSupportStatus FrameChanges = WindowSupportStatus.Supported;
         public WindowCapabilities Capabilities => new(true, true, true, true)
         {
             Decorations = new()
@@ -284,8 +388,9 @@ public sealed class DecorationPolicyTests
                 NativeFrame = native ? WindowSupportStatus.Supported : WindowSupportStatus.Unsupported,
                 NativeTitleBar = native ? WindowSupportStatus.Supported : WindowSupportStatus.Unsupported,
                 NazorFrame = WindowSupportStatus.Supported,
-                FrameChanges = WindowSupportStatus.Supported,
+                FrameChanges = FrameChanges,
                 CaptionChanges = WindowSupportStatus.Supported,
+                ClientTitleBarOnNativeFrame = ClientTitleBarOnNativeFrame,
             }
         };
         public IPlatformWindow CreateWindow(IWindowHost host, WindowOptions options)
@@ -304,12 +409,24 @@ public sealed class DecorationPolicyTests
         public List<WindowDecorations> Requests { get; } = [];
         public bool RejectClient;
         public TaskCompletionSource<WindowDecorations>? Pending;
-        public ValueTask<WindowDecorations> SetDecorationsAsync(WindowDecorations configuration, CancellationToken cancellationToken = default)
+        public WindowChrome Chrome { get; private set; }
+        public async ValueTask<WindowDecorations> SetDecorationsAsync(WindowDecorations configuration, CancellationToken cancellationToken = default)
         {
             Requests.Add(configuration);
             if (configuration.Frame == WindowFrameOwner.Native && rejectNative || configuration.Frame == WindowFrameOwner.Nazor && RejectClient)
                 throw new PlatformNotSupportedException("The desktop rejected the requested owner.");
-            return Pending is null ? new(configuration) : new(Pending.Task);
+            var applied = Pending is null ? configuration : await Pending.Task.ConfigureAwait(false);
+            var frame = applied.Frame == WindowFrameOwner.Nazor ? WindowChromeOwner.Nazor : WindowChromeOwner.System;
+            Chrome = new(frame, WindowChromeOwner.None, WindowChromeOwner.None)
+            {
+                TitleBar = applied.HasNativeTitleBar ? WindowChromeOwner.System : applied.TitleBar switch
+                {
+                    WindowTitleBarContent.Nazor => WindowChromeOwner.Nazor,
+                    WindowTitleBarContent.User => WindowChromeOwner.User,
+                    _ => WindowChromeOwner.None,
+                },
+            };
+            return applied;
         }
         public WindowCapabilities Capabilities => capabilities;
         public nint Handle => 42;

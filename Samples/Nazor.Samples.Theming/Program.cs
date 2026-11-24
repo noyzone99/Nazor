@@ -1,5 +1,7 @@
 using System.Globalization;
+using Nazor.Themes.Adwaita;
 using Nazor.Themes.Fluent;
+using Nazor.Themes.NazorLeaf;
 
 namespace Nazor.Samples.Theming;
 
@@ -10,13 +12,9 @@ internal static class Program
         var builder = NazorApplication.CreateBuilder(args);
         builder.Application.Culture = CultureInfo.GetCultureInfo("en-US");
         builder.Application.UICulture = CultureInfo.GetCultureInfo("en-US");
-        // The Fluent theme draws message box icons from its packaged icon font.
-        builder.Fonts.AddFluentFonts();
-        // This comparison deliberately swaps complete themes at window level. Start with None so the
-        // previous theme cannot leave lower-priority decorations behind. An app normally sets app.Appearance.Theme once.
+        builder.Fonts.AddFluentFonts().AddNazorLeafFonts().AddAdwaitaFonts();
         builder.Application.UseMainWindow<App>();
         using var app = builder.Build();
-        app.Appearance.Theme = Nazor.Themes.Themes.None;
         return app.Run();
     }
 }
