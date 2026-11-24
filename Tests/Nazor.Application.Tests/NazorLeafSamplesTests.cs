@@ -39,9 +39,22 @@ public sealed class NazorLeafSamplesTests
                     Assert.Equal("button", editor.Attributes.GetValueOrDefault("value"));
                     Assert.Equal(WindowChromeOwner.User, window.Chrome.TitleBar);
                     Assert.DoesNotContain(window.Root.Elements(), e => e.Id == "gallery-search");
+                    var aligned = theme is "NazorLeaf" or "Fluent";
+                    var title = window.Root.Single("TitleBarTitle");
+                    var mark = window.Root.Elements().Single(e => e.Class == "titlebar-mark");
+                    Assert.Equal(aligned ? 16 : 12, window.Scene.GetEffectiveValue(title, StyleProperties.FontSize).Value);
+                    Assert.Equal(aligned ? 32 : 16, window.Scene.GetEffectiveValue(mark, StyleProperties.Width).Length.Value);
                     var field = window.Scene.GetBounds(window.Root.Elements().Single(e => e.Id == "gallery-caption-search"));
                     Assert.True(field.Width > 150);
                     Assert.True(field.Height >= 26);
+                    if (aligned)
+                    {
+                        var markBounds = window.Scene.GetBounds(mark);
+                        Assert.Equal(14, window.Scene.GetEffectiveValue(editor, StyleProperties.FontSize).Value);
+                        Assert.InRange(window.Scene.GetBounds(title).X - markBounds.Right, 11, 13);
+                        Assert.InRange(field.X - markBounds.X, 254, 258);
+                        Assert.InRange(field.Height, 31, 33);
+                    }
                     var point = new Nazor.Graphics.Point(field.X + 2, field.Y + field.Height / 2);
                     Assert.Equal(WindowRegion.Client, window.Input.RegionAt(point));
                     window.Input.PointerPressed(point, PointerButton.Primary, KeyModifiers.None);

@@ -36,6 +36,18 @@
     .gallery-titlebar TitleBarCenter { display: flex; align-items: center; flex: 1; min-width: 0; justify-content: center; padding: 0 16px; }
     .titlebar-mark { width: 16px; height: 16px; }
     .titlebar-search { flex: 0 1 520px; min-width: 160px; }
+    :root:is(.gallery-leaf, .gallery-fluent) .gallery-titlebar {
+        padding-left: 8px;
+        TitleBarAppIcon { margin-left: 0; margin-right: 12px; }
+        TitleBarHeading { flex: 0 1 196px; }
+        TitleBarTitle { font-size: 16px; font-weight: 600; }
+        TitleBarCenter { justify-content: flex-start; }
+        .titlebar-mark { width: 32px; height: 32px; }
+        .titlebar-search { min-height: 32px; height: 32px; font-size: 14px; }
+    }
+    @media (max-width: 720px) {
+        :root:is(.gallery-leaf, .gallery-fluent) .gallery-titlebar TitleBarHeading { flex-basis: auto; }
+    }
     :root.gallery-none .gallery-titlebar { display: flex; align-items: center; min-height: 48px; }
     :root.gallery-none .titlebar-search { display: flex; align-items: center; min-height: 32px; padding: 4px 8px; }
     :root.gallery-none .titlebar-search > SearchFieldInput { display: block; flex: 1; min-width: 0; }
