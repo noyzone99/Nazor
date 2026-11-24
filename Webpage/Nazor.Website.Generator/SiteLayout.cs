@@ -5,8 +5,6 @@ internal static class SiteLayout
 {
     public const string GuideArea = "Guide";
     public const string ApiArea = "API";
-    public const string ToolsArea = "Tools";
-    public const string ProjectArea = "Project";
 
     /// <summary>Guide chapter groups, keyed by the highest chapter number in the group.</summary>
     public static readonly (int Last, string Title)[] GuideGroups =
@@ -31,27 +29,27 @@ internal static class SiteLayout
         ("Themes", ["Nazor.Themes.NazorLeaf", "Nazor.Themes.Fluent", "Nazor.Themes.Adwaita", "Nazor.Themes.Breeze", "Nazor.Themes.Windows9x", "Nazor.Themes.WindowsXP", "Nazor.Themes.Windows7", "Nazor.Themes.Cde"]),
     ];
 
-    /// <summary>Single pages outside the guide and the API reference.</summary>
-    public static readonly (string Source, string Route, string Area, string Group, string? Title)[] StandalonePages =
+    /// <summary>Pages that open an area, listed before its chapters or packages.</summary>
+    public static readonly (string Source, string Route, string Area, string Group, string? Title)[] LeadingPages =
     [
         ("Docs/README.md", "docs", GuideArea, "Start here", "Documentation"),
         ("Docs/Guide/README.md", "guide", GuideArea, "Start here", null),
         ("Docs/API.md", "api", ApiArea, "Overview", null),
-        ("Docs/DevTools.md", "devtools", ToolsArea, "DevTools", null),
-        ("Docs/DevTools-Protocol.md", "devtools/protocol", ToolsArea, "DevTools", null),
-        ("Docs/NuGet.md", "nuget", ToolsArea, "Packages", "NuGet packages"),
-        ("Docs/Repository-Conventions.md", "conventions", ProjectArea, "Contributing", null),
-        ("Docs/Assets/README.md", "brand", ProjectArea, "Identity", null),
     ];
 
-    public static readonly string[] Areas = [GuideArea, ApiArea, ToolsArea, ProjectArea];
+    /// <summary>Pages listed after the guide chapters. Other Markdown files in <c>Docs/</c> stay off the site.</summary>
+    public static readonly (string Source, string Route, string Area, string Group, string? Title)[] TrailingPages =
+    [
+        ("Docs/DevTools.md", "devtools", GuideArea, "DevTools", null),
+        ("Docs/DevTools-Protocol.md", "devtools/protocol", GuideArea, "DevTools", null),
+    ];
+
+    public static readonly string[] Areas = [GuideArea, ApiArea];
 
     public static string AreaTitle(string area) => area switch
     {
         GuideArea => "Developer guide",
         ApiArea => "API reference",
-        ToolsArea => "Tools",
-        ProjectArea => "Project",
         _ => area,
     };
 }

@@ -14,7 +14,7 @@
                     continue;
                 }
 
-                <a href="@first" class="docnav-area @(area.Area == section.Area ? "on" : null)" @onclick="OnNavigate">@AreaLabel(area.Area)</a>
+                <a href="@first" class="docnav-area @(area.Area == section.Area ? "on" : null)" @onclick="OnNavigate">@area.Title</a>
             }
         </div>
         @foreach (var group in section.Groups)
@@ -80,8 +80,6 @@
 
     private static string NavTitle(SitePage item) =>
         item.Area == "API" && item.Title.StartsWith("Nazor.", StringComparison.Ordinal) ? item.Title["Nazor.".Length..] : item.Title;
-
-    private static string AreaLabel(string area) => area switch { "API" => "API", _ => area };
 
     public void Dispose() => Navigation.LocationChanged -= OnLocationChanged;
 }

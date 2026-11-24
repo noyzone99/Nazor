@@ -97,9 +97,9 @@ else
     private bool enhance;
     private bool resetScroll;
 
-    private string AreaRoute => doc?.Area switch { "API" => "api", "Tools" => "devtools", "Project" => "conventions", _ => "guide" };
+    private string AreaRoute => doc?.Area == "API" ? "api" : "guide";
 
-    private string AreaTitle => doc?.Area switch { "API" => "API reference", "Tools" => "Tools", "Project" => "Project", _ => "Developer guide" };
+    private string AreaTitle => doc?.Area == "API" ? "API reference" : "Developer guide";
 
     protected override async Task OnParametersSetAsync()
     {

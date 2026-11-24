@@ -86,13 +86,7 @@ return 0;
 static List<PagePlan> PlanPages(string repository)
 {
     var plans = new List<PagePlan>();
-    foreach (var page in SiteLayout.StandalonePages)
-    {
-        if (File.Exists(Path.Combine(repository, page.Source)))
-        {
-            plans.Add(new PagePlan(page.Source, page.Route, page.Area, page.Group, page.Title, 0));
-        }
-    }
+    AddSingles(SiteLayout.LeadingPages);
 
     foreach (var file in Directory.EnumerateFiles(Path.Combine(repository, "Docs", "Guide"), "*.md").Order(StringComparer.Ordinal))
     {
@@ -107,6 +101,8 @@ static List<PagePlan> PlanPages(string repository)
         var group = SiteLayout.GuideGroups.FirstOrDefault(g => chapter <= g.Last).Title ?? "More chapters";
         plans.Add(new PagePlan($"Docs/Guide/{name}.md", "guide/" + match.Groups[2].Value.ToLowerInvariant(), SiteLayout.GuideArea, group, null, chapter));
     }
+
+    AddSingles(SiteLayout.TrailingPages);
 
     var packages = Directory.EnumerateFiles(Path.Combine(repository, "Docs", "ApiReferences"), "*.md")
         .Select(Path.GetFileNameWithoutExtension)
@@ -129,6 +125,14 @@ static List<PagePlan> PlanPages(string repository)
     }
 
     return plans;
+
+    void AddSingles((string Source, string Route, string Area, string Group, string? Title)[] singles)
+    {
+        foreach (var page in singles.Where(page => File.Exists(Path.Combine(repository, page.Source))))
+        {
+            plans.Add(new PagePlan(page.Source, page.Route, page.Area, page.Group, page.Title, 0));
+        }
+    }
 
     static PagePlan ApiPlan(string package, string group, int order) =>
         new($"Docs/ApiReferences/{package}.md", "api/" + package.ToLowerInvariant().Replace('.', '-'), SiteLayout.ApiArea, group, null, order);
