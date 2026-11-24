@@ -1,0 +1,286 @@
+/* =====================================================================
+   NazorLeaf for the web
+   Signature: leaf corners, the seed as indicator, color glow,
+   paper grain in the material, the four-leaf mark as brand and loader.
+   ===================================================================== */
+
+@font-face { font-family: "Geist"; src: url("../content/fonts/Geist.ttf") format("truetype"); font-weight: 100 900; font-display: swap; }
+@font-face { font-family: "Geist Mono"; src: url("../content/fonts/GeistMono.ttf") format("truetype"); font-weight: 100 900; font-display: swap; }
+@font-face { font-family: "Bricolage Grotesque"; src: url("../content/fonts/BricolageGrotesque.ttf") format("truetype"); font-weight: 200 800; font-stretch: 75% 100%; font-display: swap; }
+
+:root {
+  --ui: "Geist", system-ui, -apple-system, "Segoe UI Variable", "Segoe UI", Roboto, Cantarell, sans-serif;
+  --display: "Bricolage Grotesque", "Geist", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "Geist Mono", ui-monospace, "Cascadia Code", "SF Mono", Menlo, Consolas, monospace;
+
+  /* The leaf: two wide corners on one diagonal, two almost sharp */
+  --lf-xs: 6px 2px 6px 2px;
+  --lf-ctl: 11px 3px 11px 3px;
+  --lf-ovl: 16px 4px 16px 4px;
+  --lf-pane: 22px 6px 22px 6px;
+  --lf-win: 28px 8px 28px 8px;
+
+  --h: 34px; --h-row: 46px; --fs: 15px;
+  --ease: cubic-bezier(.2,0,0,1); --out: cubic-bezier(.16,1,.3,1); --spring: cubic-bezier(.34,1.5,.64,1);
+
+  /* Blue seed (default, light) */
+  --primary: #0B57D0; --on-primary: #FFFFFF; --pc: #D3E3FD; --on-pc: #041E49; --ink: #0B57D0;
+
+  --n-tray: #E4E7EC; --n-pane: #FFFFFF; --n-s1: #F5F6F8; --n-s2: #EDEFF2; --n-s3: #DFE2E8;
+  --text: #191B1F; --text-2: #4A4E57; --text-3: #737884;
+  --stroke: rgba(16,22,40,.09); --stroke-2: rgba(16,22,40,.17);
+  --hi: rgba(255,255,255,.75); --ctl: #FFFFFF;
+  --mixh: 7%; --mixp: 12%; --tint: 9%;
+
+  --ok: #188038; --ok-c: #E6F4EA; --on-ok-c: #0D652D;
+  --warn: #B06000; --warn-c: #FEF3D6; --on-warn-c: #6E3C00;
+  --err: #C5221F; --on-err: #FFFFFF; --err-c: #FCE8E6; --on-err-c: #8C1D18;
+  --g1: #4285F4; --g2: #EA4335; --g3: #FBBC04; --g4: #34A853;
+
+  --sh-pane: 0 1px 2px rgba(16,22,40,.04);
+  --sh-pop: 0 12px 28px -12px rgba(16,22,40,.22), 0 2px 6px -2px rgba(16,22,40,.08);
+  --sh-win: 0 40px 80px -44px rgba(16,22,40,.32), 0 10px 24px -16px rgba(16,22,40,.14);
+  --inverse: #1E2025; --on-inverse: #F1F2F5;
+  --grain-o: .5;
+
+  /* Code tokens */
+  --tk-k: #C5221F; --tk-f: #0B57D0; --tk-s: #188038; --tk-n: #B06000; --tk-t: #8430CE; --tk-g: #1A73E8; --tk-a: #9C5700; --tk-v: #B3261E;
+  color-scheme: light;
+}
+:root[data-accent="green"] { --primary: #146C2E; --on-primary: #FFFFFF; --pc: #C4EED0; --on-pc: #072711; --ink: #146C2E }
+:root[data-accent="red"] { --primary: #C5221F; --on-primary: #FFFFFF; --pc: #FFDAD6; --on-pc: #410E0B; --ink: #B3261E }
+:root[data-accent="yellow"] { --primary: #F9AB00; --on-primary: #2A1E00; --pc: #FFE9B0; --on-pc: #2A1E00; --ink: #8A5A00 }
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --primary: #A8C7FA; --on-primary: #062E6F; --pc: #0842A0; --on-pc: #D3E3FD; --ink: #A8C7FA;
+    --n-tray: #0D0E11; --n-pane: #17181C; --n-s1: #1C1D22; --n-s2: #23252B; --n-s3: #2E3138;
+    --text: #E8E9ED; --text-2: #B7BBC5; --text-3: #868B96;
+    --stroke: rgba(255,255,255,.075); --stroke-2: rgba(255,255,255,.15);
+    --hi: rgba(255,255,255,.07); --ctl: rgba(255,255,255,.045);
+    --mixh: 10%; --mixp: 16%; --tint: 12%;
+    --ok: #81C995; --ok-c: rgba(129,201,149,.14); --on-ok-c: #A8DAB5;
+    --warn: #FDD663; --warn-c: rgba(253,214,99,.13); --on-warn-c: #FDE293;
+    --err: #F2B8B5; --on-err: #601410; --err-c: rgba(242,184,181,.13); --on-err-c: #F9DEDC;
+    --sh-pane: 0 1px 2px rgba(0,0,0,.3);
+    --sh-pop: 0 14px 30px -12px rgba(0,0,0,.55), 0 2px 6px -2px rgba(0,0,0,.3);
+    --sh-win: 0 40px 80px -44px rgba(0,0,0,.7), 0 10px 24px -16px rgba(0,0,0,.4);
+    --inverse: #E8E9ED; --on-inverse: #1E2025; --grain-o: .7;
+    --tk-k: #F28B82; --tk-f: #8AB4F8; --tk-s: #81C995; --tk-n: #FDD663; --tk-t: #D7AEFB; --tk-g: #78D9EC; --tk-a: #FCAD70; --tk-v: #F6AEA9;
+  }
+  :root:not([data-theme="light"])[data-accent="green"] { --primary: #6DD58C; --on-primary: #0A3818; --pc: #0F5223; --on-pc: #C4EED0; --ink: #6DD58C }
+  :root:not([data-theme="light"])[data-accent="red"] { --primary: #FFB4AB; --on-primary: #690005; --pc: #93000A; --on-pc: #FFDAD6; --ink: #FFB4AB }
+  :root:not([data-theme="light"])[data-accent="yellow"] { --primary: #FDD663; --on-primary: #3D2E00; --pc: #5C4400; --on-pc: #FFE08A; --ink: #FDD663 }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --primary: #A8C7FA; --on-primary: #062E6F; --pc: #0842A0; --on-pc: #D3E3FD; --ink: #A8C7FA;
+  --n-tray: #0D0E11; --n-pane: #17181C; --n-s1: #1C1D22; --n-s2: #23252B; --n-s3: #2E3138;
+  --text: #E8E9ED; --text-2: #B7BBC5; --text-3: #868B96;
+  --stroke: rgba(255,255,255,.075); --stroke-2: rgba(255,255,255,.15);
+  --hi: rgba(255,255,255,.07); --ctl: rgba(255,255,255,.045);
+  --mixh: 10%; --mixp: 16%; --tint: 12%;
+  --ok: #81C995; --ok-c: rgba(129,201,149,.14); --on-ok-c: #A8DAB5;
+  --warn: #FDD663; --warn-c: rgba(253,214,99,.13); --on-warn-c: #FDE293;
+  --err: #F2B8B5; --on-err: #601410; --err-c: rgba(242,184,181,.13); --on-err-c: #F9DEDC;
+  --sh-pane: 0 1px 2px rgba(0,0,0,.3);
+  --sh-pop: 0 14px 30px -12px rgba(0,0,0,.55), 0 2px 6px -2px rgba(0,0,0,.3);
+  --sh-win: 0 40px 80px -44px rgba(0,0,0,.7), 0 10px 24px -16px rgba(0,0,0,.4);
+  --inverse: #E8E9ED; --on-inverse: #1E2025; --grain-o: .7;
+  --tk-k: #F28B82; --tk-f: #8AB4F8; --tk-s: #81C995; --tk-n: #FDD663; --tk-t: #D7AEFB; --tk-g: #78D9EC; --tk-a: #FCAD70; --tk-v: #F6AEA9;
+}
+:root[data-theme="dark"][data-accent="green"] { --primary: #6DD58C; --on-primary: #0A3818; --pc: #0F5223; --on-pc: #C4EED0; --ink: #6DD58C }
+:root[data-theme="dark"][data-accent="red"] { --primary: #FFB4AB; --on-primary: #690005; --pc: #93000A; --on-pc: #FFDAD6; --ink: #FFB4AB }
+:root[data-theme="dark"][data-accent="yellow"] { --primary: #FDD663; --on-primary: #3D2E00; --pc: #5C4400; --on-pc: #FFE08A; --ink: #FDD663 }
+
+/* Surfaces derived from the seed: every app takes its own tint */
+:root, :root[data-theme], :root[data-accent] {
+  --tray: color-mix(in oklab, var(--primary) var(--tint), var(--n-tray));
+  --pane: color-mix(in oklab, var(--primary) 1.5%, var(--n-pane));
+  --s1: color-mix(in oklab, var(--primary) 4%, var(--n-s1));
+  --s2: color-mix(in oklab, var(--primary) 6%, var(--n-s2));
+  --s3: color-mix(in oklab, var(--primary) 9%, var(--n-s3));
+  --hover: color-mix(in oklab, var(--primary) var(--mixh), transparent);
+  --press: color-mix(in oklab, var(--primary) var(--mixp), transparent);
+  --glow: 0 8px 16px -10px color-mix(in srgb, var(--primary) 60%, transparent), 0 2px 4px -2px color-mix(in srgb, var(--primary) 35%, transparent);
+  --glow-h: 0 10px 20px -10px color-mix(in srgb, var(--primary) 70%, transparent), 0 2px 5px -2px color-mix(in srgb, var(--primary) 40%, transparent);
+  --pop: color-mix(in oklab, var(--pane) 84%, transparent);
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .14 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* =====================================================================
+   BASE
+   ===================================================================== */
+*, *::before, *::after { box-sizing: border-box }
+html { -webkit-text-size-adjust: 100%; scroll-padding-top: 84px }
+body { margin: 0; font: 400 var(--fs)/1.55 var(--ui); color: var(--text); background: var(--tray); -webkit-font-smoothing: antialiased; transition: background .4s }
+.bg { position: fixed; inset: 0; z-index: -1; pointer-events: none; background:
+  radial-gradient(60% 50% at 85% 0%, color-mix(in srgb, var(--primary) 22%, transparent), transparent 70%),
+  radial-gradient(50% 40% at 0% 100%, color-mix(in srgb, var(--primary) 14%, transparent), transparent 70%), var(--tray) }
+.bg::after { content: ""; position: absolute; inset: 0; background: var(--grain); opacity: var(--grain-o) }
+button, input, textarea { font: inherit; color: inherit }
+button { cursor: pointer }
+a { color: inherit }
+:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px }
+.ic { width: 20px; height: 20px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round }
+kbd { font: 500 11px var(--ui); color: var(--text-3); padding: 2px 6px; border-radius: var(--lf-xs); box-shadow: inset 0 0 0 1px var(--stroke-2) }
+::selection { background: color-mix(in srgb, var(--primary) 26%, transparent) }
+
+/* The mark: four leaves in two tones of the seed */
+.mark { display: inline-grid; grid-template-columns: 1fr 1fr; gap: 8%; width: var(--s,28px); height: var(--s,28px); flex: none;
+  --mk1: var(--primary); --mk2: color-mix(in oklab, var(--primary) 42%, var(--pane)) }
+.mark i { display: block }
+.mark i:nth-child(1) { background: var(--mk1); border-radius: 8% 70% 8% 70% }
+.mark i:nth-child(2) { background: var(--mk2); border-radius: 70% 8% 70% 8% }
+.mark i:nth-child(3) { background: var(--mk2); border-radius: 70% 8% 70% 8% }
+.mark i:nth-child(4) { background: var(--mk1); border-radius: 8% 70% 8% 70% }
+.mark.spin { animation: turn 3.2s linear infinite }
+.mark.spin i { background: var(--primary); opacity: .22; animation: lit 1.2s var(--ease) infinite }
+.mark.spin i:nth-child(2) { animation-delay: .3s } .mark.spin i:nth-child(4) { animation-delay: .6s } .mark.spin i:nth-child(3) { animation-delay: .9s }
+@keyframes lit { 0%, 100% { opacity: .22; transform: scale(.82) } 25% { opacity: 1; transform: scale(1) } }
+@keyframes turn { to { transform: rotate(360deg) } }
+
+/* =====================================================================
+   BUTTONS: leaf + glow
+   ===================================================================== */
+.btn { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: var(--h); padding: 0 16px; border: 0;
+  border-radius: var(--lf-ctl); font-weight: 550; font-size: 14px; white-space: nowrap; user-select: none; isolation: isolate; overflow: hidden; text-decoration: none;
+  transition: box-shadow .25s var(--ease), background .2s, transform .2s var(--spring), border-radius .35s var(--spring), color .2s }
+.btn .ic { width: 18px; height: 18px }
+.btn.sm { height: 30px; padding: 0 12px; font-size: 13px }
+.btn.sm .ic { width: 16px; height: 16px }
+.btn.lg { height: 42px; padding: 0 20px; font-size: 15px }
+.btn:hover:not([disabled]) { border-radius: 14px 3px 14px 3px }
+.btn:active:not([disabled]) { transform: scale(.965); border-radius: 8px 4px 8px 4px; transition-duration: .08s }
+.b-primary { background: var(--primary); color: var(--on-primary); box-shadow: var(--glow), inset 0 1px 0 rgba(255,255,255,.28), inset 0 -1px 0 rgba(0,0,0,.12) }
+.b-primary:hover { box-shadow: var(--glow-h), inset 0 1px 0 rgba(255,255,255,.28) }
+.b-tonal { background: var(--pc); color: var(--on-pc) }
+.b-tonal:hover { background: color-mix(in oklab, var(--pc) 85%, var(--on-pc)) }
+.b-line { background: var(--ctl); color: var(--text); box-shadow: inset 0 0 0 1px var(--stroke-2), 0 1px 2px rgba(0,0,0,.05) }
+.b-line:hover { background: var(--hover) }
+.b-ghost { background: transparent; color: var(--ink); padding: 0 12px }
+.b-ghost:hover { background: var(--hover) }
+.sheen { position: absolute; inset: -2px; z-index: -1; pointer-events: none; background: radial-gradient(circle at var(--x) var(--y), rgba(255,255,255,.45), transparent 45%); opacity: 0; animation: sheen .6s var(--ease) }
+.b-tonal .sheen, .b-line .sheen, .b-ghost .sheen { background: radial-gradient(circle at var(--x) var(--y), color-mix(in srgb, var(--primary) 30%, transparent), transparent 45%) }
+@keyframes sheen { 0% { opacity: 1; transform: scale(.4) } 100% { opacity: 0; transform: scale(1.6) } }
+
+.ibtn { position: relative; width: var(--h); height: var(--h); display: inline-grid; place-items: center; border: 0; border-radius: var(--lf-ctl); background: transparent;
+  color: var(--text-2); text-decoration: none; transition: background .15s, color .15s, transform .25s var(--spring) }
+.ibtn:hover { background: var(--hover); color: var(--text) }
+.ibtn:active { transform: scale(.9) }
+
+/* =====================================================================
+   SEGMENTED CONTROL AND SEEDS
+   ===================================================================== */
+.seg { position: relative; display: inline-flex; padding: 3px; border-radius: 13px 4px 13px 4px; background: color-mix(in oklab, var(--s2) 85%, transparent);
+  box-shadow: inset 0 0 0 1px var(--stroke) }
+.seg button { position: relative; z-index: 1; height: calc(var(--h) - 6px); padding: 0 13px; border: 0; background: none; color: var(--text-2);
+  font-weight: 500; font-size: 13px; white-space: nowrap; transition: color .2s }
+.seg button.on { color: var(--text) }
+.seg-ind { position: absolute; top: 3px; bottom: 3px; left: 3px; border-radius: var(--lf-ctl); background: var(--pane);
+  box-shadow: 0 1px 3px rgba(0,0,0,.14), inset 0 0 0 1px var(--stroke), inset 0 1px 0 var(--hi); transition: transform .45s var(--out) }
+/* Equal-width segments place the indicator from the selected index (--i) without measuring. */
+.seg-icons button { width: 32px; padding: 0; display: grid; place-items: center }
+.seg-icons button .ic { width: 16px; height: 16px }
+.seg-icons .seg-ind { width: 32px; transform: translateX(calc(max(var(--i, 0), 0) * 32px)) }
+.seeds { display: inline-flex; gap: 6px; padding: 5px; border-radius: 13px 4px 13px 4px; background: color-mix(in oklab, var(--s2) 85%, transparent); box-shadow: inset 0 0 0 1px var(--stroke) }
+.seedbtn { width: 20px; height: 20px; padding: 0; border: 0; border-radius: 10px 3px 10px 3px; background: var(--c); transition: transform .3s var(--spring), box-shadow .2s }
+.seedbtn:hover { transform: rotate(-12deg) scale(1.08) }
+.seedbtn[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--pane), 0 0 0 4px var(--c); transform: rotate(90deg) }
+
+/* =====================================================================
+   BADGES, NOTES, CRUMBS, TABS
+   ===================================================================== */
+.badge { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 10px 0 8px; border-radius: 10px 3px 10px 3px; font-size: 12.5px; font-weight: 550; text-decoration: none; white-space: nowrap }
+.badge::before { content: ""; width: 6px; height: 9px; border-radius: 4px 1px 4px 1px; background: currentColor }
+.badge.ok { background: var(--ok-c); color: var(--on-ok-c) }
+.badge.warn { background: var(--warn-c); color: var(--on-warn-c) }
+.badge.err { background: var(--err-c); color: var(--on-err-c) }
+.badge.info { background: var(--pc); color: var(--on-pc) }
+.badge.live::before { animation: twirl 1.6s var(--ease) infinite }
+@keyframes twirl { to { transform: rotate(360deg) } }
+
+.crumbs { display: flex; flex-wrap: wrap; align-items: center; gap: 2px; font-size: 13.5px; color: var(--text-2) }
+.crumbs a { color: var(--text-2); text-decoration: none; padding: 3px 7px; margin-left: -7px; border-radius: var(--lf-ctl) }
+.crumbs a:hover { background: var(--hover); color: var(--text) }
+.crumbs .sepc { width: 5px; height: 9px; border-radius: 4px 1px 4px 1px; background: var(--s3); margin: 0 7px }
+.crumbs [aria-current] { font-weight: 600; color: var(--text) }
+
+.tabs { position: relative; display: inline-flex; gap: 2px; padding: 4px; border-radius: var(--lf-ovl); background: var(--s1); max-width: 100%; overflow-x: auto; scrollbar-width: none }
+.tab { position: relative; z-index: 1; height: calc(var(--h) - 2px); padding: 0 14px; border: 0; background: none; color: var(--text-2); font-weight: 550; font-size: 13px; white-space: nowrap; transition: color .2s }
+.tab[aria-selected="true"] { color: var(--text) }
+.tab-ind { position: absolute; top: 4px; bottom: 4px; left: 4px; border-radius: var(--lf-ctl); background: var(--pane);
+  box-shadow: 0 2px 6px -2px rgba(0,0,0,.18), inset 0 0 0 1px var(--stroke); transition: transform .5s var(--out) }
+.tab-ind::after { content: ""; position: absolute; left: 50%; bottom: -1px; width: 14px; height: 3px; margin-left: -7px; border-radius: 3px 1px 3px 1px; background: var(--primary) }
+
+/* =====================================================================
+   PROSE: the documentation typography
+   ===================================================================== */
+.prose { max-width: 76ch; overflow-wrap: break-word }
+.prose > :first-child { margin-top: 0 }
+.prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 { position: relative; margin: 1.7em 0 .5em; scroll-margin-top: 84px }
+.prose h1 { font: 800 34px/1.1 var(--display); letter-spacing: -.035em }
+.prose h2 { font: 750 27px/1.2 var(--display); letter-spacing: -.025em; padding-top: .6em; border-top: 1px dashed var(--stroke-2) }
+.prose > h2:first-child { border-top: 0; padding-top: 0 }
+.prose h3 { font: 700 20px/1.3 var(--display); letter-spacing: -.015em }
+.prose h4 { font: 650 17px/1.35 var(--ui); letter-spacing: -.005em }
+.prose h5 { font: 650 15px/1.4 var(--ui) }
+.prose h6 { font: 650 13px/1.4 var(--ui); color: var(--text-2) }
+.prose h2 code, .prose h3 code, .prose h4 code { font-size: .86em; background: var(--pc); color: var(--on-pc) }
+.prose .hash { position: absolute; left: -26px; top: 50%; width: 18px; height: 18px; margin-top: -9px; border-radius: var(--lf-xs); opacity: 0; transition: opacity .2s;
+  background: var(--s2) center / 12px no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23737884' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='M9.5 4l-2 16M16.5 4l-2 16M4.5 9h15M3.5 15h15'/%3E%3C/svg%3E") }
+.prose h2 .hash { top: calc(50% + .3em) }
+.prose :is(h2, h3, h4):hover .hash { opacity: 1 }
+.prose p { margin: 0 0 1em; line-height: 1.72 }
+.prose a { color: var(--ink); text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 3px; text-decoration-color: color-mix(in srgb, var(--ink) 35%, transparent); transition: text-decoration-color .2s }
+.prose a:hover { text-decoration-color: var(--ink) }
+.prose a.hash { text-decoration: none }
+.prose strong { font-weight: 650 }
+.prose code { font: .86em var(--mono); padding: 2px 6px; border-radius: var(--lf-xs); background: var(--s2); overflow-wrap: anywhere }
+.prose a code { color: var(--ink) }
+.prose kbd { display: inline-block; font: 550 .78em/1 var(--ui); padding: 4px 7px 5px; border-radius: 7px 2px 7px 2px; background: var(--pane); box-shadow: inset 0 0 0 1px var(--stroke-2), inset 0 -2px 0 var(--stroke-2); vertical-align: 1px; color: var(--text) }
+.prose blockquote { position: relative; margin: 1.4em 0; padding: 14px 18px 14px 46px; border-radius: var(--lf-ovl); background: var(--pc); color: var(--on-pc) }
+.prose blockquote::before { content: ""; position: absolute; left: 18px; top: 18px; width: 12px; height: 18px; border-radius: 8px 2px 8px 2px; background: var(--primary) }
+.prose blockquote p:last-child { margin-bottom: 0 }
+.prose ul, .prose ol { padding-left: 1.5em; margin: 0 0 1em }
+.prose li { margin: .35em 0; padding-left: .25em; line-height: 1.65 }
+.prose li > p { margin: 0 0 .5em }
+.prose ul { list-style: none; padding-left: 1.4em }
+.prose ul > li { position: relative }
+.prose ul > li::before { content: ""; position: absolute; left: -1.1em; top: .62em; width: 6px; height: 9px; border-radius: 4px 1px 4px 1px; background: var(--primary) }
+.prose ul.contains-task-list > li::before { display: none }
+.prose ol > li::marker { color: var(--ink); font: 700 .95em var(--display) }
+.prose hr { border: 0; height: 10px; margin: 2em 0; background: radial-gradient(circle, var(--s3) 2px, transparent 2.5px) center/16px 10px repeat-x }
+.prose img { max-width: 100%; height: auto; border-radius: var(--lf-ovl) }
+.prose .table-wrap { margin: 0 0 1.2em; overflow-x: auto; border-radius: var(--lf-ovl); background: var(--pane); box-shadow: inset 0 0 0 1px var(--stroke) }
+.prose table { border-collapse: separate; border-spacing: 0; width: 100%; font-size: 14px; line-height: 1.5 }
+.prose th, .prose td { padding: 10px 14px; border-bottom: 1px solid var(--stroke); text-align: left; vertical-align: top }
+.prose tr:last-child td { border-bottom: 0 }
+.prose thead th { font-weight: 600; font-size: 12.5px; color: var(--text-2); background: var(--s1); white-space: nowrap }
+.prose tbody tr { transition: background .15s }
+.prose tbody tr:hover { background: var(--hover) }
+.prose td code { white-space: nowrap }
+.prose td:not(:first-child) code { white-space: normal }
+
+/* Code blocks: a framed leaf with a language chip and copy action */
+.code { position: relative; margin: 0 0 1.2em; border-radius: var(--lf-ovl); background: var(--s1); box-shadow: inset 0 0 0 1px var(--stroke); overflow: hidden }
+.code-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; height: 34px; padding: 0 6px 0 14px; border-bottom: 1px solid var(--stroke) }
+.code-lang { display: inline-flex; align-items: center; gap: 7px; font: 600 11.5px var(--ui); letter-spacing: .02em; color: var(--text-3); text-transform: uppercase }
+.code-lang::before { content: ""; width: 6px; height: 9px; border-radius: 4px 1px 4px 1px; background: var(--primary) }
+.code-copy { height: 24px; padding: 0 10px; border: 0; border-radius: var(--lf-xs); background: transparent; color: var(--text-3); font-size: 12px; font-weight: 550; transition: background .15s, color .15s }
+.code-copy:hover { background: var(--hover); color: var(--text) }
+.code-copy.done { color: var(--ok) }
+.code pre, .prose pre { margin: 0; padding: 14px 18px 16px; overflow-x: auto; font: 13px/1.65 var(--mono); tab-size: 4 }
+.code pre code, .prose pre code { padding: 0; background: none; font: inherit; color: var(--text); overflow-wrap: normal; white-space: pre }
+.prose .diagram { margin: 0 0 1.2em; padding: 16px; border-radius: var(--lf-ovl); background: var(--s1); box-shadow: inset 0 0 0 1px var(--stroke); overflow-x: auto; text-align: center }
+.prose .diagram pre { padding: 0; background: none; text-align: left }
+.prose .diagram pre[data-processed] { text-align: center }
+
+.tk-k { color: var(--tk-k) } .tk-f { color: var(--tk-f) } .tk-s { color: var(--tk-s) } .tk-n { color: var(--tk-n) }
+.tk-c { color: var(--text-3); font-style: italic } .tk-t { color: var(--tk-t) } .tk-g { color: var(--tk-g) } .tk-a { color: var(--tk-a) }
+.tk-p { color: var(--tk-f) } .tk-v { color: var(--tk-v) }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 0s !important; animation-duration: 0s !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important }
+}

@@ -1,0 +1,44 @@
+<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+
+  <PropertyGroup>
+    <RootNamespace>Nazor.Website</RootNamespace>
+    <BlazorWebAssemblyLoadAllGlobalizationData>false</BlazorWebAssemblyLoadAllGlobalizationData>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <SiteContentDirectory>$(MSBuildProjectDirectory)\wwwroot\content</SiteContentDirectory>
+    <SiteGeneratorProject>$(MSBuildProjectDirectory)\..\Nazor.Website.Generator\Nazor.Website.Generator.csproj</SiteGeneratorProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Shared\*.cs" LinkBase="Shared" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" PrivateAssets="all" />
+  </ItemGroup>
+
+  <!--
+    Converts Docs/ into HTML fragments under wwwroot/content before the static web assets are collected.
+    Set SkipSiteContent=true to reuse the existing generated content.
+  -->
+  <ItemGroup>
+    <SiteContentInput Include="$(NazorRepositoryRoot)\Docs\**\*" />
+    <SiteContentInput Include="$(NazorRepositoryRoot)\Sources\Themes\Nazor.Themes.NazorLeaf\Fonts\*" />
+    <SiteContentInput Include="$(NazorRepositoryRoot)\Directory.Build.props" />
+    <SiteContentInput Include="..\Nazor.Website.Generator\**\*.cs;..\Shared\*.cs" Exclude="..\Nazor.Website.Generator\obj\**;..\Nazor.Website.Generator\bin\**" />
+  </ItemGroup>
+
+  <Target Name="GenerateSiteContent" BeforeTargets="BeforeBuild" Condition="'$(SkipSiteContent)' != 'true'"
+          Inputs="@(SiteContentInput)" Outputs="$(SiteContentDirectory)\manifest.json">
+    <Exec Command="dotnet run --project &quot;$(SiteGeneratorProject)&quot; -c Release -- &quot;$(NazorRepositoryRoot)&quot; &quot;$(SiteContentDirectory)&quot;" />
+  </Target>
+
+  <!-- Files generated during this build were not present at evaluation time. -->
+  <Target Name="IncludeSiteContent" AfterTargets="GenerateSiteContent">
+    <ItemGroup>
+      <Content Remove="wwwroot\content\**" />
+      <Content Include="wwwroot\content\**" />
+    </ItemGroup>
+  </Target>
+
+</Project>

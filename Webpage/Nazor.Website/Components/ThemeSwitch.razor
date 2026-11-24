@@ -1,0 +1,60 @@
+@inject SiteInterop Interop
+
+<div class="appearance">
+    <div class="seeds" role="group" aria-label="Accent color">
+        @foreach (var (accent, color, label) in Accents)
+        {
+            <button type="button" class="seedbtn" style="--c:@color" aria-pressed="@(preferences.Accent == accent ? "true" : "false")"
+                    aria-label="@label accent" title="@label" @onclick="() => SetAccentAsync(accent)"></button>
+        }
+    </div>
+    <div class="seg seg-icons" role="group" aria-label="Color scheme" style="--i:@Array.IndexOf(Themes, preferences.Theme)">
+        <span class="seg-ind"></span>
+        @foreach (var theme in Themes)
+        {
+            <button type="button" class="@(preferences.Theme == theme ? "on" : null)" aria-pressed="@(preferences.Theme == theme ? "true" : "false")"
+                    aria-label="@ThemeLabel(theme)" title="@ThemeLabel(theme)" @onclick="() => SetThemeAsync(theme)">
+                <Icon Name="@ThemeIcon(theme)" />
+            </button>
+        }
+    </div>
+</div>
+
+@code {
+    private static readonly string[] Themes = ["system", "light", "dark"];
+
+    private static readonly (string Accent, string Color, string Label)[] Accents =
+    [
+        ("blue", "#4285F4", "Blue"),
+        ("red", "#EA4335", "Red"),
+        ("yellow", "#FBBC04", "Yellow"),
+        ("green", "#34A853", "Green"),
+    ];
+
+    private SitePreferences preferences = new();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            preferences = await Interop.GetPreferencesAsync();
+            StateHasChanged();
+        }
+    }
+
+    private async Task SetThemeAsync(string theme)
+    {
+        preferences.Theme = theme;
+        await Interop.SetThemeAsync(theme);
+    }
+
+    private async Task SetAccentAsync(string accent)
+    {
+        preferences.Accent = accent;
+        await Interop.SetAccentAsync(accent);
+    }
+
+    private static string ThemeIcon(string theme) => theme switch { "light" => "sun", "dark" => "moon", _ => "monitor" };
+
+    private static string ThemeLabel(string theme) => theme switch { "light" => "Light", "dark" => "Dark", _ => "Match system" };
+}

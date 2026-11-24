@@ -1,0 +1,142 @@
+@page "/{*Path}"
+@inject SiteContent Content
+@inject SiteInterop Interop
+@inject NavigationManager Navigation
+
+@if (missing)
+{
+    <NotFound />
+}
+else
+{
+    <PageTitle>@(doc is null ? "Nazor" : $"{doc.Title} · Nazor")</PageTitle>
+    @if (doc is not null)
+    {
+        <HeadContent><meta name="description" content="@doc.Summary" /></HeadContent>
+    }
+
+    <div class="docshell">
+        <aside class="side">
+            <div class="side-inner"><DocNav /></div>
+        </aside>
+
+        <article class="pane" aria-busy="@(html is null ? "true" : "false")">
+            @if (doc is not null)
+            {
+                <header class="phead">
+                    <div class="crumbs">
+                        <a href="@AreaRoute">@AreaTitle</a>
+                        <span class="sepc" aria-hidden="true"></span>
+                        <span>@doc.Group</span>
+                        @if (doc.Number is not null)
+                        {
+                            <span class="sepc" aria-hidden="true"></span>
+                            <span aria-current="page">Chapter @doc.Number</span>
+                        }
+                    </div>
+                    <h1>@doc.Title</h1>
+                    <div class="ph-act">
+                        <a class="btn b-line sm" href="@($"{repository}/blob/main/{doc.Source}")" target="_blank" rel="noopener"><Icon Name="github" />View source</a>
+                        <a class="btn b-ghost sm" href="@($"{repository}/edit/main/{doc.Source}")" target="_blank" rel="noopener"><Icon Name="pen" />Edit</a>
+                    </div>
+                </header>
+            }
+
+            @if (html is null)
+            {
+                <div class="loading"><Mark Size="34" Spin="true" /><span>Loading…</span></div>
+            }
+            else
+            {
+                <div class="prose doc">@((MarkupString)html)</div>
+
+                <nav class="pager" aria-label="Pages">
+                    @if (previous is not null)
+                    {
+                        <a class="pg prev" href="@previous.Route"><span class="pg-k"><Icon Name="back" />Previous</span><span class="pg-t">@previous.Title</span></a>
+                    }
+                    else
+                    {
+                        <span></span>
+                    }
+                    @if (next is not null)
+                    {
+                        <a class="pg next" href="@next.Route"><span class="pg-k">Next<Icon Name="arrow" /></span><span class="pg-t">@next.Title</span></a>
+                    }
+                </nav>
+            }
+        </article>
+
+        <aside class="toc" aria-label="On this page">
+            @if (doc is not null && doc.Toc.Count > 0)
+            {
+                <div class="toc-inner">
+                    <div class="toc-head"><Icon Name="list" />On this page</div>
+                    <ul>
+                        @foreach (var entry in doc.Toc)
+                        {
+                            <li class="l@(entry.Level)"><a href="@($"{doc.Route}#{entry.Id}")" data-id="@entry.Id">@entry.Text</a></li>
+                        }
+                    </ul>
+                </div>
+            }
+        </aside>
+    </div>
+}
+
+@code {
+    [Parameter] public string? Path { get; set; }
+
+    private SitePage? doc;
+    private SitePage? previous;
+    private SitePage? next;
+    private string? html;
+    private string repository = "https://github.com/noyzone99/Nazor";
+    private string? loadedRoute;
+    private bool missing;
+    private bool enhance;
+    private bool resetScroll;
+
+    private string AreaRoute => doc?.Area switch { "API" => "api", "Tools" => "devtools", "Project" => "conventions", _ => "guide" };
+
+    private string AreaTitle => doc?.Area switch { "API" => "API reference", "Tools" => "Tools", "Project" => "Project", _ => "Developer guide" };
+
+    protected override async Task OnParametersSetAsync()
+    {
+        var route = (Path ?? string.Empty).Trim('/').ToLowerInvariant();
+        if (route == loadedRoute)
+        {
+            // Same document, usually a hash change: only scroll.
+            enhance = true;
+            resetScroll = false;
+            return;
+        }
+
+        loadedRoute = route;
+        html = null;
+        missing = false;
+        doc = await Content.FindPageAsync(route);
+        if (doc is null)
+        {
+            missing = true;
+            return;
+        }
+
+        var manifest = await Content.GetManifestAsync();
+        repository = manifest.Repository;
+        previous = await Content.GetPageAsync(doc.Previous);
+        next = await Content.GetPageAsync(doc.Next);
+        html = await Content.GetHtmlAsync(doc);
+        enhance = true;
+        resetScroll = true;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (enhance && html is not null)
+        {
+            enhance = false;
+            await Interop.PageRenderedAsync(resetScroll);
+        }
+    }
+}

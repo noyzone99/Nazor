@@ -1,0 +1,87 @@
+@implements IDisposable
+@inject SiteContent Content
+@inject NavigationManager Navigation
+
+@if (manifest is not null && section is not null)
+{
+    <nav class="docnav" aria-label="@section.Title">
+        <div class="docnav-areas">
+            @foreach (var area in manifest.Navigation)
+            {
+                var first = area.Groups.FirstOrDefault()?.Routes.FirstOrDefault();
+                if (first is null)
+                {
+                    continue;
+                }
+
+                <a href="@first" class="docnav-area @(area.Area == section.Area ? "on" : null)" @onclick="OnNavigate">@AreaLabel(area.Area)</a>
+            }
+        </div>
+        @foreach (var group in section.Groups)
+        {
+            <div class="docnav-group">
+                <div class="docnav-head">@group.Title</div>
+                @foreach (var route in group.Routes)
+                {
+                    var item = pages.GetValueOrDefault(route);
+                    if (item is null)
+                    {
+                        continue;
+                    }
+
+                    <a href="@route" class="docnav-item @(route == current ? "active" : null)" aria-current="@(route == current ? "page" : null)" @onclick="OnNavigate">
+                        @if (item.Number is not null)
+                        {
+                            <span class="num">@item.Number</span>
+                        }
+                        <span class="lb">@NavTitle(item)</span>
+                    </a>
+                }
+            </div>
+        }
+    </nav>
+}
+
+@code {
+    [Parameter] public EventCallback OnNavigate { get; set; }
+
+    private SiteManifest? manifest;
+    private NavSection? section;
+    private Dictionary<string, SitePage> pages = [];
+    private string current = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Navigation.LocationChanged += OnLocationChanged;
+        manifest = await Content.GetManifestAsync();
+        pages = manifest.Pages.ToDictionary(item => item.Route);
+        Update();
+    }
+
+    private void OnLocationChanged(object? sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e)
+    {
+        Update();
+        StateHasChanged();
+    }
+
+    private void Update()
+    {
+        if (manifest is null)
+        {
+            return;
+        }
+
+        var relative = Navigation.ToBaseRelativePath(Navigation.Uri);
+        var cut = relative.IndexOfAny(['#', '?']);
+        current = (cut >= 0 ? relative[..cut] : relative).Trim('/').ToLowerInvariant();
+        var area = pages.GetValueOrDefault(current)?.Area ?? "Guide";
+        section = manifest.Navigation.FirstOrDefault(n => n.Area == area);
+    }
+
+    private static string NavTitle(SitePage item) =>
+        item.Area == "API" && item.Title.StartsWith("Nazor.", StringComparison.Ordinal) ? item.Title["Nazor.".Length..] : item.Title;
+
+    private static string AreaLabel(string area) => area switch { "API" => "API", _ => area };
+
+    public void Dispose() => Navigation.LocationChanged -= OnLocationChanged;
+}

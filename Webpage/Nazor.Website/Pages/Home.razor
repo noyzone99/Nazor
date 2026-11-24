@@ -1,0 +1,326 @@
+@page "/"
+@inject SiteContent Content
+
+<PageTitle>Nazor · Write Razor. Think Blazor. Ship native.</PageTitle>
+<HeadContent>
+    <meta name="description" content="Nazor is a .NET UI framework that compiles Razor components and NSS stylesheets into native desktop applications drawn with Skia." />
+</HeadContent>
+
+@* ---------- Hero ---------- *@
+<section class="hero">
+    <div class="hero-copy">
+        <a class="badge info live" href="guide/support-and-limitations">@VersionLabel · public pre-alpha preview</a>
+        <h1 class="hero-title">Write Razor.<br />Think Blazor.<br /><span class="ink">Ship native.</span></h1>
+        <p class="hero-sub">
+            Nazor is a native, reactive UI framework for .NET. It compiles Razor components and NSS stylesheets into desktop
+            applications that run in real OS windows and draw every control with Skia: no WebView, no DOM, no JavaScript runtime.
+        </p>
+        <div class="cta">
+            <a class="btn b-primary lg" href="getting-started"><Icon Name="bolt" />Get started</a>
+            <a class="btn b-tonal lg" href="docs"><Icon Name="book" />Documentation</a>
+            <a class="btn b-line lg" href="https://github.com/noyzone99/Nazor" target="_blank" rel="noopener"><Icon Name="github" />GitHub</a>
+        </div>
+        <ul class="hero-facts">
+            <li><b>.NET 8+</b> applications</li>
+            <li><b>Windows</b> and <b>Linux</b> backends</li>
+            <li><b>MIT</b> licensed</li>
+        </ul>
+    </div>
+
+    <div class="hero-demo">
+        <div class="win">
+            <div class="win-bar">
+                <Mark Size="16" />
+                <span class="win-title">HelloNazor</span>
+                <div class="tabs mini" role="tablist" aria-label="Component files" style="--i:@activeSnippet; --n:@HomeSnippets.All.Length">
+                    <span class="tab-ind"></span>
+                    @for (var i = 0; i < HomeSnippets.All.Length; i++)
+                    {
+                        var index = i;
+                        <button type="button" role="tab" class="tab" aria-selected="@(activeSnippet == index ? "true" : "false")" @onclick="() => activeSnippet = index">@HomeSnippets.All[index].Name</button>
+                    }
+                </div>
+            </div>
+            <div class="win-body">
+                <pre><code>@((MarkupString)CodeHighlighter.Highlight(HomeSnippets.All[activeSnippet].Code, HomeSnippets.All[activeSnippet].Language))</code></pre>
+            </div>
+        </div>
+        <div class="result" aria-label="Sketch of the resulting window">
+            <div class="result-bar">
+                <Mark Size="13" /><span>Hello Nazor</span>
+                <span class="lights" aria-hidden="true"><i class="light min"></i><i class="light max"></i><i class="light cls"></i></span>
+            </div>
+            <div class="result-body">
+                <div class="r-heading">Hello, @(string.IsNullOrWhiteSpace(name) ? "Nazor" : name)</div>
+                <label class="input"><input @bind="name" @bind:event="oninput" placeholder="Your name" aria-label="Your name" /></label>
+                <button type="button" class="btn b-primary" @onclick="() => count++">Count: @count</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+@* ---------- Quick start shortcut ---------- *@
+<section class="band">
+    <a class="quickstart" href="getting-started">
+        <div class="qs-copy">
+            <span class="eyebrow">Quick start</span>
+            <h2>From zero to a running window in three steps</h2>
+            <p>Install the Visual Studio extension, create a project from the Nazor application template and press F5.</p>
+            <span class="btn b-primary">Open the getting started guide<Icon Name="arrow" /></span>
+        </div>
+        <ol class="qs-steps">
+            <li><span class="qs-n">1</span><span class="qs-i"><Icon Name="download" /></span><b>Install the extension</b><small>Nazor for Visual Studio</small></li>
+            <li><span class="qs-n">2</span><span class="qs-i"><Icon Name="window" /></span><b>Create your first app</b><small>Nazor application template</small></li>
+            <li><span class="qs-n">3</span><span class="qs-i"><Icon Name="bolt" /></span><b>Run it</b><small>F5, with hot reload</small></li>
+        </ol>
+    </a>
+</section>
+
+@* ---------- Showcase ---------- *@
+<section class="band showcase">
+    <div class="band-head">
+        <span class="eyebrow">Showcase</span>
+        <h2>Real controls, drawn by Nazor</h2>
+        <p>Every pixel below comes from Nazor's own layout and Skia renderer, not from a browser or wrapped OS widgets.</p>
+    </div>
+    @if (Shots.Length > 1)
+    {
+        <div class="tabs shot-tabs" role="tablist" aria-label="Screenshots" style="--i:@activeShot; --n:@Shots.Length">
+            <span class="tab-ind"></span>
+            @for (var i = 0; i < Shots.Length; i++)
+            {
+                var index = i;
+                <button type="button" role="tab" class="tab" aria-selected="@(activeShot == index ? "true" : "false")" @onclick="() => activeShot = index">@Shots[index].Title</button>
+            }
+        </div>
+    }
+    <figure class="shot">
+        <div class="shot-frame">
+            <img src="@Shots[activeShot].Image" alt="@Shots[activeShot].Alt" width="1180" height="820" loading="lazy" />
+        </div>
+        <figcaption>
+            <b>@Shots[activeShot].Title</b>
+            <span>@Shots[activeShot].Caption</span>
+            <a href="@Shots[activeShot].Link" target="_blank" rel="noopener">View the sample<Icon Name="external" /></a>
+        </figcaption>
+    </figure>
+</section>
+
+@* ---------- Peculiarities ---------- *@
+<section class="band">
+    <div class="band-head">
+        <span class="eyebrow">Why Nazor</span>
+        <h2>The component model you know, on the desktop</h2>
+        <p>From low-level primitives to ready-to-use controls, with tooling that shows you what the runtime is doing.</p>
+    </div>
+    <div class="features">
+        @foreach (var feature in Features)
+        {
+            <a class="feature" href="@feature.Link">
+                <span class="f-icon" style="--c:@feature.Color"><Icon Name="@feature.Icon" /></span>
+                <h3>@feature.Title</h3>
+                <p>@feature.Text</p>
+                <span class="f-more">@feature.LinkText<Icon Name="arrow" /></span>
+            </a>
+        }
+    </div>
+</section>
+
+@* ---------- Three files, three responsibilities ---------- *@
+<section class="band duo">
+    <div class="band-head left">
+        <span class="eyebrow">Authoring</span>
+        <h2>Three files, three responsibilities</h2>
+        <p>Markup composes controls, C# owns behavior, NSS owns appearance. Small components keep code in <code>@@code</code> and styles in <code>@@style</code>; larger ones split into sidecars without changing their contract.</p>
+        <a class="btn b-tonal" href="guide/components-and-razor">Components and Razor<Icon Name="arrow" /></a>
+    </div>
+    <div class="files">
+        <div class="file"><span class="file-ic" style="--c:var(--primary)"><Mark Size="18" /></span><div><b>TaskCard.nazor</b><span>Composes controls, binds values and connects callbacks.</span></div></div>
+        <div class="file"><span class="file-ic" style="--c:var(--g4)"><Icon Name="code" /></span><div><b>TaskCard.nazor.cs</b><span>Optional C# partial class for component behavior.</span></div></div>
+        <div class="file"><span class="file-ic" style="--c:var(--g2)"><Icon Name="palette" /></span><div><b>TaskCard.nazor.nss</b><span>Scoped appearance and layout for that component.</span></div></div>
+    </div>
+</section>
+
+@* ---------- NazorLeaf ---------- *@
+<section class="band leaf">
+    <div class="band-head">
+        <span class="eyebrow">NazorLeaf theme</span>
+        <h2>A visual language you recognize at a glance</h2>
+        <p>NazorLeaf is Nazor's own optional theme, and the look of this site. Five signs make it recognizable on every operating system.</p>
+    </div>
+    <div class="signs">
+        <div class="sign"><div class="demo"><span class="d-leaf"></span></div><h3>The leaf</h3><p>Two wide corners on one diagonal, two almost sharp. Every shape, from button to window.</p></div>
+        <div class="sign"><div class="demo"><span class="d-seed"><span></span><span></span><span></span></span></div><h3>The seed</h3><p>The selection mark is a small leaf that travels and lands on what you chose.</p></div>
+        <div class="sign"><div class="demo"><span class="d-glow">Save</span></div><h3>The glow</h3><p>Filled elements cast their own color instead of a gray shadow.</p></div>
+        <div class="sign"><div class="demo"><span class="d-grain"></span></div><h3>The grain</h3><p>Window material has a paper grain, tinted by the app's color.</p></div>
+        <div class="sign"><div class="demo"><Mark Size="30" Spin="true" /></div><h3>The four-leaf</h3><p>The mark, in two tones of the seed, is also the loading indicator.</p></div>
+    </div>
+    <p class="leaf-hint">Try the accent seeds and the color scheme switch in the header: the whole site follows them, like a NazorLeaf app.</p>
+</section>
+
+@* ---------- Pipeline ---------- *@
+<section class="band duo">
+    <div class="band-head left">
+        <span class="eyebrow">Architecture</span>
+        <h2>From input to pixels</h2>
+        <p>One retained pipeline you can observe at every stage: component source, retained elements, layout, the rendered image and the accessibility tree. An idle window does not redraw.</p>
+        <a class="btn b-tonal" href="guide/architecture-and-extension-points">Architecture and extension points<Icon Name="arrow" /></a>
+    </div>
+    <ol class="pipeline">
+        @for (var i = 0; i < Pipeline.Length; i++)
+        {
+            <li><span class="p-n">@(i + 1)</span><span>@Pipeline[i]</span></li>
+        }
+    </ol>
+</section>
+
+@* ---------- Themes ---------- *@
+<section class="band">
+    <div class="band-head">
+        <span class="eyebrow">Themes</span>
+        <h2>Themes ship as packages</h2>
+        <p>Basic is built into the SDK. Optional themes layer palette, control styles, motion and fonts on top, following the system's light, dark and reduced-motion preferences.</p>
+    </div>
+    <div class="themes">
+        @foreach (var theme in Themes)
+        {
+            <a class="theme @(theme.Featured ? "featured" : null)" href="@theme.Link">
+                <span class="t-swatch" style="--a:@theme.A; --b:@theme.B; --r:@theme.Radius"><i></i><i></i></span>
+                <span class="t-name">@theme.Name</span>
+                <span class="t-desc">@theme.Description</span>
+            </a>
+        }
+    </div>
+</section>
+
+@* ---------- Platforms ---------- *@
+<section class="band">
+    <div class="band-head">
+        <span class="eyebrow">Platforms</span>
+        <h2>Native backends behind one contract</h2>
+        <p>Shared contracts stay platform-neutral and each backend lives behind the platform boundary. Capabilities differ by backend, so check the support guide before relying on one.</p>
+    </div>
+    <div class="platforms">
+        @foreach (var platform in Platforms)
+        {
+            <a class="platform" href="@platform.Link">
+                <span class="badge @platform.Status">@platform.StatusText</span>
+                <h3>@platform.Name</h3>
+                <p>@platform.Text</p>
+            </a>
+        }
+    </div>
+</section>
+
+@* ---------- Documentation hub ---------- *@
+<section class="band">
+    <div class="band-head">
+        <span class="eyebrow">Documentation</span>
+        <h2>Everything else is in the docs</h2>
+        <p>A complete learning path, the package API reference and the tools that come with Nazor.</p>
+    </div>
+    <div class="hub">
+        @foreach (var item in Hub)
+        {
+            <a class="hub-card" href="@item.Link">
+                <span class="hub-ic"><Icon Name="@item.Icon" /></span>
+                <span class="hub-t">@item.Title</span>
+                <span class="hub-d">@item.Text</span>
+                <Icon Name="arrow" Class="hub-go" />
+            </a>
+        }
+    </div>
+</section>
+
+<section class="band final">
+    <div class="final-card">
+        <Mark Size="52" />
+        <h2>Ready to build your first window?</h2>
+        <p>Nazor is in pre-alpha: expect breaking changes, and tell us what you build.</p>
+        <div class="cta">
+            <a class="btn b-primary lg" href="getting-started"><Icon Name="bolt" />Get started</a>
+            <a class="btn b-line lg" href="guide/first-desktop-application">First desktop application tutorial</a>
+        </div>
+    </div>
+</section>
+
+@code {
+    private string? version;
+    private int activeSnippet;
+    private int activeShot;
+    private int count;
+    private string name = string.Empty;
+
+    private string VersionLabel => string.IsNullOrEmpty(version) ? "Pre-alpha" : version;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            version = (await Content.GetManifestAsync()).Version;
+        }
+        catch (HttpRequestException)
+        {
+            version = null;
+        }
+    }
+
+    // Add screenshots here: each entry appears as a tab in the showcase.
+    private static readonly (string Title, string Image, string Alt, string Caption, string Link)[] Shots =
+    [
+        ("Gallery", "content/assets/gallery.png", "The Nazor Gallery sample on Windows with the NazorLeaf theme",
+            "The Gallery sample explores every built-in control by family, captured on Windows with the optional NazorLeaf theme.",
+            "https://github.com/noyzone99/Nazor/tree/main/Samples/Nazor.Samples.Gallery"),
+    ];
+
+    private static readonly (string Icon, string Color, string Title, string Text, string Link, string LinkText)[] Features =
+    [
+        ("code", "var(--g1)", "Razor components", "Author .nazor components with typed parameters, callbacks, @bind, generics, templates, cascading values and dependency injection.", "guide/components-and-razor", "Components and Razor"),
+        ("palette", "var(--g2)", "NSS stylesheets", "Global and component-scoped styles with selectors, media queries, custom properties, calc(), transitions and animations.", "guide/styling-and-themes", "Styling and themes"),
+        ("window", "var(--g4)", "Native windows, Skia pixels", "Apps run in native OS windows. Nazor lays out and draws its controls with Skia and shapes text with HarfBuzz.", "guide/introduction#what-native-ui-means-here", "What native means"),
+        ("accessibility", "var(--g3)", "Accessible by design", "Keyboard, focus, semantics and announcements, exposed through UI Automation on Windows and AT-SPI on Linux.", "guide/input-and-accessibility", "Input and accessibility"),
+        ("layers", "var(--primary)", "A complete control set", "Buttons, fields, menus, navigation, dialogs and data views, plus semantic primitives to compose your own.", "guide/control-catalog", "Control catalog"),
+        ("tools", "var(--ok)", "Tooling that keeps up", "Visual Studio and VS Code extensions, hot reload, the DevTools inspector on F12 and deterministic headless tests.", "devtools", "DevTools"),
+    ];
+
+    private static readonly string[] Pipeline =
+    [
+        "The platform translates native input into Nazor events.",
+        "A callback updates component or service state.",
+        "The component renders and the runtime reconciles retained elements.",
+        "Styles and layout update where required.",
+        "The scene produces a display list and Skia paints damaged regions.",
+        "The platform presents the result and exposes semantics to assistive technology.",
+    ];
+
+    private static readonly (string Name, string Description, string A, string B, string Radius, string Link, bool Featured)[] Themes =
+    [
+        ("NazorLeaf", "Leaf corners, seed indicators, color glow and paper grain.", "#0B57D0", "#D3E3FD", "11px 3px 11px 3px", "api/nazor-themes-nazorleaf", true),
+        ("Fluent", "WinUI palette, control styles and motion.", "#0067C0", "#E1EBF5", "4px", "api/nazor-themes-fluent", false),
+        ("Adwaita", "libadwaita 1.10 control styles.", "#3584E4", "#EBEBED", "9px", "api/nazor-themes-adwaita", false),
+        ("Breeze", "KDE Breeze-inspired control styles.", "#3DAEE9", "#EFF0F1", "3px", "api/nazor-themes-breeze", false),
+        ("Windows 7", "Windows 7-inspired control styles.", "#3C7FB1", "#DCE9F5", "3px", "api/nazor-themes-windows7", false),
+        ("Windows XP", "Windows XP-inspired control styles.", "#245EDC", "#ECE9D8", "3px", "api/nazor-themes-windowsxp", false),
+        ("Windows 9x", "Windows 95 and 98-inspired control styles.", "#000080", "#C0C0C0", "0", "api/nazor-themes-windows9x", false),
+        ("CDE", "Common Desktop Environment-inspired control styles.", "#5A8291", "#AEB2C3", "0", "api/nazor-themes-cde", false),
+    ];
+
+    private static readonly (string Name, string Status, string StatusText, string Text, string Link)[] Platforms =
+    [
+        ("Windows 10/11", "ok", "Primary baseline", "x64 is the verification baseline: native windows, custom title bars, backdrops, tray, Jump Lists and UI Automation.", "guide/title-bars-and-platform-integration"),
+        ("Linux Wayland", "ok", "Implemented", "Direct Wayland backend with portal pickers, StatusNotifierItem tray, notifications and AT-SPI.", "guide/linux-wayland"),
+        ("Linux X11", "ok", "Implemented", "Native X11 desktop with EWMH window states, XIM input and the same session services as Wayland.", "guide/linux-x11"),
+        ("Linux DRM/KMS", "info", "Single view", "Hosting without a desktop for kiosks and embedded devices, with GBM/EGL rendering and libinput.", "guide/linux-drm"),
+        ("macOS, Android, iOS", "warn", "Planned", "Architectural targets without an application host yet. Shared contracts are designed for them.", "guide/support-and-limitations"),
+    ];
+
+    private static readonly (string Icon, string Title, string Text, string Link)[] Hub =
+    [
+        ("book", "Developer guide", "38 chapters from setup to deployment, organized by task.", "guide"),
+        ("package", "API reference", "Public and protected APIs, grouped by package.", "api"),
+        ("sliders", "NSS property reference", "Syntax, defaults, inheritance and animation of every property.", "guide/nss-property-reference"),
+        ("layers", "Control catalog", "Every built-in control and how to choose it.", "guide/control-catalog"),
+        ("eye", "DevTools", "Inspect elements, styles, layout and accessibility live.", "devtools"),
+        ("globe", "Support and limitations", "What is implemented, verified and still missing.", "guide/support-and-limitations"),
+    ];
+}

@@ -1,0 +1,16 @@
+@* A highlighted code block with the same frame and copy action as the generated documentation. *@
+<div class="code" data-lang="@CodeHighlighter.Normalize(Language)">
+    <div class="code-head">
+        <span class="code-lang">@(Label ?? CodeHighlighter.Label(Language))</span>
+        <button type="button" class="code-copy" aria-label="Copy code">Copy</button>
+    </div>
+    <pre><code>@((MarkupString)CodeHighlighter.Highlight(Code, Language))</code></pre>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public string Code { get; set; } = string.Empty;
+
+    [Parameter] public string? Language { get; set; }
+
+    [Parameter] public string? Label { get; set; }
+}

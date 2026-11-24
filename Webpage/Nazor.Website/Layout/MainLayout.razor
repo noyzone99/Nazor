@@ -1,0 +1,141 @@
+@inherits LayoutComponentBase
+@implements IDisposable
+@inject SiteInterop Interop
+@inject SiteContent Content
+@inject NavigationManager Navigation
+
+<div class="bg" aria-hidden="true"></div>
+
+<header class="topbar">
+    <button type="button" class="ibtn menu-btn" aria-label="Open navigation" aria-expanded="@(drawerOpen ? "true" : "false")" @onclick="ToggleDrawerAsync">
+        <Icon Name="@(drawerOpen ? "close" : "menu")" />
+    </button>
+    <a class="brand" href="" aria-label="Nazor home">
+        <Mark Size="22" />
+        <span class="brand-word">nazor</span>
+        @if (!string.IsNullOrEmpty(version))
+        {
+            <span class="brand-ver">@version</span>
+        }
+    </a>
+    <nav class="topnav" aria-label="Primary">
+        <NavLink href="getting-started" Match="NavLinkMatch.All" class="nav-start">Get started</NavLink>
+        <NavLink href="docs" Match="NavLinkMatch.All">Docs</NavLink>
+        <NavLink href="guide" Match="NavLinkMatch.Prefix">Guide</NavLink>
+        <NavLink href="api" Match="NavLinkMatch.Prefix">API</NavLink>
+        <NavLink href="devtools" Match="NavLinkMatch.Prefix">DevTools</NavLink>
+    </nav>
+    <button type="button" class="search-trigger" @onclick="OpenSearch" aria-label="Search the documentation">
+        <Icon Name="search" />
+        <span class="st-label">Search docs</span>
+        <kbd>Ctrl K</kbd>
+    </button>
+    <ThemeSwitch />
+    <a class="ibtn gh" href="https://github.com/noyzone99/Nazor" target="_blank" rel="noopener" aria-label="Nazor on GitHub" title="GitHub">
+        <Icon Name="github" />
+    </a>
+</header>
+
+@if (drawerOpen)
+{
+    <div class="drawer-backdrop" @onclick="CloseDrawerAsync"></div>
+    <aside class="drawer" aria-label="Navigation">
+        <nav class="drawer-primary" aria-label="Primary">
+            <a class="btn b-primary" href="getting-started" @onclick="CloseDrawerAsync"><Icon Name="bolt" />Get started</a>
+            <a class="btn b-line" href="" @onclick="CloseDrawerAsync"><Icon Name="home" />Home</a>
+        </nav>
+        <DocNav OnNavigate="CloseDrawerAsync" />
+    </aside>
+}
+
+<main id="main">
+    @Body
+</main>
+
+<footer class="site-foot">
+    <div class="foot-inner">
+        <div class="foot-brand">
+            <Mark Size="20" />
+            <span class="brand-word">nazor</span>
+            <span class="foot-note">Native desktop UI with Razor components and NSS. MIT licensed.</span>
+        </div>
+        <nav class="foot-links" aria-label="Footer">
+            <a href="getting-started">Getting started</a>
+            <a href="docs">Documentation</a>
+            <a href="guide">Guide</a>
+            <a href="api">API reference</a>
+            <a href="nuget">NuGet packages</a>
+            <a href="conventions">Conventions</a>
+            <a href="https://github.com/noyzone99/Nazor" target="_blank" rel="noopener">GitHub</a>
+            <a href="https://marketplace.visualstudio.com/items?itemName=Noyzone99.nazorvisualstudio" target="_blank" rel="noopener">Visual Studio</a>
+        </nav>
+    </div>
+    <p class="foot-legal">Styled with the NazorLeaf theme. Geist and Bricolage Grotesque are used under the SIL Open Font License.</p>
+</footer>
+
+<SearchDialog @bind-Open="searchOpen" />
+
+@code {
+    private DotNetObjectReference<MainLayout>? self;
+    private bool searchOpen;
+    private bool drawerOpen;
+    private string? version;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Navigation.LocationChanged += OnLocationChanged;
+        try
+        {
+            version = (await Content.GetManifestAsync()).Version;
+        }
+        catch (HttpRequestException)
+        {
+            version = null;
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            self = DotNetObjectReference.Create(this);
+            await Interop.RegisterShortcutsAsync(self);
+        }
+    }
+
+    [JSInvokable]
+    public void OpenSearch()
+    {
+        drawerOpen = false;
+        searchOpen = true;
+        StateHasChanged();
+    }
+
+    private async Task ToggleDrawerAsync()
+    {
+        drawerOpen = !drawerOpen;
+        await Interop.SetBodyLockedAsync(drawerOpen);
+    }
+
+    private async Task CloseDrawerAsync()
+    {
+        drawerOpen = false;
+        await Interop.SetBodyLockedAsync(false);
+    }
+
+    private void OnLocationChanged(object? sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e)
+    {
+        if (drawerOpen)
+        {
+            drawerOpen = false;
+            _ = Interop.SetBodyLockedAsync(false);
+            StateHasChanged();
+        }
+    }
+
+    public void Dispose()
+    {
+        Navigation.LocationChanged -= OnLocationChanged;
+        self?.Dispose();
+    }
+}

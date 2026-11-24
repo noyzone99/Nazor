@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en" data-accent="blue">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Nazor</title>
+    <!-- The GitHub Pages workflow rewrites this base address to the repository path. -->
+    <base href="/" />
+    <meta name="theme-color" content="#0B57D0" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <link rel="preload" href="content/fonts/Geist.ttf" as="font" type="font/ttf" crossorigin />
+    <link rel="preload" href="content/fonts/BricolageGrotesque.ttf" as="font" type="font/ttf" crossorigin />
+    <link rel="stylesheet" href="css/nazorleaf.css" />
+    <link rel="stylesheet" href="css/site.css" />
+    <script>
+        // Apply the stored appearance before the first paint, and restore a deep link redirected by 404.html.
+        (function () {
+            var root = document.documentElement;
+            try {
+                var theme = localStorage.getItem('nazor-theme');
+                var accent = localStorage.getItem('nazor-accent');
+                if (theme === 'light' || theme === 'dark') root.dataset.theme = theme;
+                if (accent) root.dataset.accent = accent;
+                var redirect = sessionStorage.getItem('nazor-redirect');
+                if (redirect) {
+                    sessionStorage.removeItem('nazor-redirect');
+                    history.replaceState(null, '', redirect);
+                }
+            } catch (e) { }
+        })();
+    </script>
+    <script src="js/site.js"></script>
+</head>
+<body>
+    <div id="app">
+        <div class="boot">
+            <span class="mark spin" style="--s:44px" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+            <span class="boot-word">nazor</span>
+        </div>
+    </div>
+    <div id="blazor-error-ui" role="alert">
+        Something went wrong while loading the page.
+        <a href="." class="reload">Reload</a>
+        <button type="button" class="dismiss" aria-label="Dismiss">×</button>
+    </div>
+    <script src="_framework/blazor.webassembly.js"></script>
+</body>
+</html>

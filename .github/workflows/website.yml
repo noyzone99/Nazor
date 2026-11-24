@@ -1,0 +1,60 @@
+name: Website
+
+# Builds the Blazor WebAssembly website in Webpage/ and publishes it to GitHub Pages.
+# Enable it in the repository settings: Pages > Build and deployment > Source: GitHub Actions.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "Docs/**"
+      - "Webpage/**"
+      - "Sources/Themes/Nazor.Themes.NazorLeaf/Fonts/**"
+      - "Directory.Build.props"
+      - ".github/workflows/website.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Publish
+        run: dotnet publish Webpage/Nazor.Website/Nazor.Website.csproj -c Release -o publish
+
+      - name: Prepare for GitHub Pages
+        run: |
+          site=publish/wwwroot
+          # A project site is served from /<repository>/.
+          sed -i "s|<base href=\"/\" />|<base href=\"/${{ github.event.repository.name }}/\" />|" "$site/index.html"
+          # GitHub Pages compresses responses itself and ignores precompressed files.
+          find "$site" -name "*.br" -delete
+          find "$site" -name "*.gz" -delete
+          touch "$site/.nojekyll"
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: publish/wwwroot
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

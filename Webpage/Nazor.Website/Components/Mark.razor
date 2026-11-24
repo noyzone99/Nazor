@@ -1,0 +1,10 @@
+@* The Nazor four-leaf mark. With Spin it becomes the NazorLeaf loading indicator. *@
+<span class="mark @(Spin ? "spin" : null) @Class" style="@(Size is null ? null : $"--s:{Size}px")" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+
+@code {
+    [Parameter] public int? Size { get; set; }
+
+    [Parameter] public bool Spin { get; set; }
+
+    [Parameter] public string? Class { get; set; }
+}

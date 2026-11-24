@@ -1,0 +1,182 @@
+@inject SiteContent Content
+@inject SiteInterop Interop
+@inject NavigationManager Navigation
+
+@if (Open)
+{
+    <div class="search-backdrop" @onclick="CloseAsync"></div>
+    <div class="search" role="dialog" aria-modal="true" aria-label="Search the documentation">
+        <div class="search-field">
+            <Icon Name="search" />
+            <input id="search-input" type="search" placeholder="Search guides, packages and types" autocomplete="off" spellcheck="false"
+                   value="@query" @oninput="OnInput" @onkeydown="OnKeyDown" role="combobox" aria-expanded="true" aria-controls="search-results"
+                   aria-activedescendant="@(results.Count > 0 ? $"search-result-{active}" : null)" />
+            <kbd>Esc</kbd>
+        </div>
+        <div class="search-results" id="search-results" role="listbox">
+            @if (results.Count == 0)
+            {
+                <div class="search-empty">
+                    @if (string.IsNullOrWhiteSpace(query))
+                    {
+                        <span>Type to search @(index.Count) guide sections, packages and types.</span>
+                    }
+                    else
+                    {
+                        <span>No results for “@query”.</span>
+                    }
+                </div>
+            }
+            @for (var i = 0; i < results.Count; i++)
+            {
+                var result = results[i];
+                var position = i;
+                <a id="search-result-@position" role="option" aria-selected="@(position == active ? "true" : "false")"
+                   class="search-result @(position == active ? "active" : null)" href="@result.Url"
+                   @onclick="CloseAsync" @onmouseenter="() => active = position">
+                    <span class="sr-icon"><Icon Name="@result.Icon" /></span>
+                    <span class="sr-text">
+                        <span class="sr-title">@result.Title</span>
+                        <span class="sr-path">@result.Path</span>
+                    </span>
+                    <Icon Name="right" Class="sr-go" />
+                </a>
+            }
+        </div>
+        <div class="search-foot">
+            <span><kbd>↑</kbd><kbd>↓</kbd> to move</span>
+            <span><kbd>Enter</kbd> to open</span>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool Open { get; set; }
+
+    [Parameter] public EventCallback<bool> OpenChanged { get; set; }
+
+    private readonly List<SearchEntry> index = [];
+    private List<SearchEntry> results = [];
+    private string query = string.Empty;
+    private int active;
+    private bool focusPending;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Open && index.Count == 0)
+        {
+            var manifest = await Content.GetManifestAsync();
+            foreach (var page in manifest.Pages)
+            {
+                var area = manifest.Navigation.FirstOrDefault(n => n.Area == page.Area)?.Title ?? page.Area;
+                var pageTitle = page.Number is null ? page.Title : $"{page.Number}. {page.Title}";
+                index.Add(new SearchEntry(pageTitle, $"{area} · {page.Group}", page.Route, page.Area == "API" ? "package" : "book", 0));
+                foreach (var entry in page.Toc)
+                {
+                    var isType = page.Area == "API" && entry.Text.Length > 0 && char.IsUpper(entry.Text[0]) && !entry.Text.Contains(' ');
+                    index.Add(new SearchEntry(entry.Text, $"{area} · {page.Title}", $"{page.Route}#{entry.Id}", isType ? "code" : "hash", isType ? 1 : 2));
+                }
+            }
+        }
+
+        if (Open)
+        {
+            focusPending = true;
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (focusPending && Open)
+        {
+            focusPending = false;
+            await Interop.FocusAsync("#search-input");
+        }
+    }
+
+    private void OnInput(ChangeEventArgs e)
+    {
+        query = e.Value?.ToString() ?? string.Empty;
+        active = 0;
+        results = Search(query);
+    }
+
+    private async Task OnKeyDown(KeyboardEventArgs e)
+    {
+        switch (e.Key)
+        {
+            case "ArrowDown" when results.Count > 0:
+                active = (active + 1) % results.Count;
+                await Interop.ScrollIntoViewAsync($"#search-result-{active}");
+                break;
+            case "ArrowUp" when results.Count > 0:
+                active = (active - 1 + results.Count) % results.Count;
+                await Interop.ScrollIntoViewAsync($"#search-result-{active}");
+                break;
+            case "Enter" when results.Count > 0:
+                var target = results[active].Url;
+                await CloseAsync();
+                Navigation.NavigateTo(target);
+                break;
+            case "Escape":
+                await CloseAsync();
+                break;
+        }
+    }
+
+    private async Task CloseAsync()
+    {
+        query = string.Empty;
+        results = [];
+        active = 0;
+        await OpenChanged.InvokeAsync(false);
+    }
+
+    private List<SearchEntry> Search(string text)
+    {
+        var terms = text.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (terms.Length == 0)
+        {
+            return [];
+        }
+
+        var phrase = text.Trim();
+        return index
+            .Select(entry => (entry, score: Score(entry, phrase, terms)))
+            .Where(item => item.score > 0)
+            .OrderByDescending(item => item.score)
+            .ThenBy(item => item.entry.Kind)
+            .ThenBy(item => item.entry.Title.Length)
+            .Take(40)
+            .Select(item => item.entry)
+            .ToList();
+    }
+
+    private static int Score(SearchEntry entry, string phrase, string[] terms)
+    {
+        var title = entry.Title;
+        if (!terms.All(term => title.Contains(term, StringComparison.OrdinalIgnoreCase) || entry.Path.Contains(term, StringComparison.OrdinalIgnoreCase)))
+        {
+            return 0;
+        }
+
+        var score = 1;
+        if (title.Equals(phrase, StringComparison.OrdinalIgnoreCase))
+        {
+            score += 100;
+        }
+        else if (title.StartsWith(phrase, StringComparison.OrdinalIgnoreCase))
+        {
+            score += 60;
+        }
+        else if (title.Contains(phrase, StringComparison.OrdinalIgnoreCase))
+        {
+            score += 30;
+        }
+
+        score += terms.Count(term => title.Contains(term, StringComparison.OrdinalIgnoreCase)) * 10;
+        return score - entry.Kind * 3;
+    }
+
+    private sealed record SearchEntry(string Title, string Path, string Url, string Icon, int Kind);
+}
