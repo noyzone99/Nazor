@@ -1,0 +1,143 @@
+name: Packages
+
+on:
+  push:
+    branches: [main, dev]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: packages-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  native:
+    name: Native libraries (${{ matrix.rid }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - rid: linux-x64
+            os: ubuntu-24.04
+          - rid: linux-musl-x64
+            os: ubuntu-24.04
+          - rid: linux-arm64
+            os: ubuntu-24.04-arm
+          - rid: linux-musl-arm64
+            os: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - uses: docker/setup-buildx-action@v4
+
+      - name: Build and test the native libraries
+        env:
+          NATIVE_RID: ${{ matrix.rid }}
+        run: bash Scripts/Build/build-native-matrix.sh Release "$NATIVE_RID"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: native-${{ matrix.rid }}
+          path: artifacts/native/${{ matrix.rid }}/
+          if-no-files-found: error
+
+  nuget:
+    name: NuGet packages
+    needs: native
+    runs-on: windows-2025
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
+          dotnet-version: 11.0.100
+
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: native-*
+          path: artifacts/native-download
+
+      - name: Stage native libraries
+        shell: pwsh
+        run: |
+          foreach ($rid in 'linux-x64', 'linux-musl-x64', 'linux-arm64', 'linux-musl-arm64') {
+            $target = "artifacts/native/$rid"
+            New-Item -ItemType Directory -Force $target | Out-Null
+            Copy-Item "artifacts/native-download/native-$rid/libnazor-wayland.so" $target
+            Copy-Item "artifacts/native-download/native-$rid/libnazor-x11.so" $target
+          }
+
+      - name: Pack NuGet packages
+        shell: pwsh
+        run: ./Scripts/Packaging/pack.ps1 -Symbols
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: nuget-packages
+          path: |
+            artifacts/packages/*.nupkg
+            artifacts/packages/*.snupkg
+          if-no-files-found: error
+
+  editors:
+    name: Editor extensions
+    runs-on: windows-2022
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
+          dotnet-version: 11.0.100
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+
+      - name: Build and verify editor extensions
+        shell: pwsh
+        run: |
+          ./Scripts/Build/build-editors.ps1
+          if (-not (Test-Path artifacts/editors/visualstudio/Nazor.VisualStudio.vsix)) {
+            throw 'The Visual Studio VSIX is missing. Check the Visual Studio extension development workload.'
+          }
+
+      - name: Package the VS Code extension
+        working-directory: artifacts/editors/vscode/nazor
+        shell: pwsh
+        run: |
+          npx --yes @vscode/vsce@4.0.0 package --allow-missing-repository --out ../../Nazor.VSCode.vsix
+          if ($LASTEXITCODE -ne 0) { throw 'VS Code packaging failed.' }
+          $archive = [IO.Compression.ZipFile]::OpenRead((Resolve-Path ../../Nazor.VSCode.vsix).Path)
+          try {
+            foreach ($file in 'package.json', 'extension.js', 'server/Nazor.LanguageServer.dll', 'node_modules/vscode-languageclient/package.json') {
+              if (-not $archive.GetEntry("extension/$file")) { throw "Missing VS Code package file: $file" }
+            }
+          }
+          finally { $archive.Dispose() }
+
+      - name: Archive the TextMate bundle
+        shell: pwsh
+        run: Compress-Archive artifacts/editors/visualstudio-folder/Nazor artifacts/editors/Nazor.TextMate.zip
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: editor-extensions
+          path: |
+            artifacts/editors/visualstudio/Nazor.VisualStudio.vsix
+            artifacts/editors/Nazor.VSCode.vsix
+            artifacts/editors/Nazor.TextMate.zip
+          if-no-files-found: error
