@@ -42,7 +42,9 @@ jobs:
 
       - name: Build and test the Linux native bridges
         if: runner.os == 'Linux'
-        run: bash Scripts/Build/build-native.sh Release
+        run: |
+          bash Scripts/Build/build-native.sh Release
+          echo "LD_LIBRARY_PATH=$PWD/artifacts/native/linux-${RUNNER_ARCH,,}${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" >> "$GITHUB_ENV"
 
       - name: Build the solution
         id: build
