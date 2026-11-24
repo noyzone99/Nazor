@@ -235,7 +235,6 @@ nazor-gallery-carousel { display: block; }
 }
 
 .gallery-controls { margin-top: 10px; }
-.gallery-playback[hidden] { display: none; }
 .gallery-controls button[aria-pressed="true"] { background: var(--pc); color: var(--on-pc); }
 
 @media (max-width: 620px) {

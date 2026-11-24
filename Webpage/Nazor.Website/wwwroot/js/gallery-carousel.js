@@ -8,7 +8,6 @@ function startCarousel(carousel) {
     const desktops = [...lightScene.querySelectorAll('.gallery-desktop')].map((desktop, index) => [desktop, darkScene.children[index]]);
     const allDesktops = desktops.flat();
     const platformButtons = [...carousel.querySelectorAll('[data-gallery-platform]')];
-    const playbackButton = carousel.querySelector('.gallery-playback');
     const themeSlider = stage.querySelector('.gallery-theme-slider');
     const compareHandle = stage.querySelector('.gallery-compare-handle');
     const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
@@ -33,7 +32,6 @@ function startCarousel(carousel) {
     let inView = false;
     let capturesReady;
     let assetsReady = false;
-    let paused = false;
     let selectionRequest = 0;
     let draggedPointer;
     let timer;
@@ -108,7 +106,7 @@ function startCarousel(carousel) {
     function scheduleNext() {
         if (transitioning) return;
         clearTimeout(timer);
-        if (!assetsReady || !inView || document.hidden || reducedMotion.matches || paused) return;
+        if (!assetsReady || !inView || document.hidden || reducedMotion.matches) return;
         timer = setTimeout(() => showDesktop((active + 1) % desktops.length, 1), desktopDuration);
     }
 
@@ -137,11 +135,6 @@ function startCarousel(carousel) {
             showDesktop(index, index > active ? 1 : -1);
         }, events);
     });
-    playbackButton.addEventListener('click', () => {
-        paused = !paused;
-        playbackButton.textContent = paused ? 'Play' : 'Pause';
-        scheduleNext();
-    }, events);
     stage.addEventListener('animationend', event => {
         if (transitioning && event.target === desktops[active][0]) finishSlide();
     }, events);
@@ -169,7 +162,6 @@ function startCarousel(carousel) {
     }, events);
     window.addEventListener('blur', () => { draggedPointer = undefined; }, events);
     reducedMotion.addEventListener('change', () => {
-        playbackButton.hidden = reducedMotion.matches;
         if (reducedMotion.matches && transitioning) finishSlide();
         else scheduleNext();
     }, events);
@@ -184,7 +176,6 @@ function startCarousel(carousel) {
         scheduleNext();
     }, { threshold: .15 });
     observer.observe(stage);
-    playbackButton.hidden = reducedMotion.matches;
     updateComparison();
     updateClocks();
 

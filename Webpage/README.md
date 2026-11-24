@@ -45,4 +45,4 @@ Download the static site from the `website` artifact in `dev` and manually trigg
 | `/docs`, `/guide/*`, `/devtools`, `/devtools/protocol` | Documentation overview and developer guide, including the DevTools pages |
 | `/api`, `/api/*` | API reference by package |
 
-The Gallery carousel uses the captures in `Nazor.Website/wwwroot/media/gallery/`. Its markup and appearance live in `Nazor.Website/Components/GalleryCarousel.razor` and its scoped stylesheet. The browser module in `Nazor.Website/wwwroot/js/gallery-carousel.js` handles desktop transitions, pausable autoplay, the draggable theme comparison and local clocks.
+The Gallery carousel uses the captures in `Nazor.Website/wwwroot/media/gallery/`. Its markup and appearance live in `Nazor.Website/Components/GalleryCarousel.razor` and its scoped stylesheet. The browser module in `Nazor.Website/wwwroot/js/gallery-carousel.js` handles desktop transitions, autoplay, the draggable theme comparison and local clocks.
