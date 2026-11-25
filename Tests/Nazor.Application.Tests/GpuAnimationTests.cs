@@ -55,18 +55,17 @@ public sealed class GpuAnimationTests
     }
 
     [Fact]
-    public async Task Layout_motion_keeps_the_ui_pipeline_instead_of_exporting_an_incomplete_snapshot()
+    public void Layout_motion_keeps_the_ui_pipeline_instead_of_exporting_an_incomplete_snapshot()
     {
         var sheet=NssCompiler.Compile("mixed-motion","""
             .motion { height:50px; background:#f00000; animation:grow 1000ms linear both; }
             @keyframes grow { from { width:20px; opacity:0; } to { width:120px; opacity:1; } }
             """);
-        using var harness=new WindowHarness(typeof(GpuMotionContent),new() { Rendering=RenderingMode.Auto, StyleSheet=sheet.StyleSheet });
+        using var harness=new WindowHarness(typeof(GpuMotionContent),new() { Rendering=RenderingMode.Auto, StyleSheet=sheet.StyleSheet, ReducedMotion=false });
         harness.WaitUntil(window => window.FrameCount>0,"mixed animation");
         Assert.False(harness.Read(window => window.Scene.CanAnimateOnCompositor));
         var before=harness.Read(window => window.FrameCount);
-        await Task.Delay(100,TestContext.Current.CancellationToken);
-        Assert.True(harness.Read(window => window.FrameCount)>before);
+        harness.WaitUntil(window => window.FrameCount>before,"a subsequent UI frame during the animation");
         Assert.Empty(harness.Read(window => window.Exceptions.ToArray()));
     }
 

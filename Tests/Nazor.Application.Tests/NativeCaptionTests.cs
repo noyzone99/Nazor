@@ -170,6 +170,13 @@ public sealed partial class TitleBarNativeTests
         return GetGUIThreadInfo(thread, &info) && (info.Flags & 4  ) != 0 && info.MenuOwner == owner;
     }
 
+    private static nint FindVisibleNativeMenu(uint thread)
+    {
+        for (nint popup = 0; (popup = FindWindowExW(0, popup, "#32768", null)) != 0;)
+            if (GetWindowThreadProcessId(popup, out _) == thread && IsWindowVisible(popup)) return popup;
+        return 0;
+    }
+
     private static unsafe string NativeMenuState(uint thread)
     {
         var info = new GuiThreadInfo { Size = (uint)Marshal.SizeOf<GuiThreadInfo>() };
@@ -273,14 +280,16 @@ public sealed partial class TitleBarNativeTests
         var window = harness.Window<ChromeWindow>();
         if (scheme != Nazor.Style.ColorScheme.System)
             Assert.SkipUnless(OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22000) && !ApplicationHarness.On(window, () => window.PlatformWindow.PrefersHighContrast), "Menu theme compatibility is Windows 11 only and respects high contrast.");
-        var handle = ApplicationHarness.On(window, () =>
+        var (handle, menu) = ApplicationHarness.On(window, () =>
         {
             if (customButtons) ((ChromeWindow)window.Root.Component).ToggleSystemButtons();
             if (maximized) window.Maximize();
             window.Activate();
             window.Scene.Update();
-            return window.PlatformWindow.Handle;
+            var handle = window.PlatformWindow.Handle;
+            return (handle, GetSystemMenu(handle, false));
         });
+        Assert.NotEqual(0, menu);
         var thread = GetWindowThreadProcessId(handle, out _);
         Assert.SkipUnless(GetForegroundWindow() == handle, "Native system-menu verification requires a foreground test window.");
         try
@@ -294,30 +303,33 @@ public sealed partial class TitleBarNativeTests
                 Assert.True(ClientToScreen(handle, ref screen));
                 PostMessageW(handle, WM_NCRBUTTONUP, HTCAPTION, Pack(screen.X, screen.Y));
             }
-            Assert.True(SpinWait.SpinUntil(() => NativeMenuOpen(thread, handle), TimeSpan.FromSeconds(3)), NativeMenuState(thread));
+            // Windows can enter menu mode before the popup has initialized its command states.
+            Assert.True(SpinWait.SpinUntil(() => NativeMenuOpen(thread, handle) && FindVisibleNativeMenu(thread) != 0,
+                TimeSpan.FromSeconds(3)), NativeMenuState(thread));
+            void AssertDisabled(uint command, bool expected)
+            {
+                var state = GetMenuState(menu, command, 0);
+                Assert.True(((state & 3) != 0) == expected, $"System menu command 0x{command:X} has flags 0x{state:X}, expected disabled={expected}.");
+            }
+            AssertDisabled(0xF030, maximized || !resize);
+            AssertDisabled(0xF020, !minimize);
+            AssertDisabled(0xF000, maximized || !resize);
+            AssertDisabled(0xF120, !maximized);
             Assert.True(ApplicationHarness.On(window, () => window.Scene.Overlays.Count == 0));
-            var menu = GetSystemMenu(handle, false);
-            Assert.Equal(maximized || !resize, (GetMenuState(menu, 0xF030  , 0) & 3) != 0);
-            Assert.Equal(!minimize, (GetMenuState(menu, 0xF020  , 0) & 3) != 0);
-            Assert.Equal(maximized || !resize, (GetMenuState(menu, 0xF000  , 0) & 3) != 0);
-            Assert.Equal(!maximized, (GetMenuState(menu, 0xF120  , 0) & 3) != 0);
             if (scheme != Nazor.Style.ColorScheme.System)
             {
                 Nazor.Graphics.RenderedImage? image = null;
                 var dark = scheme == Nazor.Style.ColorScheme.Dark;
                 var matched = SpinWait.SpinUntil(() =>
                 {
-                    for (nint popup = 0; (popup = FindWindowExW(0, popup, "#32768", null)) != 0;)
-                    {
-                        if (GetWindowThreadProcessId(popup, out _) != thread) continue;
-                        image = ScreenCapture.CaptureDesktopWindow(popup);
-                        if (image.Width < 40 || image.Height < 40) continue;
-                        var background = image.GetPixel(image.Width - 12, 12);
-                        if ((background.R < 128) != dark) return false;
-                        return Enumerable.Range(30, image.Width - 50).Any(x => Enumerable.Range(30, image.Height - 50)
-                            .Any(y => dark ? image.GetPixel(x, y).R > 190 : image.GetPixel(x, y).R < 80));
-                    }
-                    return false;
+                    var popup = FindVisibleNativeMenu(thread);
+                    if (popup == 0) return false;
+                    image = ScreenCapture.CaptureDesktopWindow(popup);
+                    if (image.Width <= 50 || image.Height <= 50) return false;
+                    var background = image.GetPixel(image.Width - 12, 12);
+                    if ((background.R < 128) != dark) return false;
+                    return Enumerable.Range(30, image.Width - 50).Any(x => Enumerable.Range(30, image.Height - 50)
+                        .Any(y => dark ? image.GetPixel(x, y).R > 190 : image.GetPixel(x, y).R < 80));
                 }, TimeSpan.FromSeconds(3));
                 if (image is not null)
                 {

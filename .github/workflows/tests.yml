@@ -59,12 +59,15 @@ jobs:
             'Core', 'Style', 'Layout', 'Compiler', 'Controls', 'Rendering', 'Diagnostics',
             'DevTools.Agent', 'DevTools', 'Tooling', 'LanguageServer'
           )
-          if ($IsWindows) { $suites += 'Application' }
           $failed = @(foreach ($suite in $suites) {
             $project = "Nazor.$suite.Tests"
             & dotnet "Tests/$project/bin/Release/net10.0/$project.dll" -noLogo -noColor -result-xml "artifacts/ci-tests/$project.xml" | Out-Host
             if ($LASTEXITCODE -ne 0) { $project }
           })
+          if ($IsWindows) {
+            & Tests/Nazor.Application.Tests/bin/Release/net10.0/Nazor.Application.Tests.exe -noLogo -noColor -result-xml artifacts/ci-tests/Nazor.Application.Tests.xml | Out-Host
+            if ($LASTEXITCODE -ne 0) { $failed += 'Nazor.Application.Tests' }
+          }
           foreach ($framework in 'net8.0', 'net9.0', 'net10.0') {
             & dotnet "Tests/Nazor.DevTools.Protocol.Tests/bin/Release/$framework/Nazor.DevTools.Protocol.Tests.dll" -noLogo -noColor -result-xml "artifacts/ci-tests/protocol-$framework.xml"
             if ($LASTEXITCODE -ne 0) { $failed += "DevTools.Protocol ($framework)" }
