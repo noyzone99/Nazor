@@ -6,7 +6,7 @@ Nazor will always be free to use and open source. That commitment covers the fra
 
 > **`0.1.1-alpha` is an early preview for experiments and prototypes.** Expect changes to the APIs, markup, styling, and tooling.
 
-[Create an app](#try-the-preview) · [NuGet packages](Docs/NuGet.md#nuget-packages) · [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=Noyzone99.nazorvisualstudio) · [Try the Gallery](#try-the-gallery) · [Report an issue](https://github.com/noyzone99/Nazor/issues)
+[Website source](Webpage/README.md) · [Create an app](#try-the-preview) · [NuGet packages](Docs/NuGet.md#nuget-packages) · [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=Noyzone99.nazorvisualstudio) · [Try the Gallery](#try-the-gallery) · [Discussions](https://github.com/noyzone99/Nazor/discussions) · [Report an issue](https://github.com/noyzone99/Nazor/issues)
 
 ## A quick look at the code
 
@@ -79,7 +79,15 @@ You can run the visual regression tests and benchmarks yourself. The Windows com
 
 I build Nazor on my own, outside working hours, just for fun. Getting it stable enough for the first real apps is hard work, especially when it comes to keyboard input, accessibility, rendering, and the differences between desktops. Feedback from people trying Nazor on their own machines will help it mature faster.
 
+Ask questions, request features, share what you're building, or talk about where Nazor should go next. [Join GitHub Discussions](https://github.com/noyzone99/Nazor/discussions)
+
 Running the Gallery for a few minutes is already a contribution. If a control behaves oddly or the Gallery fails to start, open an issue with the release, your OS and backend, what you tried, and what happened. [Open an issue](https://github.com/noyzone99/Nazor/issues/new)
+
+### Help bring Nazor to macOS
+
+macOS support is planned. I don't have access to a Mac, so I can't test Nazor on macOS myself. How Nazor looks and feels on each desktop matters to me. Before announcing official support, I want to verify text rendering, display scaling, light and dark themes, and native window behavior on real Macs.
+
+If you have a Mac, I'd love to have you contribute. You can help build the macOS backend or test early builds as they become available. [Introduce yourself in GitHub Discussions](https://github.com/noyzone99/Nazor/discussions)
 
 ## Try the preview
 
