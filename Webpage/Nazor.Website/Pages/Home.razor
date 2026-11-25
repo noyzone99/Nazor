@@ -79,17 +79,21 @@
 @* ---------- Showcase ---------- *@
 <section class="band showcase">
     <div class="band-head">
-        <span class="eyebrow">Showcase</span>
-        <h2>Real controls, drawn by Nazor</h2>
-        <p>Explore the Gallery control catalog, drawn by Nazor with Skia.</p>
+        <span class="eyebrow">Native on every desktop</span>
+        <h2>One app, at home on every desktop</h2>
+        <p>
+            This is one Nazor app, the Gallery sample with the NazorLeaf theme, on Windows 11, KDE Plasma and GNOME.
+            Each time it runs in a real native window that follows the system light or dark preference and uses the platform's own
+            input, accessibility and desktop services.
+        </p>
     </div>
     <figure class="shot">
         <div class="shot-frame">
             <GalleryCarousel />
         </div>
         <figcaption>
-            <b>Gallery</b>
-            <span>Drag the divider handle to compare the NazorLeaf theme in light and dark on Windows, KDE Plasma and GNOME.</span>
+            <b>One app, three desktops</b>
+            <span>The desktop changes, the app stays the same. Drag the handle to compare the light and dark color schemes.</span>
             <a href="https://github.com/noyzone99/Nazor/tree/main/Samples/Nazor.Samples.Gallery" target="_blank" rel="noopener">View the sample<Icon Name="external" /></a>
         </figcaption>
     </figure>
@@ -133,9 +137,12 @@
 @* ---------- NazorLeaf ---------- *@
 <section class="band leaf">
     <div class="band-head">
-        <span class="eyebrow">NazorLeaf theme</span>
-        <h2>A visual language you recognize at a glance</h2>
-        <p>NazorLeaf is Nazor's own optional theme, and the look of this site. Four signs make it recognizable on every operating system.</p>
+        <span class="eyebrow">NazorLeaf</span>
+        <h2>The identity Nazor was designed with</h2>
+        <p>
+            NazorLeaf is the look Nazor was conceived with, and the one this site wears. It is still a theme package like any other:
+            use it as it is, tune its tokens, or choose another theme. Four signs make it recognizable on every operating system.
+        </p>
     </div>
     <div class="signs">
         <div class="sign"><div class="demo"><span class="d-leaf"></span></div><h3>The leaf</h3><p>Two wide corners on one diagonal, two almost sharp. Every shape, from button to window.</p></div>
@@ -166,18 +173,29 @@
 <section class="band">
     <div class="band-head">
         <span class="eyebrow">Themes</span>
-        <h2>Themes ship as packages</h2>
-        <p>Basic is built into the SDK. Optional themes layer palette, control styles, motion and fonts on top, following the system's light, dark and reduced-motion preferences.</p>
+        <h2>Nazor's look, a desktop's look, or your own</h2>
+        <p>
+            Appearance lives entirely in NSS, so the same components can wear any theme on any operating system: a theme sets the look,
+            never the platform. Start from NazorLeaf, pick a theme that reproduces a familiar desktop, or write your own.
+            Basic is built into the SDK and sits under every theme.
+        </p>
     </div>
     <div class="themes">
         @foreach (var theme in Themes)
         {
             <a class="theme @(theme.Featured ? "featured" : null)" href="@theme.Link">
+                <span class="t-kind">@theme.Kind</span>
                 <span class="t-swatch" style="--a:@theme.A; --b:@theme.B; --r:@theme.Radius"><i></i><i></i></span>
                 <span class="t-name">@theme.Name</span>
                 <span class="t-desc">@theme.Description</span>
             </a>
         }
+        <a class="theme own" href="guide/styling-and-themes#design-tokens">
+            <span class="t-kind">Your own</span>
+            <span class="t-own"><code>:root { --nz-accent: #6941c6; }</code></span>
+            <span class="t-name">Your theme</span>
+            <span class="t-desc">Override design tokens in your application stylesheet, restyle individual controls, or replace Basic entirely with your own NSS and ship it as a package.</span>
+        </a>
     </div>
 </section>
 
@@ -272,16 +290,16 @@
         "The platform presents the result and exposes semantics to assistive technology.",
     ];
 
-    private static readonly (string Name, string Description, string A, string B, string Radius, string Link, bool Featured)[] Themes =
+    private static readonly (string Kind, string Name, string Description, string A, string B, string Radius, string Link, bool Featured)[] Themes =
     [
-        ("NazorLeaf", "Leaf corners, seed indicators, color glow and the four-leaf mark.", "#0B57D0", "#D3E3FD", "11px 3px 11px 3px", "api/nazor-themes-nazorleaf", true),
-        ("Fluent", "WinUI palette, control styles and motion.", "#0067C0", "#E1EBF5", "4px", "api/nazor-themes-fluent", false),
-        ("Adwaita", "libadwaita 1.10 control styles.", "#3584E4", "#EBEBED", "9px", "api/nazor-themes-adwaita", false),
-        ("Breeze", "KDE Breeze-inspired control styles.", "#3DAEE9", "#EFF0F1", "3px", "api/nazor-themes-breeze", false),
-        ("Windows 7", "Windows 7-inspired control styles.", "#3C7FB1", "#DCE9F5", "3px", "api/nazor-themes-windows7", false),
-        ("Windows XP", "Windows XP-inspired control styles.", "#245EDC", "#ECE9D8", "3px", "api/nazor-themes-windowsxp", false),
-        ("Windows 9x", "Windows 95 and 98-inspired control styles.", "#000080", "#C0C0C0", "0", "api/nazor-themes-windows9x", false),
-        ("CDE", "Common Desktop Environment-inspired control styles.", "#5A8291", "#AEB2C3", "0", "api/nazor-themes-cde", false),
+        ("The identity", "NazorLeaf", "The look Nazor was designed with: leaf corners, seed indicators, color glow and the four-leaf mark.", "#0B57D0", "#D3E3FD", "11px 3px 11px 3px", "api/nazor-themes-nazorleaf", true),
+        ("Desktop", "Fluent", "WinUI palette, control styles and motion.", "#0067C0", "#E1EBF5", "4px", "api/nazor-themes-fluent", false),
+        ("Desktop", "Adwaita", "libadwaita 1.10 control styles.", "#3584E4", "#EBEBED", "9px", "api/nazor-themes-adwaita", false),
+        ("Desktop", "Breeze", "KDE Breeze-inspired control styles.", "#3DAEE9", "#EFF0F1", "3px", "api/nazor-themes-breeze", false),
+        ("Classic desktop", "Windows 7", "Windows 7-inspired control styles.", "#3C7FB1", "#DCE9F5", "3px", "api/nazor-themes-windows7", false),
+        ("Classic desktop", "Windows XP", "Windows XP-inspired control styles.", "#245EDC", "#ECE9D8", "3px", "api/nazor-themes-windowsxp", false),
+        ("Classic desktop", "Windows 9x", "Windows 95 and 98-inspired control styles.", "#000080", "#C0C0C0", "0", "api/nazor-themes-windows9x", false),
+        ("Classic desktop", "CDE", "Common Desktop Environment-inspired control styles.", "#5A8291", "#AEB2C3", "0", "api/nazor-themes-cde", false),
     ];
 
     private static readonly (string Name, string Status, string StatusText, string Text, string Link)[] Platforms =

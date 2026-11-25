@@ -7,8 +7,8 @@
         --nz-control: var(--nz-surface);
         --nz-on-control: #25201e;
         --nz-border: #6a564e;
-        --nz-field: #686f82;
-        --nz-on-field: #ffffff;
+        --nz-field: #b29f95;
+        --nz-on-field: #000000;
         --nz-accent: #1d5e71;
         --nz-on-accent: #ffffff;
         --nz-selection: #285d6e;
@@ -29,6 +29,7 @@
         --cde-on-pressed: #25201e;
         --cde-focus: #164b69;
         --cde-scrollbar-trough: #a8988f;
+        --cde-view: #a99890;
         scrollbar-visibility: visible;
         scrollbar-placement: reserve;
         scrollbar-width: 15px;
@@ -63,7 +64,8 @@
             --nz-on-surface: #151616;
             --nz-on-control: #151616;
             --nz-border: #414544;
-            --nz-field: #896d6d;
+            --nz-field: #737676;
+            --nz-on-field: #ffffff;
             --nz-accent: #395951;
             --nz-selection: #454f4c;
             --nz-link: #102420;
@@ -80,6 +82,7 @@
             --cde-on-pressed: #ffffff;
             --cde-focus: #133b36;
             --cde-scrollbar-trough: #6f7171;
+            --cde-view: #6f7272;
         }
 
         Button[intent="danger"]:not([appearance="accent"], :disabled),
@@ -146,6 +149,34 @@
         border-top-color: var(--cde-dark-edge);
         border-left-color: var(--cde-dark-edge);
     }
+    CaptionButtonsButton[kind="close"] { order: -1; margin-right: 4px; }
+    CaptionButtonsGlyph[kind="minimize"] {
+        width: 4px; height: 4px; stroke-trim-end: 0;
+        border: 1px solid; border-color: var(--cde-light-edge) var(--cde-dark-edge) var(--cde-dark-edge) var(--cde-light-edge);
+    }
+    CaptionButtonsGlyph[kind="maximize"], CaptionButtonsGlyph[kind="restore"] {
+        width: 10px; height: 10px; margin: 0;
+        border: 1px solid; border-color: var(--cde-light-edge) var(--cde-dark-edge) var(--cde-dark-edge) var(--cde-light-edge);
+    }
+    CaptionButtonsGlyphBack { display: none; }
+    CaptionButtonsGlyph[kind="close"] {
+        width: 11px; height: 4px;
+        border: 1px solid; border-color: var(--cde-light-edge) var(--cde-dark-edge) var(--cde-dark-edge) var(--cde-light-edge);
+    }
+    CaptionButtonsGlyphStroke { display: none; }
+    StatusBar {
+        min-height: 22px; margin: 0; padding: 0 6px; border: 2px solid;
+        border-color: var(--cde-dark-edge) var(--cde-light-edge) var(--cde-light-edge) var(--cde-dark-edge);
+        background: var(--nz-surface); color: var(--nz-on-surface); font-size: 13px;
+    }
+    StatusBarSection + StatusBarSection { border-left: 2px solid var(--cde-dark-edge); }
+    MenuBarItem { padding: 3px 10px; border: 2px solid transparent; }
+    MenuBarItem:hover { background: transparent; color: var(--cde-on-panel); }
+    MenuBarItem:focus, MenuBarItem[expanded] {
+        background: var(--cde-panel); color: var(--cde-on-panel);
+        border-color: var(--cde-light-edge) var(--cde-dark-edge) var(--cde-dark-edge) var(--cde-light-edge);
+    }
+    ListView, TreeView, ListBox, GridView { background: var(--cde-view); color: var(--nz-on-surface); }
     CaptionButtonsButton:disabled, CaptionButtonsButton[kind="close"]:disabled:is(:hover, :active) {
         background: var(--cde-title);
         color: var(--cde-on-title);
@@ -194,10 +225,6 @@
         border-left-color: var(--cde-dark-edge);
         border-right-color: var(--cde-light-edge);
         border-bottom-color: var(--cde-light-edge);
-    }
-    :is(TextField, TextArea, Select, NumberField, ComboBox, SearchField, PasswordField, TokenField,
-        DateField, TimeField, MaskedField, ShortcutField):where([appearance="outline"]:not(:disabled)) {
-        --nz-muted: #fcfcfc;
     }
     :is(TextField, TextArea, Select, NumberField, ComboBox, SearchField, PasswordField, TokenField,
         DateField, TimeField, MaskedField, ShortcutField):is([appearance="plain"], [appearance="filled"], [appearance="underline"]):not(:disabled) {

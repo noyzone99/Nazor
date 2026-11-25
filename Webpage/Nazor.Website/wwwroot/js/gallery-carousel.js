@@ -19,14 +19,14 @@ function startCarousel(carousel) {
         { day: 'numeric', month: 'numeric', year: 'numeric' },
         { day: 'numeric', month: 'numeric', year: '2-digit' },
         { day: 'numeric', month: 'short' }
-    ].map(options => new Intl.DateTimeFormat(undefined, options));
+    ].map(options => new Intl.DateTimeFormat('en-US', options));
     const clocks = desktops.flatMap((pair, index) => pair.map(desktop => ({
         element: desktop.querySelector('.gallery-clock'),
         time: desktop.querySelector('.gallery-clock-time'),
         date: desktop.querySelector('.gallery-clock-date'),
         dateFormat: dateFormats[index]
     })));
-    const timeFormat = new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit' });
+    const timeFormat = new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: '2-digit' });
     let active = platformButtons.findIndex(button => button.dataset.galleryPlatform === stage.dataset.platform);
     let transitioning = false;
     let inView = false;
@@ -76,7 +76,7 @@ function startCarousel(carousel) {
         active = next;
         stage.dataset.direction = direction < 0 ? 'backward' : 'forward';
         stage.dataset.platform = platformButtons[next].dataset.galleryPlatform;
-        artwork.setAttribute('aria-label', 'Nazor Gallery on the ' + platformButtons[next].textContent + ' desktop in dark and light themes');
+        artwork.setAttribute('aria-label', 'The same Nazor app on the ' + platformButtons[next].textContent + ' desktop, in the dark and light color schemes');
         platformButtons.forEach((button, index) => button.setAttribute('aria-pressed', index === next));
 
         if (reducedMotion.matches) {

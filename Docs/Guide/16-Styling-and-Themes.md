@@ -67,6 +67,12 @@ Custom properties inherit through these boundaries. Expose a token or a `Class` 
 
 ## Choose a theme and a color scheme
 
+A theme sets the look of an application, not the platform it runs on. Every theme is NSS layered over Basic and works with every supported backend, so the same components can take any of these looks:
+
+- **NazorLeaf**, the identity Nazor was designed with and the look of its samples and website. [NazorLeaf](#nazorleaf)
+- **A desktop-inspired theme** that reproduces a familiar desktop: Fluent, Adwaita and Breeze, or the historical Windows 7, Windows XP, Windows 9x and CDE styles. [Desktop-inspired themes](#desktop-inspired-themes)
+- **Your own theme**: override [design tokens](#design-tokens) in the application stylesheet, restyle individual controls, or replace Basic with your own NSS and distribute it as a [theme package](28-Libraries-Packaging-and-Deployment.md#theme-packages).
+
 Basic is the SDK's built-in theme. It is selected when `app.Appearance.Theme` is null and through `Nazor.Themes.Themes.Default`. Its NSS rules provide system colors, borders, dimensions, and focus cues. None is an empty stylesheet for applications that supply their own control styles.
 
 For a new project, the [template's `--Theme` option](02-Getting-Started.md#template-options) selects Basic, Fluent, or NazorLeaf and generates the matching startup and package references.
@@ -98,7 +104,7 @@ The shared host hint is available to custom and future backends. Existing deskto
 
 ### NazorLeaf
 
-Reference the matching alpha release of `Nazor.Themes.NazorLeaf`. In `Program.cs`, keep the application's namespace import for `App`, register the fonts before `Build()`, and select the theme before `Run()`.
+NazorLeaf is Nazor's visual identity: leaf-shaped corners, the seed selection indicator, colored glow and the four-leaf mark. It is distributed as an optional package like the other themes, so applications can adopt it, tune its tokens, or choose another look. Reference the matching alpha release of `Nazor.Themes.NazorLeaf`. In `Program.cs`, keep the application's namespace import for `App`, register the fonts before `Build()`, and select the theme before `Run()`.
 
 ```csharp
 using Nazor.Themes.NazorLeaf;
@@ -115,7 +121,7 @@ return app.Run();
 
 ## Desktop-inspired themes
 
-Reference the matching alpha release of the theme package. After building the application, assign its stylesheet to `app.Appearance.Theme`.
+These themes reproduce the look of existing desktops. They are not tied to the desktop they imitate: Adwaita runs on Windows and Fluent runs on Linux. Reference the matching alpha release of the theme package. After building the application, assign its stylesheet to `app.Appearance.Theme`.
 
 ```csharp
 using Nazor.Themes.Adwaita;
@@ -142,7 +148,9 @@ These packages layer compiled NSS over Basic. Adwaita follows libadwaita 1.10 fr
 
 Adwaita uses overlay scrollbars with a narrow indicator that widens under the pointer. Breeze reserves its Qt-style scrollbar gutter. The three historical Windows styles and CDE reserve gutters with end buttons. Thumb colors also respond to pointer hover and dragging. See [scrollbar styling](20-Layout-and-Scrolling.md#scrolling) to adjust these choices in your app.
 
-Try each theme with the Gallery's theme and color scheme selectors. **ScrollView** demonstrates both scrollbar axes. **TitleBar and window controls** previews Nazor-drawn decorations. Gallery and headless tests cover control styles and interaction. Native toolkit comparisons remain part of the alpha verification. [Gallery](../../Samples/Nazor.Samples.Gallery/README.md)
+Each theme also styles Nazor-drawn frames, captions and caption buttons: Windows 9x, XP and 7 draw their classic captions and frames, CDE the Motif title bar, Breeze the centered Plasma title bar and Adwaita round libadwaita window controls. Select a Nazor frame, for example `WindowDecorations.Nazor()`, to show them. [Title bars](14-Title-Bars-and-Platform-Integration.md)
+
+Try each theme with the Gallery's theme and color scheme selectors. The Gallery switches to a Nazor frame and presents itself like a native application of each desktop. **ScrollView** demonstrates both scrollbar axes. **TitleBar and window controls** previews Nazor-drawn decorations. Gallery and headless tests cover control styles and interaction. Native toolkit comparisons remain part of the alpha verification. [Gallery](../../Samples/Nazor.Samples.Gallery/README.md)
 
 ## Design tokens
 

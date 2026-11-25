@@ -8,9 +8,9 @@ using Nazor.Themes.Windows7;
 app.Appearance.Theme = Windows7Theme.Theme;
 ```
 
-Windows 7 draws on Aero with pale blue-gray surfaces, soft gradients and blue interaction states. It uses a light palette. [Microsoft's visual style examples](https://learn.microsoft.com/en-us/windows/win32/controls/visual-styles-overview)
+Windows 7 follows the Aero style with the Sky frame color: Segoe UI 9 pt, #f0f0f0 dialogs, two-tone glossy push buttons that turn blue under the pointer, soft #abadb3 field frames, button-style drop-down lists, the green progress bar and the light-blue item highlight. Nazor-drawn frames use a light-blue glass caption and border without blur, with grouped caption buttons that hang from the top edge and a wide red close button. It uses a light palette. [Microsoft's visual style examples](https://learn.microsoft.com/en-us/windows/win32/controls/visual-styles-overview)
 
-The 16 px scrollbars reserve a pale track with end buttons. Their narrower thumb changes from slate blue to cyan during pointer interaction. Fields have cool blue hover borders, and Nazor-drawn caption controls use a light gradient. [Aero scrollbar states](https://learn.microsoft.com/en-us/windows/win32/controls/aero-style-classes-parts-and-states)
+The 17 px scrollbars reserve a pale track with end buttons; the thumb turns light blue during pointer interaction. Menus keep the gray icon gutter. [Aero scrollbar states](https://learn.microsoft.com/en-us/windows/win32/controls/aero-style-classes-parts-and-states)
 
 See [desktop-inspired themes](../Guide/16-Styling-and-Themes.md#desktop-inspired-themes) for scheme selection, font discovery and forced colors.
 

@@ -168,61 +168,113 @@
 }
 
 .gallery-window-buttons {
+  --px: calc(100cqw / 1182);
   position: absolute;
   z-index: 2;
-  top: .96cqw;
-  right: .1cqw;
+  top: calc(11.5 * var(--px));
+  right: var(--px);
   display: flex;
+  align-items: center;
+  gap: 0;
   color: var(--chrome-ink);
-  font-size: 1.18cqw;
+  pointer-events: none;
   transition: var(--chrome-duration) ease var(--chrome-delay);
-  transition-property: right, color;
+  transition-property: top, right, gap, color;
 }
 
 .gallery-window-button {
   position: relative;
   display: grid;
   place-items: center;
-  width: 4.06cqw;
-  height: 2.03cqw;
+  width: calc(48 * var(--px));
+  height: calc(24 * var(--px));
+  border-radius: 0%;
+  background-color: transparent;
   transition: var(--chrome-duration) ease var(--chrome-delay);
-  transition-property: width, margin-left, border-radius, background-color;
+  transition-property: width, height, border-radius, background-color;
 }
 
-.gallery-window-button::before, .gallery-window-button::after {
+.gallery-window-button::before,
+.gallery-window-button:not(.maximize)::after {
+  content: "";
   position: absolute;
   transition: var(--chrome-duration) ease var(--chrome-delay);
-  transition-property: transform, border-color;
+  transition-property: width, transform, border-color, border-radius, opacity;
 }
 
 .minimize::before, .minimize::after {
-  content: "";
-  width: .38em;
-  border-bottom: 1px solid;
+  top: 50%;
+  width: calc(5 * var(--px));
+  height: 1px;
+  background-color: currentColor;
+  transform: translateY(calc(.5 * var(--px) - .5px));
 }
 .minimize::before { right: 50%; transform-origin: right center; }
 .minimize::after { left: 50%; transform-origin: left center; }
-.maximize::before { content: ""; width: .58em; height: .58em; border: 1px solid; }
-.close::before, .close::after { content: ""; width: .9em; border-bottom: 1px solid; transform: rotate(45deg); }
+
+.maximize::before {
+  width: calc(9 * var(--px) + 1px);
+  aspect-ratio: 1;
+  border: 1px solid currentColor;
+  border-radius: calc(1.5 * var(--px));
+}
+
+.close::before, .close::after {
+  width: calc(12.73 * var(--px));
+  height: 1px;
+  background-color: currentColor;
+  transform: rotate(45deg);
+}
 .close::after { transform: rotate(-45deg); }
 
-.gallery-stage:not([data-platform="windows"]) .gallery-window-buttons { right: 1.02cqw; }
-.gallery-stage:not([data-platform="windows"]) .gallery-window-button { width: 2.03cqw; }
-.gallery-stage[data-platform="kde"] .gallery-window-buttons { color: light-dark(#26323a, #e0e5ea); }
-.gallery-stage[data-platform="kde"] .minimize::before { transform: translateY(.14em) rotate(40deg); }
-.gallery-stage[data-platform="kde"] .minimize::after { transform: translateY(.14em) rotate(-40deg); }
-.gallery-stage[data-platform="kde"] .maximize::before {
-  border-bottom-color: transparent;
-  border-left-color: transparent;
-  transform: translateY(.14em) rotate(-45deg) scale(.8);
+.gallery-window-button svg {
+  display: block;
+  width: calc(16 * var(--px));
+  height: calc(16 * var(--px));
+  fill: currentColor;
+  opacity: 0;
+  transition: opacity var(--chrome-duration) ease var(--chrome-delay);
 }
 
-.gallery-stage[data-platform="gnome"] .gallery-window-buttons { color: light-dark(#26303f, #f1f1f4); }
-.gallery-stage[data-platform="gnome"] .gallery-window-button {
-  margin-left: 1.05cqw;
-  border-radius: 50%;
-  background: light-dark(#bbc6d9, #35383f);
+.gallery-stage[data-platform="kde"] .gallery-window-buttons {
+  top: calc(13.5 * var(--px));
+  right: calc(8 * var(--px));
+  gap: calc(4 * var(--px));
+  color: light-dark(#232629, #fcfcfc);
 }
+.gallery-stage[data-platform="kde"] .gallery-window-button {
+  width: calc(20 * var(--px));
+  height: calc(20 * var(--px));
+}
+.gallery-stage[data-platform="kde"] :is(.minimize, .close)::before,
+.gallery-stage[data-platform="kde"] :is(.minimize, .close)::after { border-radius: 1px; }
+.gallery-stage[data-platform="kde"] .minimize::before,
+.gallery-stage[data-platform="kde"] .minimize::after { width: calc(7.07 * var(--px)); }
+.gallery-stage[data-platform="kde"] .minimize::before { transform: translateY(calc(3 * var(--px) - .5px)) rotate(45deg); }
+.gallery-stage[data-platform="kde"] .minimize::after { transform: translateY(calc(3 * var(--px) - .5px)) rotate(-45deg); }
+.gallery-stage[data-platform="kde"] .maximize::before {
+  width: calc(7.07 * var(--px) + 1px);
+  border-color: currentColor currentColor transparent transparent;
+  border-radius: 0;
+  transform: translateY(calc(2 * var(--px))) rotate(-45deg);
+}
+.gallery-stage[data-platform="kde"] .close::before,
+.gallery-stage[data-platform="kde"] .close::after { width: calc(11.31 * var(--px)); }
+
+.gallery-stage[data-platform="gnome"] .gallery-window-buttons {
+  right: calc(11 * var(--px));
+  gap: calc(13 * var(--px));
+  color: light-dark(rgb(0 0 6 / 80%), #fff);
+}
+.gallery-stage[data-platform="gnome"] .gallery-window-button {
+  width: calc(24 * var(--px));
+  height: calc(24 * var(--px));
+  border-radius: 50%;
+  background: color-mix(in srgb, currentColor 10%, transparent);
+}
+.gallery-stage[data-platform="gnome"] .gallery-window-button::before,
+.gallery-stage[data-platform="gnome"] .gallery-window-button::after { opacity: 0; }
+.gallery-stage[data-platform="gnome"] .gallery-window-button svg { opacity: 1; }
 
 nazor-gallery-carousel { display: block; }
 

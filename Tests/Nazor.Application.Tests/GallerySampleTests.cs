@@ -59,6 +59,42 @@ public sealed class GallerySampleTests : IDisposable
         Assert.Contains(snapshot.Elements, element => element.ElementId == "card-button");
     }
 
+    [Theory]
+    [InlineData("Windows 7", true, true)]
+    [InlineData("Windows XP", true, true)]
+    [InlineData("Windows 9x", true, true)]
+    [InlineData("Adwaita", false, true)]
+    [InlineData("Breeze", true, false)]
+    [InlineData("CDE", true, true)]
+    public async Task DevTools_can_serialize_the_gallery_tree_after_a_theme_change(string theme, bool hasFill, bool hasOutline)
+    {
+        Appearance.Theme = App.LeafTheme;
+        Update();
+        using var session = new DevToolsSession(host.Renderer, scene, input);
+        var target = new TargetState(new(42, "process", "runtime", "app", "gallery", session.SessionId), 1, "running", null);
+        var exporter = new TreeSnapshotExporter(session);
+        var initial = exporter.Capture(target);
+
+        await Pick("gallery-theme", theme);
+        var updated = exporter.Capture(target);
+        var token = TestContext.Current.CancellationToken;
+        var full = TreeSnapshotExporter.SerializeAsync(updated, cancellationToken: token);
+        host.RunUntil(() => full.IsCompleted);
+        var snapshot = DevToolsJson.Read<TreeSnapshot>(await full);
+        var changes = TreeSnapshotExporter.SerializeAsync(updated, changesOnly: true, cancellationToken: token);
+        host.RunUntil(() => changes.IsCompleted);
+        var delta = DevToolsJson.Read<TreeDelta>(await changes);
+
+        Assert.Contains(snapshot.Elements, element => element.ElementId == "card-button");
+        Assert.Equal(initial.Snapshot.Revision, delta.BaseRevision);
+        Assert.Equal(snapshot.Revision, delta.Revision);
+
+        var card = ById($"card-{GalleryCatalog.Entries[0].Id}");
+        var glyph = card.Elements().Single(element => element.Class?.Split(' ').Contains("card-glyph") is true);
+        Assert.Equal(hasFill, scene.Styles.GetGeneratedElement(glyph, PseudoElement.Before) is not null);
+        Assert.Equal(hasOutline, scene.Styles.GetGeneratedElement(glyph, PseudoElement.After) is not null);
+    }
+
     [Fact]
     public async Task Single_view_shows_the_catalog_and_disables_separate_window_previews()
     {
@@ -139,9 +175,9 @@ public sealed class GallerySampleTests : IDisposable
     [Theory]
     [InlineData("Adwaita", "adwaita", 0xfafafb, 0x222226, 9)]
     [InlineData("Breeze", "breeze", 0xeff0f1, 0x202326, 5)]
-    [InlineData("Windows 9x", "windows-9x", 0xd0d2d7, 0xd0d2d7, 0)]
-    [InlineData("Windows XP", "windows-xp", 0xece9dc, 0xece9dc, 5)]
-    [InlineData("Windows 7", "windows-7", 0xedf2f7, 0xedf2f7, 4)]
+    [InlineData("Windows 9x", "windows-9x", 0xc0c0c0, 0xc0c0c0, 0)]
+    [InlineData("Windows XP", "windows-xp", 0xece9d8, 0xece9d8, 3)]
+    [InlineData("Windows 7", "windows-7", 0xffffff, 0xffffff, 3)]
     [InlineData("CDE", "cde", 0xc6b2a8, 0x828585, 0)]
     public async Task Desktop_theme_picker_applies_control_styles_and_respects_forced_colors(
         string label, string id, int light, int dark, int radius)
@@ -204,9 +240,9 @@ public sealed class GallerySampleTests : IDisposable
     [InlineData("NazorLeaf", "nazor-leaf", 8, 5, 7, ScrollbarPlacement.Overlay, false)]
     [InlineData("Adwaita", "adwaita", 16, 3, 8, ScrollbarPlacement.Overlay, false)]
     [InlineData("Breeze", "breeze", 21, 8, 8, ScrollbarPlacement.Reserve, false)]
-    [InlineData("Windows 9x", "windows-9x", 17, 17, 17, ScrollbarPlacement.Reserve, true)]
-    [InlineData("Windows XP", "windows-xp", 16, 14, 14, ScrollbarPlacement.Reserve, true)]
-    [InlineData("Windows 7", "windows-7", 16, 12, 12, ScrollbarPlacement.Reserve, true)]
+    [InlineData("Windows 9x", "windows-9x", 16, 16, 16, ScrollbarPlacement.Reserve, true)]
+    [InlineData("Windows XP", "windows-xp", 17, 15, 15, ScrollbarPlacement.Reserve, true)]
+    [InlineData("Windows 7", "windows-7", 17, 15, 15, ScrollbarPlacement.Reserve, true)]
     [InlineData("CDE", "cde", 15, 15, 15, ScrollbarPlacement.Reserve, true)]
     public async Task Desktop_theme_styles_both_gallery_scrollbar_axes(
         string label, string id, int lane, int thumb, int expanded, ScrollbarPlacement placement, bool arrows)
@@ -351,7 +387,7 @@ public sealed class GallerySampleTests : IDisposable
         await Save($"Fluent-depth-{scheme}-{forcedColors}");
         var preview = scene.GetBounds(ById("sample-preview"));
         var source = scene.GetBounds(root.Elements().Single(element => element.Class == "source-heading"));
-        var page = scene.GetBounds(root.Elements().Single(element => element.Class == "main-scroll"));
+        var page = scene.GetBounds(root.Elements().Single(element => element.Class?.Split(' ').Contains("main-scroll") is true));
         var image = graphics.RenderToImage(scene.BuildDisplayList(), 1, scene.Background);
         var examplePixel = image.GetPixel((int)preview.X + 5, (int)preview.Y + 5);
         var pagePixel = image.GetPixel((int)page.X + 5, (int)preview.Y + 5);

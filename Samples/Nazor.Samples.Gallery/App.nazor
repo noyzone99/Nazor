@@ -1,5 +1,6 @@
 @window
 @using Nazor.Themes.NazorLeaf
+@inject IApplicationAppearance Appearance
 
 <GalleryView>
     <Caption Context="gallery">
@@ -19,9 +20,7 @@
 
     protected override void OnInitialized()
     {
-        Window.Decorations = WindowDecorationPolicy.Prefer(
-            WindowDecorations.Native(WindowTitleBarContent.User, WindowCaptionButtons.Native),
-            WindowDecorations.Nazor(WindowTitleBarContent.User, WindowCaptionButtons.Nazor));
+        Window.Decorations = GalleryThemes.Decorations(GalleryThemes.Identify(Appearance.Theme));
         Window.Title = "Nazor Gallery";
         Window.Width = 1180;
         Window.Height = 820;
@@ -47,6 +46,16 @@
     }
     @media (max-width: 720px) {
         :root:is(.gallery-leaf, .gallery-fluent) .gallery-titlebar TitleBarHeading { flex-basis: auto; }
+    }
+    /* Adwaita splits the header bar like a libadwaita split view: the sidebar header carries the title, the content
+       header the search entry and the window controls. */
+    :root.gallery-adwaita .gallery-titlebar {
+        gap: 0;
+        padding: 0;
+        TitleBarAppIcon { display: none; }
+        TitleBarHeading { flex: 0 0 260px; align-self: stretch; justify-content: center; background: var(--adwaita-sidebar); border-right: 1px solid var(--adwaita-pane-edge); }
+        TitleBarTitle { font-size: 14.667px; font-weight: 700; }
+        .titlebar-search { flex: 0 1 360px; min-height: 34px; }
     }
     :root.gallery-none .gallery-titlebar { display: flex; align-items: center; min-height: 48px; }
     :root.gallery-none .titlebar-search { display: flex; align-items: center; min-height: 32px; padding: 4px 8px; }

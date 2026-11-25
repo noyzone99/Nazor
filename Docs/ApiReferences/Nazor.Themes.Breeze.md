@@ -8,7 +8,7 @@ using Nazor.Themes.Breeze;
 app.Appearance.Theme = BreezeTheme.Theme;
 ```
 
-Breeze follows KDE's Qt Widgets style with 5 px control corners, tinted default actions, outlined editors and 20 px selection indicators. It prefers the installed Noto Sans font at 10 pt. The light and dark palettes follow the application's resolved color scheme. [KDE Breeze palettes](https://github.com/KDE/breeze/tree/master/colors) · [KDE widget metrics](https://github.com/KDE/breeze/blob/master/kstyle/breezemetrics.h) · [Plasma screenshots](https://kde.org/announcements/plasma/5/5.23.0/)
+Breeze follows KDE's Qt Widgets style with 5 px control corners, tinted default actions, outlined editors and 20 px selection indicators. It prefers the installed Noto Sans font at 10 pt. The light and dark palettes follow the application's resolved color scheme. Nazor-drawn frames use the header-colored title bar with a centered title and the round Breeze caption buttons; toolbars sit on the window color above a separator, and views use the view color with accent-tinted hover and selection. [KDE Breeze palettes](https://github.com/KDE/breeze/tree/master/colors) · [KDE widget metrics](https://github.com/KDE/breeze/blob/master/kstyle/breezemetrics.h) · [Plasma screenshots](https://kde.org/announcements/plasma/5/5.23.0/)
 
 Scrollable controls reserve a 21 px rail with a centered 8 px thumb and a minimum thumb length of 20 px. Hovering the thumb highlights it. The default configuration leaves out the arrow buttons. [KDE scrollbar rendering](https://github.com/KDE/breeze/blob/master/kstyle/breezestyle.cpp#L5805-L5864) · [KDE widget defaults](https://github.com/KDE/breeze/blob/master/kstyle/breeze.kcfg#L67-L74)
 

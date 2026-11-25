@@ -6,7 +6,7 @@
         --nz-on-surface: #232629;
         --nz-control: #fcfcfc;
         --nz-on-control: #232629;
-        --nz-border: #8d9297;
+        --nz-border: #b4b6b8;
         --nz-field: #ffffff;
         --nz-on-field: #232629;
         --nz-accent: #3daee9;
@@ -16,6 +16,11 @@
         --nz-link: #17668d;
         --nz-muted: #5e646b;
         --breeze-header: #dee0e2;
+        --breeze-view: #ffffff;
+        --breeze-location: #f7f7f7;
+        --breeze-separator: #b9bbbd;
+        --breeze-frame: #c6c8c9;
+        --breeze-section: #7f8285;
         --breeze-hover: color-mix(in srgb, var(--nz-control), var(--nz-accent) 15%);
         --breeze-pressed: color-mix(in srgb, var(--nz-control), var(--nz-accent) 30%);
         --breeze-focus: #1879a7;
@@ -43,12 +48,17 @@
             --nz-on-surface: #fcfcfc;
             --nz-control: #292c30;
             --nz-on-control: #fcfcfc;
-            --nz-border: #767d83;
+            --nz-border: #50555a;
             --nz-field: #141618;
             --nz-on-field: #fcfcfc;
             --nz-link: #67bfff;
             --nz-muted: #a1a9b1;
             --breeze-header: #292c30;
+            --breeze-view: #141618;
+            --breeze-location: #1d1f22;
+            --breeze-separator: #535659;
+            --breeze-frame: #4c4e51;
+            --breeze-section: #a1a9b1;
             --breeze-focus: #3daee9;
         }
 
@@ -61,12 +71,21 @@
     MenuItem[intent="danger"]:is(:hover, :focus):where(:not(:disabled)) { color: var(--nz-on-selection); }
     MenuItem:is(:hover, :focus):not(:disabled) > MenuItemDescription { color: inherit; }
     :root[frame-owner="nazor"][client-titlebar] {
-        -window-frame-border: 1px solid var(--nz-border);
-        -window-frame-border-radius: 5px;
-        -window-frame-box-shadow: 0 5px 16px #00000040;
+        -window-frame-border: 1px solid var(--breeze-frame);
+        -window-frame-border-radius: 4px 4px 2px 2px;
+        -window-frame-box-shadow: 0 6px 28px #0000004d, 0 1px 4px #00000026;
     }
-    TitleBar, Toolbar, MenuBar, TableHeaderCell { background: var(--breeze-header); }
-    TitleBar, Toolbar { border-bottom: 1px solid var(--nz-border); }
+    TitleBar, TableHeaderCell { background: var(--breeze-header); }
+    Toolbar, MenuBar { background: var(--nz-surface); }
+    Toolbar { border-bottom: 1px solid var(--breeze-separator); }
+    TitleBarTitle { font-size: 13.333px; }
+    StatusBar { border-top: 1px solid var(--breeze-separator); background: var(--nz-surface); font-size: inherit; }
+    MenuBarItem { padding: 4px 8px; border-radius: 3px; }
+    MenuBarItem:hover, MenuBarItem:focus, MenuBarItem[expanded] { background: color-mix(in srgb, var(--nz-accent) 20%, transparent); color: var(--nz-on-surface); }
+    ListView, TreeView, ListBox, GridView { background: var(--breeze-view); }
+    ListViewItem, TreeViewItem, GridViewItem { border: 1px solid transparent; border-radius: 3px; }
+    ListViewItem:hover, TreeViewItem:hover, GridViewItem:hover { border-color: color-mix(in srgb, var(--nz-accent) 60%, transparent); background: color-mix(in srgb, var(--nz-accent) 15%, transparent); color: var(--nz-on-surface); }
+    ListViewItem[selected], TreeViewItem[selected], GridViewItem[selected] { border-color: var(--nz-accent); background: color-mix(in srgb, var(--nz-accent) 30%, transparent); color: var(--nz-on-surface); }
     TitleBar[source="nazor"] { position: relative; }
     TitleBar[source="nazor"][height="standard"] { min-height: max(var(--nz-window-controls-height, 28px), 28px); }
     TitleBar[source="nazor"] > TitleBarHeading {
@@ -77,7 +96,14 @@
     }
     :root[frame-owner="nazor"]:window-inactive TitleBar { color: var(--nz-muted); }
     CaptionButtons { align-items: center; padding: 0 3px; }
-    CaptionButtonsButton { width: 25px; min-height: 23px; border-radius: 4px; }
+    CaptionButtons { gap: 4px; padding: 0 6px; }
+    CaptionButtonsButton { width: 20px; min-height: 20px; height: 20px; border-radius: 50%; background: transparent; color: var(--nz-on-surface); }
+    CaptionButtonsButton:hover:not(:disabled) { background: color-mix(in srgb, var(--nz-on-surface) 18%, transparent); color: var(--nz-on-surface); }
+    CaptionButtonsButton:active:not(:disabled) { background: color-mix(in srgb, var(--nz-on-surface) 30%, transparent); color: var(--nz-on-surface); }
+    CaptionButtonsButton[kind="close"]:hover:not(:disabled) { background: #da4453; color: #ffffff; }
+    CaptionButtonsButton[kind="close"]:active:not(:disabled) { background: #b23542; color: #ffffff; }
+    CaptionButtonsGlyph[kind="close"] { width: 9px; height: 9px; }
+    CaptionButtonsGlyphStroke { left: -1px; top: 4px; width: 11px; height: 1.5px; }
     CaptionButtonsGlyph[kind="minimize"], CaptionButtonsGlyph[kind="maximize"] {
         width: 7px;
         height: 7px;
@@ -86,8 +112,8 @@
         border-bottom: 1px solid currentColor;
         transform: rotate(45deg);
     }
-    CaptionButtonsGlyph[kind="minimize"] { stroke-trim-end: 0; }
-    CaptionButtonsGlyph[kind="maximize"] { transform: rotate(225deg); }
+    CaptionButtonsGlyph[kind="minimize"] { margin-top: -4px; stroke-trim-end: 0; }
+    CaptionButtonsGlyph[kind="maximize"] { margin-top: 4px; transform: rotate(225deg); }
 
     Button, ToggleButton { min-height: 30px; padding: 6px; gap: 4px; border-radius: 5px; }
     Button:where([appearance="standard"]:not([icon-only], [shape="square"], [shape="circle"], [size="small"])),

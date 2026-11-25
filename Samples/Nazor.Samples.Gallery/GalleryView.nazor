@@ -20,9 +20,93 @@
     }
     else
     {
+        @if (DesktopShell)
+        {
+            @* Desktop-inspired themes frame the catalog like a native application of that desktop. *@
+            <Container Class="shell-top">
+                @if (HasMenuBar)
+                {
+                    <MenuBar Class="shell-menu" AccessibleName="Main menu">
+                        <MenuBarItem>
+                            <ChildContent>File</ChildContent>
+                            <Content><MenuItem OnClick="() => Lifetime.Shutdown()">@(Theme == "cde" ? "Close" : "Exit")</MenuItem></Content>
+                        </MenuBarItem>
+                        <MenuBarItem>
+                            <ChildContent>View</ChildContent>
+                            <Content>
+                                <MenuItem OnClick="ShowHome">All components</MenuItem>
+                                <MenuItem OnClick="OpenShowcase">NazorLeaf showcase</MenuItem>
+                            </Content>
+                        </MenuBarItem>
+                        <MenuBarItem>
+                            <ChildContent>Go</ChildContent>
+                            <Content>
+                                <MenuItem Disabled="@(back.Count == 0)" OnClick="GoBack">Back</MenuItem>
+                                <MenuItem Disabled="@(forward.Count == 0)" OnClick="GoForward">Forward</MenuItem>
+                                <MenuItem OnClick="ShowHome">Home</MenuItem>
+                            </Content>
+                        </MenuBarItem>
+                        <MenuBarItem Class="shell-help">
+                            <ChildContent>Help</ChildContent>
+                            <Content><MenuItem OnClick="ShowHome">Contents</MenuItem></Content>
+                        </MenuBarItem>
+                    </MenuBar>
+                }
+                @if (HasToolbar)
+                {
+                    <Toolbar Class="shell-toolbar" AccessibleName="Navigation">
+                        <Button Class="shell-nav shell-back" Id="gallery-back" Appearance="ControlAppearance.Subtle" Disabled="@(back.Count == 0)" OnClick="GoBack"
+                                AccessibleName="Back" Leading="@ShellGlyph(BackSymbol, BackLine)">@NavText("Back")</Button>
+                        <Button Class="shell-nav shell-forward" Id="gallery-forward" Appearance="ControlAppearance.Subtle" Disabled="@(forward.Count == 0)" OnClick="GoForward"
+                                AccessibleName="Forward" Leading="@ShellGlyph(ForwardSymbol, ForwardLine)">@NavText("Forward")</Button>
+                        @if (ClassicAddress)
+                        {
+                            <Button Class="shell-nav shell-up" Appearance="ControlAppearance.Subtle" Disabled="@(selected is null)" OnClick="ShowHome"
+                                    AccessibleName="Up" Leading="@ShellGlyph(FluentSymbol.FolderArrowUp20Filled, FluentSymbol.FolderArrowUp20Regular)">@NavText("Up")</Button>
+                            <ToolbarSeparator />
+                        }
+                        <Container Class="shell-address">
+                            @if (ClassicAddress)
+                            {
+                                <TextBlock Class="shell-address-label">Address</TextBlock>
+                                <Container Class="shell-address-field">
+                                    <Container Class="shell-address-icon">@ShellGlyph(FolderSymbol(selected?.Category), FolderLine(selected?.Category))</Container>
+                                    <TextBlock Class="shell-address-text">@AddressText</TextBlock>
+                                </Container>
+                            }
+                            else
+                            {
+                                <BreadcrumbBar TItem="GalleryCrumb" Class="shell-breadcrumb" Items="Crumbs" ItemKey="crumb => crumb.Key" ItemText="crumb => crumb.Label"
+                                               OnItemInvoked="CrumbInvoked" AccessibleName="Location" />
+                            }
+                        </Container>
+                        <TextField Class="shell-search" @bind-Value="SearchText" Id="@SearchFieldId" Placeholder="@SearchPlaceholder"
+                                   Clearable="true" AccessibleName="Search components" />
+                    </Toolbar>
+                }
+                @if (Theme == "windows-7")
+                {
+                    <Toolbar Class="shell-commands" AccessibleName="Commands">
+                        <MenuButton Class="shell-command">
+                            <Menu>
+                                <MenuItem OnClick="ShowHome">All components</MenuItem>
+                                <MenuItem OnClick="OpenShowcase">NazorLeaf showcase</MenuItem>
+                                <MenuSeparator />
+                                <MenuItem OnClick="() => Lifetime.Shutdown()">Close</MenuItem>
+                            </Menu>
+                            <ChildContent>Organize</ChildContent>
+                        </MenuButton>
+                        <Button Class="shell-command" Appearance="ControlAppearance.Subtle" OnClick="OpenShowcase">Open showcase</Button>
+                        <ToolbarSpacer />
+                        <Button Class="shell-command shell-help-button" Appearance="ControlAppearance.Subtle" OnClick="ShowHome" AccessibleName="Help"
+                                Leading="@ShellGlyph(FluentSymbol.QuestionCircle20Filled, FluentSymbol.QuestionCircle20Regular)" />
+                    </Toolbar>
+                }
+            </Container>
+        }
         <Container Class="sidebar" AccessibleName="Component navigation">
             @* The application title bar carries the name and the search box when the window shows it. *@
-            @if (!CaptionSearch)
+            @if (!CaptionSearch && !DesktopShell)
             {
                 <Container Class="brand">
                     @if (Theme == "nazor-leaf")
@@ -35,54 +119,76 @@
                     }
                     <Heading Level="1">Nazor Gallery</Heading>
                 </Container>
-                <Field LabelText="Search components">
+            }
+            @if (!CaptionSearch && !HasToolbar)
+            {
+                <Field Class="sidebar-search" LabelText="Search components">
                     <TextField @bind-Value="SearchText" Id="gallery-search" Placeholder="Button, menu, list…" Clearable="true" />
                 </Field>
             }
-            <Button Class="nav-home" Appearance="ControlAppearance.Subtle" OnClick="ShowHome" Leading="@NavIcon(FluentSymbol.Home20Regular)">All components</Button>
-            <Button Class="nav-home nav-showcase" Id="gallery-showcase" Appearance="ControlAppearance.Subtle" OnClick="OpenShowcase"
-                    Leading="@NavIcon(FluentSymbol.Sparkle20Regular)">NazorLeaf showcase</Button>
-            <Container Class="navigation">
-                @foreach (var category in VisibleCategories)
-                {
-                    <Container Class="@($"nav-category {HueClass(category.Key)}")">
-                        <Icon Class="nav-glyph" Symbol="@CategoryNavIcon(category.Key)" />
-                        <TextBlock>@category.Key</TextBlock>
-                    </Container>
-                    @foreach (var entry in category)
+            <Container Class="sidebar-tree">
+                <Container Class="nav-places">
+                    <Button Class="@(selected is null ? "nav-home current-home" : "nav-home")" Id="gallery-home" Appearance="ControlAppearance.Subtle" OnClick="ShowHome"
+                            Leading="@NavIcon(FluentSymbol.Home20Filled, FluentSymbol.Home20Regular)">All components</Button>
+                    <Button Class="nav-home nav-showcase" Id="gallery-showcase" Appearance="ControlAppearance.Subtle" OnClick="OpenShowcase"
+                            Leading="@NavIcon(FluentSymbol.Sparkle20Filled, FluentSymbol.Sparkle20Regular)">NazorLeaf showcase</Button>
+                </Container>
+                <Container Class="navigation">
+                    @foreach (var category in VisibleCategories)
                     {
-                        <Button @key="entry.Id" Id="@($"nav-{entry.Id}")" Appearance="ControlAppearance.Subtle"
-                                Class="@(selected == entry ? "nav-item current" : "nav-item")" OnClick="() => Show(entry)">@entry.Title</Button>
+                        <Container Class="@($"nav-group {HueClass(category.Key)}")">
+                            <Container Class="nav-category">
+                                @if (DesktopShell)
+                                {
+                                    <Container Class="nav-folder">@ShellGlyph(FolderSymbol(category.Key), FolderLine(category.Key))</Container>
+                                }
+                                else
+                                {
+                                    <Icon Class="nav-glyph" Symbol="@CategoryNavIcon(category.Key)" />
+                                }
+                                <TextBlock>@category.Key</TextBlock>
+                            </Container>
+                            <Container Class="nav-items">
+                                @foreach (var entry in category)
+                                {
+                                    <Button @key="entry.Id" Id="@($"nav-{entry.Id}")" Appearance="ControlAppearance.Subtle"
+                                            Class="@(selected == entry ? "nav-item current" : "nav-item")" OnClick="() => Show(entry)"
+                                            Leading="@ItemIcon(entry.Category)">@entry.Title</Button>
+                                }
+                            </Container>
+                        </Container>
                     }
-                }
+                </Container>
             </Container>
-            <Field LabelText="Theme">
-                <Select TValue="string" @bind-Value="Theme" Id="gallery-theme">
-                    @foreach (var option in GalleryThemes.Options)
-                    {
-                        <SelectItem Value="@option.Id">@option.Label</SelectItem>
-                    }
-                </Select>
-            </Field>
-            <Field LabelText="Color scheme">
-                <Select TValue="string" @bind-Value="Scheme" Id="gallery-scheme">
-                    <SelectItem Value="@("system")">System</SelectItem>
-                    <SelectItem Value="@("light")">Light</SelectItem>
-                    <SelectItem Value="@("dark")">Dark</SelectItem>
-                </Select>
-            </Field>
+            <Container Class="sidebar-footer">
+                <Field Class="theme-field" LabelText="Theme">
+                    <Select TValue="string" @bind-Value="Theme" Id="gallery-theme">
+                        @foreach (var option in GalleryThemes.Options)
+                        {
+                            <SelectItem Value="@option.Id">@option.Label</SelectItem>
+                        }
+                    </Select>
+                </Field>
+                <Field Class="theme-field" LabelText="Color scheme">
+                    <Select TValue="string" @bind-Value="Scheme" Id="gallery-scheme">
+                        <SelectItem Value="@("system")">System</SelectItem>
+                        <SelectItem Value="@("light")">Light</SelectItem>
+                        <SelectItem Value="@("dark")">Dark</SelectItem>
+                    </Select>
+                </Field>
+            </Container>
         </Container>
-        <Container Class="main-scroll" AccessibleName="Gallery content">
+        <Container Class="@(selected is null ? "main-scroll home" : "main-scroll page")" AccessibleName="Gallery content">
             <Container Class="main">
                 @if (selected is { } current)
                 {
-                    <Button Appearance="ControlAppearance.Link" OnClick="ShowHome">All components</Button>
+                    <Button Class="back-link" Appearance="ControlAppearance.Link" OnClick="ShowHome">All components</Button>
                     <Container Class="@($"page-head {HueClass(current.Category)}")">
-                        <Container Class="glyph-tile page-glyph"><Icon Symbol="@CategoryIcon(current.Category)" /></Container>
+                        @Glyph(current.Category, "page-glyph")
                         <Heading Class="page-title" Id="page-title">@current.Title</Heading>
                     </Container>
                     <TextBlock Class="description">@current.Description</TextBlock>
-                    <TextBlock Class="muted" Id="page-type">@($"{current.Category} · {string.Join(", ", current.ComponentTypes.Select(TypeName))}")</TextBlock>
+                    <TextBlock Class="muted page-type" Id="page-type">@($"{current.Category} · {string.Join(", ", current.ComponentTypes.Select(TypeName))}")</TextBlock>
                     <Container Class="example-card">
                         <TextBlock Class="section-title">Interactive example</TextBlock>
                         <Container Class="preview" Id="sample-preview">
@@ -105,14 +211,14 @@
                         <Container Class="intro-art">
                             @foreach (var family in GalleryCatalog.Categories.Take(6))
                             {
-                                <Container Class="@($"glyph-tile {HueClass(family)}")"><Icon Symbol="@CategoryIcon(family)" /></Container>
+                                @Glyph(family, HueClass(family))
                             }
                         </Container>
                     </Container>
                     @foreach (var category in VisibleCategories)
                     {
                         <Container Class="@($"group-head {HueClass(category.Key)}")">
-                            <Container Class="glyph-tile group-glyph"><Icon Symbol="@CategoryIcon(category.Key)" /></Container>
+                            @Glyph(category.Key, "group-glyph")
                             <Heading Level="2" Class="group-title">@category.Key</Heading>
                             <TextBlock Class="group-count">@category.Count()</TextBlock>
                         </Container>
@@ -120,9 +226,9 @@
                             @foreach (var entry in category)
                             {
                                 <Button @key="entry.Id" Id="@($"card-{entry.Id}")" Class="@($"catalog-card {HueClass(entry.Category)}")" AccessibleName="@($"Open {entry.Title}")" OnClick="() => Show(entry)">
-                                    <Container Class="glyph-tile card-glyph"><Icon Symbol="@CategoryIcon(entry.Category)" /></Container>
+                                    @Glyph(entry.Category, "card-glyph")
                                     <TextBlock Class="card-title">@entry.Title</TextBlock>
-                                    <TextBlock Class="muted">@entry.Description</TextBlock>
+                                    <TextBlock Class="muted card-description">@entry.Description</TextBlock>
                                 </Button>
                             }
                         </Container>
@@ -135,6 +241,16 @@
                 }
             </Container>
         </Container>
+        @if (HasStatusBar)
+        {
+            <StatusBar Class="shell-status" ShowSizeGrip="@(Theme is "windows-9x" or "windows-xp" or "windows-7")">
+                <StatusBarSection IsFlexible="true">@StatusText</StatusBarSection>
+                @if (Theme != "breeze")
+                {
+                    <StatusBarSection Width="160">@ThemeLabel</StatusBarSection>
+                }
+            </StatusBar>
+        }
     }
     @if (SingleView)
     {
@@ -146,9 +262,11 @@
 @code {
     [Parameter] public RenderFragment<GalleryView>? Caption { get; set; }
     private bool SingleView => Caption is null;
-    private string GalleryClass => $"gallery theme-{Theme}{(showcase ? " showcase-active" : "")}{(CaptionSearch ? " captioned" : "")}{(SingleView ? $" single-view {MaterialClass}" : "")}";
+    private string GalleryClass => $"gallery theme-{Theme}{(DesktopShell ? " desktop" : "")}{(showcase ? " showcase-active" : "")}{(CaptionSearch ? " captioned" : "")}{(SingleView ? $" single-view {MaterialClass}" : "")}";
 
     private GalleryEntry? selected;
+    private readonly List<GalleryEntry?> back = [], forward = [];
+    private string? decorationKind;
     private string query = "";
     private bool showcase;
     private string seedClass = "seed-blue";
@@ -174,8 +292,16 @@
     protected override void OnInitialized()
     {
         if (SingleView) return;
+        // App selects the opening frame for the starting theme; later theme changes switch it while open.
+        decorationKind = GalleryThemes.DecorationKind(Theme);
         Window.ChromeChanged += ChromeChanged;
         UpdateWindowMaterial();
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        // Desktop-inspired frames name the open page in the caption, as the applications of those desktops do.
+        if (!SingleView && Window.Title != WindowTitle) Window.Title = WindowTitle;
     }
 
     public void Dispose()
@@ -185,15 +311,129 @@
 
     private void ChromeChanged() => _ = InvokeAsync(StateHasChanged);
 
-    private void Show(GalleryEntry entry) => selected = entry;
+    private void Show(GalleryEntry entry) => Navigate(entry);
 
     internal void ShowFromSearch(GalleryEntry entry)
     {
         query = "";
+        Navigate(entry);
+    }
+    private void ShowHome() => Navigate(null);
+    private void ClearSearch() => query = "";
+
+    // Back and Forward follow the pages opened from the navigation, the catalog, the address and search.
+    private void Navigate(GalleryEntry? entry)
+    {
+        if (entry == selected) return;
+        back.Add(selected);
+        forward.Clear();
         selected = entry;
     }
-    private void ShowHome() => selected = null;
-    private void ClearSearch() => query = "";
+
+    private void GoBack()
+    {
+        if (back.Count == 0) return;
+        forward.Add(selected);
+        selected = back[^1];
+        back.RemoveAt(back.Count - 1);
+    }
+
+    private void GoForward()
+    {
+        if (forward.Count == 0) return;
+        back.Add(selected);
+        selected = forward[^1];
+        forward.RemoveAt(forward.Count - 1);
+    }
+
+    // Shell parts of the desktop-inspired themes. Each desktop keeps the bars its own applications show.
+    private bool DesktopShell => GalleryThemes.IsDesktop(Theme);
+    private bool HasMenuBar => Theme is "windows-9x" or "windows-xp" or "cde";
+    private bool HasToolbar => Theme is "windows-9x" or "windows-xp" or "windows-7" or "breeze";
+    private bool HasStatusBar => Theme is "windows-9x" or "windows-xp" or "windows-7" or "cde" or "breeze";
+    private bool ClassicAddress => Theme is "windows-9x" or "windows-xp";
+    private string ThemeLabel => $"{GalleryThemes.Options.First(option => option.Id == Theme).Label} theme";
+
+    private string WindowTitle => (DesktopShell, selected) switch
+    {
+        (true, { } page) when Theme == "breeze" => $"{page.Title} — Nazor Gallery",
+        (true, { } page) when Theme == "cde" => $"Nazor Gallery - {page.Title}",
+        (true, { } page) => $"{page.Title} - Nazor Gallery",
+        _ => "Nazor Gallery",
+    };
+
+    private string AddressText => selected is { } page ? $@"Nazor Gallery\{page.Category}\{page.Title}" : "Nazor Gallery";
+
+    private string SearchPlaceholder => Theme switch
+    {
+        "windows-7" => "Search Nazor Gallery",
+        "breeze" => "Search…",
+        _ => "Search",
+    };
+
+    private string StatusText
+    {
+        get
+        {
+            if (selected is { } page) return Theme == "cde" ? page.Title : page.Description;
+            var count = VisibleEntries.Count();
+            return Theme switch
+            {
+                "windows-9x" or "windows-xp" => $"{count} object(s)",
+                "cde" => $"{count} Items",
+                _ => $"{count} items",
+            };
+        }
+    }
+
+    // The toolbar replaces the sidebar search field, so both locations share the same identifier.
+    private const string SearchFieldId = "gallery-search";
+
+    private string? NavText(string label) => ClassicAddress ? label : null;
+
+    internal sealed record GalleryCrumb(string Key, string Label, GalleryEntry? Entry);
+
+    private IReadOnlyList<GalleryCrumb> Crumbs => selected is { } page
+        ? [new("home", "Nazor Gallery", null), new("category", page.Category, null), new(page.Id, page.Title, page)]
+        : [new("home", "Nazor Gallery", null)];
+
+    private void CrumbInvoked(BreadcrumbItemInvokedEventArgs<GalleryCrumb> request)
+    {
+        if (request.Item.Entry is null) query = request.Item.Key == "category" && selected is { } page ? page.Category : "";
+        Navigate(request.Item.Entry);
+    }
+
+    // Two-tone glyphs: a filled shape under its outline reads like the bordered color icons of the classic desktops.
+    // Monochrome desktops hide the fill and keep the outline, like symbolic icons.
+    private static RenderFragment ShellGlyph(FluentSymbol fill, FluentSymbol line) =>
+        DecorativeGlyph("shell-glyph", fill, line);
+
+    private RenderFragment Glyph(string category, string kind) =>
+        DecorativeGlyph($"glyph-tile {kind}", CategoryIcon(category), DesktopShell ? CategoryNavIcon(category) : null);
+
+    // Generate the decorative layers in NSS to keep repeated glyphs out of the authored tree.
+    private static RenderFragment DecorativeGlyph(string cssClass, FluentSymbol fill, FluentSymbol? line) => builder =>
+    {
+        builder.OpenElement(0, "Container");
+        builder.AddAttribute(1, "class", $"gallery-glyph {cssClass}");
+        var fillStyle = $"--gallery-glyph-fill: \"{fill.Glyph}\";";
+        builder.AddAttribute(2, "style", line is { } outline ? $"{fillStyle} --gallery-glyph-line: \"{outline.Glyph}\";" : fillStyle);
+        builder.CloseElement();
+    };
+
+    private RenderFragment? ItemIcon(string category) =>
+        Theme is "windows-9x" or "windows-xp" or "windows-7" or "cde" ? ShellGlyph(CategoryIcon(category), CategoryNavIcon(category)) : null;
+
+    private FluentSymbol FolderSymbol(string? category) =>
+        Theme == "windows-xp" && category is not null ? CategoryIcon(category) : FluentSymbol.Folder20Filled;
+
+    private FluentSymbol FolderLine(string? category) =>
+        Theme == "windows-xp" && category is not null ? CategoryNavIcon(category) : FluentSymbol.Folder20Regular;
+
+    private FluentSymbol BackSymbol => Theme is "windows-xp" or "windows-7" ? FluentSymbol.ArrowCircleLeft20Filled : FluentSymbol.ArrowLeft20Filled;
+    private FluentSymbol BackLine => Theme is "windows-xp" or "windows-7" ? FluentSymbol.ArrowCircleLeft20Regular : FluentSymbol.ArrowLeft20Regular;
+    private FluentSymbol ForwardSymbol => Theme is "windows-xp" or "windows-7" ? FluentSymbol.ArrowCircleRight20Filled : FluentSymbol.ArrowRight20Filled;
+    private FluentSymbol ForwardLine => Theme is "windows-xp" or "windows-7" ? FluentSymbol.ArrowCircleRight20Regular : FluentSymbol.ArrowRight20Regular;
 
     private void OpenShowcase()
     {
@@ -233,6 +473,18 @@
         Window.Class = MaterialClass;
         Window.Style = MaterialStyle;
         Window.Backdrop = Theme == "fluent" ? CommonBackdrop.Solid : CommonBackdrop.None;
+        var kind = GalleryThemes.DecorationKind(Theme);
+        if (kind == decorationKind) return;
+        decorationKind = kind;
+        _ = ApplyDecorationsAsync(GalleryThemes.Decorations(Theme));
+    }
+
+    private async Task ApplyDecorationsAsync(WindowDecorationPolicy policy)
+    {
+        // Hosts that refuse the preferred frame keep a supported fallback from the policy.
+        try { await Window.SetDecorationsAsync(policy); }
+        catch (Exception error) when (error is PlatformNotSupportedException or NotSupportedException or OperationCanceledException) { }
+        await InvokeAsync(StateHasChanged);
     }
 
     internal ImageSource BrandMark { get; } = ImageSource.FromFile("Assets/nazor.png");
@@ -257,8 +509,10 @@
         _ => FluentSymbol.PuzzlePiece20Filled,
     };
 
-    // Fluent navigation entries carry an icon, like the NavigationView items of WinUI Gallery.
-    private RenderFragment? NavIcon(FluentSymbol symbol) => Theme == "fluent" ? @<Icon Symbol="@symbol" /> : null;
+    // Fluent navigation entries carry an icon, like the NavigationView items of WinUI Gallery; desktop-inspired themes use
+    // their own icon style.
+    private RenderFragment? NavIcon(FluentSymbol fill, FluentSymbol line) =>
+        Theme == "fluent" ? @<Icon Symbol="@line" /> : DesktopShell ? ShellGlyph(fill, line) : null;
 
     // Navigation uses the outline variants, like the monochrome NavigationView icons of WinUI Gallery.
     private static FluentSymbol CategoryNavIcon(string category) => category switch
@@ -372,7 +626,7 @@
     .theme-basic .nav-item:hover, .theme-basic .nav-home:hover { border-color: transparent; background: color-mix(in srgb, CanvasText 7%, Canvas); }
     .theme-basic .nav-item:active, .theme-basic .nav-home:active { background: color-mix(in srgb, CanvasText 12%, Canvas); color: CanvasText; }
     .theme-basic .nav-item.current, .theme-basic .nav-item.current:hover { border-color: transparent; border-left-color: AccentColor; background: var(--gallery-accent-tint); color: CanvasText; font-weight: 600; }
-    .theme-basic .navigation + Field { padding-top: 10px; border-top: 1px solid var(--gallery-line); }
+    .theme-basic .sidebar-footer { padding-top: 10px; border-top: 1px solid var(--gallery-line); }
     .theme-basic .main-scroll { border-left-color: var(--gallery-line); background: color-mix(in srgb, CanvasText 2.5%, Canvas); }
     .theme-basic .main { padding: 28px 32px 40px; }
     .theme-basic .catalog-intro { padding: 24px 28px; border: 1px solid color-mix(in srgb, AccentColor 30%, Canvas); border-radius: 8px; background: linear-gradient(120deg, var(--gallery-accent-tint), Canvas 75%); }
@@ -407,7 +661,8 @@
     .theme-fluent.captioned .sidebar { padding-top: 4px; }
     .theme-fluent .brand { gap: 12px; padding: 2px 16px; margin-bottom: 10px; }
     .theme-fluent .brand > Heading { font-size: 18px; font-weight: 600; }
-    .theme-fluent .sidebar > Field { padding: 0 12px; margin-bottom: 6px; }
+    .theme-fluent .sidebar > Field, .theme-fluent .sidebar-footer > Field { padding: 0 12px; margin-bottom: 6px; }
+    .theme-fluent .sidebar-tree, .theme-fluent .nav-places, .theme-fluent .sidebar-footer { gap: 0; }
     .theme-fluent .navigation { margin-top: 4px; }
     .theme-fluent .nav-category { gap: 16px; padding: 14px 18px 6px; font-size: 14px; font-weight: 600; color: var(--nz-text); }
     .theme-fluent .nav-glyph { display: flex; color: var(--nz-text); font-size: 16px; }
@@ -419,7 +674,7 @@
     .theme-fluent .nav-item.current { border-color: transparent; background: var(--nz-subtle-hover); font-weight: 400; }
     .theme-fluent .nav-item.current:hover { background: var(--nz-subtle-pressed); }
     .theme-fluent .nav-item.current::before { content: ""; position: absolute; left: 0; top: 9px; width: 3px; height: 16px; border-radius: 2px; background: var(--nz-accent); }
-    .theme-fluent .navigation + Field { margin-top: 6px; padding-top: 12px; border-top: 1px solid var(--winui-divider-stroke-color-default); }
+    .theme-fluent .sidebar-footer { margin-top: 6px; padding-top: 12px; border-top: 1px solid var(--winui-divider-stroke-color-default); }
     .theme-fluent .main-scroll { margin-top: 6px; border: 1px solid var(--nz-card-stroke); border-right-width: 0; border-bottom-width: 0; border-radius: 8px 0 0 0; background: var(--gallery-page); }
     .theme-fluent.captioned .main-scroll { margin-top: 0; }
     .theme-fluent .main { gap: 12px; padding: 32px 40px 48px; }

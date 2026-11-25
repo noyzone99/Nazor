@@ -26,6 +26,8 @@ Razor provides the authoring syntax. Nazor's component runtime provides `Compone
 
 Small components can keep C# in `@code` and NSS in `@style`. Larger components can use sidecar files without changing their public contract. An application stylesheet such as `Theme.nss` supplies shared rules and tokens.
 
+Because appearance lives in NSS, the look of an application is a choice rather than a property of the operating system. NazorLeaf is the identity Nazor was designed with. Desktop-inspired themes such as Fluent, Adwaita and Breeze reproduce familiar desktops, and an application can also define its own theme. Any of them runs on every supported backend. [Styling and themes](16-Styling-and-Themes.md#choose-a-theme-and-a-color-scheme)
+
 ## Concepts for Razor and Avalonia developers
 
 Blazor is a reference for component composition and lifecycle. Avalonia is a reference for sharing control rendering across native platform backends. The table maps familiar authoring concepts to Nazor. [Blazor components](https://learn.microsoft.com/en-us/aspnet/core/blazor/components/) · [Avalonia cross-platform architecture](https://docs.avaloniaui.net/docs/fundamentals/cross-platform-architecture)

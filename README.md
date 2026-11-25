@@ -30,11 +30,15 @@ A `.nazor` component puts Razor markup, C# state, and scoped NSS in one file. Pr
 
 [Run the Counter sample](Samples/Nazor.Samples.Counter/README.md)
 
+## One app, at home on every desktop
+
+A Nazor app can run in a native window on Windows 11, KDE Plasma and GNOME. The preview shows the same interface in light and dark, with window controls that match each desktop.
+
+![The same Nazor app in light and dark on Windows 11, KDE Plasma and GNOME](Docs/Assets/nazor-desktops.gif)
+
 ## Try the Gallery
 
 The Nazor Gallery is a searchable, interactive catalog of ready-to-use controls and lower-level primitives. Try buttons, pickers, data grids, navigation, layout, and overlays, then inspect the Razor source beside each live example. Switch themes and color schemes in the same app, or open the NazorLeaf showcase to see how the controls work together in a complete interface.
-
-![The Nazor Gallery control catalog running with the optional NazorLeaf theme](Docs/Assets/gallery.png)
 
 [Download the Gallery from GitHub Releases](https://github.com/noyzone99/Nazor/releases). Choose a release with a `Nazor.Gallery-portable.zip` asset, extract the archive, and install the [.NET 10 Runtime](https://dotnet.microsoft.com/download/dotnet/10.0) if needed. Open a terminal in the extracted folder and run:
 
@@ -60,7 +64,7 @@ Blazor inspired the component model. Avalonia inspired the separation between pl
 
 - **Native windows without a WebView.** Nazor's platform backends handle the OS window, input, and desktop services. Nazor draws its own controls with Skia and shapes text with HarfBuzz. The control tree runs without wrapped OS widgets. A shared layout engine snaps box edges to physical pixels, and the shared renderer gives controls a consistent look across supported backends. DPI, fonts, and native window chrome can still vary by platform. [Architecture overview](Docs/Guide/31-Architecture-and-Extension-Points.md)
 - **Razor syntax and CSS-inspired styling.** Write `.nazor` components with C# and style them with NSS, Nazor's stylesheet language. App UI authoring needs no XAML. Use shared stylesheets for app-wide design tokens and scoped styles for an individual component. [Components and Razor](Docs/Guide/05-Components-and-Razor.md) · [NSS property reference](Docs/Guide/19-NSS-Property-Reference.md)
-- **Design the whole window or start with a theme.** Keep the system frame, compose your own title bar and frame where the backend supports it, or customize individual control parts with NSS. Basic ships with the SDK. The Gallery lets you try Fluent, NazorLeaf, Adwaita, Breeze, Windows 9x, Windows XP, Windows 7 and CDE. [Window customization](Docs/Guide/14-Title-Bars-and-Platform-Integration.md) · [Styling and themes](Docs/Guide/16-Styling-and-Themes.md)
+- **Your look, on any desktop.** NazorLeaf is the identity Nazor was designed with. Desktop-inspired themes reproduce Fluent, Adwaita, Breeze, Windows 9x, Windows XP, Windows 7 and CDE, and your own NSS can define a theme of its own. A theme is a look, not a platform requirement: each one runs on every supported backend. Basic ships with the SDK, and the Gallery lets you switch themes live. Keep the system frame, compose your own title bar and frame where the backend supports it, or customize individual control parts with NSS. [Window customization](Docs/Guide/14-Title-Bars-and-Platform-Integration.md) · [Styling and themes](Docs/Guide/16-Styling-and-Themes.md)
 - **Native AOT support.** Publish Nazor desktop apps for Windows x64 and Linux x64 as native executables. They can run without a separate .NET runtime installation. [Native AOT deployment](Docs/Guide/28-Libraries-Packaging-and-Deployment.md#native-aot)
 
 ## What I'm working toward

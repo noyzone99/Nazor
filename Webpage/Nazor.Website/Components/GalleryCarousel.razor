@@ -1,6 +1,6 @@
 <nazor-gallery-carousel>
     <div class="gallery-stage" data-platform="windows">
-        <div class="gallery-artwork" role="img" aria-label="Nazor Gallery on the Windows desktop in dark and light themes">
+        <div class="gallery-artwork" role="img" aria-label="The same Nazor app on the Windows 11 desktop, in the dark and light color schemes">
             <div class="gallery-scene">
                 <div class="gallery-desktop windows">
                     <img class="gallery-capture" src="media/gallery/windows-light.png" alt="" width="1920" height="1200" loading="lazy" />
@@ -21,21 +21,27 @@
                     <img class="gallery-capture" src="media/gallery/nazor-gallery-light.png" alt="" width="1182" height="821" loading="lazy" />
                     <img class="gallery-capture dark" src="media/gallery/nazor-gallery-dark.png" alt="" width="1182" height="821" loading="lazy" />
                     <div class="gallery-window-buttons" aria-hidden="true">
-                        <span class="gallery-window-button minimize"></span>
-                        <span class="gallery-window-button maximize"></span>
-                        <span class="gallery-window-button close"></span>
+                        <span class="gallery-window-button minimize">
+                            <svg viewBox="0 0 16 16"><path d="M4 10h8v2H4z" /></svg>
+                        </span>
+                        <span class="gallery-window-button maximize">
+                            <svg viewBox="0 0 16 16"><path d="M4 4v8h8V4zm2 2h4v4H6z" fill-rule="evenodd" /></svg>
+                        </span>
+                        <span class="gallery-window-button close">
+                            <svg viewBox="0 0 16 16"><path d="M4 4h1.03c.25.01.51.13.69.31L8 6.59l2.31-2.28c.27-.23.45-.3.69-.31h1v1c0 .29-.04.55-.25.75L9.47 8.03l2.25 2.25c.19.19.28.45.28.72v1h-1c-.27 0-.53-.09-.72-.28L8 9.44l-2.28 2.28c-.19.19-.45.28-.72.28H4v-1c0-.27.09-.53.28-.72l2.28-2.25L4.28 5.75C4.07 5.55 3.98 5.28 4 5z" /></svg>
+                        </span>
                     </div>
                 </div>
             </div>
         </div>
         <div class="gallery-compare-line" aria-hidden="true"></div>
         <input class="gallery-theme-slider" type="range" min="0" max="100" step="any" value="50"
-               aria-label="Dark theme coverage" aria-valuetext="50% dark" />
-        <span class="btn b-primary gallery-compare-handle" aria-hidden="true" title="Drag to compare dark and light themes"></span>
+               aria-label="Dark color scheme coverage" aria-valuetext="50% dark" />
+        <span class="btn b-primary gallery-compare-handle" aria-hidden="true" title="Drag to compare the dark and light color schemes"></span>
     </div>
     <div class="gallery-controls">
         <div class="gallery-platforms" role="group" aria-label="Desktop">
-            <button type="button" class="btn sm b-line" data-gallery-platform="windows" aria-pressed="true">Windows</button>
+            <button type="button" class="btn sm b-line" data-gallery-platform="windows" aria-pressed="true">Windows 11</button>
             <button type="button" class="btn sm b-line" data-gallery-platform="kde" aria-pressed="false">KDE Plasma</button>
             <button type="button" class="btn sm b-line" data-gallery-platform="gnome" aria-pressed="false">GNOME</button>
         </div>

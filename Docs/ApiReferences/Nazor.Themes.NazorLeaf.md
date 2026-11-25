@@ -1,5 +1,7 @@
 # Nazor.Themes.NazorLeaf
 
+NazorLeaf is the visual identity Nazor was designed with. It is optional: applications can also use a desktop-inspired theme or their own. [Choose a theme](../Guide/16-Styling-and-Themes.md#choose-a-theme-and-a-color-scheme)
+
 Automatic virtualized List/Tree rows follow 46px Compact/54px Touch metrics; DataGrid includes a 2px internal gap in 48/56px row pitch. Explicit application heights override density. Surviving realized rows relocate with a 320ms spring and stable Tree chevrons rotate over 450ms; removal retention is available through the shared ItemsTransition primitive.
 
 Reference the matching alpha release and register its bundled private fonts on the application builder. After building the application, select the theme through `app.Appearance.Theme`. [Theme package versions](../Guide/16-Styling-and-Themes.md#theme-package-versions)

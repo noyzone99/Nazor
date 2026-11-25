@@ -108,10 +108,10 @@ public sealed class DecorationPolicyTests
             (Themes.Fluent.Themes.Fluent, 8, 8, 1),
             (Themes.NazorLeaf.NazorLeafTheme.Theme, 28, 8, 1),
             (Themes.Adwaita.AdwaitaTheme.Theme, 14, 14, 1),
-            (Themes.Breeze.BreezeTheme.Theme, 5, 5, 1),
-            (Themes.Windows9x.Windows9xTheme.Theme, 0, 0, 2),
-            (Themes.WindowsXP.WindowsXPTheme.Theme, 10, 2, 3),
-            (Themes.Windows7.Windows7Theme.Theme, 8, 8, 1),
+            (Themes.Breeze.BreezeTheme.Theme, 4, 2, 1),
+            (Themes.Windows9x.Windows9xTheme.Theme, 0, 0, 1),
+            (Themes.WindowsXP.WindowsXPTheme.Theme, 8, 0, 3),
+            (Themes.Windows7.Windows7Theme.Theme, 6, 6, 1),
             (Themes.Cde.CdeTheme.Theme, 0, 0, 3),
         ];
         foreach (var (theme, topLeft, bottomLeft, border) in themes)

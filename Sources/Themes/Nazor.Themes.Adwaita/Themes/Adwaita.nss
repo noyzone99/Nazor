@@ -28,6 +28,9 @@
         --adwaita-action-hover: #2870c9;
         --adwaita-action-pressed: #195aab;
         --adwaita-scrollbar-edge: rgba(255, 255, 255, 0.6);
+        --adwaita-card: #ffffff;
+        --adwaita-pane-edge: rgba(0, 0, 6, 0.07);
+        --adwaita-row-edge: rgba(0, 0, 6, 0.07);
         scrollbar-visibility: autohide;
         scrollbar-placement: overlay;
         scrollbar-buttons: none;
@@ -64,6 +67,9 @@
             --adwaita-dialog: #36363a;
             --adwaita-thumb: #d3d3d4;
             --adwaita-scrollbar-edge: rgba(0, 0, 12, 0.57);
+            --adwaita-card: #363639;
+            --adwaita-pane-edge: rgba(0, 0, 6, 0.36);
+            --adwaita-row-edge: rgba(0, 0, 6, 0.36);
         }
 
         Button[intent="danger"]:not([appearance="accent"], :disabled), MenuItem[intent="danger"]:not(:disabled),
@@ -83,17 +89,23 @@
     }
     TitleBar, Toolbar, MenuBar { background: var(--adwaita-header); }
     TitleBar {
-        min-height: max(var(--nz-window-controls-height, 46px), 46px);
+        min-height: max(var(--nz-window-controls-height, 47px), 47px);
         padding: 0 6px;
         gap: 6px;
-        border-bottom: 1px solid var(--nz-border);
+        border-bottom: 1px solid var(--adwaita-pane-edge);
     }
+    TitleBarTitle { font-size: 14.667px; }
     :root[frame-owner="nazor"]:window-inactive TitleBar {
         background: var(--nz-surface);
         color: var(--nz-muted);
     }
     TitleBarTitle { font-weight: 700; }
-    CaptionButtons { align-items: center; gap: 3px; padding: 0 6px; }
+    CaptionButtons { align-items: center; gap: 12px; padding: 0 12px 0 6px; }
+    CaptionButtonsGlyph { stroke-width: 1.5px; }
+    CaptionButtonsGlyph[kind="minimize"] { width: 8px; }
+    CaptionButtonsGlyph[kind="maximize"] { width: 8px; height: 8px; border-radius: 1px; }
+    CaptionButtonsGlyph[kind="close"] { width: 8px; height: 8px; }
+    CaptionButtonsGlyphStroke { left: -1px; top: 3px; width: 10px; height: 1.5px; }
     CaptionButtonsButton { width: 24px; min-height: 24px; height: 24px; border-radius: 50%; background: var(--nz-control); }
     CaptionButtonsButton:hover:not(:disabled), CaptionButtonsButton[kind="close"]:hover:not(:disabled) { background: var(--adwaita-hover); color: var(--nz-on-surface); }
     CaptionButtonsButton:active:not(:disabled), CaptionButtonsButton[kind="close"]:active:not(:disabled) { background: var(--adwaita-pressed); color: var(--nz-on-surface); }

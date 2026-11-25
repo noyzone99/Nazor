@@ -8,9 +8,9 @@ using Nazor.Themes.WindowsXP;
 app.Appearance.Theme = WindowsXPTheme.Theme;
 ```
 
-Windows XP draws on the Luna era with rounded borders, blue highlights and shaded controls. It uses a light palette. [Microsoft's visual style examples](https://learn.microsoft.com/en-us/dotnet/desktop-wpf/fundamentals/styles-templates-overview) · [Windows XP screenshots](https://guidebookgallery.org/screenshots/winxppro/)
+Windows XP follows the Luna Blue visual style: a #ece9d8 face, Tahoma 8 pt, #003c74 rounded push buttons with an orange hover glow and a blue default glow, #7f9db9 field frames, green check marks and progress blocks, and #316ac5 selection. Nazor-drawn frames use the glossy blue caption with rounded top corners and white-bordered caption buttons, with a red close button. It uses a light palette. [Microsoft's visual style examples](https://learn.microsoft.com/en-us/dotnet/desktop-wpf/fundamentals/styles-templates-overview) · [Windows XP screenshots](https://guidebookgallery.org/screenshots/winxppro/)
 
-The 16 px scrollbars reserve a gutter with end buttons and a rounded blue thumb. Inputs have pale blue spin and drop-down buttons, and the theme uses shaded Nazor-drawn caption controls when the window selects them. [Win32 scrollbar anatomy](https://learn.microsoft.com/en-us/windows/win32/controls/about-scroll-bars)
+The 17 px scrollbars reserve a gutter with end buttons and a rounded pale blue thumb. Drop-down and spin buttons use the same pale blue, and selected tabs carry the orange top line. [Win32 scrollbar anatomy](https://learn.microsoft.com/en-us/windows/win32/controls/about-scroll-bars)
 
 See [desktop-inspired themes](../Guide/16-Styling-and-Themes.md#desktop-inspired-themes) for scheme selection, font discovery and forced colors.
 

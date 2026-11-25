@@ -265,7 +265,12 @@ html.scrolled .topbar { box-shadow: 0 1px 0 var(--stroke-2), 0 10px 24px -20px r
 .theme { display: flex; flex-direction: column; gap: 6px; padding: 14px 14px 16px; border-radius: var(--lf-ovl); text-decoration: none; color: var(--text); background: var(--pane);
   box-shadow: var(--sh-pane), inset 0 0 0 1px var(--stroke); transition: transform .35s var(--spring), box-shadow .3s }
 .theme:hover { transform: translateY(-3px); box-shadow: var(--sh-pop), inset 0 0 0 1px var(--stroke-2) }
-.theme.featured { background: var(--pc); color: var(--on-pc) }
+.theme.featured { grid-column: span 2; background: var(--pc); color: var(--on-pc) }
+.theme.own { grid-column: span 3; background: transparent; box-shadow: none; outline: 1.5px dashed var(--stroke-2); outline-offset: -1.5px }
+.t-kind { font: 650 11px var(--ui); letter-spacing: .06em; text-transform: uppercase; color: var(--text-3) }
+.theme.featured .t-kind { color: inherit; opacity: .75 }
+.t-own { display: flex; align-items: center; height: 48px; padding: 0 12px; margin-bottom: 6px; border-radius: var(--lf-ctl); background: var(--s1); overflow: hidden }
+.t-own code { font: 500 12.5px var(--mono); color: var(--text-2); white-space: nowrap }
 .theme.featured .t-desc { color: inherit; opacity: .8 }
 .t-swatch { display: flex; gap: 6px; align-items: center; height: 48px; padding: 0 12px; margin-bottom: 6px; border-radius: var(--lf-ctl); background: var(--s1) }
 .theme.featured .t-swatch { background: color-mix(in oklab, var(--pane) 60%, transparent) }
@@ -383,6 +388,7 @@ html.scrolled .topbar { box-shadow: 0 1px 0 var(--stroke-2), 0 10px 24px -20px r
   .hero-demo { max-width: 680px }
   .features, .hub { grid-template-columns: repeat(2, 1fr) }
   .themes { grid-template-columns: repeat(2, 1fr) }
+  .theme.own { grid-column: span 1 }
   .quickstart { grid-template-columns: 1fr }
   .duo { grid-template-columns: 1fr; gap: 28px }
 }
@@ -415,6 +421,7 @@ html.scrolled .topbar { box-shadow: 0 1px 0 var(--stroke-2), 0 10px 24px -20px r
 }
 @media (max-width: 560px) {
   .features, .hub, .gs-next .hub, .themes, .signs, .platforms, .qs-steps { grid-template-columns: 1fr }
+  .theme.featured, .theme.own { grid-column: auto }
   .quickstart { padding: 24px 20px }
   .hero-title { font-size: 46px }
   .cta .btn.lg { flex: 1 1 auto }
