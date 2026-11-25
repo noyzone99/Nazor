@@ -14,9 +14,45 @@ concurrency:
   cancel-in-progress: ${{ github.ref_type != 'tag' }}
 
 jobs:
+  version:
+    name: Validate tagged release version
+    runs-on: ubuntu-24.04
+    outputs:
+      release: ${{ steps.tag.outputs.release }}
+      vsix: ${{ steps.tag.outputs.vsix }}
+    steps:
+      - uses: actions/checkout@v6
+        if: github.ref_type == 'tag' && !github.event.deleted
+        with:
+          persist-credentials: false
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            Directory.Build.props
+            Sources/Tools/Nazor.VisualStudio/source.extension.vsixmanifest
+
+      - name: Check release and VSIX versions
+        id: tag
+        if: github.ref_type == 'tag' && !github.event.deleted
+        shell: pwsh
+        run: |
+          $tag = $env:GITHUB_REF_NAME
+          if ($tag -cnotmatch '^v?(?<release>(?<vsix>[0-9]+\.[0-9]+\.[0-9]+)(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?)$') {
+            Write-Host "Tag '$tag' only builds the portable Gallery."
+            exit 0
+          }
+          $release = $Matches.release
+          $vsix = $Matches.vsix
+          $version = (Select-Xml -LiteralPath Directory.Build.props -XPath '//NazorVersion').Node.InnerText
+          [xml]$manifest = Get-Content Sources/Tools/Nazor.VisualStudio/source.extension.vsixmanifest -Raw
+          $extensionVersion = $manifest.PackageManifest.Metadata.Identity.Version
+          if ($release -cne $version) { throw "Tag '$tag' does not match NazorVersion '$version'." }
+          if ($vsix -cne $extensionVersion) { throw "Tag '$tag' requires VSIX version '$vsix', but the manifest uses '$extensionVersion'." }
+          "release=$release", "vsix=$vsix" >> $env:GITHUB_OUTPUT
+
   native:
     if: '!github.event.deleted'
     name: Native libraries (${{ matrix.rid }})
+    needs: version
     runs-on: ${{ matrix.os }}
     timeout-minutes: 25
     strategy:
@@ -50,8 +86,8 @@ jobs:
           if-no-files-found: error
 
   package:
-    name: ${{ github.ref_type == 'tag' && 'Portable Gallery' || 'NuGet packages' }}
-    needs: native
+    name: Build NuGet packages and Gallery
+    needs: [version, native]
     runs-on: windows-2025
     timeout-minutes: 45
     steps:
@@ -80,12 +116,20 @@ jobs:
           }
 
       - name: Pack NuGet packages
-        if: github.ref_type != 'tag'
+        if: github.ref_type != 'tag' || needs.version.outputs.release != ''
         shell: pwsh
         run: ./Scripts/Packaging/pack.ps1 -Symbols
 
+      - name: Verify the release packages and tutorial
+        if: needs.version.outputs.release != ''
+        shell: pwsh
+        run: |
+          dotnet run --project Scripts/Tests/Documentation -c Release -- . artifacts/packages
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          ./Scripts/Tests/verify-doc-tutorial.ps1 -Feed artifacts/packages
+
       - uses: actions/upload-artifact@v7
-        if: github.ref_type != 'tag'
+        if: github.ref_type != 'tag' || needs.version.outputs.release != ''
         with:
           name: nuget-packages
           path: |
@@ -150,7 +194,8 @@ jobs:
 
   editors:
     name: Editor extensions
-    if: github.ref_type != 'tag' && !github.event.deleted
+    if: ${{ !github.event.deleted && (github.ref_type != 'tag' || needs.version.outputs.release != '') }}
+    needs: version
     runs-on: windows-2022
     timeout-minutes: 35
     steps:
@@ -201,3 +246,87 @@ jobs:
             artifacts/editors/Nazor.VSCode.vsix
             artifacts/editors/Nazor.TextMate.zip
           if-no-files-found: error
+
+  publish-nuget:
+    name: Publish to NuGet.org
+    if: github.event_name == 'push' && github.ref_type == 'tag' && github.event.created && needs.version.outputs.release != ''
+    needs: [version, package]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    environment: nuget-release
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: nuget-packages
+          path: artifacts/packages
+
+      - name: Authenticate to NuGet.org
+        id: nuget
+        uses: NuGet/login@v1
+        with:
+          user: ${{ vars.NUGET_USER || 'berik-99' }}
+
+      - name: Publish NuGet packages and symbols
+        shell: bash
+        env:
+          NUGET_API_KEY: ${{ steps.nuget.outputs.NUGET_API_KEY }}
+          NUGET_SYMBOL_API_KEY: ${{ steps.nuget.outputs.NUGET_API_KEY }}
+        run: |
+          shopt -s failglob
+          source=https://api.nuget.org/v3/index.json
+          for package in artifacts/packages/*.nupkg; do
+            dotnet nuget push "$package" --source "$source" --skip-duplicate --no-symbols
+          done
+          for symbols in artifacts/packages/*.snupkg; do
+            dotnet nuget push "$symbols" --source "$source" --skip-duplicate
+          done
+
+  publish-visual-studio:
+    name: Publish to Visual Studio Marketplace
+    needs: [version, editors, publish-nuget]
+    runs-on: windows-2025-vs2026
+    timeout-minutes: 15
+    concurrency:
+      group: marketplace-${{ needs.version.outputs.vsix }}
+    environment: marketplace-release
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+          sparse-checkout: Sources/Tools/Nazor.VisualStudio
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: editor-extensions
+          path: artifacts/editors
+
+      - name: Publish the Visual Studio VSIX
+        working-directory: Sources/Tools/Nazor.VisualStudio
+        shell: pwsh
+        env:
+          VSIX_FILE: ${{ github.workspace }}/artifacts/editors/visualstudio/Nazor.VisualStudio.vsix
+          VSIX_VERSION: ${{ needs.version.outputs.vsix }}
+        run: |
+          $uri = "https://marketplace.visualstudio.com/_apis/public/gallery/publishers/Noyzone99/vsextensions/nazorvisualstudio/$env:VSIX_VERSION/vspackage"
+          $status = & curl.exe --silent --show-error --output NUL --write-out '%{http_code}' --range 0-0 --max-time 15 --retry 2 $uri
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          if ($status -in '200', '206', '302') {
+            Write-Host "VSIX version $env:VSIX_VERSION is already published."
+            exit 0
+          }
+          if ($status -ne '404') { throw "Marketplace version check returned HTTP $status." }
+
+          $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio/Installer/vswhere.exe'
+          $publisher = & $vswhere -latest -requires Microsoft.VisualStudio.Workload.VisualStudioExtension -find 'VSSDK/VisualStudioIntegration/Tools/Bin/VsixPublisher.exe' | Select-Object -First 1
+          if (-not $publisher) { throw 'VsixPublisher.exe was not found on the runner.' }
+          & $publisher publish -payload $env:VSIX_FILE -publishManifest publishManifest.json -oidc
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

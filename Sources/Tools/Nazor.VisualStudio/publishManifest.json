@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json.schemastore.org/vsix-publish.json",
+  "categories": ["coding", "other", "programming languages"],
+  "identity": {
+    "internalName": "nazorvisualstudio"
+  },
+  "overview": "Overview.md",
+  "publisher": "Noyzone99",
+  "repo": "https://github.com/noyzone99/Nazor"
+}

@@ -25,6 +25,10 @@ The [Packages workflow](../.github/workflows/packages.yml) runs on pushes to `ma
 
 On a new tag push, the workflow uses the same native matrix to build and attach the [portable Gallery](../Samples/Nazor.Samples.Gallery/README.md#package-the-portable-release) to the GitHub Release.
 
+Version tags such as `v0.1.2-alpha` also publish the NuGet packages and the Visual Studio VSIX. Set `NazorVersion` and the editor versions in the tagged commit before pushing the tag. The workflow checks the full Nazor version and the VSIX numeric version, verifies the packaged documentation and tutorial, then pushes the NuGet packages before publishing the VSIX. Theme versions follow the [repository release conventions](../Docs/Repository-Conventions.md#documentation-release-checks).
+
+Configure Trusted Publishing for `packages.yml` in both registries. The NuGet job uses the `nuget-release` GitHub environment and the `berik-99` NuGet profile by default. Set the `NUGET_USER` Actions variable if the policy uses another profile. The Visual Studio job uses the `marketplace-release` environment and the existing `Noyzone99.nazorvisualstudio` Marketplace listing.
+
 `Tests/verify-gallery-fidelity.py --manifest <input-manifest> --out <directory> --results <xunit-xml...>` records Gallery evidence and reference/font hashes. `--compare <reference-json> <actual-json>` checks lossless PNG captures with zero pixel tolerance and requires complete environment metadata. This optional script uses Python's standard library.
 
 `Tests/capture-leaf-reference.mjs --manifest <input-manifest> --browser <absolute-browser-path> --out artifacts/<fresh-directory>` captures a supplied HTML reference offline with a fresh headless Chromium profile. Node 22 or newer is required. `--validate-only` checks inputs without starting a browser.
