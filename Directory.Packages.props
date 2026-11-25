@@ -24,5 +24,6 @@
     <PackageVersion Include="Microsoft.VisualStudio.SDK" Version="17.14.40265" />
     <PackageVersion Include="Microsoft.VisualStudio.LanguageServices" Version="4.14.0" />
     <PackageVersion Include="Microsoft.VisualStudio.ProjectSystem" Version="17.9.380" />
+    <PackageVersion Include="System.Threading.Channels" Version="7.0.0" />
   </ItemGroup>
 </Project>

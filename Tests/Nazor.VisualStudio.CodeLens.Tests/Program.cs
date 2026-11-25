@@ -60,15 +60,28 @@ internal static class Program
         }
     }
 
+    internal static string FindChannelsAssembly(string ide)
+    {
+        // Prefer the IDE's in-process assembly when an out-of-process component has an exact version match.
+        XNamespace binding = "urn:schemas-microsoft-com:asm.v1";
+        var channels = XDocument.Load(Path.Combine(ide, "devenv.exe.config")).Descendants(binding + "dependentAssembly")
+            .FirstOrDefault(dependency => (string)dependency.Element(binding + "assemblyIdentity")?.Attribute("name") == "System.Threading.Channels");
+        var href = (string)channels?.Element(binding + "codeBase")?.Attribute("href");
+        return href == null ? null : Path.Combine(ide, href);
+    }
+
     static void CheckParameterTracking(Assembly extension, string editorAssembly)
     {
         var ide = new DirectoryInfo(Path.GetDirectoryName(editorAssembly)).Parent.Parent.Parent.FullName;
+        var channelsPath = FindChannelsAssembly(ide);
         ResolveEventHandler resolve = (_, args) =>
         {
             var name = new AssemblyName(args.Name);
             if (name.Name.EndsWith(".resources", StringComparison.Ordinal)) return null;
             var shared = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.GetName().Name == name.Name);
             if (shared != null) return shared;
+            if (name.Name == "System.Threading.Channels" && channelsPath != null)
+                return Assembly.LoadFrom(channelsPath);
             return Directory.EnumerateFiles(ide, name.Name + ".dll", SearchOption.AllDirectories)
                 .Where(path => path.IndexOf("\\SemanticSearchRefs\\", StringComparison.OrdinalIgnoreCase) < 0 && path.IndexOf("\\LanguageServices\\Core\\", StringComparison.OrdinalIgnoreCase) < 0)
                 .Where(path => AssemblyName.GetAssemblyName(path).FullName == name.FullName)

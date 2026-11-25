@@ -11,6 +11,7 @@ internal static class RoslynStartupChecks
     internal static void Check(string extensionPath, string ide)
     {
         var directory = Path.Combine(ide, "CommonExtensions", "Microsoft", "VBCSharp", "LanguageServices");
+        var channelsPath = Program.FindChannelsAssembly(ide);
         ResolveEventHandler resolve = (_, args) =>
         {
             var name = new AssemblyName(args.Name);
@@ -20,6 +21,8 @@ internal static class RoslynStartupChecks
                 throw new Exception("Partial Roslyn assembly load: " + args.Name);
             var loaded = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.GetName().Name == name.Name);
             if (loaded != null) return loaded;
+            if (name.Name == "System.Threading.Channels" && channelsPath != null)
+                return Assembly.LoadFrom(channelsPath);
             var local = Path.Combine(directory, name.Name + ".dll");
             if (File.Exists(local)) return Assembly.LoadFrom(local);
             return Directory.EnumerateFiles(ide, name.Name + ".dll", SearchOption.AllDirectories)

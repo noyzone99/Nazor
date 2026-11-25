@@ -25,6 +25,8 @@
     <Reference Include="PresentationFramework" />
     <PackageReference Include="Microsoft.VisualStudio.SDK" />
     <PackageReference Include="Microsoft.VisualStudio.ProjectSystem" />
+    <!-- Roslyn in VS 2022 requests Channels 7. The test host needs its .NET Framework asset. -->
+    <PackageReference Include="System.Threading.Channels" />
     <ProjectReference Include="../../Sources/Tools/Nazor.VisualStudio.CodeLens/Nazor.VisualStudio.CodeLens.csproj" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
