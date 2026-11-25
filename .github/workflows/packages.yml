@@ -316,7 +316,8 @@ jobs:
           VSIX_FILE: ${{ github.workspace }}/artifacts/editors/visualstudio/Nazor.VisualStudio.vsix
           VSIX_VERSION: ${{ needs.version.outputs.vsix }}
         run: |
-          $uri = "https://marketplace.visualstudio.com/_apis/public/gallery/publishers/Noyzone99/vsextensions/nazorvisualstudio/$env:VSIX_VERSION/vspackage"
+          $manifest = Get-Content publishManifest.json -Raw | ConvertFrom-Json
+          $uri = "https://marketplace.visualstudio.com/_apis/public/gallery/publishers/$($manifest.publisher)/vsextensions/$($manifest.identity.internalName)/$env:VSIX_VERSION/vspackage"
           $status = & curl.exe --silent --show-error --output NUL --write-out '%{http_code}' --range 0-0 --max-time 15 --retry 2 $uri
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           if ($status -in '200', '206', '302') {
@@ -328,5 +329,17 @@ jobs:
           $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio/Installer/vswhere.exe'
           $publisher = & $vswhere -latest -requires Microsoft.VisualStudio.Workload.VisualStudioExtension -find 'VSSDK/VisualStudioIntegration/Tools/Bin/VsixPublisher.exe' | Select-Object -First 1
           if (-not $publisher) { throw 'VsixPublisher.exe was not found on the runner.' }
-          & $publisher publish -payload $env:VSIX_FILE -publishManifest publishManifest.json -oidc
+
+          $oidc = Invoke-RestMethod -Uri "$env:ACTIONS_ID_TOKEN_REQUEST_URL&audience=marketplace.visualstudio.com" `
+            -Headers @{ Authorization = "Bearer $env:ACTIONS_ID_TOKEN_REQUEST_TOKEN" }
+          if (-not $oidc.value) { throw 'GitHub did not return an OIDC token.' }
+          Write-Host "::add-mask::$($oidc.value)"
+
+          $session = Invoke-RestMethod -Method Post -Uri 'https://marketplace.visualstudio.com/_apis/gallery/token?api-version=7.2-preview.1' `
+            -Headers @{ Authorization = "FederatedToken $($oidc.value)"; Accept = 'application/json'; 'X-Market-CI-Provider' = 'github-actions' } `
+            -ContentType 'application/json' -Body (@{ publisherName = $manifest.publisher } | ConvertTo-Json -Compress)
+          if (-not $session.credential) { throw 'Marketplace did not return a publishing credential.' }
+          Write-Host "::add-mask::$($session.credential)"
+
+          & $publisher publish -payload $env:VSIX_FILE -publishManifest publishManifest.json -personalAccessToken $session.credential
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
