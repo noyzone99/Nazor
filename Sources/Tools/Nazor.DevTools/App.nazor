@@ -24,7 +24,7 @@
         Window.Decorations = WindowDecorationPolicy.Prefer(
             WindowDecorations.Native(WindowTitleBarContent.Nazor, WindowCaptionButtons.Native),
             WindowDecorations.Nazor());
-        client = new InspectorClient(store, Program.DiscoveryDirectory);
+        client = new InspectorClient(store, Program.DiscoveryDirectory) { UsePagedTree = true };
         Program.Activated += OnActivated;
         // Browser developer tools conventions: Ctrl+Shift+C picks, Ctrl+F filters and F5 reloads the inspected tree.
         Shortcut("c", Nazor.Input.KeyModifiers.Control | Nazor.Input.KeyModifiers.Shift, () => shell?.TogglePickAsync());

@@ -8,6 +8,7 @@
     <ApplicationIcon>Assets/nazor-devtools.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <InternalsVisibleTo Include="Nazor.DevTools.Tests" />
     <EmbeddedResource Include="Assets/nazor-devtools.png" />
     <EmbeddedResource Include="Assets/Icons/*.svg" />
     <Compile Include="../../Shared/DevTools/IdeWire.cs" Link="IdeWire.cs" />

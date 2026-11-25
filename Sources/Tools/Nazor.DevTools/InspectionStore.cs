@@ -10,6 +10,7 @@ public sealed record InspectionState(TargetState? Target, InspectorConnectionSta
     IReadOnlyDictionary<string, GeometryDetails> Geometry, FrameBatch? Frames, string? Message, bool IsInspecting = false, string? DetailMessage = null,
     DebuggerStatus? Debugger = null, DebuggerFields? DebuggerFields = null, string? ApplicationName = null)
 {
+    internal PagedTreeState? Paged { get; init; }
     public bool IsRetained => Tree is not null && (NeedsTree || Connection != InspectorConnectionStatus.Connected || Target is null || Target.State == "exited" ||
         Tree.Capture.SessionId != Target.Identity.SessionId || Tree.Capture.Generation != Target.Generation || Tree.Capture.StopId != Target.StopId ||
         Tree.Capture.Source == "retained" || Tree.Capture.Source == "live" && Target.State != "running");
@@ -28,6 +29,7 @@ public sealed class InspectionStore
     private TargetState? target;
     private InspectorConnectionStatus connection;
     private TreeSnapshot? tree;
+    private PagedTreeState? paged;
     private InspectorSelection? selection;
     private readonly Dictionary<string, StyleDetails> styles = [];
     private readonly Dictionary<string, GeometryDetails> geometry = [];
@@ -49,10 +51,10 @@ public sealed class InspectionStore
 
     public InspectionState Read()
     {
-        lock (gate) return new(debugger is { State: "paused" } && target?.Identity.ProcessId == debugger.ProcessId ? target with { State = "paused", StopId = debugger.StopId } : target, connection, needsTree, tree is null ? null : Copy(tree), selection,
+        lock (gate) return new InspectionState(debugger is { State: "paused" } && target?.Identity.ProcessId == debugger.ProcessId ? target with { State = "paused", StopId = debugger.StopId } : target, connection, needsTree, tree is null ? null : Copy(tree), selection,
             new ReadOnlyDictionary<string, StyleDetails>(styles.ToDictionary(p => p.Key, p => Copy(p.Value))),
             new ReadOnlyDictionary<string, GeometryDetails>(geometry.ToDictionary()), frames is null ? null : Copy(frames), message, isInspecting, detailMessage, debugger,
-            debuggerFields is null ? null : debuggerFields with { Fields = debuggerFields.Fields.ToArray() }, applicationName);
+            debuggerFields is null ? null : debuggerFields with { Fields = debuggerFields.Fields.ToArray() }, applicationName) { Paged = paged };
     }
 
     public (TargetState? Target, InspectorSelection? Selection, bool HasTree, InspectorConnectionStatus Connection) DebuggerContext()
@@ -151,11 +153,23 @@ public sealed class InspectionStore
     public RevisionOutcome Apply(TreeSnapshot snapshot)
     {
         DevToolsJson.Write(snapshot);
+        return ApplyTree(snapshot, null);
+    }
+
+    internal RevisionOutcome ApplyPaged(PagedTreeCache cache)
+    {
+        var (snapshot, state) = cache.View();
+        return ApplyTree(snapshot, state);
+    }
+
+    private RevisionOutcome ApplyTree(TreeSnapshot snapshot, PagedTreeState? state)
+    {
         lock (gate)
         {
             if (!Matches(snapshot.Capture) || tree is not null && SameContext(tree.Capture, snapshot.Capture) && snapshot.Revision < tree.Revision) return RevisionOutcome.Stale;
             var same = tree is not null && SameContext(tree.Capture, snapshot.Capture);
-            tree = Copy(snapshot);
+            tree = state is null ? Copy(snapshot) : snapshot;
+            paged = state;
             if (!same)
             {
                 styles.Clear(); geometry.Clear(); detailMessage = null;
@@ -306,7 +320,7 @@ public sealed class InspectionStore
         Changed?.Invoke();
     }
 
-    private void ClearData() { applicationName = null; debugger = null; debuggerFields = null; tree = null; selection = null; isInspecting = false; selectionCapture = null; selectionRevision = null; remoteSelection = null; styles.Clear(); geometry.Clear(); detailMessage = null; frames = null; needsTree = true; frameGap = false; }
+    private void ClearData() { applicationName = null; debugger = null; debuggerFields = null; tree = null; paged = null; selection = null; isInspecting = false; selectionCapture = null; selectionRevision = null; remoteSelection = null; styles.Clear(); geometry.Clear(); detailMessage = null; frames = null; needsTree = true; frameGap = false; }
     private bool Matches(CaptureStamp stamp) => target is not null && stamp.SessionId == target.Identity.SessionId && stamp.Generation == target.Generation && stamp.StopId == target.StopId;
     private bool CurrentElement(CaptureStamp capture, string id) => Matches(capture) && tree is not null && SameContext(tree.Capture, capture) && tree.Elements.Any(e => e.Id == id);
     private static bool SameContext(CaptureStamp a, CaptureStamp b) => a.SessionId == b.SessionId && a.Generation == b.Generation && a.StopId == b.StopId;

@@ -89,7 +89,7 @@ public sealed class DevToolsAgent : IDisposable
                 lock (gate) listening = pipe ??= CreatePipe();
                 await listening.WaitForConnectionAsync(stopping.Token).ConfigureAwait(false);
                 var target = new TargetState(Descriptor.Identity, Interlocked.Increment(ref generation), "running", null);
-                connected = new(new(listening, listening, "Nazor Agent", [DevToolsCapabilities.Tree, DevToolsCapabilities.Selection, DevToolsCapabilities.Inspection, DevToolsCapabilities.Styles, DevToolsCapabilities.Geometry, DevToolsCapabilities.Frames], target), new(session), target);
+                connected = new(new(listening, listening, "Nazor Agent", [DevToolsCapabilities.Tree, DevToolsCapabilities.PagedTree, DevToolsCapabilities.Selection, DevToolsCapabilities.Inspection, DevToolsCapabilities.Styles, DevToolsCapabilities.Geometry, DevToolsCapabilities.Frames], target), new(session), new(session), target);
                 lock (gate)
                 {
                     if (stopped != 0) { connected.Peer.Dispose(); break; }
@@ -127,6 +127,28 @@ public sealed class DevToolsAgent : IDisposable
 
     private async Task<JsonNode?> HandleAsync(Client active, DevToolsRequest request, CancellationToken token)
     {
+        if (request.Method == DevToolsProtocol.BrowseTree)
+        {
+            var browse = DevToolsJson.Read<TreeBrowseRequest>(request.Parameters);
+            await active.Work.WaitAsync(token).ConfigureAwait(false);
+            try
+            {
+                var page = await OnUiAsync(active, () =>
+                {
+                    debuggerWindow.UsePagedTree(true);
+                    session.TrackBrowseChanges(true);
+                    active.HasPaged = true;
+                    var result = active.Browser.Read(browse, active.Target, token);
+                    if (browse is { Mode: "details", Kind: "component", NodeId: { } id } &&
+                        int.TryParse(id, NumberStyles.None, CultureInfo.InvariantCulture, out var number) && session.NodeOf(number) is ComponentNode component)
+                        debuggerWindow.Remember(number, component.Component);
+                    return result;
+                }, token).ConfigureAwait(false);
+                Signal();
+                return DevToolsJson.Write(page);
+            }
+            finally { active.Work.Release(); }
+        }
         if (request.Method is DevToolsProtocol.GetStyles or DevToolsProtocol.GetGeometry or DevToolsProtocol.GetFrames)
         {
             var node = request.Method == DevToolsProtocol.GetFrames ? null : DevToolsJson.Read<NodeRequest>(request.Parameters);
@@ -202,7 +224,7 @@ public sealed class DevToolsAgent : IDisposable
                 return active.Exporter.Capture(active.Target);
             }, lifetime.Token).ConfigureAwait(false);
             var payload = await TreeSnapshotExporter.SerializeAsync(capture, cancellationToken: lifetime.Token).ConfigureAwait(false);
-            active.HasSnapshot = true;
+            active.HasSnapshot = !active.Peer.Supports(DevToolsCapabilities.PagedTree);
             Signal();
             return payload;
         }
@@ -225,10 +247,33 @@ public sealed class DevToolsAgent : IDisposable
         Interlocked.Exchange(ref frameDirty, 1);
         Signal();
     }
-    private void OnTreeChanged(TreeChange change) => OnStatesChanged();
+    private void OnTreeChanged(TreeChange change)
+    {
+        if (Volatile.Read(ref client) is { HasPaged: true } active)
+        {
+            active.Browser.Invalidate(change);
+            active.RootsChanged |= change.RootsChanged;
+            if (change.Updated.Count + change.Removed.Count + change.BrowseParents.Count <= 256 && !active.AllChanged && !change.BrowseOverflow)
+            {
+                active.ChangedNodes.UnionWith(change.Updated);
+                active.ChangedNodes.UnionWith(change.Removed);
+                active.ChangedParents.UnionWith(change.BrowseParents);
+            }
+            else active.AllChanged = true;
+            if (active.AllChanged || active.ChangedNodes.Count + active.ChangedParents.Count > 256)
+            {
+                active.AllChanged = true;
+                active.ChangedNodes.Clear();
+                active.ChangedParents.Clear();
+            }
+            Volatile.Write(ref active.TreePending, 1);
+        }
+        OnStatesChanged();
+    }
     private void OnOverlayChanged()
     {
-        if (Volatile.Read(ref stopped) != 0 || Volatile.Read(ref client)?.Peer.Supports(DevToolsCapabilities.Selection) != true) return;
+        if (Volatile.Read(ref stopped) != 0 || Volatile.Read(ref client) is not { } active || !active.Peer.Supports(DevToolsCapabilities.Selection)) return;
+        if (active.LastSelectedId == session.SelectedId && active.LastSelection?.IsInspecting == session.IsInspecting) return;
         Interlocked.Exchange(ref selectionDirty, 1);
         Signal();
     }
@@ -238,6 +283,7 @@ public sealed class DevToolsAgent : IDisposable
             session.SelectedId is { } id && session.NodeOf(id) is ComponentNode ? "component" : "element", session.SelectedId?.ToString(CultureInfo.InvariantCulture))
             { IsInspecting = session.IsInspecting, Revision = ++active.SelectionRevision };
         active.LastSelection = result;
+        active.LastSelectedId = session.SelectedId;
         return result;
     }
     private void Signal()
@@ -259,7 +305,9 @@ public sealed class DevToolsAgent : IDisposable
             while (!lifetime.IsCancellationRequested)
             {
                 await changed.WaitAsync(lifetime.Token).ConfigureAwait(false);
-                if ((!active.HasSnapshot || Volatile.Read(ref dirty) == 0 && Volatile.Read(ref selectionDirty) == 0) && (!active.HasFrames || Volatile.Read(ref frameDirty) == 0)) continue;
+                if ((!active.HasSnapshot || Volatile.Read(ref dirty) == 0) && Volatile.Read(ref active.TreePending) == 0 &&
+                    (!(active.HasSnapshot || active.HasPaged) || Volatile.Read(ref selectionDirty) == 0) &&
+                    (!active.HasFrames || Volatile.Read(ref frameDirty) == 0)) continue;
                 await active.Work.WaitAsync(lifetime.Token).ConfigureAwait(false);
                 try
                 {
@@ -279,7 +327,18 @@ public sealed class DevToolsAgent : IDisposable
                             try { frames = ReadFrames(active, false); }
                             catch (DevToolsException error) when (error.Code == DevToolsErrors.Unavailable) { active.HasFrames = false; }
                         }
-                        return (capture, selection, frames);
+                        TreeInvalidation? invalidation = null;
+                        if (Interlocked.Exchange(ref active.TreePending, 0) != 0)
+                        {
+                            invalidation = new(DetailExporter.Stamp(active.Target), session.TreeRevision,
+                                active.ChangedNodes.Select(id => id.ToString(CultureInfo.InvariantCulture)).ToArray(),
+                                active.ChangedParents.Select(id => id.ToString(CultureInfo.InvariantCulture)).ToArray(),
+                                active.RootsChanged, active.AllChanged);
+                            active.ChangedNodes.Clear();
+                            active.ChangedParents.Clear();
+                            active.RootsChanged = active.AllChanged = false;
+                        }
+                        return (capture, selection, frames, invalidation);
                     }, lifetime.Token).ConfigureAwait(false);
                     if (update.capture is not null)
                     {
@@ -297,6 +356,8 @@ public sealed class DevToolsAgent : IDisposable
                     }
                     if (update.selection is not null && active.Peer.Supports(DevToolsCapabilities.Selection))
                         await active.Peer.NotifyAsync(DevToolsProtocol.SelectionChanged, DevToolsJson.Write(update.selection), lifetime.Token).ConfigureAwait(false);
+                    if (update.invalidation is { } invalidation)
+                        await active.Peer.NotifyAsync(DevToolsProtocol.TreeInvalidated, DevToolsJson.Write(invalidation), lifetime.Token).ConfigureAwait(false);
                 }
                 finally { active.Work.Release(); }
             }
@@ -339,6 +400,11 @@ public sealed class DevToolsAgent : IDisposable
         {
             Interlocked.Exchange(ref cleanupPending, 0);
             if (Volatile.Read(ref stopped) != 0) return;
+            if (Volatile.Read(ref client)?.HasPaged != true)
+            {
+                session.TrackBrowseChanges(false);
+                debuggerWindow.UsePagedTree(false);
+            }
             ClearInspection();
         });
     }
@@ -368,23 +434,32 @@ public sealed class DevToolsAgent : IDisposable
         session.StatesChanged -= OnStatesChanged;
         session.OverlayChanged -= OnOverlayChanged;
         session.FrameRecorded -= OnFrameRecorded;
+        session.TrackBrowseChanges(false);
         AppDomain.CurrentDomain.ProcessExit -= processExit;
         try { ClearInspection(); }
         finally { try { Stop(); } finally { Disposed?.Invoke(); } }
     }
 
-    private sealed class Client(DevToolsPeer peer, TreeSnapshotExporter exporter, TargetState target)
+    private sealed class Client(DevToolsPeer peer, TreeSnapshotExporter exporter, TreeBrowser browser, TargetState target)
     {
         internal DevToolsPeer Peer { get; } = peer;
         internal TreeSnapshotExporter Exporter { get; } = exporter;
+        internal TreeBrowser Browser { get; } = browser;
         internal TargetState Target { get; } = target;
         internal SemaphoreSlim Work { get; } = new(1, 1);
         internal CancellationTokenSource Lifetime { get; } = new();
         internal volatile bool HasSnapshot;
+        internal volatile bool HasPaged;
+        internal int TreePending;
+        internal readonly HashSet<int> ChangedNodes = [];
+        internal readonly HashSet<int> ChangedParents = [];
+        internal bool RootsChanged;
+        internal bool AllChanged;
         internal volatile bool HasFrames;
         internal long FrameRevision;
         internal long LastFrame;
         internal long SelectionRevision;
         internal SelectionResult? LastSelection;
+        internal int? LastSelectedId;
     }
 }

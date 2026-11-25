@@ -372,6 +372,7 @@ public sealed class DevToolsPeer : IDisposable
     private static (string Capability, Type Result, bool Mutation) Describe(string method) => method switch
     {
         DevToolsProtocol.GetTree => (DevToolsCapabilities.Tree, typeof(TreeSnapshot), false),
+        DevToolsProtocol.BrowseTree => (DevToolsCapabilities.PagedTree, typeof(TreeBrowsePage), false),
         DevToolsProtocol.GetStyles => (DevToolsCapabilities.Styles, typeof(StyleDetails), false),
         DevToolsProtocol.GetGeometry => (DevToolsCapabilities.Geometry, typeof(GeometryDetails), false),
         DevToolsProtocol.GetFrames => (DevToolsCapabilities.Frames, typeof(FrameBatch), false),
@@ -384,6 +385,7 @@ public sealed class DevToolsPeer : IDisposable
     private static RequestContext ReadContext(string method, JsonNode parameters) => method switch
     {
         DevToolsProtocol.GetTree or DevToolsProtocol.GetFrames or DevToolsProtocol.GetSelection => DevToolsJson.Read<ContextRequest>(parameters).Context,
+        DevToolsProtocol.BrowseTree => DevToolsJson.Read<TreeBrowseRequest>(parameters).Context,
         DevToolsProtocol.GetStyles or DevToolsProtocol.GetGeometry => DevToolsJson.Read<NodeRequest>(parameters).Context,
         DevToolsProtocol.Select => DevToolsJson.Read<SelectionRequest>(parameters).Context,
         DevToolsProtocol.Inspect => DevToolsJson.Read<InspectionRequest>(parameters).Context,
@@ -395,6 +397,7 @@ public sealed class DevToolsPeer : IDisposable
         var capture = method switch
         {
             DevToolsProtocol.GetTree => DevToolsJson.Read<TreeSnapshot>(result).Capture,
+            DevToolsProtocol.BrowseTree => DevToolsJson.Read<TreeBrowsePage>(result).Capture,
             DevToolsProtocol.GetStyles => DevToolsJson.Read<StyleDetails>(result).Capture,
             DevToolsProtocol.GetGeometry => DevToolsJson.Read<GeometryDetails>(result).Capture,
             DevToolsProtocol.GetFrames => DevToolsJson.Read<FrameBatch>(result).Capture,
@@ -408,6 +411,7 @@ public sealed class DevToolsPeer : IDisposable
     private static string? NotificationCapability(string method) => method switch
     {
         DevToolsProtocol.TreeChanged => DevToolsCapabilities.Tree,
+        DevToolsProtocol.TreeInvalidated => DevToolsCapabilities.PagedTree,
         DevToolsProtocol.FramesAdded => DevToolsCapabilities.Frames,
         DevToolsProtocol.SelectionChanged => DevToolsCapabilities.Selection,
         DevToolsProtocol.SessionChanged => null,
@@ -419,6 +423,7 @@ public sealed class DevToolsPeer : IDisposable
         switch (method)
         {
             case DevToolsProtocol.TreeChanged: return DevToolsJson.Read<TreeDelta>(parameters).Capture;
+            case DevToolsProtocol.TreeInvalidated: return DevToolsJson.Read<TreeInvalidation>(parameters).Capture;
             case DevToolsProtocol.FramesAdded: return DevToolsJson.Read<FrameBatch>(parameters).Capture;
             case DevToolsProtocol.SelectionChanged: return DevToolsJson.Read<SelectionResult>(parameters).Capture;
             case DevToolsProtocol.SessionChanged: DevToolsJson.Read<TargetState>(parameters); return null;

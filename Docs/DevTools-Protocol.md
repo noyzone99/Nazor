@@ -60,6 +60,7 @@ DTO definitions are in [Contracts.cs](../Sources/Tools/Nazor.DevTools.Protocol/C
 | Method | Params DTO | Result DTO | Capability |
 | --- | --- | --- | --- |
 | tree/get | ContextRequest | TreeSnapshot | tree |
+| tree/browse | TreeBrowseRequest | TreeBrowsePage | tree.paged |
 | styles/get | NodeRequest | StyleDetails | styles |
 | geometry/get | NodeRequest | GeometryDetails | geometry |
 | frames/get | ContextRequest | FrameBatch | frames |
@@ -73,6 +74,7 @@ Target params additionally carry `deadlineUtc`, supplied by the .NET peer. It is
 | --- | --- |
 | session/changed | TargetState |
 | tree/changed | TreeDelta |
+| tree/invalidated | TreeInvalidation |
 | frames/added | FrameBatch |
 | selection/changed | SelectionResult |
 | $/cancelRequest | Object containing the original string request id |
@@ -80,6 +82,20 @@ Target params additionally carry `deadlineUtc`, supplied by the .NET peer. It is
 `CaptureStamp` contains session ID, generation, `live`/`retained`/`debugger` provenance, nullable debugger stop ID and UTC RFC 3339 capture time. Debugger provenance requires a stop ID; live provenance has none. Retained data keeps its original stamp and must not be relabelled as a fresh live or current-stop capture. Typed results are validated on both sides against the request's session/generation/stop, before being returned to the caller. A valid wire response with invalid typed data is rejected without publishing it.
 
 Tree snapshots contain roots, component records and element/text records. Components carry logical parent/children and output element links, independently of producing/declaring ownership on elements. Zero/multiple outputs, repeated component types, keys and framework-detail presentation are representable. A complete snapshot validates unique IDs, reciprocal parent/child links, roots, reachability, cycles and output/ownership references. Style data is detached selectors, declarations, computed values, origins and optional source coordinates. Geometry uses finite logical rectangles/edges and positive scale; margins may be negative. Frames contain ordered sequence numbers, causes, phase timings, counters and damage rectangles. No field carries runtime objects, delegates, reflection Types or arbitrary component properties. A collector must return `Unavailable` for uncaptured detail, never use empty data to disguise it.
+
+## Paged live trees
+
+`tree.paged` is negotiated independently of the complete `tree` capability. A page carries a capture stamp, a renderer revision, detached node summaries, a nullable continuation, the number of logical nodes visited, and the time spent reading on the target UI thread (`readMs`). The Agent visits at most 256 logical nodes and returns at most 64 results per browse operation. It checks an elapsed-time budget between visits. A page can contain zero results and a continuation when transparent wrappers or a search require more traversal. A continuation is opaque, single-use, scoped to the connection and request, and can expire after a relevant render or when the Agent evicts it. On `ResyncRequired`, start that request again. All existing framing limits still apply per response.
+
+| Mode | Node and result |
+| --- | --- |
+| `children` | Supply a parent ID, or null for roots. Returns projected siblings in tree order. |
+| `path` | Supply a node ID. Returns the node and its ancestors, from the node toward the root. |
+| `details` | Supply a node ID. Returns one description with bounded retained parameters, attributes or text. |
+| `outputs` | Supply a component ID. Returns its top-level physical output nodes in tree order. |
+| `search` | Supply a nonempty `query` with at most 256 characters and a null node ID. Returns matching nodes from the retained tree. Search uses bounded text and attribute previews. |
+
+`kind` is `component` or `element`. `includeFramework` controls whether projected component lists include framework components. Each `TreeBrowseNode` contains exactly one component or element description and a `hasChildren` hint. Summary records carry only the fields needed to identify the node. Clients use the page results to assemble the loaded hierarchy. Structural notifications identify changed nodes and parents, root changes, or an `all` flag when the notification budget is exceeded. Reload affected loaded branches; a gap can be recovered by reloading the roots. A paged client may still request a complete snapshot explicitly through `tree/get`.
 
 Optional metadata includes `ComponentInfo.parameters` and `ElementInfo.elementId`, `attributes`, `classes`, `states` and `events`. Parameters and attributes are `PropertyValue[]`, with at most 128 unique names per record. Other metadata arrays contain at most 128 entries. Missing or null metadata means unavailable. Parameter origins are `supplied` and values come from retained direct parameter inputs without getter evaluation. Attributes use origin `attribute`. Event callbacks are represented by their attribute names. String, message and shape limits apply to all metadata.
 
@@ -153,7 +169,7 @@ These shared headless fixtures cover repeated/keyed instances, projected content
 
 ## Local desktop connection
 
-The optional Agent uses `NamedPipeServerStream` in asynchronous duplex byte mode, independently of Hot Reload. A window explicitly calls `EnableDevTools()` after build opt-in. One endpoint belongs to one diagnostics attachment; the peer remains stream based. Current Agent capabilities are `tree`, `styles`, `geometry`, `frames`, `selection` and `inspection`; debugger fields are not advertised.
+The optional Agent uses `NamedPipeServerStream` in asynchronous duplex byte mode, independently of Hot Reload. A window explicitly calls `EnableDevTools()` after build opt-in. One endpoint belongs to one diagnostics attachment; the peer remains stream based. Current Agent capabilities are `tree`, `tree.paged`, `styles`, `geometry`, `frames`, `selection` and `inspection`; debugger fields are not advertised.
 
 Modern Protocol assets expose these BCL-only discovery/client APIs; the standard DTO asset excludes them:
 

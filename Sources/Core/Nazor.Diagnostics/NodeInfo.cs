@@ -91,4 +91,7 @@ public sealed record TreeChange(
 
     /// <summary>Renderer-batch revision, for detecting intervening changes during capture scheduling.</summary>
     public long Revision { get; init; }
+    internal IReadOnlyList<int> BrowseParents { get; init; } = [];
+    internal bool BrowseOverflow { get; init; }
+    internal bool BrowseStructureChanged { get; init; }
 }

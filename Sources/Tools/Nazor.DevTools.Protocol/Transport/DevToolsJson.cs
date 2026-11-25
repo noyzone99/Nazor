@@ -151,6 +151,26 @@ public static class DevToolsJson
             case SelectionRequest selection: Selection(selection.Kind, selection.NodeId); break;
             case SelectionResult selection: Selection(selection.Kind, selection.NodeId); Require(selection.Revision is null or > 0, "Invalid selection revision."); break;
             case NodeRequest node: Id(node.ElementId); break;
+            case TreeBrowseRequest browse:
+                Selection(browse.Kind, browse.NodeId); OptionalId(browse.Cursor);
+                Require(browse.Mode is "children" or "path" or "details" or "outputs" or "search", "Invalid browse mode.");
+                Require(browse.Mode is "children" or "search" || browse.NodeId is not null, "A node is required.");
+                Require(browse.Mode != "outputs" || browse.Kind == "component", "Only components have outputs.");
+                Require(browse.Mode == "search" ? browse.NodeId is null && browse.Query is { Length: > 0 and <= 256 } : browse.Query is null, "Invalid search query.");
+                Require(browse.Mode != "details" || browse.Cursor is null, "Details do not have a cursor.");
+                break;
+            case TreeBrowseNode browseNode:
+                Require((browseNode.Component is null) != (browseNode.Element is null), "Expected one node description.");
+                break;
+            case TreeBrowsePage page:
+                Require(page.Revision > 0 && page.Nodes.Length <= 64 && page.Visited is >= 0 and <= 256 && page.ReadMs >= 0, "Invalid browse page.");
+                Ids(page.Nodes.Select(item => item.Component?.Id ?? item.Element?.Id ?? "").ToArray());
+                OptionalId(page.Cursor);
+                break;
+            case TreeInvalidation invalidation:
+                Require(invalidation.Revision > 0 && invalidation.Nodes.Length + invalidation.Parents.Length <= 256, "Invalid tree invalidation.");
+                Ids(invalidation.Nodes); Ids(invalidation.Parents);
+                break;
             case ComponentInfo component:
                 Id(component.Id); OptionalId(component.ParentId); Require(!string.IsNullOrWhiteSpace(component.TypeName), "A component type is required.");
                 OptionalId(component.RootId); OptionalId(component.DeclaringComponentId);

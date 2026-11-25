@@ -59,6 +59,52 @@ public sealed class GallerySampleTests : IDisposable
         Assert.Contains(snapshot.Elements, element => element.ElementId == "card-button");
     }
 
+    [Fact]
+    public async Task DevTools_can_browse_and_pick_the_gallery_across_theme_changes()
+    {
+        Appearance.Theme = App.LeafTheme;
+        Update();
+        using var session = new DevToolsSession(host.Renderer, scene, input);
+        var directory = Path.Combine(Path.GetTempPath(), "ndt-" + Guid.NewGuid().ToString("N")[..12]);
+        using var agent = new DevToolsAgent(session, directory);
+        var token = TestContext.Current.CancellationToken;
+        using var peer = Complete(LocalDevTools.ConnectAsync(agent.Descriptor, "Gallery paging", [DevToolsCapabilities.PagedTree, DevToolsCapabilities.Selection], token));
+        var context = new RequestContext(peer.RemoteTarget!.Identity.SessionId, peer.RemoteTarget.Generation, null);
+        var changes = new TaskCompletionSource<TreeInvalidation>(TaskCreationOptions.RunContinuationsAsynchronously);
+        peer.NotificationHandler = (method, payload) =>
+        {
+            if (method == DevToolsProtocol.TreeInvalidated) changes.TrySetResult(DevToolsJson.Read<TreeInvalidation>(payload));
+        };
+        var roots = Browse(new(context, "element", "children", null));
+        Assert.NotEmpty(roots.Nodes);
+        Assert.DoesNotContain(roots.Nodes, node => node.Element!.ElementId == "card-button");
+
+        var card = ById("card-button");
+        var id = session.IdOf(card).ToString(System.Globalization.CultureInfo.InvariantCulture);
+        session.Select(session.IdOf(card));
+        var selected = Complete(peer.RequestAsync<SelectionResult>(DevToolsProtocol.GetSelection, DevToolsJson.Write(new ContextRequest(context)), token));
+        Assert.Equal(id, selected.NodeId);
+        var path = Browse(new(context, "element", "path", id));
+        Assert.Equal("card-button", path.Nodes[0].Element!.ElementId);
+        Assert.True(path.Nodes.Length > 1);
+
+        await Pick("gallery-theme", "Windows 7");
+        host.RunUntil(() => changes.Task.IsCompleted);
+        var invalidation = await changes.Task;
+        Assert.True(invalidation.Revision > roots.Revision);
+        Assert.NotEmpty(Browse(new(context, "element", "children", null)).Nodes);
+
+        await host.ClickAsync(ById("gallery-showcase"));
+        Update();
+        var query = new TreeBrowseRequest(context, "element", "search", null, Query: "leaf-section-10");
+        TreeBrowsePage page;
+        do { page = Browse(query); query = query with { Cursor = page.Cursor }; } while (page.Nodes.Length == 0 && query.Cursor is not null);
+        Assert.Contains(page.Nodes, node => node.Element!.ElementId == "leaf-section-10");
+
+        TreeBrowsePage Browse(TreeBrowseRequest request) => Complete(peer.RequestAsync<TreeBrowsePage>(DevToolsProtocol.BrowseTree, DevToolsJson.Write(request), token));
+        T Complete<T>(Task<T> task) { host.RunUntil(() => task.IsCompleted); return task.GetAwaiter().GetResult(); }
+    }
+
     [Theory]
     [InlineData("Windows 7", true, true)]
     [InlineData("Windows XP", true, true)]

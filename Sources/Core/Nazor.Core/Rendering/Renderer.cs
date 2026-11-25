@@ -890,8 +890,11 @@ public class Renderer : IDisposable
         }
     }
 
+    internal int InspectionBranchReaders { get; set; }
+
     private void ChildrenChanged(Node parent)
     {
+        if (InspectionBranchReaders != 0) batch.LogicalChildrenOf(parent);
         for (Node? current = parent; current is not null; current = current.Parent)
         {
             if (current is ElementNode element)

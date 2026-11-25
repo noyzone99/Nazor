@@ -10,6 +10,7 @@
     <ProjectReference Include="../../Core/Nazor.Application/Nazor.Application.csproj" />
     <ProjectReference Include="../../Core/Nazor.Diagnostics/Nazor.Diagnostics.csproj" />
     <ProjectReference Include="../Nazor.DevTools.Protocol/Nazor.DevTools.Protocol.csproj" />
+    <InternalsVisibleTo Include="Nazor.DevTools.Agent.Tests" />
   </ItemGroup>
   <ItemGroup><None Include="buildTransitive/Nazor.DevTools.Agent.targets" Pack="true" PackagePath="buildTransitive/" /></ItemGroup>
   <Import Project="InspectorPackaging.targets" />

@@ -21,6 +21,7 @@ scene.Styles.Application = InspectionStyles.Application();
 var frameNumber = 0;
 var page = (TreePage)renderer.AddRootComponent<TreePage>().Component;
 renderer.AddRootComponent<LargeTree>(ParameterView.FromDictionary(new Dictionary<string, object?> { ["Count"] = 700 }));
+var wide = args.Contains("--wide") ? (WideBranch)renderer.AddRootComponent<WideBranch>().Component : null;
 DevToolsAgent? agent = args.Contains("--disabled") ? null : new(session, args[0]);
 Console.WriteLine(agent is null ? "DISABLED" : JsonSerializer.Serialize(agent.Descriptor));
 Console.Out.Flush();
@@ -36,6 +37,7 @@ _ = Task.Run(() =>
             switch (command)
             {
                 case "change": page.Version++; page.Show = !page.Show; page.Refresh(); Console.WriteLine("CHANGED"); break;
+                case "change-wide": wide!.Reverse(); Console.WriteLine("CHANGED-WIDE"); break;
                 case "flood":
                     for (var i = 0; i < 500; i++) { page.Version++; page.Refresh(); }
                     Console.WriteLine("FLOODED"); break;
@@ -51,8 +53,7 @@ _ = Task.Run(() =>
                 case "ping": Console.WriteLine("PONG"); break;
                 case "pick":
                     scene.Update();
-                    var piece = session.CaptureTree().Nodes.First(n => n.Name == "Piece");
-                    var box = scene.GetBounds(session.ElementOf(piece.Id)!);
+                    var box = scene.GetBounds(renderer.RootComponents[0].Nodes.OfType<ElementNode>().First(node => node.Name == "Piece"));
                     var point = new Point(box.X + box.Width / 2, box.Y + box.Height / 2);
                     session.PointerMoved(point); session.PointerPressed(point, PointerButton.Primary); session.PointerReleased(point, PointerButton.Primary);
                     Console.WriteLine("PICKED"); break;
@@ -88,3 +89,23 @@ try
     }
 }
 finally { agent?.Dispose(); session.Dispose(); }
+
+public sealed class WideBranch : ComponentBase
+{
+    private bool reversed;
+    internal void Reverse() { reversed = !reversed; StateHasChanged(); }
+
+    protected override void BuildRenderTree(RenderTreeBuilder builder)
+    {
+        builder.OpenElement(0, "Wide");
+        for (var index = 0; index < 10000; index++)
+        {
+            var item = reversed ? 9999 - index : index;
+            builder.OpenElement(1, "Row");
+            builder.SetKey(item);
+            builder.AddAttribute(2, "id", $"wide-row-{item}");
+            builder.CloseElement();
+        }
+        builder.CloseElement();
+    }
+}

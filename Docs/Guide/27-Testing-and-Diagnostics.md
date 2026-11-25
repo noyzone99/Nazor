@@ -83,6 +83,8 @@ For both component and element navigation, call `session.CaptureTree()` on the U
 
 Capture returns a complete bounded tree or throws `TreeCaptureLimitException`; it never presents an uncaptured subtree as empty. The [Diagnostics API](../ApiReferences/Nazor.Diagnostics.md#detached-tree-types) lists budgets and DTOs. Existing `Get`/`Box`/`Trace` are live detail APIs and may update scene state; they are not breakpoint readers.
 
+The standalone inspector uses [paged live trees](../DevTools-Protocol.md#paged-live-trees) with a compatible Agent. It opens the roots, reads children as you expand a branch, and reveals search and picker results by their ancestor paths. The complete snapshot budget above still applies when a tool explicitly requests `CaptureTree()`.
+
 NSS `::before` and `::after` boxes are generated for layout and paint outside the authored tree. The Gallery uses them for repeated decorative glyphs so its catalog can be captured when switching desktop themes.
 
 With the optional Agent, use `new TreeSnapshotExporter(session).Capture(targetState)` for protocol snapshots/deltas and `await TreeSnapshotExporter.SerializeAsync(capture)` for worker serialization. The target identity must use `session.SessionId` and a valid running generation. Retain one exporter per attachment. A new generation requires a full snapshot; a lost delta/send requires resynchronization. See the [Agent API](../ApiReferences/Nazor.DevTools.Agent.md#treesnapshotexporter-and-treecapture) for lifecycle contracts. No graphical inspector or automatic connection is started by these APIs.

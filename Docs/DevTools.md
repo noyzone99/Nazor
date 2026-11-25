@@ -144,21 +144,23 @@ Each detail panel shows its own original UTC capture/source/generation/stop cont
 
 ## Captures and lifecycle
 
-The status bar shows connection/execution state, capture age, node counts and process/app/window identity. The capture panel records the original UTC timestamp, source, generation, structural revision and debugger stop ID when present. A live capture is the latest received snapshot, not a guarantee of continuous UI responsiveness. A transport handshake alone does not produce fresh inspection data.
+For a running application with paged inspection, the inspector starts with the roots of the component and element trees. Expand a row to read its children. **Load more** continues a wide list. Search finds nodes in collapsed branches, and picking a control or following an ownership link reveals its ancestors. Selecting a row reads its retained details. The status bar counts loaded nodes. After a render the inspector refreshes affected expanded branches in the active panel, reloads other affected branches when reopened, and keeps the selected node when its instance survives.
+
+The status bar shows connection/execution state, capture age, node counts and process/app/window identity. The capture panel records the original UTC timestamp, source, generation, structural revision and debugger stop ID when present. It describes the latest received inspection data. A transport handshake alone does not produce fresh inspection data.
 
 A full request has a two-second deadline. If the target dispatcher is blocked, the shell shows **UI unavailable** and keeps cached navigation responsive. It never resumes the target. When a debugger adapter reports a pause, the last live tree becomes retained; current-stop debugger captures must carry that stop's own provenance. The Visual Studio bridge supplies pause/step/continue state; the Agent alone does not detect debugger stops automatically. Other IDE bridges require their own validated implementation.
 
-Closing or disconnecting the tools leaves the target alive. Target exit or connection loss leaves the last capture readable and selectable, marked disconnected/retained. Reconnection requires a complete capture for its new generation. Switching to another app/window/session clears the previous target's data; an older connection cannot publish into the new one. **Clear** removes retained state and detaches.
+Closing or disconnecting the tools leaves the target alive. Target exit or connection loss leaves the last capture readable and selectable, marked disconnected/retained. Reconnection loads fresh roots for the new generation, or requests a complete capture from a legacy Agent. Switching to another app/window/session clears the previous target's data; an older connection cannot publish into the new one. **Clear** removes retained state and detaches.
 
 ## Retained model and boundaries
 
-`InspectionStore` owns detached trees, local selection, style/geometry detail entries and frame history. It validates full DTOs and stages each ordered delta into a complete candidate tree before publishing atomically. Missing revisions, invalid resulting topology or dropped notifications require a complete snapshot. Late older responses cannot roll the tree back. Node identities are scoped by session, generation and debugger stop; retained data keeps its original stamp.
+`InspectionStore` owns detached trees, local selection, style/geometry detail entries and frame history. The live page cache replaces affected branches and recovers from dropped notifications by reloading the roots. With a legacy peer, the store validates each ordered delta against a complete candidate tree and uses a full snapshot to recover from gaps. Node identities are scoped by session, generation and debugger stop; retained data keeps its original stamp.
 
 Reads return detached copies. The model retains at most 16 style and 16 geometry entries, and 120 frames; tree and wire limits remain those of the [protocol](DevTools-Protocol.md). Removed elements prune associated details; removed selections clear locally. The client serializes full requests and consumes a bounded eight-notification queue, resynchronizing after overflow. Discovery, transport and serialization run independently of the inspector UI dispatcher; UI updates marshal onto that dispatcher.
 
 The shell references ordinary desktop runtime/theme packages and Protocol. Its assembly graph excludes Agent, Diagnostics and IDE SDKs. No new runtime dependency or auto-activation path is added to inspected applications.
 
-The Agent advertises tree, styles, geometry, frames, selection and inspection. The inspector labels detail and picking unavailable when the peer does not advertise their capabilities. Debugger-backed reads require the separately connected IDE adapter.
+The Agent advertises paged trees, complete trees, styles, geometry, frames, selection and inspection. The inspector labels detail and picking unavailable when the peer does not advertise their capabilities. Debugger-backed reads require the separately connected IDE adapter. If an inspector was connected while running, its loaded branches remain available at a breakpoint. Opening for the first time while paused still uses a bounded debugger snapshot prepared while the app was running. Set `NAZOR_DEVTOOLS_DEBUGGER_SNAPSHOTS=1` before launching an app if you need that snapshot before attaching the debugger.
 
 ## Verification
 

@@ -69,6 +69,8 @@ The deployment fixture also exercises statically registered Leaf decoration pres
 
 ## Run verification
 
+The DevTools shell suite exercises a live Agent with 10,000 siblings, bounded pages, cursor recovery, search, picker, linked output, and a real inspector tree expansion. The Application suite verifies paged inspection across a Gallery theme change and into the showcase. Run the tests matching `PagedInspectionTests`, `Expanding_a_live_row_loads_its_children_in_the_inspector`, and `DevTools_can_browse_and_pick_the_gallery_across_theme_changes`. The `--devtools` benchmark includes complete and paged reads.
+
 The [Tests workflow](../.github/workflows/tests.yml) runs on every push to `main` and `dev` and on demand. It runs the managed suites on Windows x64 and Linux x64/ARM64, including Windows application tests and the .NET 8/9/10 protocol suite. The Linux jobs run native and managed GUI checks under isolated Weston and Xvfb sessions and run the DRM fixture. Download the XML reports from the `test-results-*` artifacts.
 
 The hosted jobs exercise virtual displays and ordinary Windows window APIs. Tests that require foreground input, the system clipboard, real monitors or physical DRM hardware retain their local prerequisites. Nazor currently provides desktop backends for Windows and Linux.

@@ -49,7 +49,7 @@ public sealed class TreeModel<TItem> where TItem : notnull
     /// <summary>Gets or sets the top-level items.</summary>
     public IReadOnlyList<TItem> Roots { get; set; } = [];
 
-    /// <summary>Gets or sets the function that gives an item's children, or null when they are loaded on demand.</summary>
+    /// <summary>Gets or sets the function that gives an item's children. Return null for items that still need to load.</summary>
     public Func<TItem, IReadOnlyList<TItem>?>? Children { get; set; }
 
     /// <summary>Gets or sets the function that tells whether an item has children before they are loaded.</summary>
@@ -97,7 +97,7 @@ public sealed class TreeModel<TItem> where TItem : notnull
         }
         if (!CanExpand(item) || !expanded.Add(item)) return;
         Changed?.Invoke();
-        if (Children is not null || loaded.ContainsKey(item) || LoadChildren is null || !loading.Add(item)) return;
+        if (Children?.Invoke(item) is not null || Children is null && loaded.ContainsKey(item) || LoadChildren is null || !loading.Add(item)) return;
         Changed?.Invoke();
         try { loaded[item] = await LoadChildren(item); }
         finally

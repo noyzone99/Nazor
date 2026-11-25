@@ -79,6 +79,25 @@ public sealed class InspectorShellTests
     }
 
     [Fact]
+    public async Task Expanding_a_live_row_loads_its_children_in_the_inspector()
+    {
+        using var target = await AgentProcess.StartAsync(wide: true);
+        var store = new InspectionStore();
+        using var client = new InspectorClient(store, target.Directory) { UsePagedTree = true };
+        await client.ConnectAsync(target.Descriptor, TestContext.Current.CancellationToken);
+        using var harness = new Harness();
+        var root = harness.Host.Render<InspectorShell>(ParameterView.FromDictionary(new Dictionary<string, object?> { ["Store"] = store, ["Client"] = client }));
+        harness.Settle();
+        var page = Assert.Single(store.Read().Tree!.Components, node => node.TypeName.EndsWith(".TreePage", StringComparison.Ordinal));
+        Assert.Empty(page.Children);
+        var row = root.Elements("TreeViewItem").Single(item => item.Text().Contains("TreePage", StringComparison.Ordinal));
+        harness.Click(row.Elements().Single(element => element.Name == "TreeViewExpander"));
+        harness.Host.RunUntil(() => store.Read().Tree!.Components.Any(node => node.TypeName.EndsWith(".PassThrough", StringComparison.Ordinal)));
+        harness.Settle();
+        Assert.Contains(root.Elements("TreeViewItem"), item => item.Text().Contains("PassThrough", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task Choosing_a_tree_node_highlights_it_in_the_app_until_the_option_is_cleared()
     {
         using var target = await AgentProcess.StartAsync();

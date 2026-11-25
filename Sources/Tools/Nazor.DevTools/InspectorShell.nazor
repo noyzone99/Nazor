@@ -14,12 +14,14 @@
                                MinPaneSize="280" MaxPaneSize="760" ResizeHandleAccessibleName="Resize details sidebar">
                         <Pane>
                             <ComponentDetails Component="SelectedComponent" Components="components" Elements="elements" Debugger="data.Debugger" Fields="data.DebuggerFields"
+                                              HasMoreOutputs="@(data.Paged?.MoreOutputs == true && !data.IsRetained)" OnLoadOutputs="LoadOutputsAsync"
                                               CanShowInApp="@(CanUseSelection && !busy)" OnShowInApp="HighlightAsync" OnHideInApp="HideHighlightAsync" OnNavigate="NavigateTo" />
                         </Pane>
                         <ChildContent>
                             <Container Class="tree-area">
                                 @TreeToolbar("Filter components, keys or instance IDs")
-                                <TreeView @ref="componentTree" @key="data.Target?.Identity.SessionId" TItem="string" Roots="navigation.ComponentRoots" Children="ComponentChildren"
+                                <TreeView @ref="componentTree" @key="(data.Target?.Identity.SessionId, showFramework)" TItem="string" Roots="ComponentRoots" Children="ComponentChildren"
+                                          HasChildren="ComponentHasChildren" LoadChildren="LoadComponentChildrenAsync"
                                           ItemText="ComponentText" ItemTemplate="ComponentRow" ItemHeight="26" Indent="14" IndentGuides="true"
                                           SelectedItem="@(data.Selection?.Kind == "component" ? data.Selection.NodeId : null)"
                                           SelectedItemChanged="SelectComponent" AccessibleName="Captured components" Class="node-tree" />
@@ -48,7 +50,8 @@
                         <ChildContent>
                             <Container Class="tree-area">
                                 @TreeToolbar("Filter elements, IDs, classes or text")
-                                <TreeView @ref="elementTree" @key="data.Target?.Identity.SessionId" TItem="string" Roots="navigation.ElementRoots" Children="ElementChildren"
+                                <TreeView @ref="elementTree" @key="data.Target?.Identity.SessionId" TItem="string" Roots="ElementRoots" Children="ElementChildren"
+                                          HasChildren="ElementHasChildren" LoadChildren="LoadElementChildrenAsync"
                                           ItemText="ElementText" ItemTemplate="ElementRow" ItemHeight="26" Indent="14" IndentGuides="true"
                                           SelectedItem="@(data.Selection?.Kind == "element" ? data.Selection.NodeId : null)"
                                           SelectedItemChanged="SelectElement" AccessibleName="Captured elements" Class="node-tree" />
@@ -105,7 +108,7 @@
         @if (data.Tree is { } counted)
         {
             <StatusBarSection>
-                <TextBlock>@(counted.Components.Length + " components · " + counted.Elements.Length + " elements")</TextBlock>
+                <TextBlock>@(counted.Components.Length + " components · " + counted.Elements.Length + " elements" + (data.Paged is null ? "" : " loaded"))</TextBlock>
             </StatusBarSection>
         }
         <StatusBarSection Class="status-target">
@@ -254,14 +257,15 @@
 
     private RenderFragment<string> ComponentRow => id => __builder =>
     {
-        @if (components.TryGetValue(id, out var component))
+        @if (IsPageAction(id)) { <TextBlock Class="muted">@PageLabel(id)</TextBlock> }
+        else if ((components.GetValueOrDefault(id) ?? searchNodes.GetValueOrDefault(id)?.Component) is { } component)
         {
-            <Container Class="@("row" + (component.OutputElements.Length == 0 ? " dim" : ""))">
+            <Container Class="@("row" + (component.Parameters is not null && component.OutputElements.Length == 0 ? " dim" : ""))">
                 @foreach (var token in NodeSyntax.Component(component))
                 {
                     <TextBlock Class="@token.Class">@token.Text</TextBlock>
                 }
-                @if (component.OutputElements.Length != 1)
+                @if ((data.Paged is null || component.Parameters is not null) && component.OutputElements.Length != 1)
                 {
                     <TextBlock Class="badge">@(component.OutputElements.Length == 0 ? "no output" : component.OutputElements.Length + " outputs")</TextBlock>
                 }
@@ -272,7 +276,8 @@
 
     private RenderFragment<string> ElementRow => id => __builder =>
     {
-        @if (elements.TryGetValue(id, out var element))
+        @if (IsPageAction(id)) { <TextBlock Class="muted">@PageLabel(id)</TextBlock> }
+        else if ((elements.GetValueOrDefault(id) ?? searchNodes.GetValueOrDefault(id)?.Element) is { } element)
         {
             <Container Class="@("row" + (element.IsRendered == false ? " dim" : ""))">
                 @foreach (var token in NodeSyntax.Element(element))

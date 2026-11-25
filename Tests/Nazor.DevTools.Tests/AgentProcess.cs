@@ -12,7 +12,7 @@ internal sealed class AgentProcess : IDisposable
     internal string Directory { get; }
     private readonly Task<string> errors;
     private AgentProcess(Process process, string directory) { Process = process; Directory = directory; errors = process.StandardError.ReadToEndAsync(); }
-    internal static async Task<AgentProcess> StartAsync()
+    internal static async Task<AgentProcess> StartAsync(bool wide = false)
     {
         var root = new DirectoryInfo(AppContext.BaseDirectory);
         while (!File.Exists(Path.Combine(root.FullName, "Nazor.slnx"))) root = root.Parent ?? throw new InvalidOperationException("Repository not found.");
@@ -22,6 +22,7 @@ internal sealed class AgentProcess : IDisposable
         var dll = Environment.GetEnvironmentVariable("NAZOR_DEVTOOLS_FIXTURE") ?? Path.Combine(root.FullName, "Tests", "Fixtures", "DevToolsAgent", "bin", configuration, "net10.0", "DevToolsAgent.dll");
         var start = new ProcessStartInfo("dotnet") { RedirectStandardInput = true, RedirectStandardOutput = true, RedirectStandardError = true, UseShellExecute = false, CreateNoWindow = true };
         start.ArgumentList.Add(dll); start.ArgumentList.Add(directory);
+        if (wide) start.ArgumentList.Add("--wide");
         var result = new AgentProcess(Process.Start(start)!, directory);
         try { result.Descriptor = JsonSerializer.Deserialize<LocalDevToolsDescriptor>(await result.LineAsync())!; return result; }
         catch { result.Dispose(); throw; }

@@ -40,6 +40,7 @@ public sealed class DebuggerWindow
     private readonly object publishGate = new();
     private readonly CancellationTokenSource lifetime = new();
     private long lastCapture;
+    private bool paged;
 
     internal DebuggerWindow(DevToolsSession session, TargetIdentity identity)
     {
@@ -48,10 +49,31 @@ public sealed class DebuggerWindow
         target = new(identity, 1, "running", null);
         exporter = new(session);
         session.TreeChanged += Changed;
-        Schedule();
+        ScheduleIfNeeded();
     }
-    private void Changed(TreeChange change) => Schedule();
-    private void Schedule()
+    private void Changed(TreeChange change) => ScheduleIfNeeded();
+    private void ScheduleIfNeeded()
+    {
+        if (!paged && (Debugger.IsAttached || Environment.GetEnvironmentVariable("NAZOR_DEVTOOLS_DEBUGGER_SNAPSHOTS") == "1")) Schedule();
+    }
+
+    internal void UsePagedTree(bool enabled)
+    {
+        if (paged == enabled) return;
+        paged = enabled;
+        if (!enabled) { ScheduleIfNeeded(); return; }
+        Interlocked.Increment(ref revision);
+        lock (publishGate) { Components = []; TreeJson = ""; TreeChunks = []; }
+    }
+
+    internal void Remember(int id, object instance)
+    {
+        var key = id.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        if (Components.Any(component => component.Id == key)) return;
+        Components = [.. Components.TakeLast(63), new(key, instance)];
+    }
+
+    internal void Schedule()
     {
         Interlocked.Exchange(ref dirty, 1);
         if (Volatile.Read(ref disposed) != 0 || Interlocked.Exchange(ref pending, 1) != 0) return;
@@ -73,6 +95,7 @@ public sealed class DebuggerWindow
     {
         Interlocked.Exchange(ref dirty, 0);
         if (Volatile.Read(ref disposed) != 0) return;
+        if (paged) { Finished(); return; }
         lastCapture = Stopwatch.GetTimestamp();
         Updating = true;
         try
@@ -82,7 +105,12 @@ public sealed class DebuggerWindow
             var capturedRevision = Interlocked.Increment(ref revision);
             _ = PublishAsync(capture, capturedRevision);
         }
-        catch (DevToolsException) { TreeJson = ""; Finished(); }
+        catch (DevToolsException)
+        {
+            Interlocked.Increment(ref revision);
+            lock (publishGate) { Components = []; TreeJson = ""; TreeChunks = []; }
+            Finished();
+        }
         finally { Updating = false; }
     }
     private async Task PublishAsync(TreeCapture capture, long capturedRevision)

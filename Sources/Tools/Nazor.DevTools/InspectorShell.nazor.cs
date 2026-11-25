@@ -60,10 +60,16 @@ public partial class InspectorShell
     private TreeView<string>? componentTree;
     private TreeView<string>? elementTree;
     private string search = "";
+    private readonly Dictionary<string, TreeBrowseNode> searchNodes = [];
+    private string? searchCursor;
+    private CancellationTokenSource? searchRequest;
+    private bool Searching => data.Paged is not null && !string.IsNullOrWhiteSpace(search);
     private bool showFramework;
     private bool revealPending;
     private bool expandPending;
     private TreeView<string>? ActiveTree => panel == ComponentsPanel ? componentTree : panel == ElementsPanel ? elementTree : null;
+    private IReadOnlyList<string> ComponentRoots => Roots("component", navigation.ComponentRoots);
+    private IReadOnlyList<string> ElementRoots => Roots("element", navigation.ElementRoots);
     private bool CanUseSelection => Client?.SupportsSelection == true && !data.IsRetained && data.Connection == InspectorConnectionStatus.Connected && data.Target?.State == "running";
     private bool CanUseInspection => Client?.SupportsInspection == true && CanUseSelection;
     private bool CanReconnect => Client is not null && data.Connection == InspectorConnectionStatus.Disconnected && data.Target is not null && data.Target.State != "exited";
@@ -94,6 +100,9 @@ public partial class InspectorShell
         if (expandPending && ActiveTree is { } expandTree) { expandPending = false; expandTree.ExpandAll(); }
         if (revealPending && ActiveTree is { } tree && data.Selection is { } selected)
         { revealPending = false; tree.Reveal(selected.NodeId); }
+        if (data.Paged is not null && Client is not null)
+            Client.SetVisibleBranches(panel == ComponentsPanel ? "component" : "element",
+                ActiveTree?.VisibleRows.Where(row => row.IsExpanded).Select(row => row.Item) ?? []);
         if (detailsPending && !detailBusy) { detailsPending = false; await ReadPanelAsync(); }
         if (!firstRender) return;
         clock = new Timer(_ => _ = InvokeAsync(() => { if (!disposed) StateHasChanged(); }), null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1));
@@ -110,6 +119,7 @@ public partial class InspectorShell
         { Client?.CancelDetailRequests(); detailsPending = true; Client?.SetFrameUpdates(ActiveDetail == DetailView.Frames); }
         if (data.Selection is { } selected && (before?.Kind != selected.Kind || before.NodeId != selected.NodeId))
         {
+            if (Searching) ResetSearch();
             if (panel != PerformancePanel) panel = selected.Kind == "component" ? ComponentsPanel : ElementsPanel;
             if (!navigation.Contains(selected.Kind, selected.NodeId)) { search = ""; if (selected.Kind == "component") showFramework = true; RebuildNavigation(); }
             revealPending = true;
@@ -122,15 +132,16 @@ public partial class InspectorShell
         data = data with { Frames = Store.ReadFrames() };
         StateHasChanged();
     });
-    private void ChangePanel(int index)
+    private async Task ChangePanel(int index)
     {
         panel = index;
         if (data.Selection is { } selected && index != PerformancePanel)
         {
-            if (index == ComponentsPanel && selected.Kind == "element" && elements.GetValueOrDefault(selected.NodeId)?.ProducingComponentId is { } owner) Navigate("component", owner);
-            else if (index == ElementsPanel && selected.Kind == "component" && components.GetValueOrDefault(selected.NodeId)?.OutputElements is { Length: 1 } outputs) Navigate("element", outputs[0]);
+            if (index == ComponentsPanel && selected.Kind == "element" && elements.GetValueOrDefault(selected.NodeId)?.ProducingComponentId is { } owner) await Navigate("component", owner);
+            else if (index == ElementsPanel && selected.Kind == "component" && components.GetValueOrDefault(selected.NodeId)?.OutputElements is { Length: 1 } outputs) await Navigate("element", outputs[0]);
             else revealPending = true;
         }
+        if (index != PerformancePanel && Searching) await SearchChanged(search);
         DetailViewChanged();
     }
     private void ChangeElementTab(int index) { elementTab = index; DetailViewChanged(); }
@@ -155,36 +166,55 @@ public partial class InspectorShell
     private void ReadData()
     {
         data = Store.Read();
+        if (data.Paged is { } paged) showFramework = paged.IncludeFramework;
         components = data.Tree?.Components.ToDictionary(c => c.Id) ?? [];
         elements = data.Tree?.Elements.ToDictionary(e => e.Id) ?? [];
         RebuildNavigation();
     }
-    private void RebuildNavigation() => navigation = new(data.Tree, search, showFramework);
-    private IReadOnlyList<string> ComponentChildren(string id) => navigation.ComponentChildren(id);
-    private IReadOnlyList<string> ElementChildren(string id) => navigation.ElementChildren(id);
-    private string ComponentText(string id) => navigation.ComponentLabel(id);
-    private string ElementText(string id) => navigation.ElementLabel(id);
+    private void RebuildNavigation() => navigation = new(data.Tree, data.Paged is null ? search : "", data.Paged is not null || showFramework);
+    private IReadOnlyList<string>? ComponentChildren(string id) => Children("component", id, navigation.ComponentChildren(id));
+    private IReadOnlyList<string>? ElementChildren(string id) => Children("element", id, navigation.ElementChildren(id));
+    private bool ComponentHasChildren(string id) => HasChildren("component", id, navigation.ComponentChildren(id).Count);
+    private bool ElementHasChildren(string id) => HasChildren("element", id, navigation.ElementChildren(id).Count);
+    private Task<IReadOnlyList<string>> LoadComponentChildrenAsync(string id) => LoadChildrenAsync("component", id);
+    private Task<IReadOnlyList<string>> LoadElementChildrenAsync(string id) => LoadChildrenAsync("element", id);
+    private string ComponentText(string id) => IsPageAction(id) ? PageLabel(id) : searchNodes.GetValueOrDefault(id)?.Component?.TypeName ?? navigation.ComponentLabel(id);
+    private string ElementText(string id) => IsPageAction(id) ? PageLabel(id) : searchNodes.GetValueOrDefault(id)?.Element?.Name ?? navigation.ElementLabel(id);
     private string Crumb(string kind, string id) => kind == "component"
         ? components.TryGetValue(id, out var component) ? NodeSyntax.ShortName(component.TypeName) : id
         : elements.TryGetValue(id, out var element) ? NodeSyntax.Selector(element) : id;
-    private void SelectComponent(string? id) { Store.Select("component", id); FollowInApp(); }
-    private void SelectElement(string? id) { Store.Select("element", id); FollowInApp(); }
-    private void SearchChanged(string? value) { search = value ?? ""; RebuildNavigation(); expandPending = !string.IsNullOrWhiteSpace(search); }
-    private void FrameworkChanged(bool value) { showFramework = value; RebuildNavigation(); }
-    private void NavigateTo(NodeLink link) => Navigate(link.Kind, link.Id);
-    private void Navigate(string kind, string id)
+    private Task SelectComponent(string? id) => SelectTreeNodeAsync("component", id);
+    private Task SelectElement(string? id) => SelectTreeNodeAsync("element", id);
+    private async Task FrameworkChanged(bool value)
     {
-        search = "";
+        showFramework = value;
+        if (data.Paged is not null && Client is not null)
+        {
+            await Client.SetFrameworkAsync(value, lifetime.Token);
+            if (Searching) await SearchChanged(search);
+        }
+        RebuildNavigation();
+    }
+    private Task NavigateTo(NodeLink link) => Navigate(link.Kind, link.Id);
+    private Task LoadOutputsAsync() => Client is not null && SelectedComponent is { } component
+        ? Client.LoadOutputsAsync(component.Id, lifetime.Token) : Task.CompletedTask;
+    private async Task Navigate(string kind, string id)
+    {
+        ResetSearch();
         if (kind == "component" && components.GetValueOrDefault(id)?.IsFramework == true) showFramework = true;
         panel = kind == "component" ? ComponentsPanel : ElementsPanel;
-        RebuildNavigation();
-        Store.Select(kind, id);
+        if (data.Paged is not null && !data.IsRetained && Client is not null)
+        {
+            await Client.RevealNodeAsync(kind, id, lifetime.Token);
+            ReadData();
+        }
+        else { RebuildNavigation(); Store.Select(kind, id); }
         revealPending = true;
         FollowInApp();
     }
-    private void RevealSelection()
+    private Task RevealSelection()
     {
-        if (data.Selection is { } selected) Navigate(selected.Kind, selected.NodeId);
+        return data.Selection is { } selected ? Navigate(selected.Kind, selected.NodeId) : Task.CompletedTask;
     }
 
     // Keyboard navigation can move through many rows quickly: only the row that stays selected briefly reaches the app.
@@ -299,7 +329,97 @@ public partial class InspectorShell
         clock?.Dispose();
         Client?.SetFrameUpdates(false);
         Client?.CancelDetailRequests();
+        searchRequest?.Cancel();
         lifetime.Cancel();
         lifetime.Dispose();
+    }
+
+    private const string MoreSearch = "page:search";
+    private static string PageAction(string? parent) => "page:" + parent;
+    private static bool IsPageAction(string id) => id.StartsWith("page:", StringComparison.Ordinal);
+    private static string PageLabel(string id) => id == MoreSearch ? "More search results…" : "Load more…";
+
+    private IReadOnlyList<string> Roots(string kind, string[] known)
+    {
+        if (Searching) return searchCursor is null ? searchNodes.Keys.ToArray() : [.. searchNodes.Keys, MoreSearch];
+        return AddPageAction(new(kind, null), known);
+    }
+
+    private IReadOnlyList<string>? Children(string kind, string id, IReadOnlyList<string> known)
+    {
+        if (Searching || IsPageAction(id)) return [];
+        var branch = new TreeBranch(kind, id);
+        if (known.Count == 0 && data.Paged is { } paged && paged.Expandable.Contains(id) && !paged.Loaded.Contains(branch) && !data.IsRetained) return null;
+        return AddPageAction(branch, known);
+    }
+
+    private bool HasChildren(string kind, string id, int known) => !Searching && !IsPageAction(id) &&
+        (known > 0 || data.Paged is { } paged && (paged.More.Contains(new(kind, id)) ||
+            !data.IsRetained && paged.Expandable.Contains(id) && !paged.Loaded.Contains(new(kind, id))));
+
+    private IReadOnlyList<string> AddPageAction(TreeBranch branch, IReadOnlyList<string> known) =>
+        !data.IsRetained && data.Paged is { } paged && (paged.More.Contains(branch) ||
+            branch.Parent is not null && known.Count > 0 && !paged.Loaded.Contains(branch)) ? [.. known, PageAction(branch.Parent)] : known;
+
+    private async Task<IReadOnlyList<string>> LoadChildrenAsync(string kind, string id)
+    {
+        if (Client is null) return [];
+        await Client.LoadBranchAsync(new(kind, id), false, lifetime.Token);
+        if (disposed) return [];
+        ReadData();
+        return (kind == "component" ? ComponentChildren(id) : ElementChildren(id)) ?? [];
+    }
+
+    private async Task SelectTreeNodeAsync(string kind, string? id)
+    {
+        if (data.Paged is not null && !data.IsRetained && Client is not null && id is not null)
+        {
+            if (id == MoreSearch) await ReadSearchAsync(kind, searchCursor);
+            else if (IsPageAction(id))
+            {
+                await Client.LoadBranchAsync(new(kind, id.Length == 5 ? null : id[5..]), true, lifetime.Token);
+                if (!disposed) ReadData();
+            }
+            else await Navigate(kind, id);
+        }
+        else if (id is null || !IsPageAction(id)) { Store.Select(kind, id); FollowInApp(); }
+    }
+
+    private async Task SearchChanged(string? value)
+    {
+        ResetSearch();
+        search = value ?? "";
+        RebuildNavigation();
+        if (Searching && !data.IsRetained) await ReadSearchAsync(panel == ComponentsPanel ? "component" : "element", null);
+        else expandPending = !string.IsNullOrWhiteSpace(search);
+    }
+
+    private void ResetSearch()
+    {
+        searchRequest?.Cancel();
+        searchNodes.Clear();
+        searchCursor = null;
+        search = "";
+    }
+
+    private async Task ReadSearchAsync(string kind, string? cursor)
+    {
+        if (Client is null) return;
+        searchRequest?.Cancel();
+        using var request = CancellationTokenSource.CreateLinkedTokenSource(lifetime.Token);
+        searchRequest = request;
+        try
+        {
+            if (cursor is null) await Task.Delay(150, request.Token);
+            var query = search.Trim();
+            if (query.Length > 256) query = query[..256];
+            if (await Client.SearchTreeAsync(kind, query, cursor, request.Token) is { } page && !request.IsCancellationRequested)
+            {
+                foreach (var node in page.Nodes) searchNodes[PagedTreeCache.Id(node)] = node;
+                searchCursor = page.Cursor;
+            }
+        }
+        catch (OperationCanceledException) when (request.IsCancellationRequested) { }
+        finally { if (searchRequest == request) searchRequest = null; }
     }
 }

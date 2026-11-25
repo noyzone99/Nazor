@@ -18,6 +18,7 @@ public sealed class DetailExporterTests
         var directory = Path.Combine(Path.GetTempPath(), "ndt-" + Guid.NewGuid().ToString("N")[..12]);
         using var agent = new DevToolsAgent(host.Session, directory);
         var window = DebuggerRoots.Windows.Single(w => w.SessionId == host.Session.SessionId);
+        window.Schedule();
         var end = DateTime.UtcNow.AddSeconds(5);
         while (window.TreeJson.Length == 0 && DateTime.UtcNow < end) { host.Pump(); Thread.Sleep(5); }
         var tree = DevToolsJson.Read<TreeSnapshot>(System.Text.Json.Nodes.JsonNode.Parse(window.TreeJson)!);

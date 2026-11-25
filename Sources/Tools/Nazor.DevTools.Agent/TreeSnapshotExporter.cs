@@ -69,13 +69,13 @@ public sealed class TreeSnapshotExporter(DevToolsSession session)
 
     private static string Id(int id) => id.ToString(CultureInfo.InvariantCulture);
     private static string? OptionalId(int? id) => id is { } value ? Id(value) : null;
-    private static ComponentInfo Component(ComponentNodeInfo node) => new(Id(node.Id), OptionalId(node.ParentId), node.TypeName, node.Key, node.IsFramework,
+    internal static ComponentInfo Component(ComponentNodeInfo node) => new(Id(node.Id), OptionalId(node.ParentId), node.TypeName, node.Key, node.IsFramework,
         node.Children.Select(Id).ToArray(), node.OutputNodes.Select(Id).ToArray())
-    { RootId = Id(node.RootId), DeclaringComponentId = OptionalId(node.DeclaringComponentId),
+    { RootId = node.RootId == 0 ? null : Id(node.RootId), DeclaringComponentId = OptionalId(node.DeclaringComponentId),
         Parameters = node.Parameters?.Select(p => new PropertyValue(p.Key, p.Value, "supplied")).ToArray() };
-    private static ElementInfo Element(StructuralNodeInfo node) => new(Id(node.Id), OptionalId(node.ParentId), node.Kind == NodeKind.Element ? "element" : "text",
+    internal static ElementInfo Element(StructuralNodeInfo node) => new(Id(node.Id), OptionalId(node.ParentId), node.Kind == NodeKind.Element ? "element" : "text",
         node.Name, node.Text, OptionalId(node.ProducingComponentId), OptionalId(node.DeclaringComponentId), node.Children.Select(Id).ToArray())
-    { RootId = Id(node.RootId), Key = node.Key, IsRendered = node.IsRendered, ElementId = node.ElementId,
+    { RootId = node.RootId == 0 ? null : Id(node.RootId), Key = node.Key, IsRendered = node.IsRendered, ElementId = node.ElementId,
         Attributes = node.Attributes?.Select(p => new PropertyValue(p.Key, p.Value, "attribute")).ToArray(),
         Classes = node.Classes?.ToArray(), States = node.States?.ToArray(), Events = node.Events?.ToArray() };
     private static bool Same(ComponentNodeInfo current, ComponentNodeInfo old) => current.Id == old.Id && current.ParentId == old.ParentId && current.RootId == old.RootId &&

@@ -18,6 +18,8 @@ public static class DevToolsProtocol
     public const string Initialize = "initialize";
     public const string GetTree = "tree/get";
     public const string TreeChanged = "tree/changed";
+    public const string BrowseTree = "tree/browse";
+    public const string TreeInvalidated = "tree/invalidated";
     public const string GetStyles = "styles/get";
     public const string GetGeometry = "geometry/get";
     public const string GetFrames = "frames/get";
@@ -33,6 +35,7 @@ public static class DevToolsProtocol
 public static class DevToolsCapabilities
 {
     public const string Tree = "tree";
+    public const string PagedTree = "tree.paged";
     public const string Styles = "styles";
     public const string Geometry = "geometry";
     public const string Frames = "frames";
@@ -76,6 +79,11 @@ public sealed record ContextRequest(RequestContext Context);
 public sealed record NodeRequest(RequestContext Context, string ElementId);
 public sealed record SelectionRequest(RequestContext Context, string Kind, string? NodeId);
 public sealed record InspectionRequest(RequestContext Context, bool Enabled);
+public sealed record TreeBrowseRequest(RequestContext Context, string Kind, string Mode, string? NodeId,
+    string? Cursor = null, string? Query = null, bool IncludeFramework = true);
+public sealed record TreeBrowseNode(ComponentInfo? Component, ElementInfo? Element, bool HasChildren);
+public sealed record TreeBrowsePage(CaptureStamp Capture, long Revision, TreeBrowseNode[] Nodes, string? Cursor, int Visited, double ReadMs);
+public sealed record TreeInvalidation(CaptureStamp Capture, long Revision, string[] Nodes, string[] Parents, bool Roots, bool All);
 public sealed record SelectionResult(CaptureStamp Capture, string Kind, string? NodeId)
 {
     [OptionalField] public bool? IsInspecting { get; init; }

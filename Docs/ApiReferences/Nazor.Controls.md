@@ -4293,7 +4293,7 @@ Namespace `Nazor.Controls`. [Source](../../Sources/Core/Nazor.Controls/Collectio
 | `protected override void AddContent(RenderTreeBuilder builder)` | Adds the viewport with the realized rows, or the empty content.<br>`builder`. The builder that receives the render frames. |
 | `protected override Task OnAfterRenderAsync(bool firstRender)` | Moves the focus to the current row once it is realized.<br>`firstRender`. Whether this is the first render.<br>**Returns**. A task that completes when the work is done. |
 | `public IReadOnlyList<TItem> Roots { get; set; }` | `[Parameter]` Initial value `[]`.<br>Gets or sets the top-level items. |
-| `public Func<TItem, IReadOnlyList<TItem>?>? Children { get; set; }` | `[Parameter]`<br>Gets or sets the function that gives an item's children, or null when they are loaded with `Nazor.Controls.TreeView<TItem>.LoadChildren`. |
+| `public Func<TItem, IReadOnlyList<TItem>?>? Children { get; set; }` | `[Parameter]`<br>Gets or sets the function that gives an item's children. Return null for items that still need to load with `LoadChildren`. |
 | `public Func<TItem, bool>? HasChildren { get; set; }` | `[Parameter]`<br>Gets or sets the function that tells whether an item has children before they are loaded. |
 | `public Func<TItem, Task<IReadOnlyList<TItem>>>? LoadChildren { get; set; }` | `[Parameter]`<br>Gets or sets the function that loads an item's children the first time it is expanded; a `TreeViewLoading` part shows meanwhile. |
 | `public RenderFragment<TItem>? ItemTemplate { get; set; }` | `[Parameter]`<br>Gets or sets how each item is rendered; `Nazor.Controls.TreeView<TItem>.ItemText` is shown when null. |
@@ -5948,7 +5948,7 @@ Namespace `Nazor.Controls.Primitives`. [Source](../../Sources/Core/Nazor.Control
 | `public IReadOnlyCollection<TItem> CheckedLeaves()` | Gets the checked items without checked-state descendants to report, that is the checked leaves.<br>**Returns**. The checked leaves. |
 | `public void CollapseAll()` | Collapses every item. |
 | `public IReadOnlyList<TItem> Roots { get; set; }` | Gets or sets the top-level items. |
-| `public Func<TItem, IReadOnlyList<TItem>?>? Children { get; set; }` | Gets or sets the function that gives an item's children, or null when they are loaded on demand. |
+| `public Func<TItem, IReadOnlyList<TItem>?>? Children { get; set; }` | Gets or sets the function that gives an item's children. Return null for items that still need to load. |
 | `public Func<TItem, bool>? HasChildren { get; set; }` | Gets or sets the function that tells whether an item has children before they are loaded. |
 | `public Func<TItem, Task<IReadOnlyList<TItem>>>? LoadChildren { get; set; }` | Gets or sets the function that loads an item's children when it is first expanded. |
 | `public event Action? Changed` | Raised after the expansion, the loaded children or the check states change. |

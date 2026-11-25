@@ -4,13 +4,14 @@ using Nazor.DevTools.Protocol;
 
 namespace Nazor.DevTools;
 
-public sealed class InspectorClient(InspectionStore store, string? discoveryDirectory = null) : IDisposable
+public sealed partial class InspectorClient(InspectionStore store, string? discoveryDirectory = null) : IDisposable
 {
     private readonly object gate = new();
     private Connection? current;
     private long epoch;
     private bool disposed;
     private bool debuggerPaused;
+    internal bool UsePagedTree { get; init; }
     public InspectionStore Store { get; } = store;
 
     public Task<IReadOnlyList<LocalDevToolsDescriptor>> DiscoverAsync(CancellationToken token = default) => Task.Run<IReadOnlyList<LocalDevToolsDescriptor>>(
@@ -31,7 +32,9 @@ public sealed class InspectorClient(InspectionStore store, string? discoveryDire
         }
         try
         {
-            var peer = await LocalDevTools.ConnectAsync(descriptor, "Nazor DevTools", [DevToolsCapabilities.Tree, DevToolsCapabilities.Selection, DevToolsCapabilities.Inspection, DevToolsCapabilities.Styles, DevToolsCapabilities.Geometry, DevToolsCapabilities.Frames], attempt.Token).ConfigureAwait(false);
+            string[] capabilities = [DevToolsCapabilities.Tree, DevToolsCapabilities.Selection, DevToolsCapabilities.Inspection, DevToolsCapabilities.Styles, DevToolsCapabilities.Geometry, DevToolsCapabilities.Frames];
+            if (UsePagedTree) capabilities = [.. capabilities, DevToolsCapabilities.PagedTree];
+            var peer = await LocalDevTools.ConnectAsync(descriptor, "Nazor DevTools", capabilities, attempt.Token).ConfigureAwait(false);
             lock (gate)
             {
                 if (!Active(attempt) || attempt.Lifetime.IsCancellationRequested) { peer.Dispose(); attempt.Token.ThrowIfCancellationRequested(); return; }
@@ -190,6 +193,11 @@ public sealed class InspectorClient(InspectionStore store, string? discoveryDire
         {
             var resync = false;
             var result = await active.Peer!.RequestAsync<SelectionResult>(method, payload, deadline, operation.Token).ConfigureAwait(false);
+            if (active.Peer.Supports(DevToolsCapabilities.PagedTree))
+            {
+                await ApplyPagedSelectionAsync(active, result, keepLocalSelection, operation.Token).ConfigureAwait(false);
+                return;
+            }
             lock (gate)
             {
                 if (!Active(active) || active.Mutation != operation) return;
@@ -220,6 +228,11 @@ public sealed class InspectorClient(InspectionStore store, string? discoveryDire
 
     private async Task RefreshAsync(Connection active, CancellationToken token)
     {
+        if (active.Peer?.Supports(DevToolsCapabilities.PagedTree) == true)
+        {
+            await RefreshPagedAsync(active, token).ConfigureAwait(false);
+            return;
+        }
         CancellationToken execution;
         lock (gate) { if (debuggerPaused || !Active(active)) return; execution = active.Execution.Token; }
         using var lifetime = CancellationTokenSource.CreateLinkedTokenSource(token, active.Token, execution);
@@ -290,6 +303,8 @@ public sealed class InspectorClient(InspectionStore store, string? discoveryDire
             await foreach (var item in active.Messages.Reader.ReadAllAsync(active.Token).ConfigureAwait(false))
             {
                 var resync = false;
+                SelectionResult? pagedSelection = null;
+                TreeInvalidation? invalidation = null;
                 lock (gate)
                 {
                     if (!Active(active)) return;
@@ -301,6 +316,8 @@ public sealed class InspectorClient(InspectionStore store, string? discoveryDire
                     { Store.RequireTree(); resync = active.Peer.RemoteTarget!.State == "running"; }
                     else if (item.Method == DevToolsProtocol.TreeChanged)
                         resync |= Store.Apply(DevToolsJson.Read<TreeDelta>(item.Data)) == RevisionOutcome.ResyncRequired;
+                    else if (item.Method == DevToolsProtocol.TreeInvalidated)
+                        invalidation = DevToolsJson.Read<TreeInvalidation>(item.Data);
                     else if (item.Method == DevToolsProtocol.FramesAdded && active.WatchFrames)
                     {
                         active.FrameGap |= Store.Apply(DevToolsJson.Read<FrameBatch>(item.Data)) == RevisionOutcome.ResyncRequired;
@@ -308,11 +325,14 @@ public sealed class InspectorClient(InspectionStore store, string? discoveryDire
                     else if (item.Method == DevToolsProtocol.SelectionChanged)
                     {
                         var selection = DevToolsJson.Read<SelectionResult>(item.Data);
-                        if (Store.Apply(selection) == RevisionOutcome.ResyncRequired)
+                        if (active.Peer.Supports(DevToolsCapabilities.PagedTree)) pagedSelection = selection;
+                        else if (Store.Apply(selection) == RevisionOutcome.ResyncRequired)
                         { active.PendingSelection = selection; Store.RequireTree(); resync = true; }
                     }
                 }
                 if (resync) await RefreshAsync(active, active.Token).ConfigureAwait(false);
+                else if (invalidation is not null) await InvalidatePagedAsync(active, invalidation).ConfigureAwait(false);
+                if (pagedSelection is not null) await ApplyPagedSelectionAsync(active, pagedSelection, false, active.Token).ConfigureAwait(false);
                 bool readFrames;
                 lock (gate) readFrames = Active(active) && active.WatchFrames && active.FrameGap;
                 if (readFrames) await RefreshFramesAsync(active.Token).ConfigureAwait(false);
@@ -356,6 +376,7 @@ public sealed class InspectorClient(InspectionStore store, string? discoveryDire
         epoch++;
         var previous = current;
         current = null;
+        visibleBranches = null;
         if (previous is null) return;
         previous.Execution.Cancel();
         previous.Execution.Dispose();
@@ -391,6 +412,7 @@ public sealed class InspectorClient(InspectionStore store, string? discoveryDire
         internal CancellationToken Token { get; } = lifetime.Token;
         internal DevToolsPeer? Peer { get; set; }
         internal SemaphoreSlim Requests { get; } = new(1, 1);
+        internal PagedTreeCache Paged { get; set; } = new();
         internal CancellationTokenSource Execution { get; set; } = new();
         internal int Gap;
         internal CancellationTokenSource? Mutation;

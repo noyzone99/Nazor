@@ -59,7 +59,7 @@ public sealed class TreeView<TItem> : Control where TItem : notnull
     /// <summary>Gets or sets the top-level items.</summary>
     [Parameter] public IReadOnlyList<TItem> Roots { get; set; } = [];
 
-    /// <summary>Gets or sets the function that gives an item's children, or null when they are loaded with <see cref="LoadChildren" />.</summary>
+    /// <summary>Gets or sets the function that gives an item's children. Return null for items that still need to load with <see cref="LoadChildren" />.</summary>
     [Parameter] public Func<TItem, IReadOnlyList<TItem>?>? Children { get; set; }
 
     /// <summary>Gets or sets the function that tells whether an item has children before they are loaded.</summary>
@@ -179,7 +179,7 @@ public sealed class TreeView<TItem> : Control where TItem : notnull
     /// <returns>A task that completes when the children are available.</returns>
     public async Task SetExpandedAsync(TItem item, bool expanded)
     {
-        var deferCheck = expanded && ShowCheckBoxes && Children is null && LoadChildren is not null && model.ChildrenOf(item).Count == 0 &&
+        var deferCheck = expanded && ShowCheckBoxes && Children?.Invoke(item) is null && LoadChildren is not null && model.ChildrenOf(item).Count == 0 &&
             model.CanExpand(item) && model.CheckState(item) == TreeCheckState.Checked;
         if (deferCheck)
         {

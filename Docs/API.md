@@ -132,6 +132,8 @@ Scrollbar thumbs can change painted width and color on hover or drag within a fi
 
 App-launched DevTools use an exported native owner token and close with their source window; see [DevTools lifetime](DevTools.md).
 
+The DevTools Agent and inspector negotiate paged browsing for large live trees. See [paged tree contracts](DevTools-Protocol.md#paged-live-trees) for branch requests, continuations and invalidation events.
+
 Dependency versions are selected per framework to preserve .NET 8 support while using current packages on .NET 10/11; see [framework-specific dependencies](Guide/28-Libraries-Packaging-and-Deployment.md#framework-specific-dependency-versions).
 
 The Razor/NSS compiler and editor language server run on .NET 10 LTS independently of the application's target. Their bundled Roslyn/Razor services support C# 15 and follow the application's evaluated language version, conditional symbols and references; see [build tools and application targets](Guide/03-Projects-and-Builds.md#build-tools-and-application-targets).

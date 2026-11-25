@@ -161,12 +161,26 @@ Namespace `Nazor.DevTools.Protocol`. [Source](../../Sources/Tools/Nazor.DevTools
 | --- | --- |
 | `public static class DevToolsCapabilities` |  |
 | `public const string Tree = "tree"` |  |
+| `public const string PagedTree = "tree.paged"` | Partial live tree browsing with bounded requests and branch invalidation. |
 | `public const string Styles = "styles"` |  |
 | `public const string Geometry = "geometry"` |  |
 | `public const string Frames = "frames"` |  |
 | `public const string Selection = "selection"` |  |
 | `public const string Inspection = "inspection"` |  |
 | `public const string DebuggerFields = "debugger.fields"` |  |
+
+## Paged tree contracts
+
+| Declaration | Contract |
+| --- | --- |
+| `DevToolsProtocol.BrowseTree` | Request one bounded live tree operation. |
+| `DevToolsProtocol.TreeInvalidated` | Notify a connected client that loaded branches may need a new page. |
+| `TreeBrowseRequest` | Scope a root, child, path, detail, output, or search read to the current target context. |
+| `TreeBrowseNode` | Carry one detached component or element description and a child hint. |
+| `TreeBrowsePage` | Carry results, the continuation, and target read metrics. |
+| `TreeInvalidation` | Identify affected nodes and parents, root changes, or overflow. |
+
+See [paged live trees](../DevTools-Protocol.md#paged-live-trees) for the mode parameters and continuation semantics.
 
 ## `DevToolsErrors`
 

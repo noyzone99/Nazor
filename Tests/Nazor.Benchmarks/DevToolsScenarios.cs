@@ -13,7 +13,7 @@ internal static class DevToolsScenarios
 {
     internal static IEnumerable<(string Name, List<FrameSample> Samples)> All(int samples)
     {
-        foreach (var mode in new[] { "baseline", "detached", "idle", "active", "slow" })
+        foreach (var mode in new[] { "baseline", "detached", "idle", "active", "paged", "slow" })
         {
             using var bench = new BenchHost(new Size(800, 600));
             var page = (CardView)bench.Host.Render<CardView>().Component;
@@ -27,21 +27,16 @@ internal static class DevToolsScenarios
                 while (!task.IsCompleted && watch.ElapsedMilliseconds < 15000) { bench.Host.RunPending(); Thread.Sleep(1); }
                 task.WaitAsync(TimeSpan.FromSeconds(1)).GetAwaiter().GetResult();
             }
-            if (agent is not null)
-            {
-                var ready = Task.Run(async () => { while (DebuggerRoots.Windows.Single(w => w.SessionId == session!.SessionId).TreeJson.Length == 0) await Task.Delay(1); });
-                Pump(ready);
-            }
             DevToolsPeer? peer = null;
             NamedPipeClientStream? slow = null;
             var target = agent is null ? null : new TargetState(agent.Descriptor.Identity, 1, "running", null);
             try
             {
-                if (mode is "idle" or "active")
+                if (mode is "idle" or "active" or "paged")
                 {
-                    var connect = LocalDevTools.ConnectAsync(agent!.Descriptor, "Benchmark", [DevToolsCapabilities.Tree]);
+                    var connect = LocalDevTools.ConnectAsync(agent!.Descriptor, "Benchmark", [mode == "paged" ? DevToolsCapabilities.PagedTree : DevToolsCapabilities.Tree]);
                     Pump(connect); peer = connect.Result; target = peer.RemoteTarget;
-                    Pump(peer.RequestAsync<TreeSnapshot>(DevToolsProtocol.GetTree, DevToolsJson.Write(new ContextRequest(new(target!.Identity.SessionId, target.Generation, null)))));
+                    Pump(ReadTree());
                 }
                 if (mode == "slow")
                 {
@@ -65,10 +60,10 @@ internal static class DevToolsScenarios
                     Thread.Sleep(16);
                     page.SetValue(i.ToString(System.Globalization.CultureInfo.InvariantCulture));
                     var frame = bench.Frame();
-                    if (mode == "active")
+                    if (mode is "active" or "paged")
                     {
                         var watch = Stopwatch.StartNew();
-                        Pump(peer!.RequestAsync<TreeSnapshot>(DevToolsProtocol.GetTree, DevToolsJson.Write(new ContextRequest(new(target!.Identity.SessionId, target.Generation, null)))));
+                        Pump(ReadTree());
                         frame = frame with { ToolRoundTripMs = watch.Elapsed.TotalMilliseconds };
                     }
                     if (i >= 5) active.Add(frame);
@@ -76,6 +71,14 @@ internal static class DevToolsScenarios
                 yield return ("devtools." + mode + ".change", active);
             }
             finally { peer?.Dispose(); slow?.Dispose(); }
+
+            Task ReadTree()
+            {
+                var context = new RequestContext(target!.Identity.SessionId, target.Generation, null);
+                return mode == "paged"
+                    ? peer!.RequestAsync<TreeBrowsePage>(DevToolsProtocol.BrowseTree, DevToolsJson.Write(new TreeBrowseRequest(context, "element", "children", null)))
+                    : peer!.RequestAsync<TreeSnapshot>(DevToolsProtocol.GetTree, DevToolsJson.Write(new ContextRequest(context)));
+            }
         }
     }
 }

@@ -218,8 +218,39 @@ public sealed partial class DevToolsSession : IDisposable
         var childrenChanged = batch.ChildrenChanged.Where(ids.ContainsKey).Select(e => ids[e]).ToList();
         var logicalChanged = batch.RenderedComponentCount > 0 || batch.RemovedNodes.Any(n => n is ComponentNode);
         if (removed.Count + added.Count + updated.Count + childrenChanged.Count == 0 && !batch.RootNodesChanged && !logicalChanged) return;
+        var (browseParents, overflow) = browseTracking ? BrowseParents(batch, childrenChanged) : (Array.Empty<int>(), false);
         TreeChanged?.Invoke(new TreeChange(added, removed, updated, childrenChanged, batch.RootNodesChanged)
-        { ComponentsChanged = logicalChanged, Revision = TreeRevision });
+        {
+            ComponentsChanged = logicalChanged, Revision = TreeRevision, BrowseParents = browseParents, BrowseOverflow = overflow,
+            BrowseStructureChanged = batch.RootNodesChanged || batch.LogicalParentsChanged.Count != 0,
+        });
+    }
+
+    private (int[] Parents, bool Overflow) BrowseParents(RenderBatch batch, List<int> childrenChanged)
+    {
+        if (childrenChanged.Count > 256) return ([], true);
+        var known = new HashSet<int>(childrenChanged);
+        var visited = 0;
+        foreach (var parent in batch.LogicalParentsChanged)
+        {
+            for (var node = parent; node is not null; node = node.Parent)
+            {
+                if (++visited > 256) return ([], true);
+                if (node is not ComponentNode component) continue;
+                if (ids.TryGetValue(component, out var id)) known.Add(id);
+                if (!IsFramework(component.Component.GetType())) break;
+            }
+        }
+        return (known.ToArray(), false);
+    }
+
+    private bool browseTracking;
+
+    internal void TrackBrowseChanges(bool enabled)
+    {
+        if (browseTracking == enabled) return;
+        browseTracking = enabled;
+        Renderer.InspectionBranchReaders += enabled ? 1 : -1;
     }
 
     private void OnVisualStateChanged() => StatesChanged?.Invoke();
@@ -228,6 +259,7 @@ public sealed partial class DevToolsSession : IDisposable
     public void Dispose()
     {
         if (disposed) return;
+        TrackBrowseChanges(false);
         disposed = true;
         IsInspecting = false;
         HighlightedId = null;

@@ -9,7 +9,8 @@ public sealed class RenderBatch
 {
     internal RenderBatch(IReadOnlyCollection<ElementNode> added, IReadOnlyCollection<Node> removed, IReadOnlyCollection<ElementNode> updated,
         IReadOnlyList<(ElementNode Element, string Name)> updatedAttributes,
-        IReadOnlyCollection<TextNode> texts, IReadOnlyCollection<ElementNode> childrenChanged, bool rootNodesChanged, int renderedComponents)
+        IReadOnlyCollection<TextNode> texts, IReadOnlyCollection<ElementNode> childrenChanged, IReadOnlyCollection<Node> logicalParentsChanged,
+        bool rootNodesChanged, int renderedComponents)
     {
         AddedElements = added;
         RemovedNodes = removed;
@@ -17,6 +18,7 @@ public sealed class RenderBatch
         UpdatedAttributes = updatedAttributes;
         UpdatedTexts = texts;
         ChildrenChanged = childrenChanged;
+        LogicalParentsChanged = logicalParentsChanged;
         RootNodesChanged = rootNodesChanged;
         RenderedComponentCount = renderedComponents;
     }
@@ -36,6 +38,7 @@ public sealed class RenderBatch
 
     /// <summary>Elements whose physical children were inserted, removed or moved.</summary>
     public IReadOnlyCollection<ElementNode> ChildrenChanged { get; }
+    internal IReadOnlyCollection<Node> LogicalParentsChanged { get; }
 
     /// <summary>Gets whether the set or order of root physical nodes changed in this render batch.</summary>
     public bool RootNodesChanged { get; }
@@ -56,6 +59,7 @@ internal sealed class RenderBatchBuilder
     private readonly List<(ElementNode Element, string Name)> updatedAttributes = [];
     private readonly HashSet<TextNode> texts = [];
     private readonly HashSet<ElementNode> childrenChanged = [];
+    private HashSet<Node>? logicalParentsChanged;
     private readonly HashSet<Node> createdText = [];
     private readonly HashSet<ComponentNode> createdComponents = [];
 
@@ -73,6 +77,7 @@ internal sealed class RenderBatchBuilder
     }
     public void UpdatedText(TextNode text) => texts.Add(text);
     public void ChildrenOf(ElementNode element) => childrenChanged.Add(element);
+    internal void LogicalChildrenOf(Node node) => (logicalParentsChanged ??= []).Add(node);
 
     public void Removed(Node node)
     {
@@ -89,6 +94,7 @@ internal sealed class RenderBatchBuilder
         updatedAttributes.Where(change => !change.Element.IsRemoved).ToArray(),
         texts.Where(t => !t.IsRemoved && !createdText.Contains(t)).ToArray(),
         childrenChanged.Where(e => !e.IsRemoved).ToArray(),
+        logicalParentsChanged is null ? [] : logicalParentsChanged.Where(node => !node.IsRemoved).ToArray(),
         RootNodesChanged,
         RenderedComponents);
 }

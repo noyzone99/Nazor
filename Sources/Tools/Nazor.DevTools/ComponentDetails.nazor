@@ -59,7 +59,7 @@ else
             </Container>
             <Container Class="section">
                 <TextBlock Class="section-title">@("Rendered output" + (component.OutputElements.Length > 1 ? " · " + component.OutputElements.Length : ""))</TextBlock>
-                @if (component.OutputElements.Length == 0) { <TextBlock Class="muted small">This component has no physical output.</TextBlock> }
+                @if (component.OutputElements.Length == 0 && !HasMoreOutputs) { <TextBlock Class="muted small">This component has no physical output.</TextBlock> }
                 @foreach (var id in component.OutputElements)
                 {
                     <Button Id="@("output-" + id)" Class="node-link" OnClick="@(() => OnNavigate.InvokeAsync(new("element", id)))" Tooltip="Inspect this element">
@@ -73,6 +73,7 @@ else
                         else { <TextBlock>@id</TextBlock> }
                     </Button>
                 }
+                @if (HasMoreOutputs) { <Button Size="ControlSize.Small" OnClick="OnLoadOutputs">Load more outputs</Button> }
             </Container>
             @if (Owners(component).ToArray() is { Length: > 0 } owners)
             {
@@ -106,6 +107,8 @@ else
 }
 
 @code {
+    [Parameter] public bool HasMoreOutputs { get; set; }
+    [Parameter] public EventCallback OnLoadOutputs { get; set; }
     [Parameter] public ComponentInfo? Component { get; set; }
     [Parameter] public IReadOnlyDictionary<string, ComponentInfo> Components { get; set; } = new Dictionary<string, ComponentInfo>();
     [Parameter] public IReadOnlyDictionary<string, ElementInfo> Elements { get; set; } = new Dictionary<string, ElementInfo>();

@@ -66,6 +66,7 @@ internal static class Program
 {
     private static void Main(string[] args)
     {
+        Environment.SetEnvironmentVariable("NAZOR_DEVTOOLS_DEBUGGER_SNAPSHOTS", "1");
         if (Environment.GetEnvironmentVariable("NAZOR_DEVTOOLS_NATIVE_PROBE") == "1") { RunNative(args[0]); return; }
         new Thread(Idle) { IsBackground = true, Name = "Unrelated fixture thread" }.Start();
         using var host = new TestHost();

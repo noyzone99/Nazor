@@ -219,17 +219,20 @@ public sealed partial class DevToolsSession
         }
         if (NodeOf(id) is not ComponentNode component || component.LogicalChildren is not { } roots) return null;
         var boxes = new List<BoxModel>();
-        var pending = new Stack<Node>();
-        for (var i = roots.Count - 1; i >= 0; i--) pending.Push(roots[i]);
-        while (boxes.Count < MaxOverlayBoxes && pending.TryPop(out var node))
+        var pending = new Stack<(IReadOnlyList<Node> Siblings, int Index)>();
+        if (roots.Count > 0) pending.Push((roots, 0));
+        var visits = 0;
+        while (boxes.Count < MaxOverlayBoxes && visits++ < 256 && pending.TryPop(out var entry))
         {
+            var (siblings, index) = entry;
+            if (index + 1 < siblings.Count) pending.Push((siblings, index + 1));
+            var node = siblings[index];
             if (node.IsRemoved) continue;
             if (node is ElementNode output)
             {
                 if (ReadBox(output) is { } box) boxes.Add(box);
             }
-            else if (node.LogicalChildren is { } children)
-                for (var i = children.Count - 1; i >= 0; i--) pending.Push(children[i]);
+            else if (node.LogicalChildren is { Count: > 0 } children) pending.Push((children, 0));
         }
         if (boxes.Count == 0) return null;
         var (left, top) = (boxes.Min(b => b.BorderBox.X), boxes.Min(b => b.BorderBox.Y));
