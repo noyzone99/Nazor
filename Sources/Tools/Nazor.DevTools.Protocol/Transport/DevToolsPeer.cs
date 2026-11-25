@@ -92,7 +92,15 @@ public sealed class DevToolsPeer : IDisposable
         lock (gate) RequireReady(descriptor.Capability);
         var payload = parameters.DeepClone();
         payload["deadlineUtc"] = deadlineUtc.ToUniversalTime().ToString("O");
-        var result = await SendAsync(method, payload, lifetime.Token);
+        JsonNode? result;
+        try { result = await SendAsync(method, payload, lifetime.Token); }
+        catch (OperationCanceledException) when (lifetime.IsCancellationRequested && !cancellationToken.IsCancellationRequested)
+        {
+            // The local timer can fire while the target's absolute lease is still valid.
+            while ((remaining = deadlineUtc - DateTimeOffset.UtcNow) > TimeSpan.Zero)
+                await Task.Delay(TimeSpan.FromMilliseconds(Math.Ceiling(remaining.TotalMilliseconds)), cancellationToken);
+            throw;
+        }
         ValidateResult(method, result, context);
         return DevToolsJson.Read<T>(result);
     }
@@ -143,7 +151,8 @@ public sealed class DevToolsPeer : IDisposable
             pending.Add(id, completion);
         }
         using var lifetime = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, stopping.Token);
-        lifetime.CancelAfter(TimeSpan.FromSeconds(DevToolsProtocol.RequestTimeoutSeconds));
+        if (method == DevToolsProtocol.Initialize)
+            lifetime.CancelAfter(TimeSpan.FromSeconds(DevToolsProtocol.RequestTimeoutSeconds));
         try
         {
             // The caller's cancellation and deadline apply to the reply, never to the frame being written: an interrupted

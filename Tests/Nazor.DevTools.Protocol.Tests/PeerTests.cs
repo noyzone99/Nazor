@@ -144,8 +144,10 @@ public sealed class PeerTests
         var pending = pair.Client.RequestAsync<SelectionResult>(DevToolsProtocol.Select, Selection(), deadline, TestContext.Current.CancellationToken);
         await Within(entered.Task);
         try { await pending; Assert.Fail("The deferred mutation must expire."); }
-        catch (Exception error) when (error is OperationCanceledException or DevToolsException { Code: DevToolsErrors.Cancelled }) { }
-        release.SetResult(true); await Within(finished.Task);
+        catch (OperationCanceledException) { Assert.True(DateTimeOffset.UtcNow >= deadline, "The local timeout preceded the remote mutation deadline."); }
+        catch (DevToolsException error) when (error.Code == DevToolsErrors.Cancelled) { }
+        finally { release.SetResult(true); }
+        await Within(finished.Task);
         Assert.Equal(0, applied);
         await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => pair.Client.RequestAsync<SelectionResult>(DevToolsProtocol.Select, Selection(), DateTimeOffset.UtcNow.AddMinutes(1), TestContext.Current.CancellationToken));
     }

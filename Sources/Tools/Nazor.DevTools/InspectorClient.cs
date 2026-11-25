@@ -185,7 +185,6 @@ public sealed partial class InspectorClient(InspectionStore store, string? disco
             active.Mutation?.Cancel();
             operation = CancellationTokenSource.CreateLinkedTokenSource(token, active.Token, active.Execution.Token);
             deadline = DateTimeOffset.UtcNow.AddSeconds(2);
-            operation.CancelAfter(TimeSpan.FromSeconds(2));
             active.Mutation = operation;
             payload = parameters(new(target.Identity.SessionId, target.Generation, target.StopId));
         }
@@ -195,6 +194,9 @@ public sealed partial class InspectorClient(InspectionStore store, string? disco
             var result = await active.Peer!.RequestAsync<SelectionResult>(method, payload, deadline, operation.Token).ConfigureAwait(false);
             if (active.Peer.Supports(DevToolsCapabilities.PagedTree))
             {
+                var remaining = deadline - DateTimeOffset.UtcNow;
+                if (remaining <= TimeSpan.Zero) throw new OperationCanceledException();
+                operation.CancelAfter(remaining);
                 await ApplyPagedSelectionAsync(active, result, keepLocalSelection, operation.Token).ConfigureAwait(false);
                 return;
             }

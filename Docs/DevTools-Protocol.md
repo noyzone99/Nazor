@@ -123,7 +123,7 @@ The cursor only manages ordering and belongs to one serialized cache-update path
 
 ## Cancellation, execution and errors
 
-The existing `RequestAsync<T>(method, parameters, cancellationToken)` uses the protocol maximum deadline. The overload accepting `DateTimeOffset deadlineUtc` before the token uses that same absolute deadline on both ends; it rejects deadlines beyond the ten-second maximum and already-expired work. Standalone commands/captures use a two-second deadline including queued work.
+The existing `RequestAsync<T>(method, parameters, cancellationToken)` uses the protocol maximum deadline. The overload accepting `DateTimeOffset deadlineUtc` before the token uses that same absolute deadline on both ends; it rejects deadlines beyond the ten-second maximum and already-expired work. If the local timer fires early, the peer waits for the absolute expiry before reporting a local timeout. Standalone commands/captures use a two-second deadline including queued work.
 
 Client cancellation stops the local wait and sends `$/cancelRequest`. It never interrupts the request frame itself: a request already queued for writing is written whole and then cancelled, so superseding one request with another keeps the connection open. Server handler tokens include cancellation, disconnect, deadline and target-generation transitions. Context is checked again after a handler finishes. Disconnection completes pending requests with `ConnectionClosed`; target change invalidates old waits with `StaleSession` or cancellation, depending on which event arrives first.
 

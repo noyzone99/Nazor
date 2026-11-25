@@ -238,6 +238,7 @@ public sealed class InspectorClientTests
         await client.SetInspectModeAsync(true, TestContext.Current.CancellationToken);
         await target.CommandAsync("escape", "ESCAPED");
         await AgentProcess.UntilAsync(() => !store.Read().IsInspecting);
+        await target.CommandAsync("inspect-mode", "OFF");
         await target.CommandAsync("freeze", "FROZEN");
         var elapsed = Stopwatch.StartNew();
         await client.SetInspectModeAsync(true, TestContext.Current.CancellationToken);
