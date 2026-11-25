@@ -1,6 +1,6 @@
 # API reference
 
-The reference describes the public and protected framework APIs in Nazor `0.1.1-alpha`. The package pages document declarations, usage contracts, and available source links. The managed runtime and theme packages contain .NET 8/9/10 assets. Applications can target .NET 8 or later; .NET 11 selects the compatible .NET 10 assets. The DevTools Protocol page identifies the declarations available on .NET Standard 2.0.
+The reference describes the public and protected framework APIs in Nazor `0.1.2-alpha`. The package pages document declarations, usage contracts, and available source links. The managed runtime and theme packages contain .NET 8/9/10 assets. Applications can target .NET 8 or later; .NET 11 selects the compatible .NET 10 assets. The DevTools Protocol page identifies the declarations available on .NET Standard 2.0.
 
 Use the package map to choose an API reference and the NuGet package list to find the exact package version. [Developer guide](Guide/README.md) · [Runtime package map](Guide/31-Architecture-and-Extension-Points.md#runtime-package-map) · [NuGet packages](NuGet.md#nuget-packages)
 

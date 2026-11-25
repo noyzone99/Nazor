@@ -4,7 +4,7 @@
 
 Check `dotnet --version` against the SDK required by [getting started](02-Getting-Started.md). A parent directory's `global.json` can select a different SDK.
 
-If `nazor-app` is missing from the CLI, install it with `dotnet new install Nazor.Templates@0.1.1-alpha`. For **Create a new project** in Visual Studio, install **Nazor for Visual Studio** and search for **Nazor application**. [Nazor.Templates on NuGet](https://www.nuget.org/packages/Nazor.Templates/0.1.1-alpha) · [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=Noyzone99.nazorvisualstudio)
+If `nazor-app` is missing from the CLI, install it with `dotnet new install Nazor.Templates@0.1.2-alpha`. For **Create a new project** in Visual Studio, install **Nazor for Visual Studio** and search for **Nazor application**. [Nazor.Templates on NuGet](https://www.nuget.org/packages/Nazor.Templates/0.1.2-alpha) · [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=Noyzone99.nazorvisualstudio)
 
 For package-not-found or SDK-resolution errors, inspect `dotnet nuget list source` and the applicable `nuget.config` files. Enable NuGet.org and verify that the selected Nazor version is available there. If you use package source mapping, map `Nazor.*` to NuGet.org or to the feed that contains your locally built packages. Restore the application after correcting the configuration. [NuGet packages](../NuGet.md#nuget-packages) · [Build a local package feed](02-Getting-Started.md#build-a-local-package-feed)
 

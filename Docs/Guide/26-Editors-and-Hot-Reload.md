@@ -2,7 +2,7 @@
 
 `@window` is recognized in Visual Studio and Visual Studio Code, including optional C# opening parameter declarations. The shared language server maps declared types, property names and defaults for hover, navigation, diagnostics and refactoring. Window members such as `Decorations` and `EffectiveIcon` complete through the associated `Window` property. The window snippet generates a minimal window with `OnInitialized` configuration. Select Nazor decorations for automatic theme chrome, or declare `UserTitleBar` and explicitly select User content. Static window nesting and `UserTitleBar` and `UserCaptionButtons` declarations in ordinary components produce the same diagnostics as the build.
 
-Extension version 0.1.1 bundles C# 15 Roslyn/Razor services for `.nazor` files while keeping the language-server runtime on .NET 10 LTS. Both clients use the project's evaluated language version, conditional symbols and reference assemblies. Rebuild after changing these options. Use the Microsoft .NET 11 SDK and a compatible IDE to build `net11.0` apps. Visual Studio's native C# editor services remain those provided by the installed IDE.
+Extension version 0.1.2 bundles C# 15 Roslyn/Razor services for `.nazor` files while keeping the language-server runtime on .NET 10 LTS. Both clients use the project's evaluated language version, conditional symbols and reference assemblies. Rebuild after changing these options. Use the Microsoft .NET 11 SDK and a compatible IDE to build `net11.0` apps. Visual Studio's native C# editor services remain those provided by the installed IDE.
 
 ## Editor capabilities
 
@@ -26,7 +26,7 @@ Inline C# analysis honors the project's warning/error policy and effective `.edi
 
 ## Install editor support
 
-Use the extension for the same Nazor release as your project's SDK. The extension descriptions identify the `0.1.1-alpha` release, and both manifests use the numeric version `0.1.1`. Install the .NET and ASP.NET Core 10 runtimes for the bundled compiler and language server.
+Use the extension for the same Nazor release as your project's SDK. The extension descriptions identify the `0.1.2-alpha` release, and both manifests use the numeric version `0.1.2`. Install the .NET and ASP.NET Core 10 runtimes for the bundled compiler and language server.
 
 | Editor | Installation |
 | --- | --- |
@@ -100,7 +100,7 @@ Check Error List and Output > Nazor Hot Reload for diagnostics or unavailable st
 The .NET 10 LTS compiler distributed in Nazor.Sdk also provides a development CLI:
 
 ```powershell
-$compiler = "$env:USERPROFILE/.nuget/packages/nazor.sdk/0.1.1-alpha/tools/net10.0/Nazor.Compiler.dll"
+$compiler = "$env:USERPROFILE/.nuget/packages/nazor.sdk/0.1.2-alpha/tools/net10.0/Nazor.Compiler.dll"
 dotnet $compiler dev HelloNazor info
 dotnet $compiler dev HelloNazor dump --styles
 ```

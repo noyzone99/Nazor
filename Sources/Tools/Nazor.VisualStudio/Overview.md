@@ -2,7 +2,7 @@
 
 Build native .NET desktop apps with Razor components and NSS, Nazor's CSS-inspired stylesheet language. Nazor uses native windows and draws its controls with a shared renderer. It is free and open source under the MIT license. [Nazor on GitHub](https://github.com/noyzone99/Nazor)
 
-**Nazor 0.1.1-alpha is an early preview for experiments and prototypes.** The extension supports Visual Studio 2022 and Visual Studio 2026 on x64.
+**Nazor 0.1.2-alpha is an early preview for experiments and prototypes.** The extension supports Visual Studio 2022 and Visual Studio 2026 on x64.
 
 ## What you get
 
@@ -12,7 +12,7 @@ Build native .NET desktop apps with Razor components and NSS, Nazor's CSS-inspir
 
 ## Try it
 
-Install the .NET and ASP.NET Core 10 runtimes and keep NuGet.org enabled in Visual Studio. The extension provides the project template, and Visual Studio restores the SDK, runtime, and any optional theme or DevTools packages from NuGet.org. [Nazor.Sdk on NuGet](https://www.nuget.org/packages/Nazor.Sdk/0.1.1-alpha) · [Getting started](https://github.com/noyzone99/Nazor/blob/main/Docs/Guide/02-Getting-Started.md) · [Editor guide](https://github.com/noyzone99/Nazor/blob/main/Docs/Guide/26-Editors-and-Hot-Reload.md) · [Report an issue](https://github.com/noyzone99/Nazor/issues)
+Install the .NET and ASP.NET Core 10 runtimes and keep NuGet.org enabled in Visual Studio. The extension provides the project template, and Visual Studio restores the SDK, runtime, and any optional theme or DevTools packages from NuGet.org. [Nazor.Sdk on NuGet](https://www.nuget.org/packages/Nazor.Sdk/0.1.2-alpha) · [Getting started](https://github.com/noyzone99/Nazor/blob/main/Docs/Guide/02-Getting-Started.md) · [Editor guide](https://github.com/noyzone99/Nazor/blob/main/Docs/Guide/26-Editors-and-Hot-Reload.md) · [Report an issue](https://github.com/noyzone99/Nazor/issues)
 
 ## Nazor Gallery
 

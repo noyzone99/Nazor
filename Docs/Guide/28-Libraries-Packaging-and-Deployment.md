@@ -5,7 +5,7 @@
 A library uses the same SDK and normally omits an executable output type:
 
 ```xml
-<Project Sdk="Nazor.Sdk/0.1.1-alpha">
+<Project Sdk="Nazor.Sdk/0.1.2-alpha">
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <RootNamespace>Company.Components</RootNamespace>
@@ -46,9 +46,9 @@ Ship licenses for third-party fonts/images. The sample source may link a test fo
 
 A theme is a library with compiled standalone `.nss` files exposed through the generated `StyleSheets` class. It can provide a public catalog property that layers its sheets over Basic. Such a catalog references `Nazor.Controls` for Basic. Consumers choose a sheet through `app.Appearance.Theme`. Provide the supported control states, forced colors, reduced-motion behavior, and required assets. Record the supported frameworks and use the alpha theme release with the matching numeric SDK version. [Theme package versions](16-Styling-and-Themes.md#theme-package-versions)
 
-`Nazor.Themes.Fluent` packages its Regular and Filled Fluent System Icons TTFs and MIT notices under `Themes/Fluent/`. Register them before startup with `builder.Fonts.AddFluentFonts()`. Check that both TTFs and `LICENSE.txt`, `NOTICE.txt`, and `SOURCE.txt` reach the consumer's build and publish output. The generated `FluentSymbol` catalog selects the correct family independently of the active theme. [Fluent on NuGet](https://www.nuget.org/packages/Nazor.Themes.Fluent/0.1.1-alpha) · [Fluent icon setup](22-Images-Icons-and-Drawing.md#typed-fluent-symbols)
+`Nazor.Themes.Fluent` packages its Regular and Filled Fluent System Icons TTFs and MIT notices under `Themes/Fluent/`. Register them before startup with `builder.Fonts.AddFluentFonts()`. Check that both TTFs and `LICENSE.txt`, `NOTICE.txt`, and `SOURCE.txt` reach the consumer's build and publish output. The generated `FluentSymbol` catalog selects the correct family independently of the active theme. [Fluent on NuGet](https://www.nuget.org/packages/Nazor.Themes.Fluent/0.1.2-alpha) · [Fluent icon setup](22-Images-Icons-and-Drawing.md#typed-fluent-symbols)
 
-`Nazor.Themes.NazorLeaf` supplies private fonts and a texture under `Themes/NazorLeaf/` in build and publish output. The application registers the fonts before building its host. Keep the font licenses and texture together with the fonts when distributing the app. The icon font is `NazorLeafIcons.otf`; `LeafSymbol` selects it without depending on a system icon font. [NazorLeaf on NuGet](https://www.nuget.org/packages/Nazor.Themes.NazorLeaf/0.1.1-alpha) · [NazorLeaf setup](16-Styling-and-Themes.md#nazorleaf)
+`Nazor.Themes.NazorLeaf` supplies private fonts and a texture under `Themes/NazorLeaf/` in build and publish output. The application registers the fonts before building its host. Keep the font licenses and texture together with the fonts when distributing the app. The icon font is `NazorLeafIcons.otf`; `LeafSymbol` selects it without depending on a system icon font. [NazorLeaf on NuGet](https://www.nuget.org/packages/Nazor.Themes.NazorLeaf/0.1.2-alpha) · [NazorLeaf setup](16-Styling-and-Themes.md#nazorleaf)
 
 Fluent and NazorLeaf copy their assets during the build. In Visual Studio, the packages appear under **Dependencies**, and their asset folders appear in the build and publish outputs.
 

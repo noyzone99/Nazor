@@ -8,7 +8,7 @@ Inspectors opened from an application window (F12, its system menu or `OpenDevTo
 
 ## Start and connect
 
-For a new app, run `dotnet new nazor-app -n MyApp --IncludeDevTools` or select **Include Nazor DevTools** in Visual Studio. The template sets up attachment for Debug builds, and the SDK restores the Agent from NuGet.org. Run the app in Debug and press **F12** inside its window. [Template options](Guide/02-Getting-Started.md#template-options) · [Nazor.DevTools.Agent on NuGet](https://www.nuget.org/packages/Nazor.DevTools.Agent/0.1.1-alpha)
+For a new app, run `dotnet new nazor-app -n MyApp --IncludeDevTools` or select **Include Nazor DevTools** in Visual Studio. The template sets up attachment for Debug builds, and the SDK restores the Agent from NuGet.org. Run the app in Debug and press **F12** inside its window. [Template options](Guide/02-Getting-Started.md#template-options) · [Nazor.DevTools.Agent on NuGet](https://www.nuget.org/packages/Nazor.DevTools.Agent/0.1.2-alpha)
 
 For an existing app, enable the Agent in the target's development build and configure `builder.UseDevTools()` in `Program.cs`, or explicitly call `window.EnableDevTools()`. See [local desktop inspection](Guide/27-Testing-and-Diagnostics.md#local-agent-connection) and [production without DevTools](Guide/28-Libraries-Packaging-and-Deployment.md#production-without-devtools).
 

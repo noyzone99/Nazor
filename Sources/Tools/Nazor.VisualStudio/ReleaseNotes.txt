@@ -1,4 +1,4 @@
-Nazor for Visual Studio 0.1.1-alpha
+Nazor for Visual Studio 0.1.2-alpha
 
 This early preview targets Visual Studio 2022 and 2026 on x64.
 
@@ -9,5 +9,5 @@ This early preview targets Visual Studio 2022 and 2026 on x64.
 
 The framework and its tools are free and open source under the MIT license. Visual Studio restores the Nazor SDK and runtime packages from NuGet.org.
 
-https://www.nuget.org/packages/Nazor.Sdk/0.1.1-alpha
+https://www.nuget.org/packages/Nazor.Sdk/0.1.2-alpha
 https://github.com/noyzone99/Nazor

@@ -1,8 +1,8 @@
 {
   "name": "nazor",
   "displayName": "Nazor",
-  "description": "Editor support for Nazor 0.1.1-alpha. Syntax highlighting, diagnostics, completion, hover, formatting, go to definition, rename and color previews for .nazor and .nss files.",
-  "version": "0.1.1",
+  "description": "Editor support for Nazor 0.1.2-alpha. Syntax highlighting, diagnostics, completion, hover, formatting, go to definition, rename and color previews for .nazor and .nss files.",
+  "version": "0.1.2",
   "publisher": "nazor",
   "license": "MIT",
   "icon": "nazor.png",

@@ -1,6 +1,6 @@
 # 2. Getting started
 
-Create a desktop app with the `0.1.1-alpha` template from NuGet.org or the template included with **Nazor for Visual Studio**. You can try the controls in the portable Gallery. [NuGet packages](../NuGet.md#nuget-packages) · [Try the Gallery](../../README.md#try-the-gallery)
+Create a desktop app with the `0.1.2-alpha` template from NuGet.org or the template included with **Nazor for Visual Studio**. You can try the controls in the portable Gallery. [NuGet packages](../NuGet.md#nuget-packages) · [Try the Gallery](../../README.md#try-the-gallery)
 
 ## Prerequisites
 
@@ -14,10 +14,10 @@ Install **Nazor for Visual Studio**, then choose **Create a new project** and se
 
 ## Create an application
 
-In an empty directory outside the Nazor checkout, install the `0.1.1-alpha` template with NuGet.org enabled. [Nazor.Templates on NuGet](https://www.nuget.org/packages/Nazor.Templates/0.1.1-alpha)
+In an empty directory outside the Nazor checkout, install the `0.1.2-alpha` template with NuGet.org enabled. [Nazor.Templates on NuGet](https://www.nuget.org/packages/Nazor.Templates/0.1.2-alpha)
 
 ```powershell
-dotnet new install Nazor.Templates@0.1.1-alpha
+dotnet new install Nazor.Templates@0.1.2-alpha
 ```
 
 Create and run the application.
@@ -27,7 +27,7 @@ dotnet new nazor-app -n HelloNazor
 dotnet run --project HelloNazor
 ```
 
-The template contains a startup program, root component and its C# code-behind, configuration, development launch profile, and stylesheet. The SDK supplies the default Windows DPI manifest. The project uses `Nazor.Sdk/0.1.1-alpha` and targets `net10.0`. The SDK adds global C# usings, runtime packages, and `Nazor.Hosting.Desktop`. It also generates a bootstrap that registers the desktop host. `Program.cs` selects `App` as the main window and configures its appearance before `app.Run()`. The host selects the native backend at runtime. This quickstart uses Windows. [Projects and builds](03-Projects-and-Builds.md) · [Application hosting](04-Application-Hosting-and-Services.md) · [Wayland](33-Linux-Wayland.md) · [X11](35-Linux-X11.md) · [DRM/KMS](34-Linux-DRM.md)
+The template contains a startup program, root component and its C# code-behind, configuration, development launch profile, and stylesheet. The SDK supplies the default Windows DPI manifest. The project uses `Nazor.Sdk/0.1.2-alpha` and targets `net10.0`. The SDK adds global C# usings, runtime packages, and `Nazor.Hosting.Desktop`. It also generates a bootstrap that registers the desktop host. `Program.cs` selects `App` as the main window and configures its appearance before `app.Run()`. The host selects the native backend at runtime. This quickstart uses Windows. [Projects and builds](03-Projects-and-Builds.md) · [Application hosting](04-Application-Hosting-and-Services.md) · [Wayland](33-Linux-Wayland.md) · [X11](35-Linux-X11.md) · [DRM/KMS](34-Linux-DRM.md)
 
 ## Template options
 
@@ -111,7 +111,7 @@ From the directory that will contain your test project, add the local feed and i
 ```powershell
 dotnet new nugetconfig
 dotnet nuget add source "$feed" --name NazorLocal --configfile ./nuget.config
-dotnet new install "$feed/Nazor.Templates.0.1.1-alpha.nupkg"
+dotnet new install "$feed/Nazor.Templates.0.1.2-alpha.nupkg"
 ```
 
 If both feeds offer the same Nazor version, map `Nazor.*` to the local feed in the test project's `nuget.config`. [NuGet package source mapping](https://learn.microsoft.com/en-us/nuget/consume-packages/package-source-mapping)

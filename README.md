@@ -4,7 +4,7 @@
 
 Nazor will always be free to use and open source. That commitment covers the framework, its tools, and everything I release from this repository.
 
-> **`0.1.1-alpha` is an early preview for experiments and prototypes.** Expect changes to the APIs, markup, styling, and tooling.
+> **`0.1.2-alpha` is an early preview for experiments and prototypes.** Expect changes to the APIs, markup, styling, and tooling.
 
 [Website source](Webpage/README.md) · [Create an app](#try-the-preview) · [NuGet packages](Docs/NuGet.md#nuget-packages) · [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=Noyzone99.nazorvisualstudio) · [Try the Gallery](#try-the-gallery) · [Discussions](https://github.com/noyzone99/Nazor/discussions) · [Report an issue](https://github.com/noyzone99/Nazor/issues)
 
@@ -94,7 +94,7 @@ If you have a Mac, I'd love to have you contribute. You can help build the macOS
 With the .NET 10 SDK installed and NuGet.org enabled, run these commands from an empty directory outside the Nazor checkout.
 
 ```powershell
-dotnet new install Nazor.Templates@0.1.1-alpha
+dotnet new install Nazor.Templates@0.1.2-alpha
 dotnet new nazor-app -n HelloNazor
 dotnet run --project HelloNazor
 ```

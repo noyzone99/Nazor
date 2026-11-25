@@ -5,7 +5,7 @@
 A package consumer uses the Nazor SDK with a neutral desktop target:
 
 ```xml
-<Project Sdk="Nazor.Sdk/0.1.1-alpha">
+<Project Sdk="Nazor.Sdk/0.1.2-alpha">
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <OutputType>WinExe</OutputType>
@@ -22,7 +22,7 @@ The implicit C# usings are `Nazor`, `Nazor.Controls`, `Nazor.Input`, `Nazor.Styl
 
 In top-level startup code, qualify application stylesheets as `MyApp.StyleSheets.Theme` (using the actual root namespace), as the template does. The controls package also exposes a `StyleSheets` class, so importing both namespaces can make an unqualified name ambiguous. A C# using alias is another option.
 
-Keep the SDK and official runtime packages on the same version. Use the matching numeric version of any optional alpha theme package. [Nazor.Sdk on NuGet](https://www.nuget.org/packages/Nazor.Sdk/0.1.1-alpha) · [Theme package versions](16-Styling-and-Themes.md#theme-package-versions)
+Keep the SDK and official runtime packages on the same version. Use the matching numeric version of any optional alpha theme package. [Nazor.Sdk on NuGet](https://www.nuget.org/packages/Nazor.Sdk/0.1.2-alpha) · [Theme package versions](16-Styling-and-Themes.md#theme-package-versions)
 
 The SDK supplies the `Nazor.Controls` package and imports its component namespace. Add `@using Nazor.Controls.Primitives` in markup that uses lower-level interaction components. See the [control catalog](09-Control-Catalog.md).
 
@@ -39,7 +39,7 @@ Samples import the local SDK directly:
 </Project>
 ```
 
-The SDK detects its source-tree layout and substitutes source project references for its automatic Nazor packages. It also builds the local compiler and resolves the repository icon and optional inspector assets. SDK defaults, implicit usings, component generation, bootstrap, validation and RID selection use the same files as packaged applications; no pack or publication step is needed. Optional themes remain explicit project references. External applications use `Sdk="Nazor.Sdk/0.1.1-alpha"`.
+The SDK detects its source-tree layout and substitutes source project references for its automatic Nazor packages. It also builds the local compiler and resolves the repository icon and optional inspector assets. SDK defaults, implicit usings, component generation, bootstrap, validation and RID selection use the same files as packaged applications; no pack or publication step is needed. Optional themes remain explicit project references. External applications use `Sdk="Nazor.Sdk/0.1.2-alpha"`.
 
 ### Windows dependencies
 
