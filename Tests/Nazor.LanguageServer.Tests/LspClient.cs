@@ -78,7 +78,7 @@ internal sealed class LspClient : IAsyncDisposable
         ["position"] = new JsonObject { ["line"] = line, ["character"] = character },
     });
 
-    public async Task<JsonArray> DiagnosticsAsync(string path, Func<JsonArray, bool>? condition = null)
+    public async Task<JsonArray> DiagnosticsAsync(string path, Func<JsonArray, bool>? condition = null, int? version = null)
     {
         var uri = Uri(path);
         var deadline = DateTime.UtcNow.AddSeconds(30);
@@ -91,13 +91,16 @@ internal sealed class LspClient : IAsyncDisposable
                     if (notification["method"]?.GetValue<string>() != "textDocument/publishDiagnostics") continue;
                     var parameters = notification["params"]!;
                     if (!string.Equals(parameters["uri"]!.GetValue<string>(), uri, StringComparison.OrdinalIgnoreCase)) continue;
+                    if (version is int expectedVersion && parameters["version"]?.GetValue<int>() != expectedVersion) continue;
                     var diagnostics = (JsonArray)parameters["diagnostics"]!;
                     if (condition is null || condition(diagnostics)) return diagnostics;
                 }
             }
             await notified.WaitAsync(TimeSpan.FromSeconds(1));
         }
-        throw new TimeoutException($"No matching diagnostics for {path}.");
+        throw new TimeoutException(version is int requestedVersion
+            ? $"No matching diagnostics for {path} at version {requestedVersion}."
+            : $"No matching diagnostics for {path}.");
     }
 
     public void ForgetDiagnostics(string path)

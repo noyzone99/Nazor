@@ -7,7 +7,7 @@ namespace Nazor.LanguageServer.Tests;
 
 public sealed class CodeActionTests
 {
-    private const string Path = @"C:\App\Counter.nazor";
+    private static readonly string Path = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "Nazor.CodeActionTests", "Counter.nazor");
 
     private static readonly string Component = N("""
         @using MyApp.Services

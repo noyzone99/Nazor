@@ -140,9 +140,8 @@ public sealed class CSharpTests : IAsyncLifetime
         var item = Assert.Single(await CompleteAsync(path, At(source, "Mode=\"", "Mode=\"".Length)),
             i => i!["label"]!.GetValue<string>() == "ViewMode.Grid")!;
         Assert.Null(item["additionalTextEdits"]);
-        client.ForgetDiagnostics(path);
         await client.ChangeAsync(path, "@using Choices\r\n" + source.Replace("Mode=\"\"", "Mode=\"ViewMode.Grid\"", StringComparison.Ordinal), 2);
-        Assert.Empty(await client.DiagnosticsAsync(path));
+        Assert.Empty(await client.DiagnosticsAsync(path, version: 2));
     }
 
     [Fact]
@@ -161,9 +160,8 @@ public sealed class CSharpTests : IAsyncLifetime
         var item = Assert.Single(await CompleteAsync(path, At(source, "OrderCard", 4)),
             i => i!["label"]!.GetValue<string>() == "OrderCard")!;
         Assert.Null(item["additionalTextEdits"]);
-        client.ForgetDiagnostics(path);
         await client.ChangeAsync(path, "@using Widgets\n" + source, 2);
-        Assert.Empty(await client.DiagnosticsAsync(path));
+        Assert.Empty(await client.DiagnosticsAsync(path, version: 2));
     }
 
     [Fact]
