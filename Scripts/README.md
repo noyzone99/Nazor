@@ -23,6 +23,8 @@ All maintained PowerShell scripts live here. Editor runtime code, including the 
 
 The [Packages workflow](../.github/workflows/packages.yml) runs on pushes to `main` and `dev` and on demand. It builds and tests the native bridges for the four supported Linux RIDs before packing NuGet packages. Download the `nuget-packages` and `editor-extensions` artifacts from the workflow run for the NuGet and symbol packages, the Visual Studio and VS Code VSIX files, and the TextMate ZIP.
 
+On a new tag push, the workflow uses the same native matrix to build and attach the [portable Gallery](../Samples/Nazor.Samples.Gallery/README.md#package-the-portable-release) to the GitHub Release.
+
 `Tests/verify-gallery-fidelity.py --manifest <input-manifest> --out <directory> --results <xunit-xml...>` records Gallery evidence and reference/font hashes. `--compare <reference-json> <actual-json>` checks lossless PNG captures with zero pixel tolerance and requires complete environment metadata. This optional script uses Python's standard library.
 
 `Tests/capture-leaf-reference.mjs --manifest <input-manifest> --browser <absolute-browser-path> --out artifacts/<fresh-directory>` captures a supplied HTML reference offline with a fresh headless Chromium profile. Node 22 or newer is required. `--validate-only` checks inputs without starting a browser.

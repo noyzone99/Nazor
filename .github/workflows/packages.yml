@@ -3,17 +3,19 @@ name: Packages
 on:
   push:
     branches: [main, dev]
+    tags: ['**']
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: packages-${{ github.ref }}
-  cancel-in-progress: true
+  group: packages-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref_type != 'tag' }}
 
 jobs:
   native:
+    if: '!github.event.deleted'
     name: Native libraries (${{ matrix.rid }})
     runs-on: ${{ matrix.os }}
     timeout-minutes: 25
@@ -47,8 +49,8 @@ jobs:
           path: artifacts/native/${{ matrix.rid }}/
           if-no-files-found: error
 
-  nuget:
-    name: NuGet packages
+  package:
+    name: ${{ github.ref_type == 'tag' && 'Portable Gallery' || 'NuGet packages' }}
     needs: native
     runs-on: windows-2025
     timeout-minutes: 45
@@ -78,10 +80,12 @@ jobs:
           }
 
       - name: Pack NuGet packages
+        if: github.ref_type != 'tag'
         shell: pwsh
         run: ./Scripts/Packaging/pack.ps1 -Symbols
 
       - uses: actions/upload-artifact@v7
+        if: github.ref_type != 'tag'
         with:
           name: nuget-packages
           path: |
@@ -89,8 +93,64 @@ jobs:
             artifacts/packages/*.snupkg
           if-no-files-found: error
 
+      - name: Pack the portable Gallery
+        if: github.ref_type == 'tag'
+        shell: pwsh
+        run: |
+          $publish = 'artifacts/gallery-release/publish'
+          dotnet publish Samples/Nazor.Samples.Gallery -c Release --self-contained false -p:UseAppHost=false -p:NazorEnableDevTools=false -p:NazorSkipNativeBuild=true -p:UseSharedCompilation=false -m:1 -o $publish
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          foreach ($file in 'Nazor.Samples.Gallery.dll', 'Nazor.Samples.Gallery.runtimeconfig.json', 'runtimes/win-x64/native/libSkiaSharp.dll') {
+            if (-not (Test-Path -LiteralPath "$publish/$file" -PathType Leaf)) { throw "Missing Gallery file: $file" }
+          }
+          Copy-Item LICENSE "$publish/Nazor.LICENSE.txt"
+          Compress-Archive -Path "$publish/*" -DestinationPath artifacts/gallery-release/Nazor.Gallery-portable.zip
+
+      - uses: actions/upload-artifact@v7
+        if: github.ref_type == 'tag'
+        with:
+          name: gallery-portable
+          path: artifacts/gallery-release/Nazor.Gallery-portable.zip
+          if-no-files-found: error
+
+  release:
+    name: Attach Gallery to the GitHub Release
+    if: github.event_name == 'push' && github.ref_type == 'tag' && github.event.created
+    needs: package
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: gallery-portable
+          path: artifacts/gallery-release
+
+      - name: Publish the Gallery asset
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          asset=artifacts/gallery-release/Nazor.Gallery-portable.zip
+          test -s "$asset"
+          if assets=$(gh release view --json assets --jq '.assets[] | select(.state == "uploaded" and .size > 0) | .name' -- "$RELEASE_TAG"); then
+            if ! grep -Fxq -- "${asset##*/}" <<< "$assets"; then
+              gh release upload -- "$RELEASE_TAG" "$asset"
+            fi
+          else
+            options=()
+            if [[ "$RELEASE_TAG" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+-[0-9A-Za-z-] ]]; then
+              options+=(--prerelease)
+            fi
+            notes='Download `Nazor.Gallery-portable.zip` from Assets and extract it. With the .NET 10 Runtime installed, run `dotnet Nazor.Samples.Gallery.dll` from the extracted folder on Windows x64 or a supported Linux x64/ARM64 system.'
+            gh release create --verify-tag --title "$RELEASE_TAG" --notes "$notes" "${options[@]}" -- "$RELEASE_TAG" "$asset"
+          fi
+
   editors:
     name: Editor extensions
+    if: github.ref_type != 'tag' && !github.event.deleted
     runs-on: windows-2022
     timeout-minutes: 35
     steps:

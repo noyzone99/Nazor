@@ -42,14 +42,15 @@ The Debug build from source includes Nazor DevTools. In a desktop Gallery window
 
 ## Package the portable release
 
-From the repository root, publish to a fresh output directory with no runtime identifier. The archive keeps the Windows assets and both Linux desktop bridges in their runtime directories. The same application supports explicit DRM/KMS startup and requires the .NET 10 Runtime. [Portable deployment](../../Docs/Guide/28-Libraries-Packaging-and-Deployment.md) · [Native build prerequisites](../../Docs/Guide/33-Linux-Wayland.md#build-from-source)
+Pushing a new tag to GitHub runs the [Packages workflow](../../.github/workflows/packages.yml). It builds the Linux bridges and attaches `Nazor.Gallery-portable.zip` to the tag's GitHub Release. The ZIP is also available in the run's `gallery-portable` artifact.
+
+To build the archive locally, build the full Linux native matrix first. From the repository root, publish to a fresh output directory with no runtime identifier. The archive keeps the Windows assets and both Linux desktop bridges in their runtime directories. The same application supports explicit DRM/KMS startup and requires the .NET 10 Runtime. [Portable deployment](../../Docs/Guide/28-Libraries-Packaging-and-Deployment.md) · [Build the native matrix](../../Scripts/README.md#build-and-packaging)
 
 ```powershell
-dotnet publish Samples/Nazor.Samples.Gallery -c Release --self-contained false -p:UseAppHost=false -o artifacts/gallery-release/publish
+dotnet publish Samples/Nazor.Samples.Gallery -c Release --self-contained false -p:UseAppHost=false -p:NazorEnableDevTools=false -p:NazorSkipNativeBuild=true -o artifacts/gallery-release/publish
+Copy-Item LICENSE artifacts/gallery-release/publish/Nazor.LICENSE.txt
 Compress-Archive -Path artifacts/gallery-release/publish/* -DestinationPath artifacts/gallery-release/Nazor.Gallery-portable.zip
 ```
-
-Attach `Nazor.Gallery-portable.zip` to the GitHub release.
 
 ## What to explore
 
