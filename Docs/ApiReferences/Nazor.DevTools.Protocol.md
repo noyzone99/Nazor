@@ -269,6 +269,8 @@ Namespace `Nazor.DevTools.Protocol`. [Source](../../Sources/Tools/Nazor.DevTools
 | `public const string Initialize = "initialize"` |  |
 | `public const string GetTree = "tree/get"` |  |
 | `public const string TreeChanged = "tree/changed"` |  |
+| `public const string BrowseTree = "tree/browse"` | Request a page of live tree data. |
+| `public const string TreeInvalidated = "tree/invalidated"` | Notify clients that loaded branches may need to be refreshed. |
 | `public const string GetStyles = "styles/get"` |  |
 | `public const string GetGeometry = "geometry/get"` |  |
 | `public const string GetFrames = "frames/get"` |  |
@@ -784,6 +786,70 @@ Namespace `Nazor.DevTools.Protocol`. [Source](../../Sources/Tools/Nazor.DevTools
 | `public string State { get; init; }` |  |
 | `public string? StopId { get; init; }` |  |
 
+## `TreeBrowseNode`
+
+Namespace `Nazor.DevTools.Protocol`. [Source](../../Sources/Tools/Nazor.DevTools.Protocol/Contracts.cs)
+
+| Declaration | Contract |
+| --- | --- |
+| `public sealed record TreeBrowseNode : IEquatable<TreeBrowseNode>` | One detached component or element description. |
+| `public TreeBrowseNode(ComponentInfo? Component, ElementInfo? Element, bool HasChildren)` |  |
+| `public override string ToString()` |  |
+| `public static bool operator !=(TreeBrowseNode? left, TreeBrowseNode? right)` |  |
+| `public static bool operator ==(TreeBrowseNode? left, TreeBrowseNode? right)` |  |
+| `public override int GetHashCode()` |  |
+| `public override bool Equals(object? obj)` |  |
+| `public bool Equals(TreeBrowseNode? other)` |  |
+| `public void Deconstruct(out ComponentInfo? Component, out ElementInfo? Element, out bool HasChildren)` |  |
+| `public ComponentInfo? Component { get; init; }` |  |
+| `public ElementInfo? Element { get; init; }` |  |
+| `public bool HasChildren { get; init; }` | Indicates whether the node can be expanded. |
+
+## `TreeBrowsePage`
+
+Namespace `Nazor.DevTools.Protocol`. [Source](../../Sources/Tools/Nazor.DevTools.Protocol/Contracts.cs)
+
+| Declaration | Contract |
+| --- | --- |
+| `public sealed record TreeBrowsePage : IEquatable<TreeBrowsePage>` | A page of results with its continuation and target read metrics. |
+| `public TreeBrowsePage(CaptureStamp Capture, long Revision, TreeBrowseNode[] Nodes, string? Cursor, int Visited, double ReadMs)` |  |
+| `public override string ToString()` |  |
+| `public static bool operator !=(TreeBrowsePage? left, TreeBrowsePage? right)` |  |
+| `public static bool operator ==(TreeBrowsePage? left, TreeBrowsePage? right)` |  |
+| `public override int GetHashCode()` |  |
+| `public override bool Equals(object? obj)` |  |
+| `public bool Equals(TreeBrowsePage? other)` |  |
+| `public void Deconstruct(out CaptureStamp Capture, out long Revision, out TreeBrowseNode[] Nodes, out string? Cursor, out int Visited, out double ReadMs)` |  |
+| `public CaptureStamp Capture { get; init; }` |  |
+| `public long Revision { get; init; }` |  |
+| `public TreeBrowseNode[] Nodes { get; init; }` |  |
+| `public string? Cursor { get; init; }` | Opaque continuation token when more results are available. |
+| `public int Visited { get; init; }` |  |
+| `public double ReadMs { get; init; }` | Target read time in milliseconds. |
+
+## `TreeBrowseRequest`
+
+Namespace `Nazor.DevTools.Protocol`. [Source](../../Sources/Tools/Nazor.DevTools.Protocol/Contracts.cs)
+
+| Declaration | Contract |
+| --- | --- |
+| `public sealed record TreeBrowseRequest : IEquatable<TreeBrowseRequest>` | A bounded read of the component or element tree. |
+| `public TreeBrowseRequest(RequestContext Context, string Kind, string Mode, string? NodeId, string? Cursor = null, string? Query = null, bool IncludeFramework = true)` |  |
+| `public override string ToString()` |  |
+| `public static bool operator !=(TreeBrowseRequest? left, TreeBrowseRequest? right)` |  |
+| `public static bool operator ==(TreeBrowseRequest? left, TreeBrowseRequest? right)` |  |
+| `public override int GetHashCode()` |  |
+| `public override bool Equals(object? obj)` |  |
+| `public bool Equals(TreeBrowseRequest? other)` |  |
+| `public void Deconstruct(out RequestContext Context, out string Kind, out string Mode, out string? NodeId, out string? Cursor, out string? Query, out bool IncludeFramework)` |  |
+| `public RequestContext Context { get; init; }` |  |
+| `public string Kind { get; init; }` | Selects the component or element tree. |
+| `public string Mode { get; init; }` | Selects the tree operation. |
+| `public string? NodeId { get; init; }` |  |
+| `public string? Cursor { get; init; }` |  |
+| `public string? Query { get; init; }` |  |
+| `public bool IncludeFramework { get; init; }` |  |
+
 ## `TreeDelta`
 
 Namespace `Nazor.DevTools.Protocol`. [Source](../../Sources/Tools/Nazor.DevTools.Protocol/Contracts.cs)
@@ -808,6 +874,28 @@ Namespace `Nazor.DevTools.Protocol`. [Source](../../Sources/Tools/Nazor.DevTools
 | `public ElementInfo[] Elements { get; init; }` |  |
 | `public string[] RemovedComponents { get; init; }` |  |
 | `public string[] RemovedElements { get; init; }` |  |
+
+## `TreeInvalidation`
+
+Namespace `Nazor.DevTools.Protocol`. [Source](../../Sources/Tools/Nazor.DevTools.Protocol/Contracts.cs)
+
+| Declaration | Contract |
+| --- | --- |
+| `public sealed record TreeInvalidation : IEquatable<TreeInvalidation>` | Identifies portions of a live tree that may need a new page. |
+| `public TreeInvalidation(CaptureStamp Capture, long Revision, string[] Nodes, string[] Parents, bool Roots, bool All)` |  |
+| `public override string ToString()` |  |
+| `public static bool operator !=(TreeInvalidation? left, TreeInvalidation? right)` |  |
+| `public static bool operator ==(TreeInvalidation? left, TreeInvalidation? right)` |  |
+| `public override int GetHashCode()` |  |
+| `public override bool Equals(object? obj)` |  |
+| `public bool Equals(TreeInvalidation? other)` |  |
+| `public void Deconstruct(out CaptureStamp Capture, out long Revision, out string[] Nodes, out string[] Parents, out bool Roots, out bool All)` |  |
+| `public CaptureStamp Capture { get; init; }` |  |
+| `public long Revision { get; init; }` |  |
+| `public string[] Nodes { get; init; }` |  |
+| `public string[] Parents { get; init; }` |  |
+| `public bool Roots { get; init; }` | Indicates that the root list has changed. |
+| `public bool All { get; init; }` | Indicates that all loaded pages should be treated as stale. |
 
 ## `TreeSnapshot`
 
