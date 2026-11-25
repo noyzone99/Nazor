@@ -18,6 +18,6 @@ Install the .NET and ASP.NET Core 10 runtimes and keep NuGet.org enabled in Visu
 
 The Gallery is a runnable app that lets you explore the controls and see the components and styles behind them.
 
-![Nazor Gallery showing the desktop control catalog with the NazorLeaf theme](https://raw.githubusercontent.com/noyzone99/Nazor/main/Docs/Assets/gallery.png)
+![Nazor Gallery with the NazorLeaf theme in light and dark on Windows 11, KDE Plasma and GNOME](https://raw.githubusercontent.com/noyzone99/Nazor/main/Docs/Assets/nazor-desktops.gif)
 
 [Try the Gallery](https://github.com/noyzone99/Nazor#try-the-gallery)

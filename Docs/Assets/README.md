@@ -9,8 +9,9 @@ Nazor uses a four-leaf mark in blue and light blue. The standalone mark identifi
 | [nazor-app.svg](nazor-app.svg) | Vector source for the blue application tile |
 | [nazor-app.png](nazor-app.png) | Transparent 128 × 128 application tile for image surfaces |
 | [nazor.ico](nazor.ico) | Windows application tile with 16, 20, 24, 32, 40, 48, 64, 128 and 256 pixel images |
-| [gallery.png](gallery.png) | The [Gallery sample](../../Samples/Nazor.Samples.Gallery/README.md) captured on Windows with the optional NazorLeaf theme |
-| [nazor-desktops.gif](nazor-desktops.gif) | The same Nazor app in light and dark on Windows 11, KDE Plasma and GNOME |
+| [nazor-banner.png](nazor-banner.png) | 1600 × 480 banner with transparent NazorLeaf corners for the [repository README](../../README.md) |
+| [nazor-github-banner.png](nazor-github-banner.png), [nazor-github-banner.jpg](nazor-github-banner.jpg) | 1774 × 887 GitHub social preview artwork in PNG and JPEG |
+| [nazor-desktops.gif](nazor-desktops.gif) | Animated preview of the [Gallery sample](../../Samples/Nazor.Samples.Gallery/README.md) with the NazorLeaf theme in light and dark on Windows 11, KDE Plasma and GNOME |
 
 Generate the framework PNG from the mark SVG and the application PNG and ICO from the tile SVG. Keep the square canvas and transparent padding.
 
