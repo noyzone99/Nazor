@@ -1,4 +1,5 @@
 using System.IO.Compression;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using Microsoft.CodeAnalysis;
@@ -15,6 +16,7 @@ if (args.Length != 2)
 var root = Path.GetFullPath(args[0]);
 var feed = Path.GetFullPath(args[1]);
 var version = XDocument.Load(Path.Combine(root, "Directory.Build.props")).Descendants("NazorVersion").Single().Value;
+var editorVersion = version.Split('-', '+')[0];
 var themeVersion = Regex.IsMatch(version, @"^[^-+]+-alpha(?:[.+]|$)") ? version : version.Split('-', '+')[0] + "-alpha";
 var errors = new List<string>();
 string Read(string relativePath) => File.ReadAllText(Path.Combine(root, relativePath));
@@ -65,6 +67,29 @@ foreach (var file in Directory.GetFiles(feed, "Nazor.*.nupkg"))
     }
 }
 Check(packageIds.Contains("Nazor.Sdk") && packageIds.Contains("Nazor.Templates"), "The release feed must contain the SDK and template packages.");
+
+var packageIndex = Regex.Matches(Read("Docs/NuGet.md"),
+    @"(?m)^\| \x60(?<id>Nazor\.[\w.]+)\x60 \|[^\r\n]*https://www\.nuget\.org/packages/\k<id>/\d+\.\d+\.\d+")
+    .Select(match => match.Groups["id"].Value).ToArray();
+Check(packageIds.SetEquals(packageIndex) && packageIndex.Length == packageIds.Count,
+    "Docs/NuGet.md: list each release package once and link to its NuGet page.");
+
+const string editorDirectory = "Sources/Tools/";
+using var vscode = JsonDocument.Parse(Read(editorDirectory + "Nazor.VSCode/package.json"));
+using var vscodeLock = JsonDocument.Parse(Read(editorDirectory + "Nazor.VSCode/package-lock.json"));
+var vscodeManifest = vscode.RootElement;
+Check(vscodeManifest.GetProperty("version").GetString() == editorVersion &&
+    vscodeLock.RootElement.GetProperty("version").GetString() == editorVersion &&
+    vscodeLock.RootElement.GetProperty("packages").GetProperty("").GetProperty("version").GetString() == editorVersion,
+    $"VS Code manifest and lockfile must use {editorVersion}.");
+var vsix = XDocument.Parse(Read(editorDirectory + "Nazor.VisualStudio/source.extension.vsixmanifest"));
+var vsixMetadata = vsix.Root!.Element(vsix.Root.Name.Namespace + "Metadata")!;
+Check((string?)vsixMetadata.Element(vsixMetadata.Name.Namespace + "Identity")?.Attribute("Version") == editorVersion,
+    $"Visual Studio manifest must use {editorVersion}.");
+var releaseInDescription = $@"\bNazor {Regex.Escape(version)}(?![\w+-]|\.\w)";
+Check(Regex.IsMatch(vscodeManifest.GetProperty("description").GetString()!, releaseInDescription) &&
+    Regex.IsMatch(vsixMetadata.Element(vsixMetadata.Name.Namespace + "Description")?.Value ?? "", releaseInDescription),
+    $"Both editor descriptions must identify Nazor {version}.");
 
 var mainAssemblies = binaries.Where(binary => binary.Name == binary.Package + ".dll" ||
     binary.Name == "Nazor.Hosting.Desktop.dll" && binary.Package.StartsWith("Nazor.Hosting.Desktop.", StringComparison.Ordinal)).ToArray();
@@ -147,12 +172,26 @@ foreach (var shorthand in StyleProperties.AllShorthands)
 Check(propertyRows.Count == StyleProperties.All.Count + StyleProperties.AllShorthands.Count, "NSS: remove unregistered property rows.");
 
 var files = Directory.GetFiles(Path.Combine(root, "Docs"), "*.md", SearchOption.AllDirectories)
-    .Prepend(Path.Combine(root, "README.md")).ToArray();
-foreach (var file in files)
+    .Prepend(Path.Combine(root, "README.md"))
+    .Concat(new[] { "Samples/README.md", "Scripts/README.md", "Sources/README.md", "Tests/README.md", "Webpage/README.md",
+        editorDirectory + "Nazor.VSCode/README.md", editorDirectory + "Nazor.VisualStudio/Overview.md" }
+        .Select(path => Path.Combine(root, path)))
+    .Concat(Directory.GetDirectories(Path.Combine(root, "Samples"), "Nazor.Samples.*")
+        .Select(path => Path.Combine(path, "README.md")).Where(File.Exists))
+    .ToArray();
+const string semver = @"\d+\.\d+\.\d+(?:-[0-9A-Za-z-]+(?:\.(?!nupkg\b)[0-9A-Za-z-]+)*)?";
+foreach (var file in files.Append(Path.Combine(root, editorDirectory + "Nazor.VisualStudio/ReleaseNotes.txt")))
 {
     var text = File.ReadAllText(file);
-    foreach (Match match in Regex.Matches(text, @"(?:Nazor\.Sdk/|Nazor\.Templates[.@]|`)(?<version>\d+\.\d+\.\d+-(?:alpha|beta|preview|rc)(?:\.\d+)?)"))
-        Check(match.Groups["version"].Value == version, $"{file}: Nazor version must match {version}.");
+    foreach (Match match in Regex.Matches(text,
+        $@"(?:nuget\.org/packages/(?<id>Nazor\.[\w.]+)/|Nazor\.Sdk/|Nazor\.Templates[.@]|github\.com/noyzone99/Nazor/releases/(?:tag|download)/v?|Nazor(?: for Visual Studio)? [v\x60]?)(?<version>{semver})" +
+        @"|\x60v?(?<version>\d+\.\d+\.\d+-(?:alpha|beta|preview|rc)(?:\.[\w-]+)*)\x60"))
+    {
+        var expected = match.Groups["id"].Value.StartsWith("Nazor.Themes.", StringComparison.Ordinal) ? themeVersion : version;
+        Check(match.Groups["version"].Value == expected, $"{file}: {match.Value} must use {expected}.");
+    }
+    foreach (Match match in Regex.Matches(text, @"(?:[Ee]xtension version |manifest(?:s use the numeric)? version \x60?)(?<version>\d+\.\d+\.\d+)"))
+        Check(match.Groups["version"].Value == editorVersion, $"{file}: editor version must match {editorVersion}.");
     foreach (Match block in Regex.Matches(text, @"(?ms)^```css\s*\r?\n(.*?)^```"))
     {
         var result = NssCompiler.Compile("Documentation", block.Groups[1].Value, file);
