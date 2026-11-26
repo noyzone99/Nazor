@@ -9,7 +9,7 @@
 @* ---------- Hero ---------- *@
 <section class="hero">
     <div class="hero-copy">
-        <a class="badge info live" href="guide/support-and-limitations">@VersionLabel · public pre-alpha preview</a>
+        <a class="badge info live" href="guide/support-and-limitations">@VersionLabel</a>
         <h1 class="hero-title">Write Razor.<br />Think Blazor.<br /><span class="ink">Ship native.</span></h1>
         <p class="hero-sub">
             Nazor is a native, reactive UI framework for .NET. It compiles Razor components and NSS stylesheets into desktop
@@ -246,7 +246,7 @@
     <div class="final-card">
         <Mark Size="52" />
         <h2>Ready to build your first window?</h2>
-        <p>Nazor is in pre-alpha, so expect breaking changes. Ask questions, request features, or share what you build in <a href="https://github.com/noyzone99/Nazor/discussions" target="_blank" rel="noopener">GitHub Discussions</a>.</p>
+        <p>Nazor is in alpha, so expect breaking changes. Ask questions, request features, or share what you build in <a href="https://github.com/noyzone99/Nazor/discussions" target="_blank" rel="noopener">GitHub Discussions</a>.</p>
         <div class="cta">
             <a class="btn b-primary lg" href="getting-started"><Icon Name="bolt" />Get started</a>
             <a class="btn b-line lg" href="guide/first-desktop-application">First desktop application tutorial</a>
@@ -260,7 +260,7 @@
     private int count;
     private string name = string.Empty;
 
-    private string VersionLabel => string.IsNullOrEmpty(version) ? "Pre-alpha" : version;
+    private string VersionLabel => string.IsNullOrEmpty(version) ? "Alpha" : version;
 
     protected override async Task OnInitializedAsync()
     {

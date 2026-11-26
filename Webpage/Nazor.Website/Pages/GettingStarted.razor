@@ -22,8 +22,8 @@
     <section class="gs-prereq">
         <h2><Icon Name="check" />Before you start</h2>
         <ul>
-            <li><b>Windows 10 or 11 x64</b><span>The primary verification baseline. Linux works too: install the <a href="guide/linux-wayland#runtime-dependencies">Wayland</a> or <a href="guide/linux-x11#system-dependencies-and-behavior">X11</a> prerequisites.</span></li>
-            <li><b>.NET 10 SDK</b><span>Runs the Razor/NSS compiler, language server and DevTools. Applications can target .NET 8 or later.</span></li>
+            <li><b>Windows 10 or 11 x64</b><span>The primary verification baseline. For the CLI on Linux, install the <a href="guide/linux-wayland#runtime-dependencies">Wayland</a> or <a href="guide/linux-x11#system-dependencies-and-behavior">X11</a> prerequisites.</span></li>
+            <li><b>.NET 10 SDK</b><span>Includes the runtimes for the Razor/NSS compiler, language server and DevTools. Install the runtime for your application target. Building .NET 11 apps also requires the .NET 11 SDK.</span></li>
             @if (path == 0)
             {
                 <li><b>Visual Studio 2022 or 2026</b><span>For .NET 8 in Visual Studio 2022 17.14, follow the <a href="guide/projects-and-builds#visual-studio-2022-and-net-8">separate SDK requirements</a>.</span></li>
@@ -53,7 +53,7 @@
                     <h2>Create your first app</h2>
                     <p>Choose <b>Create a new project</b> and search for <b>Nazor application</b>. Visual Studio suggests <code>NazorApp1</code> as the first project name. On the additional information page, pick:</p>
                     <div class="opts">
-                        <div class="opt"><b>Framework</b><span>.NET 10 (LTS) by default; .NET 8, 9 and 11 are available.</span></div>
+                        <div class="opt"><b>Framework</b><span>.NET 10 (LTS) by default. .NET 8, 9 and 11 availability depends on your Visual Studio and SDK versions.</span></div>
                         <div class="opt"><b>Theme</b><span>Basic, Fluent or NazorLeaf. Optional themes add their package and register their fonts.</span></div>
                         <div class="opt"><b>Application ID</b><span>A stable reverse-DNS identity, such as <code>org.example.myapp</code>.</span></div>
                         <div class="opt"><b>Sample pages</b><span>Adds a navigation view with Home, Counter and Tasks pages.</span></div>
@@ -82,7 +82,14 @@
                 <div class="gs-body">
                     <h2>Install the template</h2>
                     <p>In an empty directory outside the Nazor checkout, install the template from NuGet.org.</p>
-                    <CodeBlock Language="powershell" Code="@($"dotnet new install Nazor.Templates@{version}")" />
+                    @if (string.IsNullOrEmpty(version))
+                    {
+                        <a href="guide/getting-started#create-an-application">Template installation command</a>
+                    }
+                    else
+                    {
+                        <CodeBlock Language="powershell" Code="@($"dotnet new install Nazor.Templates@{version}")" />
+                    }
                 </div>
             </li>
             <li class="gs-step">
@@ -164,17 +171,13 @@
 
 @code {
     private int path;
-    private string version = "0.1.2-alpha";
+    private string? version;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            var manifest = await Content.GetManifestAsync();
-            if (!string.IsNullOrEmpty(manifest.Version))
-            {
-                version = manifest.Version;
-            }
+            version = (await Content.GetManifestAsync()).Version;
         }
         catch (HttpRequestException)
         {
