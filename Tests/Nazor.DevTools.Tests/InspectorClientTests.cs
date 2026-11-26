@@ -276,7 +276,8 @@ public sealed class InspectorClientTests
         var store = new InspectionStore();
         using var client = new InspectorClient(store);
         await client.ConnectAsync(server.Descriptor, TestContext.Current.CancellationToken);
-        await AgentProcess.UntilAsync(() => store.Read().Selection?.NodeId == "new" && !store.Read().NeedsTree);
+        await AgentProcess.UntilAsync(() => Volatile.Read(ref server.Requests) >= 4 &&
+            store.Read() is { Selection.NodeId: "new", NeedsTree: false });
         Assert.Contains(store.Read().Tree!.Elements, e => e.Id == "new");
         Assert.Equal(2, store.Read().Tree!.Revision);
         Assert.InRange(Volatile.Read(ref server.Requests), 4, 6);

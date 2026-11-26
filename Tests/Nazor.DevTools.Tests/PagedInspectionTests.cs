@@ -64,20 +64,28 @@ public sealed class PagedInspectionTests
         var store = new InspectionStore();
         using var client = new InspectorClient(store, target.Directory) { UsePagedTree = true };
         await client.ConnectAsync(target.Descriptor, token);
-        Assert.NotNull(store.Read().Paged);
+        Assert.True(store.Read().Paged is not null, store.Read().Message);
         Assert.DoesNotContain(store.Read().Tree!.Elements, node => node.ElementId == "wide-row-9999");
 
         var found = await client.SearchTreeAsync("element", "wide-row-9999", null, token);
-        var last = Assert.Single(found!.Nodes).Element!;
+        Assert.True(found is { Nodes.Length: 1 }, store.Read().Message ?? $"Search returned {found?.Nodes.Length ?? 0} nodes.");
+        var last = found!.Nodes[0].Element!;
+        Assert.Equal("wide-row-9999", last.ElementId);
         await client.RevealNodeAsync("element", last.Id, token);
         Assert.Equal(last.Id, store.Read().Selection?.NodeId);
         var parent = Assert.Single(store.Read().Tree!.Elements, node => node.Name == "Wide");
         var branch = new TreeBranch("element", parent.Id);
         await client.LoadBranchAsync(branch, false, token);
         Assert.Equal("wide-row-0", FirstChild());
-        for (var index = 0; index < 80 && store.Read().Tree!.Elements.Length <= DevToolsProtocol.MaxNodes; index++)
+        var loaded = store.Read();
+        while (loaded.Tree!.Elements.Length <= DevToolsProtocol.MaxNodes)
+        {
+            Assert.Contains(branch, loaded.Paged!.More);
+            var count = loaded.Tree.Elements.Length;
             await client.LoadBranchAsync(branch, true, token);
-        Assert.True(store.Read().Tree!.Elements.Length > DevToolsProtocol.MaxNodes);
+            loaded = store.Read();
+            Assert.True(loaded.Tree!.Elements.Length > count, loaded.Message ?? "Loading the next page did not add any elements.");
+        }
         await target.CommandAsync("change-wide", "CHANGED-WIDE");
         await AgentProcess.UntilAsync(() => FirstChild() == "wide-row-9999");
         Assert.Equal(last.Id, store.Read().Selection?.NodeId);

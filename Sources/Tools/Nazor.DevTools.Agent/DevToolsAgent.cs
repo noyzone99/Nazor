@@ -378,15 +378,20 @@ public sealed class DevToolsAgent : IDisposable
             {
                 try
                 {
-                    token.ThrowIfCancellationRequested();
-                    lock (gate)
+                    T result;
+                    try
                     {
-                        if (stopped != 0 || client != active) throw new DevToolsException(DevToolsErrors.StaleSession, "The connection changed before collection.");
+                        token.ThrowIfCancellationRequested();
+                        lock (gate)
+                        {
+                            if (stopped != 0 || client != active) throw new DevToolsException(DevToolsErrors.StaleSession, "The connection changed before collection.");
+                        }
+                        result = work();
                     }
-                    completion.TrySetResult(work());
+                    finally { Interlocked.Exchange(ref uiPending, 0); cancellation.Dispose(); }
+                    completion.TrySetResult(result);
                 }
                 catch (Exception exception) { completion.TrySetException(exception); }
-                finally { Interlocked.Exchange(ref uiPending, 0); cancellation.Dispose(); }
             });
         }
         catch { Interlocked.Exchange(ref uiPending, 0); cancellation.Dispose(); throw; }
