@@ -1,6 +1,6 @@
 # Nazor.Accessibility
 
-Public and protected API of the current development candidate.
+API for exposing the semantic tree, control roles and properties, live announcements, and accessible text ranges.
 
 Inherited members follow their declaring type. Positional record parameters also define properties with the same names. Signatures and descriptions below follow the current source; application layout and validation remain caller-owned unless a control explicitly supplies them.
 
