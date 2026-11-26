@@ -1,4 +1,8 @@
-<h1><img src="Docs/Assets/nazor-banner.png" width="100%" alt="Nazor. Write Razor. Think Blazor. Ship native."></h1>
+<img src="Docs/Assets/nazor-banner.png" width="100%" alt="Nazor. Write Razor. Think Blazor. Ship native.">
+
+# Nazor
+
+**Nazor is an open-source .NET UI framework for building native Windows and Linux desktop apps with Razor and C#.** It brings Blazor-style components to desktop apps. Style your interface with NSS and let Nazor handle layout and draw controls with SkiaSharp.
 
 **No WebView. No XAML. No native control wrappers.**
 
@@ -14,10 +18,6 @@
 [![Nazor Gallery in light and dark on Windows 11, KDE Plasma, and GNOME](Docs/Assets/nazor-desktops.gif)](https://noyzone99.github.io/Nazor/)
 
 Windows 11 · KDE Plasma · GNOME. Click the preview to open the interactive carousel on the website.
-
-## What is Nazor?
-
-**Nazor is an open-source .NET UI framework for building native desktop apps on Windows and Linux.** It brings Blazor-style components to real desktop windows. Write Razor-like markup, keep state in C#, and style your interface with NSS. Nazor handles layout and draws its controls directly with SkiaSharp.
 
 ## Key Features
 

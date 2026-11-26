@@ -5,11 +5,10 @@ namespace Nazor.Website.Services;
 public sealed record SiteMetadata(string Route, string Title, string Description)
 {
     public const string PublicUrl = "https://noyzone99.github.io/Nazor/";
-    public const string Slogan = "Write Razor. Think Blazor. Ship native.";
 
     public static SiteMetadata Home { get; } = new(
-        "", $"Nazor · {Slogan}",
-        "Nazor is a .NET UI framework that compiles Razor components and NSS stylesheets into native desktop applications drawn with Skia.");
+        "", "Nazor — Native .NET Desktop UI Framework",
+        "Build native Windows and Linux desktop apps with Razor and C#. Nazor is an open-source .NET UI framework with reactive components and CSS-inspired styling.");
 
     public static SiteMetadata GettingStarted { get; } = new(
         "getting-started", "Getting started · Nazor",
