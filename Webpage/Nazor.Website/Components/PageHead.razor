@@ -3,6 +3,10 @@
 @if (Static)
 {
     <title>@Metadata.Title</title>
+    @if (Metadata == SiteMetadata.Home)
+    {
+        <meta name="google-site-verification" content="hoYlUCTbRAjcQ1Xy3yLCdu-pkE0vVO7WRKLtOychonE" />
+    }
     @Tags
 }
 else
