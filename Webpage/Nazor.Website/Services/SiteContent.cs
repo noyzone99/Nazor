@@ -21,6 +21,8 @@ public sealed class SiteContent(HttpClient http)
 
     public async Task<SitePage?> GetPageAsync(string? route) => route is null ? null : await FindPageAsync(route);
 
+    internal void SeedHtml(string route, string html) => pages[route] = html;
+
     public async Task<string> GetHtmlAsync(SitePage page)
     {
         if (!pages.TryGetValue(page.Route, out var html))

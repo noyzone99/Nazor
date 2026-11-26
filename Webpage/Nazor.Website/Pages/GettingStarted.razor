@@ -2,10 +2,7 @@
 @inject SiteContent Content
 @inject SiteInterop Interop
 
-<PageTitle>Getting started · Nazor</PageTitle>
-<HeadContent>
-    <meta name="description" content="Install Nazor for Visual Studio, create your first Nazor desktop application and run it." />
-</HeadContent>
+<PageHead Metadata="SiteMetadata.GettingStarted" />
 
 <div class="gs">
     <header class="gs-head">
@@ -22,15 +19,15 @@
     <section class="gs-prereq">
         <h2><Icon Name="check" />Before you start</h2>
         <ul>
-            <li><b>Windows 10 or 11 x64</b><span>The primary verification baseline. For the CLI on Linux, install the <a href="guide/linux-wayland#runtime-dependencies">Wayland</a> or <a href="guide/linux-x11#system-dependencies-and-behavior">X11</a> prerequisites.</span></li>
+            <li><b>Windows 10 or 11 x64</b><span>The primary verification baseline. For the CLI on Linux, install the <a href="guide/linux-wayland/#runtime-dependencies">Wayland</a> or <a href="guide/linux-x11/#system-dependencies-and-behavior">X11</a> prerequisites.</span></li>
             <li><b>.NET 10 SDK</b><span>Includes the runtimes for the Razor/NSS compiler, language server and DevTools. Install the runtime for your application target. Building .NET 11 apps also requires the .NET 11 SDK.</span></li>
             @if (path == 0)
             {
-                <li><b>Visual Studio 2022 or 2026</b><span>For .NET 8 in Visual Studio 2022 17.14, follow the <a href="guide/projects-and-builds#visual-studio-2022-and-net-8">separate SDK requirements</a>.</span></li>
+                <li><b>Visual Studio 2022 or 2026</b><span>For .NET 8 in Visual Studio 2022 17.14, follow the <a href="guide/projects-and-builds/#visual-studio-2022-and-net-8">separate SDK requirements</a>.</span></li>
             }
             else
             {
-                <li><b>Any terminal</b><span>The commands use PowerShell syntax. Add <a href="guide/editors-and-hot-reload#install-editor-support">editor support</a> for VS Code later.</span></li>
+                <li><b>Any terminal</b><span>The commands use PowerShell syntax. Add <a href="guide/editors-and-hot-reload/#install-editor-support">editor support</a> for VS Code later.</span></li>
             }
         </ul>
     </section>
@@ -69,8 +66,8 @@
                     <p>Press <kbd>F5</kbd>. The project builds, the native window opens and the Visual Studio watcher starts. With <b>Apply Hot Reload on File Save</b> enabled, saving a <code>.nazor</code> or <code>.nss</code> file updates the running window.</p>
                     <p>If you included DevTools, press <kbd>F12</kbd> inside the app window to open the inspector.</p>
                     <div class="gs-links">
-                        <a href="guide/editors-and-hot-reload#visual-studio-hot-reload">Visual Studio hot reload<Icon Name="arrow" /></a>
-                        <a href="devtools#start-and-connect">DevTools setup<Icon Name="arrow" /></a>
+                        <a href="guide/editors-and-hot-reload/#visual-studio-hot-reload">Visual Studio hot reload<Icon Name="arrow" /></a>
+                        <a href="devtools/#start-and-connect">DevTools setup<Icon Name="arrow" /></a>
                     </div>
                 </div>
             </li>
@@ -84,7 +81,7 @@
                     <p>In an empty directory outside the Nazor checkout, install the template from NuGet.org.</p>
                     @if (string.IsNullOrEmpty(version))
                     {
-                        <a href="guide/getting-started#create-an-application">Template installation command</a>
+                        <a href="guide/getting-started/#create-an-application">Template installation command</a>
                     }
                     else
                     {
@@ -115,8 +112,8 @@
                     <CodeBlock Language="powershell" Code="dotnet run --project HelloNazor" />
                     <p>The template contains a startup program, a root component with its C# code-behind, configuration, a development launch profile and a stylesheet. Use Debug builds for terminal hot reload.</p>
                     <div class="gs-links">
-                        <a href="guide/editors-and-hot-reload#terminal-hot-reload">Terminal hot reload<Icon Name="arrow" /></a>
-                        <a href="guide/getting-started#template-options">All template options<Icon Name="arrow" /></a>
+                        <a href="guide/editors-and-hot-reload/#terminal-hot-reload">Terminal hot reload<Icon Name="arrow" /></a>
+                        <a href="guide/getting-started/#template-options">All template options<Icon Name="arrow" /></a>
                     </div>
                 </div>
             </li>
@@ -142,7 +139,7 @@
                 <p>Publish a framework-dependent build for Windows x64, then run <code>HelloNazor.exe</code> from the output folder. For Linux use <code>linux-x64</code> on an x64 glibc system.</p>
                 <CodeBlock Language="powershell" Code="dotnet publish HelloNazor -c Release -r win-x64 --self-contained false -o HelloNazor-publish" />
                 <div class="gs-links">
-                    <a href="guide/libraries-packaging-and-deployment#publish-an-application">Deployment modes, trimming and Native AOT<Icon Name="arrow" /></a>
+                    <a href="guide/libraries-packaging-and-deployment/#publish-an-application">Deployment modes, trimming and Native AOT<Icon Name="arrow" /></a>
                 </div>
             </div>
         </li>
@@ -161,7 +158,7 @@
                 </a>
             }
         </div>
-        <a class="docs-cta" href="guide">
+        <a class="docs-cta" href="guide/">
             <Mark Size="36" />
             <span><b>Read the full documentation</b><small>The developer guide, the API reference, DevTools and more.</small></span>
             <Icon Name="arrow" />
@@ -194,9 +191,9 @@
 
     private static readonly (string Icon, string Title, string Text, string Link)[] Next =
     [
-        ("window", "First desktop application", "Reusable components, validation, shared state, routes, accessibility and deployment.", "guide/first-desktop-application"),
-        ("code", "Components and Razor", "The .nazor syntax, directives, namespaces and code-behind.", "guide/components-and-razor"),
-        ("palette", "Styling and themes", "NSS files, cascade, scope, themes and design tokens.", "guide/styling-and-themes"),
-        ("layers", "Control catalog", "Every built-in control and how to choose it.", "guide/control-catalog"),
+        ("window", "First desktop application", "Reusable components, validation, shared state, routes, accessibility and deployment.", "guide/first-desktop-application/"),
+        ("code", "Components and Razor", "The .nazor syntax, directives, namespaces and code-behind.", "guide/components-and-razor/"),
+        ("palette", "Styling and themes", "NSS files, cascade, scope, themes and design tokens.", "guide/styling-and-themes/"),
+        ("layers", "Control catalog", "Every built-in control and how to choose it.", "guide/control-catalog/"),
     ];
 }

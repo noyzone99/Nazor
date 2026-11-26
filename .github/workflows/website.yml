@@ -36,50 +36,21 @@ jobs:
         with:
           global-json-file: global.json
 
-      - name: Build static site
-        run: dotnet publish Webpage/Nazor.Website/Nazor.Website.csproj -c Release -o publish
-
-      - name: Verify published documentation
-        run: |
-          python3 - <<'PY'
-          import json
-          from pathlib import Path
-
-          site = Path("publish/wwwroot")
-          manifest = json.loads((site / "content/manifest.json").read_text(encoding="utf-8"))
-          pages = manifest["pages"]
-          expected = {"Docs/Guide/README.md", "Docs/API.md"}
-          expected.update(path.as_posix() for path in Path("Docs/Guide").glob("[0-9][0-9]-*.md"))
-          expected.update(path.as_posix() for path in Path("Docs/ApiReferences").glob("*.md"))
-          missing = expected - {page["source"] for page in pages}
-          if missing:
-              raise SystemExit("Missing documentation sources: " + ", ".join(sorted(missing)))
-
-          for asset in ["index.html", "404.html", "_framework/blazor.webassembly.js",
-                        "content/fonts/Geist.ttf", "content/fonts/GeistMono.ttf",
-                        "content/fonts/BricolageGrotesque.ttf", *(page["content"] for page in pages)]:
-              file = site / asset
-              if not file.is_file() or not file.stat().st_size:
-                  raise SystemExit(f"Missing or empty published asset: {asset}")
-          print(f"Verified {len(pages)} documentation pages in {site}")
-          PY
-
       - name: Configure GitHub Pages
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         id: pages
         uses: actions/configure-pages@v5
 
+      - name: Build and verify static site
+        env:
+          PAGES_URL: ${{ steps.pages.outputs.base_url }}
+        run: |
+          dotnet publish Webpage/Nazor.Website/Nazor.Website.csproj -c Release -o publish "-p:SitePublicUrl=$PAGES_URL"
+          python3 Webpage/verify-publish.py publish/wwwroot "$PAGES_URL"
+
       - name: Prepare for GitHub Pages
         if: steps.pages.outcome == 'success'
-        env:
-          PAGES_BASE_PATH: ${{ steps.pages.outputs.base_path }}
-        run: |
-          site=publish/wwwroot
-          for page in index.html 404.html; do
-            grep -qF '<base href="/" />' "$site/$page"
-            sed -i "s|<base href=\"/\" />|<base href=\"${PAGES_BASE_PATH%/}/\" />|" "$site/$page"
-          done
-          find "$site" -type f \( -name '*.br' -o -name '*.gz' \) -delete
+        run: find publish/wwwroot -type f \( -name '*.br' -o -name '*.gz' \) -delete
 
       - uses: actions/upload-pages-artifact@v4
         if: steps.pages.outcome == 'success'

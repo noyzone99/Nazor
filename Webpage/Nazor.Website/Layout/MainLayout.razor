@@ -10,7 +10,7 @@
     <button type="button" class="ibtn menu-btn" aria-label="Open navigation" aria-expanded="@(drawerOpen ? "true" : "false")" @onclick="ToggleDrawerAsync">
         <Icon Name="@(drawerOpen ? "close" : "menu")" />
     </button>
-    <a class="brand" href="" aria-label="Nazor home">
+    <a class="brand" href="." aria-label="Nazor home">
         <Mark Size="22" />
         <span class="brand-word">nazor</span>
         @if (!string.IsNullOrEmpty(version))
@@ -19,8 +19,8 @@
         }
     </a>
     <nav class="topnav" aria-label="Primary">
-        <NavLink href="getting-started" Match="NavLinkMatch.All" class="nav-start">Get started</NavLink>
-        <a href="guide" class="@(inDocs ? "active" : null)" aria-current="@(inDocs ? "page" : null)">Docs</a>
+        <NavLink href="getting-started/" Match="NavLinkMatch.All" class="nav-start">Get started</NavLink>
+        <a href="guide/" class="@(inDocs ? "active" : null)" aria-current="@(inDocs ? "page" : null)">Docs</a>
     </nav>
     <button type="button" class="search-trigger" @onclick="OpenSearch" aria-label="Search the documentation">
         <Icon Name="search" />
@@ -38,8 +38,8 @@
     <div class="drawer-backdrop" @onclick="CloseDrawerAsync"></div>
     <aside class="drawer" aria-label="Navigation">
         <nav class="drawer-primary" aria-label="Primary">
-            <a class="btn b-primary" href="getting-started" @onclick="CloseDrawerAsync"><Icon Name="bolt" />Get started</a>
-            <a class="btn b-line" href="" @onclick="CloseDrawerAsync"><Icon Name="home" />Home</a>
+            <a class="btn b-primary" href="getting-started/" @onclick="CloseDrawerAsync"><Icon Name="bolt" />Get started</a>
+            <a class="btn b-line" href="." @onclick="CloseDrawerAsync"><Icon Name="home" />Home</a>
         </nav>
         <DocNav OnNavigate="CloseDrawerAsync" />
     </aside>
@@ -57,10 +57,10 @@
             <span class="foot-note">Native desktop UI with Razor components and NSS. MIT licensed.</span>
         </div>
         <nav class="foot-links" aria-label="Footer">
-            <a href="getting-started">Getting started</a>
-            <a href="guide">Developer guide</a>
-            <a href="api">API reference</a>
-            <a href="devtools">DevTools</a>
+            <a href="getting-started/">Getting started</a>
+            <a href="guide/">Developer guide</a>
+            <a href="api/">API reference</a>
+            <a href="devtools/">DevTools</a>
             <a href="https://github.com/noyzone99/Nazor" target="_blank" rel="noopener">GitHub</a>
             <a href="https://github.com/noyzone99/Nazor/discussions" target="_blank" rel="noopener">Discussions</a>
             <a href="https://marketplace.visualstudio.com/items?itemName=Noyzone99.nazorvisualstudio" target="_blank" rel="noopener">Visual Studio</a>

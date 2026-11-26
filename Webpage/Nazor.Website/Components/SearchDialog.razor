@@ -70,11 +70,11 @@
             {
                 var area = manifest.Navigation.FirstOrDefault(n => n.Area == page.Area)?.Title ?? page.Area;
                 var pageTitle = page.Number is null ? page.Title : $"{page.Number}. {page.Title}";
-                index.Add(new SearchEntry(pageTitle, $"{area} · {page.Group}", page.Route, page.Area == "API" ? "package" : "book", 0));
+                index.Add(new SearchEntry(pageTitle, $"{area} · {page.Group}", $"{page.Route}/", page.Area == "API" ? "package" : "book", 0));
                 foreach (var entry in page.Toc)
                 {
                     var isType = page.Area == "API" && entry.Text.Length > 0 && char.IsUpper(entry.Text[0]) && !entry.Text.Contains(' ');
-                    index.Add(new SearchEntry(entry.Text, $"{area} · {page.Title}", $"{page.Route}#{entry.Id}", isType ? "code" : "hash", isType ? 1 : 2));
+                    index.Add(new SearchEntry(entry.Text, $"{area} · {page.Title}", $"{page.Route}/#{entry.Id}", isType ? "code" : "hash", isType ? 1 : 2));
                 }
             }
         }

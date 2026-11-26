@@ -41,4 +41,8 @@
     </ItemGroup>
   </Target>
 
+  <Target Name="PrerenderSite" AfterTargets="Publish">
+    <Exec Command="dotnet run --project &quot;$(MSBuildProjectDirectory)/../Nazor.Website.Prerender/Nazor.Website.Prerender.csproj&quot; -c $(Configuration) -p:SkipSiteContent=true -- &quot;$([System.IO.Path]::GetFullPath('$(PublishDir)/wwwroot', '$(MSBuildProjectDirectory)'))&quot; &quot;$(MSBuildProjectDirectory)/wwwroot&quot; &quot;$(SitePublicUrl)&quot;" />
+  </Target>
+
 </Project>

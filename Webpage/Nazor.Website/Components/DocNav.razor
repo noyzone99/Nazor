@@ -14,7 +14,7 @@
                     continue;
                 }
 
-                <a href="@first" class="docnav-area @(area.Area == section.Area ? "on" : null)" @onclick="OnNavigate">@area.Title</a>
+                <a href="@($"{first}/")" class="docnav-area @(area.Area == section.Area ? "on" : null)" @onclick="OnNavigate">@area.Title</a>
             }
         </div>
         @foreach (var group in section.Groups)
@@ -29,7 +29,7 @@
                         continue;
                     }
 
-                    <a href="@route" class="docnav-item @(route == current ? "active" : null)" aria-current="@(route == current ? "page" : null)" @onclick="OnNavigate">
+                    <a href="@($"{route}/")" class="docnav-item @(route == current ? "active" : null)" aria-current="@(route == current ? "page" : null)" @onclick="OnNavigate">
                         @if (item.Number is not null)
                         {
                             <span class="num">@item.Number</span>

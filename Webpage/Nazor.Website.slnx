@@ -1,4 +1,5 @@
 <Solution>
   <Project Path="Nazor.Website/Nazor.Website.csproj" />
   <Project Path="Nazor.Website.Generator/Nazor.Website.Generator.csproj" />
+  <Project Path="Nazor.Website.Prerender/Nazor.Website.Prerender.csproj" />
 </Solution>

@@ -69,7 +69,7 @@ internal sealed partial class MarkdownConverter(string repository, string output
         {
             var level = match.Groups[1].Value;
             var id = match.Groups[2].Value;
-            return $"<h{level} id=\"{id}\"><a class=\"hash\" href=\"{route}#{id}\" aria-hidden=\"true\" tabindex=\"-1\"></a>";
+            return $"<h{level} id=\"{id}\"><a class=\"hash\" href=\"{route}/#{id}\" aria-hidden=\"true\" tabindex=\"-1\"></a>";
         });
 
         return new ConvertedPage(title, summary, html, toc);
@@ -93,7 +93,7 @@ internal sealed partial class MarkdownConverter(string repository, string output
 
         if (url.StartsWith('#'))
         {
-            return route + url;
+            return route + "/" + url;
         }
 
         var hashIndex = url.IndexOf('#', StringComparison.Ordinal);
@@ -106,18 +106,18 @@ internal sealed partial class MarkdownConverter(string repository, string output
 
         if (routes.TryGetValue(resolved, out var target))
         {
-            return target + fragment;
+            return target + "/" + fragment;
         }
 
         var trimmed = resolved.TrimEnd('/');
         if (trimmed.Equals("Docs/ApiReferences", StringComparison.OrdinalIgnoreCase))
         {
-            return "api";
+            return "api/" + fragment;
         }
 
         if (trimmed.Equals("Docs/Guide", StringComparison.OrdinalIgnoreCase))
         {
-            return "guide";
+            return "guide/" + fragment;
         }
 
         var fullPath = Path.Combine(repository, trimmed);

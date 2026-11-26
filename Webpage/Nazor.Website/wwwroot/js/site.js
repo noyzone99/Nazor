@@ -2,6 +2,7 @@
 window.nazorSite = (() => {
   const root = document.documentElement;
   const still = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let initialPath = root.dataset.publicUrl ? location.pathname : null;
   const store = {
     get(key) { try { return localStorage.getItem(key); } catch { return null; } },
     set(key, value) { try { value == null ? localStorage.removeItem(key) : localStorage.setItem(key, value); } catch { } },
@@ -91,11 +92,19 @@ window.nazorSite = (() => {
   }
 
   /* ---------- Page lifecycle ---------- */
+  function initialDocument() { return document.querySelector('#app article .doc')?.innerHTML ?? null; }
+  function activateHead() {
+    document.head.querySelectorAll('[data-static-seo]').forEach(tag => tag.remove());
+    return root.dataset.publicUrl ?? null;
+  }
+
   function pageRendered(resetScroll) {
+    const openingPrerenderedPage = initialPath === location.pathname;
+    initialPath = null;
     const hash = decodeURIComponent(location.hash.slice(1));
     const target = hash && document.getElementById(hash);
     if (target) target.scrollIntoView({ block: 'start', behavior: resetScroll || still() ? 'auto' : 'smooth' });
-    else if (resetScroll) scrollTo({ top: 0, behavior: 'auto' });
+    else if (resetScroll && !openingPrerenderedPage) scrollTo({ top: 0, behavior: 'auto' });
 
     headings = [...document.querySelectorAll('.doc h2[id], .doc h3[id]')];
     activeId = null;
@@ -144,5 +153,5 @@ window.nazorSite = (() => {
   function scrollIntoView(selector) { const el = document.querySelector(selector); el && el.scrollIntoView({ block: 'nearest' }); }
   function setBodyLocked(locked) { root.classList.toggle('locked', !!locked); }
 
-  return { getPreferences, setTheme, setAccent, registerShortcuts, pageRendered, focus, scrollIntoView, setBodyLocked };
+  return { getPreferences, setTheme, setAccent, registerShortcuts, initialDocument, activateHead, pageRendered, focus, scrollIntoView, setBodyLocked };
 })();

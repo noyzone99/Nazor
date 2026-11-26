@@ -9,10 +9,9 @@
 }
 else
 {
-    <PageTitle>@(doc is null ? "Nazor" : $"{doc.Title} · Nazor")</PageTitle>
     @if (doc is not null)
     {
-        <HeadContent><meta name="description" content="@doc.Summary" /></HeadContent>
+        <PageHead Metadata="SiteMetadata.ForDocument(doc)" />
     }
 
     <div class="docshell">
@@ -50,7 +49,7 @@ else
                 <nav class="pager" aria-label="Pages">
                     @if (previous is not null)
                     {
-                        <a class="pg prev" href="@previous.Route"><span class="pg-k"><Icon Name="back" />Previous</span><span class="pg-t">@previous.Title</span></a>
+                        <a class="pg prev" href="@($"{previous.Route}/")"><span class="pg-k"><Icon Name="back" />Previous</span><span class="pg-t">@previous.Title</span></a>
                     }
                     else
                     {
@@ -58,7 +57,7 @@ else
                     }
                     @if (next is not null)
                     {
-                        <a class="pg next" href="@next.Route"><span class="pg-k">Next<Icon Name="arrow" /></span><span class="pg-t">@next.Title</span></a>
+                        <a class="pg next" href="@($"{next.Route}/")"><span class="pg-k">Next<Icon Name="arrow" /></span><span class="pg-t">@next.Title</span></a>
                     }
                 </nav>
             }
@@ -72,7 +71,7 @@ else
                     <ul>
                         @foreach (var entry in doc.Toc)
                         {
-                            <li class="l@(entry.Level)"><a href="@($"{doc.Route}#{entry.Id}")" data-id="@entry.Id">@entry.Text</a></li>
+                            <li class="l@(entry.Level)"><a href="@($"{doc.Route}/#{entry.Id}")" data-id="@entry.Id">@entry.Text</a></li>
                         }
                     </ul>
                 </div>
@@ -94,7 +93,7 @@ else
     private bool enhance;
     private bool resetScroll;
 
-    private string AreaRoute => doc?.Area == "API" ? "api" : "guide";
+    private string AreaRoute => doc?.Area == "API" ? "api/" : "guide/";
 
     private string AreaTitle => doc?.Area == "API" ? "API reference" : "Developer guide";
 
@@ -103,7 +102,8 @@ else
         var route = (Path ?? string.Empty).Trim('/').ToLowerInvariant();
         if (route == "docs")
         {
-            Navigation.NavigateTo("guide", replace: true);
+            var address = new Uri(Navigation.Uri);
+            Navigation.NavigateTo("guide/" + address.Query + address.Fragment, replace: true);
             return;
         }
 

@@ -1,23 +1,20 @@
 @page "/"
 @inject SiteContent Content
 
-<PageTitle>Nazor · Write Razor. Think Blazor. Ship native.</PageTitle>
-<HeadContent>
-    <meta name="description" content="Nazor is a .NET UI framework that compiles Razor components and NSS stylesheets into native desktop applications drawn with Skia." />
-</HeadContent>
+<PageHead Metadata="SiteMetadata.Home" />
 
 @* ---------- Hero ---------- *@
 <section class="hero">
     <div class="hero-copy">
-        <a class="badge info live" href="guide/support-and-limitations">@VersionLabel</a>
+        <a class="badge info live" href="guide/support-and-limitations/">@VersionLabel</a>
         <h1 class="hero-title">Write Razor.<br />Think Blazor.<br /><span class="ink">Ship native.</span></h1>
         <p class="hero-sub">
             Nazor is a native, reactive UI framework for .NET. It compiles Razor components and NSS stylesheets into desktop
             applications that run in real OS windows and draw every control with Skia: no WebView, no DOM, no JavaScript runtime.
         </p>
         <div class="cta">
-            <a class="btn b-primary lg" href="getting-started"><Icon Name="bolt" />Get started</a>
-            <a class="btn b-tonal lg" href="guide"><Icon Name="book" />Documentation</a>
+            <a class="btn b-primary lg" href="getting-started/"><Icon Name="bolt" />Get started</a>
+            <a class="btn b-tonal lg" href="guide/"><Icon Name="book" />Documentation</a>
             <a class="btn b-line lg" href="https://github.com/noyzone99/Nazor" target="_blank" rel="noopener"><Icon Name="github" />GitHub</a>
         </div>
         <ul class="hero-facts">
@@ -61,7 +58,7 @@
 
 @* ---------- Quick start shortcut ---------- *@
 <section class="band">
-    <a class="quickstart" href="getting-started">
+    <a class="quickstart" href="getting-started/">
         <div class="qs-copy">
             <span class="eyebrow">Quick start</span>
             <h2>From zero to a running window in three steps</h2>
@@ -125,7 +122,7 @@
         <span class="eyebrow">Authoring</span>
         <h2>Three files, three responsibilities</h2>
         <p>Markup composes controls, C# owns behavior, NSS owns appearance. Small components keep code in <code>@@code</code> and styles in <code>@@style</code>; larger ones split into sidecars without changing their contract.</p>
-        <a class="btn b-tonal" href="guide/components-and-razor">Components and Razor<Icon Name="arrow" /></a>
+        <a class="btn b-tonal" href="guide/components-and-razor/">Components and Razor<Icon Name="arrow" /></a>
     </div>
     <div class="files">
         <div class="file"><span class="file-ic" style="--c:var(--primary)"><Mark Size="18" /></span><div><b>TaskCard.nazor</b><span>Composes controls, binds values and connects callbacks.</span></div></div>
@@ -159,7 +156,7 @@
         <span class="eyebrow">Architecture</span>
         <h2>From input to pixels</h2>
         <p>One retained pipeline you can observe at every stage: component source, retained elements, layout, the rendered image and the accessibility tree. An idle window does not redraw.</p>
-        <a class="btn b-tonal" href="guide/architecture-and-extension-points">Architecture and extension points<Icon Name="arrow" /></a>
+        <a class="btn b-tonal" href="guide/architecture-and-extension-points/">Architecture and extension points<Icon Name="arrow" /></a>
     </div>
     <ol class="pipeline">
         @for (var i = 0; i < Pipeline.Length; i++)
@@ -190,7 +187,7 @@
                 <span class="t-desc">@theme.Description</span>
             </a>
         }
-        <a class="theme own" href="guide/styling-and-themes#design-tokens">
+        <a class="theme own" href="guide/styling-and-themes/#design-tokens">
             <span class="t-kind">Your own</span>
             <span class="t-own"><code>:root { --nz-accent: #6941c6; }</code></span>
             <span class="t-name">Your theme</span>
@@ -248,8 +245,8 @@
         <h2>Ready to build your first window?</h2>
         <p>Nazor is in alpha, so expect breaking changes. Ask questions, request features, or share what you build in <a href="https://github.com/noyzone99/Nazor/discussions" target="_blank" rel="noopener">GitHub Discussions</a>.</p>
         <div class="cta">
-            <a class="btn b-primary lg" href="getting-started"><Icon Name="bolt" />Get started</a>
-            <a class="btn b-line lg" href="guide/first-desktop-application">First desktop application tutorial</a>
+            <a class="btn b-primary lg" href="getting-started/"><Icon Name="bolt" />Get started</a>
+            <a class="btn b-line lg" href="guide/first-desktop-application/">First desktop application tutorial</a>
         </div>
     </div>
 </section>
@@ -276,12 +273,12 @@
 
     private static readonly (string Icon, string Color, string Title, string Text, string Link, string LinkText)[] Features =
     [
-        ("code", "var(--g1)", "Razor components", "Author .nazor components with typed parameters, callbacks, @bind, generics, templates, cascading values and dependency injection.", "guide/components-and-razor", "Components and Razor"),
-        ("palette", "var(--g2)", "NSS stylesheets", "Global and component-scoped styles with selectors, media queries, custom properties, calc(), transitions and animations.", "guide/styling-and-themes", "Styling and themes"),
-        ("window", "var(--g4)", "Native windows, Skia pixels", "Apps run in native OS windows. Nazor lays out and draws its controls with Skia and shapes text with HarfBuzz.", "guide/introduction#what-native-ui-means-here", "What native means"),
-        ("accessibility", "var(--g3)", "Accessible by design", "Keyboard, focus, semantics and announcements, exposed through UI Automation on Windows and AT-SPI on Linux.", "guide/input-and-accessibility", "Input and accessibility"),
-        ("layers", "var(--primary)", "A complete control set", "Buttons, fields, menus, navigation, dialogs and data views, plus semantic primitives to compose your own.", "guide/control-catalog", "Control catalog"),
-        ("tools", "var(--ok)", "Tooling that keeps up", "Visual Studio and VS Code extensions, hot reload, the DevTools inspector on F12 and deterministic headless tests.", "devtools", "DevTools"),
+        ("code", "var(--g1)", "Razor components", "Author .nazor components with typed parameters, callbacks, @bind, generics, templates, cascading values and dependency injection.", "guide/components-and-razor/", "Components and Razor"),
+        ("palette", "var(--g2)", "NSS stylesheets", "Global and component-scoped styles with selectors, media queries, custom properties, calc(), transitions and animations.", "guide/styling-and-themes/", "Styling and themes"),
+        ("window", "var(--g4)", "Native windows, Skia pixels", "Apps run in native OS windows. Nazor lays out and draws its controls with Skia and shapes text with HarfBuzz.", "guide/introduction/#what-native-ui-means-here", "What native means"),
+        ("accessibility", "var(--g3)", "Accessible by design", "Keyboard, focus, semantics and announcements, exposed through UI Automation on Windows and AT-SPI on Linux.", "guide/input-and-accessibility/", "Input and accessibility"),
+        ("layers", "var(--primary)", "A complete control set", "Buttons, fields, menus, navigation, dialogs and data views, plus semantic primitives to compose your own.", "guide/control-catalog/", "Control catalog"),
+        ("tools", "var(--ok)", "Tooling that keeps up", "Visual Studio and VS Code extensions, hot reload, the DevTools inspector on F12 and deterministic headless tests.", "devtools/", "DevTools"),
     ];
 
     private static readonly string[] Pipeline =
@@ -296,32 +293,32 @@
 
     private static readonly (string Kind, string Name, string Description, string A, string B, string Radius, string Link, bool Featured)[] Themes =
     [
-        ("The identity", "NazorLeaf", "The look Nazor was designed with: leaf corners, seed indicators, color glow and the four-leaf mark.", "#0B57D0", "#D3E3FD", "11px 3px 11px 3px", "api/nazor-themes-nazorleaf", true),
-        ("Desktop", "Fluent", "WinUI palette, control styles and motion.", "#0067C0", "#E1EBF5", "4px", "api/nazor-themes-fluent", false),
-        ("Desktop", "Adwaita", "libadwaita 1.10 control styles.", "#3584E4", "#EBEBED", "9px", "api/nazor-themes-adwaita", false),
-        ("Desktop", "Breeze", "KDE Breeze-inspired control styles.", "#3DAEE9", "#EFF0F1", "3px", "api/nazor-themes-breeze", false),
-        ("Classic desktop", "Windows 7", "Windows 7-inspired control styles.", "#3C7FB1", "#DCE9F5", "3px", "api/nazor-themes-windows7", false),
-        ("Classic desktop", "Windows XP", "Windows XP-inspired control styles.", "#245EDC", "#ECE9D8", "3px", "api/nazor-themes-windowsxp", false),
-        ("Classic desktop", "Windows 9x", "Windows 95 and 98-inspired control styles.", "#000080", "#C0C0C0", "0", "api/nazor-themes-windows9x", false),
-        ("Classic desktop", "CDE", "Common Desktop Environment-inspired control styles.", "#5A8291", "#AEB2C3", "0", "api/nazor-themes-cde", false),
+        ("The identity", "NazorLeaf", "The look Nazor was designed with: leaf corners, seed indicators, color glow and the four-leaf mark.", "#0B57D0", "#D3E3FD", "11px 3px 11px 3px", "api/nazor-themes-nazorleaf/", true),
+        ("Desktop", "Fluent", "WinUI palette, control styles and motion.", "#0067C0", "#E1EBF5", "4px", "api/nazor-themes-fluent/", false),
+        ("Desktop", "Adwaita", "libadwaita 1.10 control styles.", "#3584E4", "#EBEBED", "9px", "api/nazor-themes-adwaita/", false),
+        ("Desktop", "Breeze", "KDE Breeze-inspired control styles.", "#3DAEE9", "#EFF0F1", "3px", "api/nazor-themes-breeze/", false),
+        ("Classic desktop", "Windows 7", "Windows 7-inspired control styles.", "#3C7FB1", "#DCE9F5", "3px", "api/nazor-themes-windows7/", false),
+        ("Classic desktop", "Windows XP", "Windows XP-inspired control styles.", "#245EDC", "#ECE9D8", "3px", "api/nazor-themes-windowsxp/", false),
+        ("Classic desktop", "Windows 9x", "Windows 95 and 98-inspired control styles.", "#000080", "#C0C0C0", "0", "api/nazor-themes-windows9x/", false),
+        ("Classic desktop", "CDE", "Common Desktop Environment-inspired control styles.", "#5A8291", "#AEB2C3", "0", "api/nazor-themes-cde/", false),
     ];
 
     private static readonly (string Name, string Status, string StatusText, string Text, string Link)[] Platforms =
     [
-        ("Windows 10/11", "ok", "Primary baseline", "x64 is the verification baseline: native windows, custom title bars, backdrops, tray, Jump Lists and UI Automation.", "guide/title-bars-and-platform-integration"),
-        ("Linux Wayland", "ok", "Implemented", "Direct Wayland backend with portal pickers, StatusNotifierItem tray, notifications and AT-SPI.", "guide/linux-wayland"),
-        ("Linux X11", "ok", "Implemented", "Native X11 desktop with EWMH window states, XIM input and the same session services as Wayland.", "guide/linux-x11"),
-        ("Linux DRM/KMS", "info", "Single view", "Hosting without a desktop for kiosks and embedded devices, with GBM/EGL rendering and libinput.", "guide/linux-drm"),
-        ("macOS, Android, iOS", "warn", "Planned", "Architectural targets without an application host yet. Shared contracts are designed for them.", "guide/support-and-limitations"),
+        ("Windows 10/11", "ok", "Primary baseline", "x64 is the verification baseline: native windows, custom title bars, backdrops, tray, Jump Lists and UI Automation.", "guide/title-bars-and-platform-integration/"),
+        ("Linux Wayland", "ok", "Implemented", "Direct Wayland backend with portal pickers, StatusNotifierItem tray, notifications and AT-SPI.", "guide/linux-wayland/"),
+        ("Linux X11", "ok", "Implemented", "Native X11 desktop with EWMH window states, XIM input and the same session services as Wayland.", "guide/linux-x11/"),
+        ("Linux DRM/KMS", "info", "Single view", "Hosting without a desktop for kiosks and embedded devices, with GBM/EGL rendering and libinput.", "guide/linux-drm/"),
+        ("macOS, Android, iOS", "warn", "Planned", "Architectural targets without an application host yet. Shared contracts are designed for them.", "guide/support-and-limitations/"),
     ];
 
     private static readonly (string Icon, string Title, string Text, string Link)[] Hub =
     [
-        ("book", "Developer guide", "38 chapters from setup to deployment, organized by task.", "guide"),
-        ("package", "API reference", "Public and protected APIs, grouped by package.", "api"),
-        ("sliders", "NSS property reference", "Syntax, defaults, inheritance and animation of every property.", "guide/nss-property-reference"),
-        ("layers", "Control catalog", "Every built-in control and how to choose it.", "guide/control-catalog"),
-        ("eye", "DevTools", "Inspect elements, styles, layout and accessibility live.", "devtools"),
-        ("globe", "Support and limitations", "What is implemented, verified and still missing.", "guide/support-and-limitations"),
+        ("book", "Developer guide", "38 chapters from setup to deployment, organized by task.", "guide/"),
+        ("package", "API reference", "Public and protected APIs, grouped by package.", "api/"),
+        ("sliders", "NSS property reference", "Syntax, defaults, inheritance and animation of every property.", "guide/nss-property-reference/"),
+        ("layers", "Control catalog", "Every built-in control and how to choose it.", "guide/control-catalog/"),
+        ("eye", "DevTools", "Inspect elements, styles, layout and accessibility live.", "devtools/"),
+        ("globe", "Support and limitations", "What is implemented, verified and still missing.", "guide/support-and-limitations/"),
     ];
 }

@@ -1,0 +1,44 @@
+@inject SiteAddress Address
+
+@if (Static)
+{
+    <title>@Metadata.Title</title>
+    @Tags
+}
+else
+{
+    <PageTitle>@Metadata.Title</PageTitle>
+    <HeadContent>@Tags</HeadContent>
+}
+
+@code {
+    [Parameter, EditorRequired] public SiteMetadata Metadata { get; set; } = default!;
+    [Parameter] public bool Static { get; set; }
+
+    private RenderFragment Tags => @<text>
+        @if (Metadata == SiteMetadata.NotFound)
+        {
+            <meta name="robots" content="noindex" data-static-seo="@StaticMarker" />
+        }
+        else
+        {
+            var baseUri = new Uri(Address.PublicUrl);
+            var canonical = new Uri(baseUri, Metadata.Path).AbsoluteUri;
+            var image = new Uri(baseUri, "content/assets/nazor-github-banner.jpg").AbsoluteUri;
+            <meta name="description" content="@Metadata.Description" data-static-seo="@StaticMarker" />
+            <link rel="canonical" href="@canonical" data-static-seo="@StaticMarker" />
+            <meta property="og:type" content="website" data-static-seo="@StaticMarker" />
+            <meta property="og:site_name" content="Nazor" data-static-seo="@StaticMarker" />
+            <meta property="og:title" content="@Metadata.Title" data-static-seo="@StaticMarker" />
+            <meta property="og:description" content="@Metadata.Description" data-static-seo="@StaticMarker" />
+            <meta property="og:url" content="@canonical" data-static-seo="@StaticMarker" />
+            <meta property="og:image" content="@image" data-static-seo="@StaticMarker" />
+            <meta property="og:image:width" content="1774" data-static-seo="@StaticMarker" />
+            <meta property="og:image:height" content="887" data-static-seo="@StaticMarker" />
+            <meta property="og:image:alt" content="Nazor framework banner" data-static-seo="@StaticMarker" />
+            <meta name="twitter:card" content="summary_large_image" data-static-seo="@StaticMarker" />
+        }
+    </text>;
+
+    private string? StaticMarker => Static ? "" : null;
+}

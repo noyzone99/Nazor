@@ -12,8 +12,23 @@ main { flex: 1 }
 .hint { font-size: 13px; color: var(--text-3) }
 
 /* ---------- Boot and errors ---------- */
-.boot { min-height: 100vh; display: grid; place-content: center; justify-items: center; gap: 16px }
-.boot-word { font: 800 30px/1 var(--display); letter-spacing: -.045em; color: var(--text-2) }
+.boot { min-height: 100vh; display: grid; place-content: center; justify-items: center; gap: 16px; padding: 16px; text-align: center }
+.boot-copy { display: grid; gap: 7px }
+.boot-word { font: 800 30px/1 var(--display); letter-spacing: -.045em; color: var(--text) }
+.boot-slogan { font: 600 14px/1.35 var(--ui); color: var(--text-2) }
+.boot-slogan span { display: inline-block; animation: boot-rise .4s var(--ease) backwards }
+.boot-slogan span:nth-child(2) { animation-delay: .1s }
+.boot-slogan span:nth-child(3) { animation-delay: .2s; color: var(--ink) }
+html[data-public-url] .boot {
+  position: fixed; z-index: 45; bottom: 20px; right: 20px; min-height: 0;
+  display: flex; align-items: center; gap: 12px; padding: 12px 16px; text-align: left;
+  border: 1px solid var(--stroke-2); border-radius: var(--lf-ovl); background: var(--tray); box-shadow: var(--sh-pop);
+  pointer-events: none; animation: boot-rise .25s var(--ease) .3s backwards
+}
+html[data-public-url] .boot .mark { --s: 28px !important }
+html[data-public-url] .boot-word { font-size: 19px }
+html[data-public-url] .boot-slogan { font-size: 12px }
+@keyframes boot-rise { from { opacity: 0; transform: translateY(6px) } }
 #blazor-error-ui { display: none; position: fixed; z-index: 300; left: 50%; bottom: 20px; transform: translateX(-50%); align-items: center; gap: 14px;
   padding: 10px 12px 10px 16px; border-radius: var(--lf-ovl); background: var(--inverse); color: var(--on-inverse); box-shadow: var(--sh-pop); font-size: 14px }
 #blazor-error-ui .reload { color: inherit; font-weight: 650 }

@@ -7,13 +7,14 @@
     <base href="/" />
     <meta name="theme-color" content="#0B57D0" />
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <link rel="preload" href="content/manifest.json" as="fetch" crossorigin />
     <link rel="preload" href="content/fonts/Geist.ttf" as="font" type="font/ttf" crossorigin />
     <link rel="preload" href="content/fonts/BricolageGrotesque.ttf" as="font" type="font/ttf" crossorigin />
     <link rel="stylesheet" href="css/nazorleaf.css" />
     <link rel="stylesheet" href="css/site.css" />
     <link rel="stylesheet" href="Nazor.Website.styles.css" />
     <script>
-        // Apply the stored appearance before the first paint, and restore a deep link redirected by 404.html.
+        // Apply the stored appearance before the first paint.
         (function () {
             var root = document.documentElement;
             try {
@@ -21,29 +22,29 @@
                 var accent = localStorage.getItem('nazor-accent');
                 if (theme === 'light' || theme === 'dark') root.dataset.theme = theme;
                 if (accent) root.dataset.accent = accent;
-                var redirect = sessionStorage.getItem('nazor-redirect');
-                if (redirect) {
-                    sessionStorage.removeItem('nazor-redirect');
-                    history.replaceState(null, '', redirect);
-                }
             } catch (e) { }
         })();
     </script>
-    <script src="js/site.js"></script>
+    <script defer src="js/site.js"></script>
     <script type="module" src="js/gallery-carousel.js"></script>
+    <noscript><style>.boot { display: none !important }</style></noscript>
 </head>
 <body>
     <div id="app">
-        <div class="boot">
+        <div class="boot" role="status" aria-label="Loading Nazor">
             <span class="mark spin" style="--s:44px" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
-            <span class="boot-word">nazor</span>
+            <div class="boot-copy">
+                <span class="boot-word">nazor</span>
+                <span class="boot-slogan"><span>Write Razor.</span> <span>Think Blazor.</span> <span>Ship native.</span></span>
+            </div>
         </div>
+        <!-- prerendered-page -->
     </div>
     <div id="blazor-error-ui" role="alert">
         Something went wrong while loading the page.
         <a href="." class="reload">Reload</a>
         <button type="button" class="dismiss" aria-label="Dismiss">×</button>
     </div>
-    <script src="_framework/blazor.webassembly.js"></script>
+    <script defer src="_framework/blazor.webassembly.js"></script>
 </body>
 </html>
