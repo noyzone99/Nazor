@@ -1,14 +1,27 @@
+let prerenderedSelection;
+
 function startCarousel(carousel) {
+    const prerendered = document.querySelector('#app > .boot') !== null;
     const stage = carousel.querySelector('.gallery-stage');
     const artwork = stage.querySelector('.gallery-artwork');
     const lightScene = artwork.querySelector('.gallery-scene');
     const darkScene = lightScene.cloneNode(true);
     darkScene.classList.add('dark');
+    darkScene.querySelectorAll('img[src]').forEach(image => image.removeAttribute('src'));
     artwork.append(darkScene);
     const desktops = [...lightScene.querySelectorAll('.gallery-desktop')].map((desktop, index) => [desktop, darkScene.children[index]]);
     const allDesktops = desktops.flat();
+    const comparisonCaptures = [
+        lightScene.querySelector('.gallery-window .gallery-capture:not(.dark)'),
+        darkScene.querySelector('.gallery-window .gallery-capture.dark')
+    ];
+    const loads = [];
     const platformButtons = [...carousel.querySelectorAll('[data-gallery-platform]')];
+    const status = stage.querySelector('.gallery-status');
+    const statusText = status.querySelector('span:last-child');
     const themeSlider = stage.querySelector('.gallery-theme-slider');
+    const restoredSelection = prerenderedSelection;
+    prerenderedSelection = undefined;
     const compareHandle = stage.querySelector('.gallery-compare-handle');
     const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
     const slideDuration = parseFloat(getComputedStyle(stage).getPropertyValue('--slide-duration'));
@@ -30,11 +43,14 @@ function startCarousel(carousel) {
     let active = platformButtons.findIndex(button => button.dataset.galleryPlatform === stage.dataset.platform);
     let transitioning = false;
     let inView = false;
-    let capturesReady;
-    let assetsReady = false;
+    let ready = false;
+    let loading = false;
+    let selected = active;
     let selectionRequest = 0;
+    let autoplayRequest = 0;
     let draggedPointer;
-    let timer;
+    let autoplayTimer;
+    let slideTimer;
     let clockTimer;
 
     function updateComparison() {
@@ -65,7 +81,7 @@ function startCarousel(carousel) {
     function showDesktop(next, direction) {
         if (next === active) return;
 
-        clearTimeout(timer);
+        clearTimeout(slideTimer);
         const outgoing = desktops[active];
         const incoming = desktops[next];
         for (const desktop of allDesktops) {
@@ -79,7 +95,7 @@ function startCarousel(carousel) {
         artwork.setAttribute('aria-label', 'The same Nazor app on the ' + platformButtons[next].textContent + ' desktop, in the dark and light color schemes');
         platformButtons.forEach((button, index) => button.setAttribute('aria-pressed', index === next));
 
-        if (reducedMotion.matches) {
+        if (!direction || reducedMotion.matches) {
             finishSlide();
             return;
         }
@@ -87,7 +103,7 @@ function startCarousel(carousel) {
         transitioning = true;
         outgoing.forEach(desktop => desktop.classList.add('departing'));
         incoming.forEach(desktop => desktop.classList.add('arriving'));
-        timer = setTimeout(finishSlide, slideDuration + 100);
+        slideTimer = setTimeout(finishSlide, slideDuration + 100);
     }
 
     function settleDesktops() {
@@ -98,42 +114,74 @@ function startCarousel(carousel) {
     }
 
     function finishSlide() {
+        clearTimeout(slideTimer);
         transitioning = false;
         settleDesktops();
         scheduleNext();
     }
 
     function scheduleNext() {
-        if (transitioning) return;
-        clearTimeout(timer);
-        if (!assetsReady || !inView || document.hidden || reducedMotion.matches) return;
-        timer = setTimeout(() => showDesktop((active + 1) % desktops.length, 1), desktopDuration);
+        clearTimeout(autoplayTimer);
+        const request = ++autoplayRequest;
+        if (!ready || loading || transitioning || !inView || document.hidden || reducedMotion.matches) return;
+
+        const next = (active + 1) % desktops.length;
+        const pending = loadDesktop(next);
+        autoplayTimer = setTimeout(async () => {
+            if (await pending && request === autoplayRequest && !listeners.signal.aborted) showDesktop(next, 1);
+        }, desktopDuration);
     }
 
-    function loadCaptures() {
-        if (!capturesReady) {
-            const captures = stage.querySelectorAll('.gallery-scene:not(.dark) .gallery-capture:not(.dark), .gallery-scene.dark .gallery-capture.dark');
-            capturesReady = Promise.allSettled([...captures].map(capture => {
-                capture.loading = 'eager';
-                return capture.decode?.();
-            })).then(() => {
-                if (listeners.signal.aborted) return;
+    function loadDesktop(index) {
+        if (loads[index]) return loads[index];
 
-                assetsReady = true;
-                scheduleNext();
-            });
+        const [light, dark] = desktops[index];
+        const captures = [...comparisonCaptures, light.querySelector('.gallery-capture:not(.dark)'), dark.querySelector('.gallery-capture.dark')];
+        loads[index] = Promise.all(captures.map(capture => {
+            capture.loading = 'eager';
+            const source = capture.dataset.src ?? capture.getAttribute('src');
+            if (!capture.hasAttribute('src') || capture.complete && !capture.naturalWidth) capture.src = source;
+            return capture.decode();
+        })).then(() => true, () => {
+            loads[index] = undefined;
+            return false;
+        });
+        return loads[index];
+    }
+
+    async function selectDesktop(index) {
+        const request = ++selectionRequest;
+        const platform = platformButtons[index].textContent;
+        selected = index;
+        loading = true;
+        scheduleNext();
+        artwork.setAttribute('aria-busy', 'true');
+        status.removeAttribute('data-error');
+        status.hidden = false;
+        statusText.textContent = 'Loading ' + platform + ' preview…';
+
+        const loaded = await loadDesktop(index);
+        if (listeners.signal.aborted || request !== selectionRequest) return;
+
+        loading = false;
+        artwork.removeAttribute('aria-busy');
+        if (!loaded) {
+            status.dataset.error = '';
+            statusText.textContent = 'Could not load the ' + platform + ' preview. Select the desktop to retry.';
+            return;
         }
-        return capturesReady;
+
+        status.hidden = true;
+        const direction = ready ? Math.sign(index - active) : 0;
+        ready = true;
+        stage.dataset.ready = '';
+        if (index !== active) showDesktop(index, direction);
+        else scheduleNext();
     }
 
     platformButtons.forEach((button, index) => {
-        button.addEventListener('click', async () => {
-            const request = ++selectionRequest;
-            await loadCaptures();
-            if (listeners.signal.aborted || request !== selectionRequest) return;
-
-            showDesktop(index, index > active ? 1 : -1);
-        }, events);
+        button.disabled = false;
+        button.addEventListener('click', () => selectDesktop(index), events);
     });
     stage.addEventListener('animationend', event => {
         if (transitioning && event.target === desktops[active][0]) finishSlide();
@@ -172,17 +220,25 @@ function startCarousel(carousel) {
 
     const observer = new IntersectionObserver(([entry]) => {
         inView = entry.intersectionRatio >= .15;
-        if (inView) loadCaptures();
-        scheduleNext();
+        if (inView && !ready && !loading && !status.hasAttribute('data-error')) selectDesktop(active);
+        else scheduleNext();
     }, { threshold: .15 });
     observer.observe(stage);
+    if (restoredSelection) {
+        themeSlider.valueAsNumber = restoredSelection.split;
+        selectDesktop(restoredSelection.index);
+    }
     updateComparison();
     updateClocks();
 
     return () => {
+        if (prerendered && (ready || loading)) {
+            prerenderedSelection = { index: loading ? selected : active, split: themeSlider.valueAsNumber };
+        }
         observer.disconnect();
         listeners.abort();
-        clearTimeout(timer);
+        clearTimeout(autoplayTimer);
+        clearTimeout(slideTimer);
         clearTimeout(clockTimer);
         settleDesktops();
         darkScene.remove();

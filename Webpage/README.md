@@ -47,4 +47,4 @@ Download the static site from the `website` artifact in `dev` and manually trigg
 
 Existing links to `/docs` redirect to `/guide`.
 
-The Gallery carousel uses the captures in `Nazor.Website/wwwroot/media/gallery/`. Its markup and appearance live in `Nazor.Website/Components/GalleryCarousel.razor` and its scoped stylesheet. The browser module in `Nazor.Website/wwwroot/js/gallery-carousel.js` handles desktop transitions, autoplay, the draggable theme comparison and local clocks.
+The Gallery carousel uses WebP captures in `Nazor.Website/wwwroot/media/gallery/`. Its markup and appearance live in `Nazor.Website/Components/GalleryCarousel.razor` and its scoped stylesheet. The browser module loads the first desktop as it enters view, then preloads the next desktop during autoplay. When a selected preview is still loading, the carousel shows its status and keeps the current desktop visible.

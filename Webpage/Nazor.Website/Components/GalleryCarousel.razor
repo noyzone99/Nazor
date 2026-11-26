@@ -3,23 +3,23 @@
         <div class="gallery-artwork" role="img" aria-label="The same Nazor app on the Windows 11 desktop, in the dark and light color schemes">
             <div class="gallery-scene">
                 <div class="gallery-desktop windows">
-                    <img class="gallery-capture" src="media/gallery/windows-light.png" alt="" width="1920" height="1200" loading="lazy" />
-                    <img class="gallery-capture dark" src="media/gallery/windows-dark.png" alt="" width="1920" height="1200" loading="lazy" />
+                    <img class="gallery-capture" src="media/gallery/windows-light.webp" alt="" width="1920" height="1200" loading="lazy" decoding="async" />
+                    <img class="gallery-capture dark" data-src="media/gallery/windows-dark.webp" alt="" width="1920" height="1200" />
                     <time class="gallery-clock"><span class="gallery-clock-time"></span><span class="gallery-clock-date"></span></time>
                 </div>
                 <div class="gallery-desktop kde" hidden>
-                    <img class="gallery-capture" src="media/gallery/kdeplasma-light.png" alt="" width="1920" height="1200" loading="lazy" />
-                    <img class="gallery-capture dark" src="media/gallery/kdeplasma-dark.png" alt="" width="1920" height="1200" loading="lazy" />
+                    <img class="gallery-capture" data-src="media/gallery/kdeplasma-light.webp" alt="" width="1920" height="1200" />
+                    <img class="gallery-capture dark" data-src="media/gallery/kdeplasma-dark.webp" alt="" width="1920" height="1200" />
                     <time class="gallery-clock"><span class="gallery-clock-time"></span><span class="gallery-clock-date"></span></time>
                 </div>
                 <div class="gallery-desktop gnome" hidden>
-                    <img class="gallery-capture" src="media/gallery/gnome-light.png" alt="" width="1920" height="1200" loading="lazy" />
-                    <img class="gallery-capture dark" src="media/gallery/gnome-dark.png" alt="" width="1920" height="1200" loading="lazy" />
+                    <img class="gallery-capture" data-src="media/gallery/gnome-light.webp" alt="" width="1920" height="1200" />
+                    <img class="gallery-capture dark" data-src="media/gallery/gnome-dark.webp" alt="" width="1920" height="1200" />
                     <time class="gallery-clock"><span class="gallery-clock-date"></span><span class="gallery-clock-time"></span></time>
                 </div>
                 <div class="gallery-window">
-                    <img class="gallery-capture" src="media/gallery/nazor-gallery-light.png" alt="" width="1182" height="821" loading="lazy" />
-                    <img class="gallery-capture dark" src="media/gallery/nazor-gallery-dark.png" alt="" width="1182" height="821" loading="lazy" />
+                    <img class="gallery-capture" src="media/gallery/nazor-gallery-light.webp" alt="" width="1182" height="821" loading="lazy" decoding="async" />
+                    <img class="gallery-capture dark" data-src="media/gallery/nazor-gallery-dark.webp" alt="" width="1182" height="821" />
                     <div class="gallery-window-buttons" aria-hidden="true">
                         <span class="gallery-window-button minimize">
                             <svg viewBox="0 0 16 16"><path d="M4 10h8v2H4z" /></svg>
@@ -38,12 +38,16 @@
         <input class="gallery-theme-slider" type="range" min="0" max="100" step="any" value="50"
                aria-label="Dark color scheme coverage" aria-valuetext="50% dark" />
         <span class="btn b-primary gallery-compare-handle" aria-hidden="true" title="Drag to compare the dark and light color schemes"></span>
+        <div class="gallery-status" role="status" hidden>
+            <Mark Size="20" Spin="true" />
+            <span></span>
+        </div>
     </div>
     <div class="gallery-controls">
         <div class="gallery-platforms" role="group" aria-label="Desktop">
-            <button type="button" class="btn sm b-line" data-gallery-platform="windows" aria-pressed="true">Windows 11</button>
-            <button type="button" class="btn sm b-line" data-gallery-platform="kde" aria-pressed="false">KDE Plasma</button>
-            <button type="button" class="btn sm b-line" data-gallery-platform="gnome" aria-pressed="false">GNOME</button>
+            <button type="button" class="btn sm b-line" data-gallery-platform="windows" aria-pressed="true" disabled>Windows 11</button>
+            <button type="button" class="btn sm b-line" data-gallery-platform="kde" aria-pressed="false" disabled>KDE Plasma</button>
+            <button type="button" class="btn sm b-line" data-gallery-platform="gnome" aria-pressed="false" disabled>GNOME</button>
         </div>
     </div>
 </nazor-gallery-carousel>

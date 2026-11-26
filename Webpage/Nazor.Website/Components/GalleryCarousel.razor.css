@@ -21,6 +21,27 @@
 }
 
 .gallery-stage[data-direction="backward"] { --slide-in: -100%; --slide-out: 100%; }
+.gallery-stage:not([data-ready]) :is(.gallery-scene.dark, .gallery-theme-slider, .gallery-compare-line, .gallery-compare-handle) { visibility: hidden; }
+.gallery-status:not([hidden]) {
+  position: absolute;
+  z-index: 3;
+  top: 12px;
+  left: 50%;
+  translate: -50%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: calc(100% - 24px);
+  width: max-content;
+  padding: 8px 12px;
+  border-radius: var(--lf-ctl);
+  background: var(--tray);
+  color: var(--text);
+  box-shadow: var(--sh-pop);
+  font-size: 13px;
+  pointer-events: none;
+}
+.gallery-status[data-error] ::deep .mark { display: none; }
 .gallery-artwork, .gallery-scene, .gallery-desktop, .gallery-capture, .gallery-compare-line { position: absolute; inset: 0; }
 .gallery-scene { isolation: isolate; color-scheme: light; }
 .gallery-scene.dark {
