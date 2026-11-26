@@ -37,7 +37,7 @@ Run `dotnet new nazor-app --help` to see the available options.
 | --- | --- | --- |
 | `--framework`, `-f` | `net10.0` (LTS) | Sets the application target. Choose `net8.0`, `net9.0`, `net10.0`, or `net11.0`. See the [Visual Studio 2022 setup](03-Projects-and-Builds.md#visual-studio-2022-and-net-8). |
 | `--ApplicationId` | `org.example.myapp` | Sets the stable [application identity](03-Projects-and-Builds.md#application-identity). Use your own reverse-DNS identifier for distribution. |
-| `--Theme` | `basic` | Accepts `basic`, `fluent`, or `nazorleaf`. Fluent and NazorLeaf add their NuGet package at the SDK's version and register the theme's fonts in `Program.cs`. |
+| `--Theme` | `basic` | Accepts `basic`, `fluent`, or `nazorleaf`. Fluent and NazorLeaf add the [matching alpha theme package](16-Styling-and-Themes.md#theme-package-versions) and register the theme's fonts in `Program.cs`. |
 | `--IncludeSamplePages` | `false` | Adds a navigation view and Home, Counter, and Tasks pages. |
 | `--IncludeDevTools` | `false` | Configures the bundled inspector for Debug builds on Windows x64 and Linux x64. Release builds keep DevTools disabled by default. |
 

@@ -19,8 +19,6 @@ Windows x64 is the primary verification baseline. Linux has Wayland, X11 and exp
 | --- | --- |
 | `Nazor.Sdk` | [![Nazor.Sdk 0.1.2-alpha](https://img.shields.io/badge/0.1.2--alpha-004880?logo=nuget)](https://www.nuget.org/packages/Nazor.Sdk/0.1.2-alpha) |
 | `Nazor.Templates` | [![Nazor.Templates 0.1.2-alpha](https://img.shields.io/badge/0.1.2--alpha-004880?logo=nuget)](https://www.nuget.org/packages/Nazor.Templates/0.1.2-alpha) |
-| `Nazor.Themes.Fluent` | [![Nazor.Themes.Fluent 0.1.2-alpha](https://img.shields.io/badge/0.1.2--alpha-004880?logo=nuget)](https://www.nuget.org/packages/Nazor.Themes.Fluent/0.1.2-alpha) |
-| `Nazor.Themes.NazorLeaf` | [![Nazor.Themes.NazorLeaf 0.1.2-alpha](https://img.shields.io/badge/0.1.2--alpha-004880?logo=nuget)](https://www.nuget.org/packages/Nazor.Themes.NazorLeaf/0.1.2-alpha) |
 | `Nazor.Accessibility` | [![Nazor.Accessibility 0.1.2-alpha](https://img.shields.io/badge/0.1.2--alpha-004880?logo=nuget)](https://www.nuget.org/packages/Nazor.Accessibility/0.1.2-alpha) |
 | `Nazor.Animation` | [![Nazor.Animation 0.1.2-alpha](https://img.shields.io/badge/0.1.2--alpha-004880?logo=nuget)](https://www.nuget.org/packages/Nazor.Animation/0.1.2-alpha) |
 | `Nazor.Application` | [![Nazor.Application 0.1.2-alpha](https://img.shields.io/badge/0.1.2--alpha-004880?logo=nuget)](https://www.nuget.org/packages/Nazor.Application/0.1.2-alpha) |
@@ -42,3 +40,16 @@ Windows x64 is the primary verification baseline. Linux has Wayland, X11 and exp
 | `Nazor.Presentation` | [![Nazor.Presentation 0.1.2-alpha](https://img.shields.io/badge/0.1.2--alpha-004880?logo=nuget)](https://www.nuget.org/packages/Nazor.Presentation/0.1.2-alpha) |
 | `Nazor.Renderer.Skia` | [![Nazor.Renderer.Skia 0.1.2-alpha](https://img.shields.io/badge/0.1.2--alpha-004880?logo=nuget)](https://www.nuget.org/packages/Nazor.Renderer.Skia/0.1.2-alpha) |
 | `Nazor.Style` | [![Nazor.Style 0.1.2-alpha](https://img.shields.io/badge/0.1.2--alpha-004880?logo=nuget)](https://www.nuget.org/packages/Nazor.Style/0.1.2-alpha) |
+
+### Optional themes
+
+| Package | NuGet version |
+| --- | --- |
+| `Nazor.Themes.Adwaita` | [0.1.2-alpha](https://www.nuget.org/packages/Nazor.Themes.Adwaita/0.1.2-alpha) |
+| `Nazor.Themes.Breeze` | [0.1.2-alpha](https://www.nuget.org/packages/Nazor.Themes.Breeze/0.1.2-alpha) |
+| `Nazor.Themes.Cde` | [0.1.2-alpha](https://www.nuget.org/packages/Nazor.Themes.Cde/0.1.2-alpha) |
+| `Nazor.Themes.Fluent` | [0.1.2-alpha](https://www.nuget.org/packages/Nazor.Themes.Fluent/0.1.2-alpha) |
+| `Nazor.Themes.NazorLeaf` | [0.1.2-alpha](https://www.nuget.org/packages/Nazor.Themes.NazorLeaf/0.1.2-alpha) |
+| `Nazor.Themes.Windows7` | [0.1.2-alpha](https://www.nuget.org/packages/Nazor.Themes.Windows7/0.1.2-alpha) |
+| `Nazor.Themes.Windows9x` | [0.1.2-alpha](https://www.nuget.org/packages/Nazor.Themes.Windows9x/0.1.2-alpha) |
+| `Nazor.Themes.WindowsXP` | [0.1.2-alpha](https://www.nuget.org/packages/Nazor.Themes.WindowsXP/0.1.2-alpha) |

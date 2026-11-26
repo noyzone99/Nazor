@@ -32,7 +32,7 @@ Use the extension for the same Nazor release as your project's SDK. The extensio
 | --- | --- |
 | Visual Studio | Install **Nazor for Visual Studio** from **Extensions > Manage Extensions** or download the VSIX from the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=Noyzone99.nazorvisualstudio). Restart Visual Studio to complete installation. |
 | Visual Studio, syntax highlighting only | Copy the `Nazor` folder from the syntax-only distribution to `%USERPROFILE%/.vs/Extensions/Nazor`. |
-| Visual Studio Code | Read `version` from the supplied `nazor/package.json`. Copy the complete `nazor` folder to `%USERPROFILE%/.vscode/extensions/nazor.nazor-<version>` on Windows or `~/.vscode/extensions/nazor.nazor-<version>` on Linux. Restart VS Code. |
+| Visual Studio Code | Download `Nazor.VSCode.vsix` from the `editor-extensions` artifact for the release's [Packages workflow run](https://github.com/noyzone99/Nazor/actions/workflows/packages.yml). In **Extensions**, select **Install from VSIX…** and choose the file. For a local folder build, copy the complete `nazor` folder to `%USERPROFILE%/.vscode/extensions/nazor.nazor-<version>` on Windows or `~/.vscode/extensions/nazor.nazor-<version>` on Linux, using the version in its `package.json`. Restart VS Code. |
 
 Build the application after changing package references so the server sees evaluated project inputs and rebuilt reference metadata. Visual Studio integration targets Visual Studio 2022 and 2026. VS Code starts its bundled server through `dotnet`. Set `nazor.dotnetPath` to select another executable.
 

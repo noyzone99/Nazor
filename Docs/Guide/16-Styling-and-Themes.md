@@ -87,7 +87,7 @@ Set application appearance on the UI thread. Changing a theme updates existing w
 
 ### Theme package versions
 
-Optional themes use the same major, minor and patch numbers as the SDK and carry an alpha prerelease label. An SDK version already labeled `-alpha` or `-alpha.<qualifier>` supplies its full prerelease version. For other SDK versions, the theme package uses the matching numeric version with `-alpha`. The app template generates the matching theme reference when you choose Fluent or NazorLeaf. Basic ships with the SDK.
+Optional themes use the same major, minor and patch numbers as the SDK and carry an alpha prerelease label. An SDK version already labeled `-alpha` or `-alpha.<qualifier>` supplies its full prerelease version. For other SDK versions, the theme package uses the matching numeric version with `-alpha`. The app template generates the matching theme reference when you choose Fluent or NazorLeaf. Basic ships with the SDK. [All optional theme packages on NuGet](../NuGet.md#optional-themes)
 
 Install the matching alpha release of `Nazor.Themes.Fluent` and set `app.Appearance.Theme = Nazor.Themes.Fluent.Themes.Fluent` to use WinUI-inspired styling over the Basic control geometry. The theme uses WinUI 3 color tokens and follows WinUI templates for control states, metrics, corner radii and dialog layout. [Fluent package reference](../ApiReferences/Nazor.Themes.Fluent.md)
 

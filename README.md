@@ -6,6 +6,8 @@ Apps open in real OS windows. Nazor draws its own controls with Skia, shapes tex
 
 [**Visit the Nazor website**](https://noyzone99.github.io/Nazor/) · [Quick start](#quick-start) · [Build from source](#build-and-run-from-source)
 
+[![NuGet 0.1.2-alpha](https://img.shields.io/badge/NuGet-0.1.2--alpha-004880?logo=nuget)](https://www.nuget.org/packages/Nazor.Templates/0.1.2-alpha)
+
 > **Early preview.** Try Nazor in experiments and prototypes. Expect changes to APIs, markup, styling, and tooling.
 
 ## Explore the Nazor showcase
@@ -66,7 +68,7 @@ A `.nazor` file can hold the markup, C# state, and styles for one component. Whe
 }
 ```
 
-[Run the Counter sample](Samples/Nazor.Samples.Counter/README.md) · [Learn components and Razor](Docs/Guide/05-Components-and-Razor.md)
+Save the example as `Counter.nazor` next to `App.nazor`, then add `<Counter />` inside the app's existing container. [Run the Counter sample](Samples/Nazor.Samples.Counter/README.md) · [Learn components and Razor](Docs/Guide/05-Components-and-Razor.md)
 
 From there, use [built-in controls](Docs/Guide/09-Control-Catalog.md) or compose your own from primitives. Start with the SDK's Basic theme, switch to an [optional theme](Docs/Guide/16-Styling-and-Themes.md), or write your own NSS. Use [DevTools](Docs/DevTools.md) to inspect the rendered tree, layout, and styles while the app runs.
 

@@ -59,7 +59,7 @@ An idle window does not continuously redraw. Animations, input, asynchronous res
 
 Start with [getting started](02-Getting-Started.md), then follow the [first application tutorial](38-First-Desktop-Application.md). Use [project structure](03-Projects-and-Builds.md), the [component model](05-Components-and-Razor.md), the [control catalog](09-Control-Catalog.md) and the [styling chapter](16-Styling-and-Themes.md) when you need more detail. The [samples](../../Samples/README.md) demonstrate complete applications.
 
-Nazor is in pre-alpha. Expect breaking changes as the framework develops. See [support and limitations](32-Support-and-Limitations.md) for the current platform and feature boundaries.
+Nazor is in alpha. Expect breaking changes as the framework develops. See [support and limitations](32-Support-and-Limitations.md) for the current platform and feature boundaries.
 
 ---
 
